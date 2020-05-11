@@ -1,0 +1,14 @@
+---
+app:
+  # Swagger
+  swagger:
+    enabled: true
+    secured: false
+    authServerUrl: ../oauth
+    authServerClientId: acme
+    authServerClientSecret: acmesecret
+## Actuator
+management:
+  health:
+    redis:
+      enabled: false

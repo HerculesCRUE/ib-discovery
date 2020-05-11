@@ -1,0 +1,15 @@
+version: '3.1'
+
+services:
+#  db:
+#    image: postgres:11.1
+#    volumes: 
+#     - pgdata:/var/lib/postgresql/data
+#    ports: 
+#     - 5532:5432
+#    environment:
+#      POSTGRES_PASSWORD: admin123
+#      POSTGRES_USER: postgres
+#      POSTGRES_DB: app
+#volumes:
+#  pgdata:

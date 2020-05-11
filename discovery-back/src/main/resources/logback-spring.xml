@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<include
+		resource="org/springframework/boot/logging/logback/base.xml" />
+
+	<springProperty scope="context" name="theGraylogHost"
+		source="graylog.host" defaultValue="localhost" />
+
+	<springProperty scope="context" name="theAppName"
+		source="graylog.app.name" defaultValue="back" />
+
+	<appender name="GELF"
+		class="de.siegmar.logbackgelf.GelfUdpAppender">
+		<graylogHost>${theGraylogHost}</graylogHost>
+		<graylogPort>12201</graylogPort>
+		<layout class="de.siegmar.logbackgelf.GelfLayout">
+			<originHost>${HOSTNAME}</originHost>
+			<includeRawMessage>false</includeRawMessage>
+			<includeMarker>true</includeMarker>
+			<includeMdcData>true</includeMdcData>
+			<includeCallerData>true</includeCallerData>
+			<includeRootCauseData>true</includeRootCauseData>
+			<includeLevelName>true</includeLevelName>
+			<shortPatternLayout class="ch.qos.logback.classic.PatternLayout">
+				<pattern>%m%nopex</pattern>
+			</shortPatternLayout>
+			<fullPatternLayout class="ch.qos.logback.classic.PatternLayout">
+				<pattern>%m</pattern>
+			</fullPatternLayout>
+			<staticField>app_name:${theAppName}</staticField>
+			<staticField>os_arch:${os.arch}</staticField>
+			<staticField>os_name:${os.name}</staticField>
+			<staticField>os_version:${os.version}</staticField>
+		</layout>
+	</appender>
+
+	<springProfile name="!des,!pre,!pro">
+		<logger name="es.um.asio" level="DEBUG" />
+		<logger name="org.springframework.web" level="INFO" />
+		<logger name="org.hibernate" level="INFO" />
+		<logger name="org.springframework.data.solr" level="DEBUG" />
+
+		<root level="INFO">
+			<appender-ref ref="CONSOLE" />
+		</root>
+	</springProfile>
+
+	<springProfile name="des">
+		<!-- configuration to be enabled when the "des" profile is active -->
+		<logger name="es.um.asio" level="INFO" />
+		<logger name="org.springframework.web" level="INFO" />
+		<logger name="org.hibernate" level="INFO" />
+
+		<root level="INFO">
+			<appender-ref ref="CONSOLE" />
+			<appender-ref ref="GELF"/>
+		</root>
+	</springProfile>
+
+	<springProfile name="pre">
+		<!-- configuration to be enabled when the "pre" profile is active -->
+		<logger name="es.um.asio" level="INFO" />
+		<logger name="org.springframework.web" level="INFO" />
+		<logger name="org.hibernate" level="INFO" />
+
+		<root level="INFO">
+			<appender-ref ref="CONSOLE" />
+			<appender-ref ref="GELF" />
+		</root>
+	</springProfile>
+
+	<springProfile name="pro">
+		<!-- configuration to be enabled when the "pro" profile not active -->
+		<logger name="es.um.asio" level="INFO" />
+		<logger name="org.springframework.web" level="INFO" />
+		<logger name="org.hibernate" level="INFO" />
+
+		<root level="INFO">
+			<appender-ref ref="CONSOLE" />
+			<appender-ref ref="GELF" />
+		</root>
+	</springProfile>
+
+</configuration>

@@ -1,0 +1,28 @@
+#---
+#app:
+#  persistence:
+#    datasource:
+#      driver-class-name: org.h2.Driver
+#      username: root
+#      password: 
+#      url: 'jdbc:h2:mem:'
+#    jpa:
+#      dialect: org.hibernate.dialect.H2Dialect
+#      generate-ddl: true
+#      show-sql: true
+#      properties:
+#        hibernate.temp.use_jdbc_metadata_defaults: false
+#  # Solr
+#  solr:
+#    enabled: false
+#    
+#  # CORS
+#  cors:
+#    enabled: true
+#    allowedOrigin: '*'
+#    allowedMethods: GET,POST,PUT,DELETE
+#    allowedHeaders:
+#      - Authorization
+#      - X-Requested-With
+#      - Content-Type
+#    maxAge: 3600
