@@ -1,6 +1,6 @@
 # ASIO - Discovery
 
-Arquetipo Java para API Rest con base de datos relacional
+Librería de descubrimiento para el proyecto Backend SGI (ASIO).
 
 ## OnBoarding
 
