@@ -1,1 +1,0 @@
-Si quieres aportar código o modificar algo de esta base, haz un fork y sube tus cambios a Gitlab. A continuación envía un pull request a rgavilan@izertis.com o mcosta@izertis.com

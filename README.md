@@ -8,46 +8,73 @@ Para iniciar el entorno de desarrollo se necesita cumplir los siguientes requisi
 
 * OpenJDK 11 (en caso de querer JDK8: Oracle JDK 8)
 * Eclipse JEE 2019-09 con plugins:
-** Spring Tools 4
-** m2e-apt
-** Lombok
+  * Spring Tools 4
+  * m2e-apt
+  * Lombok
 * Docker
 
+## Módulos disponibles
 
-### Instalar Lombok
-
-Para la instalación de Lombok, es preciso descargar la última versión desde [https://projectlombok.org/download](https://projectlombok.org/download). Se descargará un jar que precisa ser ejecutado:
-
-	java -jar lombok.jar
-
-Se seleccionará la ubicación en la que se encuentra instalado Eclipse.
-
-En caso que de problemas a la hora de generar las clases de Mapstruct, es preciso utilizar una versión parcheada de lombok. Para ello, se ha dejado en \\rackstation\Desarrollo\fuentes\Entorno de desarrollo\Eclipses el fichero lombok-patched-1.18.6.jar. Se deberá configurar en el fichero eclipse.ini, sustituyendo el jar que tiene configurado actualmente por el parcheado
-
-```
--javaagent:C:\desarrollo\java\install\eclipse-jee-2018-12-R-win32-x86_64\lombok-patched-1.18.6.jar
-```
+* **Módulo back**: módulo que añade una capa de servicios REST a la funcionalidad de la aplicación. Genera un artefacto JAR bootable
+* **Módulo service**: módulo que contiene la lógica de la aplicación. Puede ser utilizado como librería independiente para ser integrado en otras aplicaciones
 
 ## Metodología de desarrollo
 
 La metodología de desarrollo es Git Flow.
 
-## Java 11
+## Entorno de desarrollo Docker
 
-La aplicación está preparada para funcionar con JDK 11. En caso de necesitar trabajar con un JDK anterior, es preciso especificar una propiedad en el POM:
+La inicialización de los elementos adicionales al entorno de desarrollo se realiza con docker. 
 
-```xml
-<properties>
-	<java.version>1.8</java.version>
-</properties>
+En el directorio docker-devenv se ha configurado un fichero docker-compose.yml para poder arrancar el entorno de desarrollo.
+
+Para arrancar el entorno:
+
+```bash
+docker-compose up -d
 ```
 
-Para descargar JDK 11, se precisa utilizar openjdk, la cual se puede obtener de https://jdk.java.net/11/
+Para pararlo:
 
-### Swagger
+```bash
+docker-compose down
+```
 
-Se ha añadido la posibilidad de utilizar Swagger, el cual se ha configurado como Starter:
+## Swagger
 
-Para acceder a Swagger, se utilizará la siguiente URL:
+Se ha añadido la posibilidad de utilizar Swagger. Para acceder a Swagger, se utilizará la siguiente URL:
 
-http://localhost:8080/swagger-ui.html
+* http://localhost:8080/swagger-ui.html
+
+Para activar swagger se utilizará la variable `app.swagger.enabled`
+
+## Instalación en entorno real
+
+Será preciso configurar las siguientes variables de entorno cuando se instale en un entorno real:
+
+|Variable|Descripción|Valor por defecto|
+|---|---|---|
+|`APP_SWAGGER_ENABLED`|Activación de Swagger. Valores admisibles `true` y `false`|false|
+|`APP_KAFKA_MANAGEMENT_TOPIC_NAME`|Nombre del topic de Kafka de gestión|management-data|
+|`APP_KAFKA_CREATE_TOPICS`|Flag que indica si debe crear automáticamente los topics de Kafka. Valores admisibles `true` y `false`|false|
+| `SPRING_KAFKA_BOOTSTRAP_SERVERS` | URL del servicio de Kafka para los productores | localhost:29092 |
+| `SPRING_KAFKA_CONSUMER_BOOTSTRAP_SERVERS` | URL del servicio de Kafka para los consumidores | localhost:29092 |
+| `SPRING_KAFKA_CONSUMER_GROUP_ID` | ID del grupo de consumidores | event-processor |
+|`APP_MICROSERVICES_STORAGE_ADAPTER_BASE_URL`|URL base del Storage Adapter | http://localhost:9324 |
+
+### Ejecución
+
+Al generarse un JAR bootable la ejecución se realizará mediante el siguiente comando:
+
+```bash
+java -jar {jar-name}.jar
+```
+
+Sustituyendo `{jar-name}` por el nombre del fichero JAR generado.
+
+No es necesario especificar la clase de inicio de la aplicación, ya que el fichero MANIFEST.MF generado ya contiene la información necesaria. Solamente se especificarán los parametros necesarios.
+
+##  Documentación adicional
+
+* [Compilación](docs/build.md)
+* [Generación Docker](docs/docker.md)
