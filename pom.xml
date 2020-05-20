@@ -18,7 +18,7 @@
 	<description>UM - ASIO - discovery</description>
 
 	<scm>
-		<url>https://git.izertis.com/universidaddemurcia/semantmurc/discovery</url>
+		<url>scm:git:https://github.com/HerculesCRUE/ib-discovery.git</url>
 	</scm>
 
 	<modules>
