@@ -25,11 +25,13 @@
 		<dependency>
 			<groupId>com.izertis.libraries</groupId>
 			<artifactId>izertis-cache-starter</artifactId>
+			<version>${izertis.libraries.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.izertis.libraries</groupId>
 			<artifactId>izertis-service-abstractions</artifactId>
+			<version>${izertis.libraries.version}</version>
 		</dependency>
 
 		<!-- Additional dependencies -->

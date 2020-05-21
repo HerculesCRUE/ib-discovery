@@ -28,6 +28,7 @@
 		<dependency>
 			<groupId>com.izertis.libraries</groupId>
 			<artifactId>izertis-swagger-starter</artifactId>
+			<version>${izertis.libraries.version}</version>
 		</dependency>
 
 		<dependency>
