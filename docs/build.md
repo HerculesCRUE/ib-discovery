@@ -17,12 +17,6 @@ Para realizar la compilación se ejecutará el siguiente comando:
 mvn clean package
 ```
 
-En caso de querer generar al mismo tiempo Sources el comando siguiente: 
-
-```bash
-mvn clean package source:jar
-```
-
 También sería posible instalar o desplegar los artefactos sustituyendo `package` por `install` o `deploy` respectivamente.
 
 Los artefactos se generarán dentro del directorio `target` de cada uno de los módulos:
@@ -32,19 +26,15 @@ Los artefactos se generarán dentro del directorio `target` de cada uno de los m
 Los artefactos se encuentran dentro de discovery-back/target
 
 * Artefacto: discovery-back-{version}.jar
-* Sources: discovery-back-{version}-sources.jar
 
 ### Service
 
 Los artefactos se encuentran dentro de discovery-service/target
 
 * Artefacto: discovery-service-{version}.jar
-* Sources: discovery-service-{version}-sources.jar
 
 ### Swagger
 
 Los artefactos se encuentran dentro de discovery-swagger/target
 
 * Artefacto: discovery-swagger-{version}.jar
-* Sources: discovery-swagger-{version}-sources.jar
-
