@@ -42,3 +42,12 @@ Los artefactos se encuentran dentro de discovery-service/target
 * Artefacto: discovery-service-{version}.jar
 * JavaDoc: discovery-service-{version}-javadoc.jar
 * Sources: discovery-service-{version}-sources.jar
+
+### Swagger
+
+Los artefactos se encuentran dentro de discovery-swagger/target
+
+* Artefacto: discovery-swagger-{version}.jar
+* JavaDoc: discovery-swagger-{version}-javadoc.jar
+* Sources: discovery-swagger-{version}-sources.jar
+

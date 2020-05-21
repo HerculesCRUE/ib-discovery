@@ -53,8 +53,6 @@
 		<org.springframework.security.oauth.version>2.3.8.RELEASE</org.springframework.security.oauth.version>
 		<org.jsoup.version>1.12.1</org.jsoup.version>
 		<org.hibernate.hibernate-jpamodelgen.version>5.4.10.Final</org.hibernate.hibernate-jpamodelgen.version>
-
-		<izertis.libraries.version>1.1.1</izertis.libraries.version>
 	</properties>
 
 	<dependencyManagement>
@@ -149,6 +147,7 @@
 	<modules>
 		<module>discovery-back</module>
 		<module>discovery-service</module>
+		<module>discovery-swagger</module>
 	</modules>
 	
 	<build>
