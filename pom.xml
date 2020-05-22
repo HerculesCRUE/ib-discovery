@@ -148,6 +148,7 @@
 		<module>discovery-back</module>
 		<module>discovery-service</module>
 		<module>discovery-swagger</module>
+		<module>discovery-test</module>
 	</modules>
 	
 	<build>
