@@ -75,6 +75,13 @@ Sustituyendo `{jar-name}` por el nombre del fichero JAR generado.
 
 No es necesario especificar la clase de inicio de la aplicación, ya que el fichero MANIFEST.MF generado ya contiene la información necesaria. Solamente se especificarán los parametros necesarios.
 
+## Testing y cobertura
+
+Se incluyen los resultados del testing y cobertura en los siguientes enlaces:
+
+* [Testing](http://herc-iz-front-desa.atica.um.es:8070/discovery/surefire/surefire-report.html)
+* [Cobertura](http://herc-iz-front-desa.atica.um.es:8070/discovery/jacoco/)
+
 ##  Documentación adicional
 
 * [Compilación](docs/build.md)
