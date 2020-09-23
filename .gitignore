@@ -313,3 +313,6 @@ buildNumber.properties
 .history
 
 # End of https://www.gitignore.io/api/java,maven,eclipse,intellij,intellij+all,intellij+iml,visualstudiocode
+/discovery-back/src/main/resources/cached_data/
+/discovery-service/src/test/resources/cached_data/
+/discovery-back/src/test/resources/cached_data/
