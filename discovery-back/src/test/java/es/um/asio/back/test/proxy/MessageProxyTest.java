@@ -12,17 +12,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import es.um.asio.back.test.TestApplication;
-import es.um.asio.service.proxy.TriplesStorageProxy;
-import es.um.asio.service.proxy.impl.TriplesStorageProxyImpl;
 import es.um.asio.service.service.TriplesStorageService;
 
 @RunWith(SpringRunner.class)
 public class MessageProxyTest {
-    /**
-     * Proxy service for triples. Performs DTO conversion and permission checks.
-     */
-    @Autowired
-    private TriplesStorageProxy proxy;
+
 
     /**
      * Triples storage service.
@@ -30,14 +24,6 @@ public class MessageProxyTest {
     @MockBean
     private TriplesStorageService service;
 
-    @TestConfiguration
-    @Import(TestApplication.class)
-    static class UserProxyTestConfiguration {
-        @Bean
-        public TriplesStorageProxy userProxy() {
-            return new TriplesStorageProxyImpl();
-        }
-    }
 
 //    @Before
 //    public void setUp() throws TripleStoreException {
@@ -48,9 +34,4 @@ public class MessageProxyTest {
 //    public void whenInsertNewMessage_thenNoError() throws TripleStoreException {
 //        this.proxy.save("Message 1");
 //    }
-    
-    @Test
-    public void test_Infraestructure() {
-        assertNotNull(proxy);
-    }
 }

@@ -1,5 +1,20 @@
 ---
 app:
+  persistence:
+    datasource:
+      driver-class-name: org.mariadb.jdbc.Driver
+      username: app
+      password: sqlpass
+      url: jdbc:mariadb://127.0.0.1:3307/discovery?ssl=false&createDatabaseIfNotExist=true
+    jpa:
+      dialect: org.hibernate.dialect.MariaDB53Dialect
+      generate-ddl: true
+      ddl-auto: create
+      show-sql: true
+      format_sql: true
+      use_sql_comments: true
+      properties:
+        hibernate.temp.use_jdbc_metadata_defaults: false
   # CORS
   cors:
     enabled: true
@@ -14,6 +29,30 @@ app:
   # Swagger
   swagger:
     enabled: false
+
+data:
+  elasticsearch:
+    host: localhost
+    port: 9200
+  redis:
+    host: localhost
+    port: 16379
+    password: redispass
+
+data-sources:
+  useCachedData: true
+  thresholds:
+    manualThreshold: 0.6
+    automaticThreshold: 0.9
+  nodes:
+    -
+      nodeName: um
+      tripleStores:
+        -
+          type: trellis
+          baseURL: http://herc-iz-front-desa.atica.um.es/
+          user: admin
+          password: admin
 
 ## Actuator
 management:

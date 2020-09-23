@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.um.asio.service.proxy.TriplesStorageProxy;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -15,11 +14,7 @@ import lombok.NoArgsConstructor;
 @RequestMapping(MessageController.Mappings.BASE)
 public class MessageController {
 
-    /**
-     * Proxy service to handle message entity related operations
-     */
-    @Autowired
-    private TriplesStorageProxy proxy;
+
 
     /**
      * Save.

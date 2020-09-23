@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.um.asio.back.controller.message.MessageController;
-import es.um.asio.service.proxy.TriplesStorageProxy;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(MessageController.class)
@@ -27,11 +26,6 @@ public class MessageControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    /**
-     * Proxy service for triples. Performs DTO conversion and permission checks.
-     */
-    @MockBean
-    private TriplesStorageProxy proxy;
 
     /**
      * JSON Object mapper
