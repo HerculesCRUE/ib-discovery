@@ -1,7 +1,5 @@
 package es.um.asio.service.service.impl;
 
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.StorageOptions;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.stats.EntityStats;
 import es.um.asio.service.service.CacheService;
@@ -9,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.FileInputStream;
-import java.net.URI;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;

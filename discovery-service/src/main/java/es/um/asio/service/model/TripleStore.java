@@ -1,6 +1,7 @@
 package es.um.asio.service.model;
 
 import com.google.gson.annotations.Expose;
+import es.um.asio.service.model.Node;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;

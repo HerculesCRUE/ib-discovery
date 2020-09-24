@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import es.um.asio.service.model.TripleObject;
-import es.um.asio.service.repository.StringRedisRepository;
 import es.um.asio.service.test.TestApplication;
 import org.junit.Assert;
 import org.junit.jupiter.api.MethodOrderer;
@@ -16,15 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.File;
 import java.lang.reflect.Type;
-import java.net.URI;
-import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes={TestApplication.class})

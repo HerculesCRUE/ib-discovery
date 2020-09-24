@@ -164,11 +164,23 @@
 			<artifactId>okhttp</artifactId>
 			<version>2.7.5</version>
 		</dependency>
-<!--		<dependency>
+		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-elasticsearch</artifactId>
-			<version>4.0.0.RELEASE</version>
-		</dependency>-->
+			<version>3.0.0.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.elasticsearch.client</groupId>
+			<artifactId>elasticsearch-rest-high-level-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.elasticsearch.client</groupId>
+			<artifactId>elasticsearch-rest-high-level-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-elasticsearch</artifactId>
+		</dependency>
 	</dependencies>
 
 </project>
