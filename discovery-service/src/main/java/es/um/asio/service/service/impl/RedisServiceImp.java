@@ -23,7 +23,7 @@ public class RedisServiceImp implements RedisService {
 
     private final String TRIPLES_MAP_KEY = "TRIPLES_MAP";
     private final String FILTERED_KEY = "FILTERED";
-    private final String ENTITY_STATS_KEY = "FILTERED";
+    private final String ENTITY_STATS_KEY = "ENTITY_STATS_KEY";
 
     @Override
     public Map<String, Map<String, Map<String, Map<String, TripleObject>>>> getTriplesMap() {

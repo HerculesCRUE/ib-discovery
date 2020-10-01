@@ -16,6 +16,7 @@ public class CacheServiceImp implements CacheService {
 
     private Map<String, Map<String, Map<String, Map<String,TripleObject>>>> triplesMap; // Class --> Instances
     private Map<String, Map<String, Map<String,TripleObject>>> filtered;
+    private Map<String, Map<String, Map<String, Map<String,TripleObject>>>> esTriplesMap; // Class --> Instances
     private EntityStats entityStats;
     DateFormat dateFormat;
 
@@ -26,6 +27,7 @@ public class CacheServiceImp implements CacheService {
     private void initialize() throws Exception {
         triplesMap = new HashMap<>();
         filtered = new HashMap<>();
+        esTriplesMap = new HashMap<>();
         entityStats = new EntityStats();
         dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     }

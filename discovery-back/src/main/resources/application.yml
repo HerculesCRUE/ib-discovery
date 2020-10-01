@@ -73,3 +73,9 @@ management:
       enabled: false
     redis:
       enabled: false
+
+spring:
+  data:
+    elasticsearch:
+      cluster-name: es-asio-cluster
+      cluster-nodes: localhost:9300

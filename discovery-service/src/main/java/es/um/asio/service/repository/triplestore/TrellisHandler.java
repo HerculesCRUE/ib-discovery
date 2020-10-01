@@ -9,6 +9,7 @@ import org.apache.http.impl.execchain.RequestAbortedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
@@ -44,6 +45,7 @@ public class TrellisHandler extends TripleStoreHandler {
     }
 
     @Override
+    @Async
     public void populateData() throws IOException, URISyntaxException, ParseException {
 
     }

@@ -2,6 +2,7 @@ package es.um.asio.service.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.internal.LinkedTreeMap;
+import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,4 +43,12 @@ public class TripleObject {
     @Expose(serialize = true, deserialize = true)
     @Field(type = FieldType.Object)
     private LinkedTreeMap<String,Object> attributes;
+
+    public TripleObject(TripleObjectES toES) {
+        this.id = toES.getId();
+        this.className = toES.getClassName();
+        this.lastModification = toES.getLastModification();
+        this.tripleStore = toES.getTripleStore();
+        this.attributes = toES.getAttributes();
+    }
 }

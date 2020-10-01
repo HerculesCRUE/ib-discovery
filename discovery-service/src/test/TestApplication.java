@@ -14,6 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootApplication
+@EnableAsync
 @EnableAutoConfiguration
 @Import(MapperConfig.class)
 @ActiveProfiles("dev")
@@ -27,6 +28,18 @@ public class TestApplication {
      * @param args
      *            the arguments
      */
+
+/*    @Bean("threadPoolExecutor")
+    public Executor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(2);
+        executor.setQueueCapacity(500);
+        executor.setThreadNamePrefix("GithubLookup-");
+        executor.initialize();
+        return executor;
+    }*/
+
     public static void main(final String[] args) {
         SpringApplication.run(TestApplication.class, args);
     }
