@@ -25,6 +25,7 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.5.1
     container_name: elasticsearch_asio
+    restart: unless-stopped
     environment:
       - cluster.name=es-asio-cluster
       - xpack.security.enabled=false
@@ -45,6 +46,7 @@ services:
       - 9300:9300
   kibana:
     container_name: kibana_asio
+    restart: unless-stopped
     image: docker.elastic.co/kibana/kibana:6.5.1
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
@@ -54,6 +56,7 @@ services:
       - elasticsearch
   redis:
     container_name: redis_asio
+    restart: unless-stopped
     image: "bitnami/redis:latest"
     ports:
       - "16379:6379"

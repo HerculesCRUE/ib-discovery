@@ -64,7 +64,7 @@ public class TripleStore {
     private String user;
 
     /**
-     * The user.
+     * The password.
      */
     @Column(name = "password", nullable = false,columnDefinition = "VARCHAR(100)",length = 100)
     @ColumnTransformer(read = "pgp_sym_decrypt(password, 'asio-secret-key')", write = "pgp_sym_encrypt(?, 'asio-secret-key')")

@@ -11,6 +11,11 @@ import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
@@ -27,6 +32,9 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
 
     @Autowired
     TripleObjectESCustomRepository customRepository;
+
+    @Autowired
+    ElasticsearchTemplate elasticsearchTemplate;
 
     @Override
     public TripleObjectES saveTripleObjectES(TripleObjectES toES) {
@@ -113,21 +121,20 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     }
 
     @Override
+    public List<TripleObjectES> getAllByClassName(String className) {
+        return customRepository.getAllTripleObjectsESByClassByClassName(className);
+    }
+
+    @Override
     public List<TripleObjectES> getAll() {
-        List<TripleObjectES> result = new ArrayList<>();
-        try {
-            repository.findAll().iterator().forEachRemaining(result::add);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-        return result;
+        return customRepository.getAllTripleObjectsES();
     }
 
     @Override
     public Map<String,TripleObjectES> getAllMappedById() {
         Map<String,TripleObjectES> allTripleObjectES = new HashMap<>();
         try {
-            for ( TripleObjectES toES: repository.findAll()) {
+            for ( TripleObjectES toES: getAll()) {
                 allTripleObjectES.put(toES.getId(),toES);
             }
         } catch (Exception e) {
@@ -153,13 +160,10 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     }
 
     @Override
-    public List<TripleObjectES> getTripleObjectsESByClassNameAndAttributes(Class c, String indexName, String className, List<Pair<String, Object>> params) {
+    public List<TripleObjectES> getTripleObjectsESByClassNameAndAttributes(String indexName, String className, List<Pair<String, Object>> params) {
         List<TripleObjectES> tripleObjectsES = new ArrayList<>();
         try {
-            List<Object> responses = customRepository.findByClassNameAndAttributesWithPartialMatch(c,indexName,className,params);
-            for (Object o : responses) {
-                tripleObjectsES.add((TripleObjectES) o);
-            }
+            tripleObjectsES = customRepository.findByClassNameAndAttributesWithPartialMatch(indexName,className,params);
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
@@ -167,12 +171,12 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     }
 
     @Override
-    public List<TripleObject> getTripleObjectsByClassNameAndAttributes(Class c, String indexName, String className, List<Pair<String, Object>> params) {
+    public List<TripleObject> getTripleObjectsByClassNameAndAttributes(String indexName, String className, List<Pair<String, Object>> params) {
         List<TripleObject> tripleObjects = new ArrayList<>();
         try {
-            List<Object> responses = customRepository.findByClassNameAndAttributesWithPartialMatch(c,indexName,className,params);
-            for (Object o : responses) {
-                tripleObjects.add(new TripleObject((TripleObjectES) o));
+            List<TripleObjectES> responses = customRepository.findByClassNameAndAttributesWithPartialMatch(indexName,className,params);
+            for (TripleObjectES toES : responses) {
+                tripleObjects.add(new TripleObject(toES));
             }
         } catch (Exception e) {
             logger.error(e.getMessage());

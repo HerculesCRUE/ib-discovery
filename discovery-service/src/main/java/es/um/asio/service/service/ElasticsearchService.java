@@ -28,13 +28,15 @@ public interface ElasticsearchService {
 
     public List<TripleObjectES> getAll();
 
+    public List<TripleObjectES> getAllByClassName(String className);
+
     public Map<String,TripleObjectES> getAllMappedById();
 
     public TripleObjectES getTripleObjectESById(String id);
 
     public TripleObject getTripleObjectById(String id);
 
-    public List<TripleObjectES> getTripleObjectsESByClassNameAndAttributes(Class c, String indexName, String className, List<Pair<String,Object>> params);
+    public List<TripleObjectES> getTripleObjectsESByClassNameAndAttributes(String indexName, String className, List<Pair<String,Object>> params);
 
-    public List<TripleObject> getTripleObjectsByClassNameAndAttributes(Class c, String indexName, String className, List<Pair<String,Object>> params);
+    public List<TripleObject> getTripleObjectsByClassNameAndAttributes(String indexName, String className, List<Pair<String,Object>> params);
 }

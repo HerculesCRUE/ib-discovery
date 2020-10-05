@@ -1,6 +1,11 @@
 package es.um.asio.service.service.impl;
 
+import es.um.asio.service.model.appstate.ApplicationState;
+import es.um.asio.service.model.appstate.DataState;
+import es.um.asio.service.model.appstate.DataType;
+import es.um.asio.service.model.appstate.State;
 import es.um.asio.service.test.TestApplication;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +24,22 @@ class DataHandlerImpTest {
     @Autowired
     DataHandlerImp dataHandler;
 
-    @Test
-    void main() {
+    @Autowired
+    ApplicationState appState;
 
-        System.out.println(1);
-        CompletableFuture<Boolean> future = dataHandler.populateData();
-        System.out.println();
-        CompletableFuture.allOf(future);
-        System.out.println();
+    @Test
+    void populateData() {
+        try {
+            CompletableFuture<Boolean> future = dataHandler.populateData();
+            boolean done = future.join();
+            CompletableFuture.allOf(future);
+            appState.getAppState();
+            Assert.assertTrue(appState.getAppState().equals(ApplicationState.AppState.INITIALIZED));
+            Assert.assertTrue(appState.getDataState(DataType.CACHE).getState().equals(State.UPLOAD_DATA));
+            Assert.assertTrue(appState.getDataState(DataType.REDIS).getState().equals(State.UPLOAD_DATA));
+            Assert.assertTrue(appState.getDataState(DataType.ELASTICSEARCH).getState().equals(State.UPLOAD_DATA));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

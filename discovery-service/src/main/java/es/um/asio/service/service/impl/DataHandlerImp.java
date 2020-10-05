@@ -6,6 +6,9 @@ import com.google.gson.reflect.TypeToken;
 import es.um.asio.service.config.DataSourcesConfiguration;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.appstate.ApplicationState;
+import es.um.asio.service.model.appstate.DataType;
+import es.um.asio.service.model.appstate.State;
+import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.repository.triplestore.TripleStoreHandler;
 import es.um.asio.service.service.DataHandler;
 import org.slf4j.Logger;
@@ -15,15 +18,14 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Date;
-import java.util.Map;
+import java.text.ParseException;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -50,6 +52,9 @@ public class DataHandlerImp implements DataHandler {
     @Autowired
     ApplicationState applicationState;
 
+    @Autowired
+    ElasticsearchServiceImp elasticsearchService;
+
     @PostConstruct
     private void initialize() throws Exception {
         logger.info("Initializing DataHandlerImp");
@@ -59,45 +64,42 @@ public class DataHandlerImp implements DataHandler {
 
     @Override
     @Async("threadPoolTaskExecutor")
-    public CompletableFuture<Boolean> populateData() {
+    public CompletableFuture<Boolean> populateData() throws ParseException, IOException, URISyntaxException {
         logger.info("Populate data in DataHandlerImp");
-        if (!cache.isPopulatedCache()) {
-            setDataFromCache();
+        // 1º Load data in cache from redis if cache is empty or app is uninitialized
+        if (!cache.isPopulatedCache() || applicationState.getAppState() == ApplicationState.AppState.UNINITIALIZED) {
+            loadDataFromRedisToCache();
+            // Update State of Application
+            applicationState.setAppState(ApplicationState.AppState.INITIALIZED_WITH_CACHED_DATA);
+            applicationState.setDataState(DataType.REDIS, State.CACHED_DATA);
+            applicationState.setDataState(DataType.CACHE, State.CACHED_DATA);
         }
-        System.out.println();
+        // Update data from triple store (add deltas)
+        updateCachedData();
+        // Update elasticSearch
+        updateElasticData();
         return CompletableFuture.completedFuture(true);
-
-        /*if (!dataSourcesConfiguration.isUseCachedData()) {
-            for (DataSourcesConfiguration.Node node : dataSourcesConfiguration.getNodes()) {
-                for (DataSourcesConfiguration.Node.TripleStore ts : node.getTripleStores()) {
-                    TripleStoreHandler handler = TripleStoreHandler.getHandler(ts.getType(), node.getNodeName(), ts.getBaseURL(), ts.getUser(), ts.getPassword(), filterDate);
-                    handlers.add(handler);
-                    if (!cache.isPopulatedCache()) {
-                        try {
-                            handler.populateData();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (URISyntaxException e) {
-                            e.printStackTrace();
-                        } catch (java.text.ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        } else {
-            cache.setTriplesMap(cache.loadTiplesMapFromCache());
-            cache.setFiltered(cache.loadFilteredMapFromCache());
-        }
-        if (cache.getEntityStats().isEmpty()) {
-            cache.generateEntityStats();
-            redisService.setEntityStats(cache.getEntityStats());
-        }*/
     }
 
-    private void setDataFromCache() {
+    private void updateElasticData() {
+        // Load cache data
+        cache.setEsTriplesMap(redisService.getElasticSearchTriplesMap());
+        Set<TripleObject> tosES =  cache.getEsTriplesMapAsSet(); // Tripletas cacheadas
+        Set<TripleObject> tos =  cache.getAllTripleObjects(); // Todas las tripletas
+        tos.removeAll(tosES); // Elimino de todas, las ya cacheadas
+        List<TripleObject> toToSaveES = new ArrayList<>(tos); // Creo una lista con las pendientes
+        elasticsearchService.saveTripleObjects(toToSaveES); // Guardo en elastic
+        for (TripleObject to : toToSaveES) {
+            cache.addTripleObjectES(to.getTripleStore().getNode().getNode(), to.getTripleStore().getTripleStore(), to);
+        }
+        cache.saveElasticSearchTriplesMapInCache();
+        applicationState.setDataState(DataType.ELASTICSEARCH, State.UPLOAD_DATA);
+        // List<TripleObjectES> tosESAfter = elasticsearchService.getAll();
+
+    }
+
+    private void loadDataFromRedisToCache() {
         try {
-            Map<String, Map<String, Map<String, Map<String, TripleObject>>>> ca = redisService.getTriplesMap();
             cache.setTriplesMap(redisService.getTriplesMap());
             if (cache.getTriplesMap().size() == 0) { // Get cache from file in firebase if is empty
                 Gson gson = new GsonBuilder()
@@ -113,7 +115,20 @@ public class DataHandlerImp implements DataHandler {
 
             }
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("Fail on load data from firebase file: " + e.getMessage());
         }
+    }
+
+    private void updateCachedData() throws ParseException, IOException, URISyntaxException {
+        for (DataSourcesConfiguration.Node node : dataSourcesConfiguration.getNodes()) {
+            for (DataSourcesConfiguration.Node.TripleStore ts : node.getTripleStores()) {
+                TripleStoreHandler handler = TripleStoreHandler.getHandler(ts.getType(), node.getNodeName(), ts.getBaseURL(), ts.getUser(), ts.getPassword());
+                handler.updateData(cache);
+            }
+        }
+        applicationState.setAppState(ApplicationState.AppState.INITIALIZED);
+        applicationState.setDataState(DataType.REDIS, State.UPLOAD_DATA);
+        applicationState.setDataState(DataType.CACHE, State.UPLOAD_DATA);
     }
 }

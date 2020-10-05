@@ -33,11 +33,13 @@ public class ApplicationState {
     }
 
     public void setDataState(DataType dataType,State state, Date lastUpdate) {
-        states.put(dataType, new DataState(state,lastUpdate));
+        if (!states.containsKey(dataType) || state.compareTo(states.get(dataType).getState())>=0) // Si no existía o el estado es mas actual
+            states.put(dataType, new DataState(state,lastUpdate));
     }
 
     public void setDataState(DataType dataType,State state) {
-        states.put(dataType, new DataState(state));
+        if (!states.containsKey(dataType) || state.compareTo(states.get(dataType).getState())>=0) // Si no existía o el estado es mas actual
+            states.put(dataType, new DataState(state));
     }
 
     public Date getLastFilterDate(String className) {
@@ -52,9 +54,27 @@ public class ApplicationState {
         this.lastFilterDate.put(className,new Date());
     }
 
+    public void setAppState(AppState appState) {
+        if (appState.compare(this.appState)>=0) {
+            this.appState = appState;
+        }
+    }
+
+    @Getter
     public enum AppState {
-        UNINITIALIZED,
-        INITIALIZED_WITH_CACHED_DATA,
-        INITIALIZED
+        UNINITIALIZED(0),
+        INITIALIZED_WITH_CACHED_DATA(1),
+        INITIALIZED(2);
+
+        private int order;
+
+        AppState(int order) {
+            this.order = order;
+        }
+
+        public int compare(AppState other) {
+            return this.getOrder() - other.getOrder();
+        }
+
     }
 }

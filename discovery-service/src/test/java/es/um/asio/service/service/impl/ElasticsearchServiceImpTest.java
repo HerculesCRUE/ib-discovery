@@ -80,7 +80,7 @@ class ElasticsearchServiceImpTest {
         List<TripleObjectES> rToESs = (List<TripleObjectES>) esService.saveTripleObjectsES(toESs);
         Assert.assertTrue(toESs.size() == rToESs.size());
         esService.deleteTripleObjectsES(rToESs);
-        List<TripleObjectES> r = esService.getTripleObjectsESByClassNameAndAttributes(TripleObjectES.class,"triple-object", "clase1",new ArrayList<Pair<String, Object>>());
+        List<TripleObjectES> r = esService.getTripleObjectsESByClassNameAndAttributes("triple-object", "clase1",new ArrayList<Pair<String, Object>>());
         Assert.assertTrue(r.size() == 0);
 
     }
@@ -110,7 +110,7 @@ class ElasticsearchServiceImpTest {
         List<TripleObjectES> rToESs = (List<TripleObjectES>) esService.saveTripleObjects(tos);
         Assert.assertTrue(tos.size() == rToESs.size());
         esService.deleteTripleObjectsES(rToESs);
-        List<TripleObjectES> r = esService.getTripleObjectsESByClassNameAndAttributes(TripleObjectES.class,"triple-object", "clase1",new ArrayList<Pair<String, Object>>());
+        List<TripleObjectES> r = esService.getTripleObjectsESByClassNameAndAttributes("triple-object", "clase1",new ArrayList<Pair<String, Object>>());
         Assert.assertTrue(r.size() == 0);
     }
 
@@ -132,7 +132,7 @@ class ElasticsearchServiceImpTest {
         List<TripleObjectES> rToESs = (List<TripleObjectES>) esService.saveTripleObjectsES(toESs);
         Assert.assertTrue(toESs.size() == rToESs.size());
         esService.deleteTripleObjectsES(rToESs);
-        List<TripleObjectES> r = esService.getTripleObjectsESByClassNameAndAttributes(TripleObjectES.class,"triple-object", "clase1",new ArrayList<Pair<String, Object>>());
+        List<TripleObjectES> r = esService.getTripleObjectsESByClassNameAndAttributes("triple-object", "clase1",new ArrayList<Pair<String, Object>>());
         Assert.assertTrue(r.size() == 0);
     }
 
@@ -160,7 +160,7 @@ class ElasticsearchServiceImpTest {
         List<TripleObjectES> rToESs = (List<TripleObjectES>) esService.saveTripleObjects(tos);
         Assert.assertTrue(tos.size() == rToESs.size());
         esService.deleteTripleObjects(tos);
-        List<TripleObjectES> r = esService.getTripleObjectsESByClassNameAndAttributes(TripleObjectES.class,"triple-object", "clase1",new ArrayList<Pair<String, Object>>());
+        List<TripleObjectES> r = esService.getTripleObjectsESByClassNameAndAttributes("triple-object", "clase1",new ArrayList<Pair<String, Object>>());
         Assert.assertTrue(r.size() == 0);
     }
 
@@ -169,7 +169,7 @@ class ElasticsearchServiceImpTest {
         List<TripleObjectES> a = esService.getAll();
         esService.saveTripleObjectsES(new ArrayList<>(tripleObjectsES));
         List<TripleObjectES> res = esService.getAll();
-        Assert.assertTrue(res.size() == tripleObjectsES.size());
+        Assert.assertTrue(res.size() >= tripleObjectsES.size());
         esService.deleteTripleObjectsES(new ArrayList<>(tripleObjectsES));
     }
 
@@ -177,7 +177,8 @@ class ElasticsearchServiceImpTest {
     void getAllMappedById() {
         List<TripleObjectES> a = esService.getAll();
         esService.saveTripleObjectsES(new ArrayList<>(tripleObjectsES));
-        Assert.assertTrue(esService.getAllMappedById().size() == tripleObjectsES.size());
+        Map<String, TripleObjectES> x = esService.getAllMappedById();
+        Assert.assertTrue(esService.getAllMappedById().size() >= tripleObjectsES.size());
         esService.deleteTripleObjectsES(new ArrayList<>(tripleObjectsES));
     }
 
@@ -206,7 +207,7 @@ class ElasticsearchServiceImpTest {
             for (Map.Entry<String, Object> p : toES.getAttributes().entrySet()) {
                 params.add(new Pair<>(p.getKey(),p.getKey()));
             }
-            Assert.assertNotNull(esService.getTripleObjectsESByClassNameAndAttributes(TripleObjectES.class,"triple-object", "clase1", params));
+            Assert.assertNotNull(esService.getTripleObjectsESByClassNameAndAttributes("triple-object", "clase1", params));
         }
     }
 
@@ -217,7 +218,7 @@ class ElasticsearchServiceImpTest {
             for (Map.Entry<String, Object> p : toES.getAttributes().entrySet()) {
                 params.add(new Pair<>(p.getKey(),p.getKey()));
             }
-            Assert.assertNotNull(esService.getTripleObjectsByClassNameAndAttributes(TripleObjectES.class,"triple-object", "clase1", params));
+            Assert.assertNotNull(esService.getTripleObjectsByClassNameAndAttributes("triple-object", "clase1", params));
         }
     }
 

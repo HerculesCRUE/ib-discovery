@@ -24,6 +24,7 @@ public class RedisServiceImp implements RedisService {
     private final String TRIPLES_MAP_KEY = "TRIPLES_MAP";
     private final String FILTERED_KEY = "FILTERED";
     private final String ENTITY_STATS_KEY = "ENTITY_STATS_KEY";
+    private final String ELASTICSEARCH_KEY = " ELASTICSEARCH_KEY";
 
     @Override
     public Map<String, Map<String, Map<String, Map<String, TripleObject>>>> getTriplesMap() {
@@ -105,5 +106,33 @@ public class RedisServiceImp implements RedisService {
         Gson gson = new Gson();
         JsonObject jEntityStats = gson.fromJson(gson.toJson(entityStats),JsonObject.class);
         redisRepository.add(ENTITY_STATS_KEY,jEntityStats.toString());
+    }
+
+    @Override
+    public Map<String, Map<String, Map<String, Map<String, TripleObject>>>> getElasticSearchTriplesMap() {
+        String cachedElasticSearchTriplesMapStr = redisRepository.getBy(ELASTICSEARCH_KEY);
+        if (cachedElasticSearchTriplesMapStr!=null) {
+            try {
+                Gson gson = new GsonBuilder()
+                        .setPrettyPrinting()
+                        .excludeFieldsWithoutExposeAnnotation()
+                        .create();
+                Type type = new TypeToken<Map<String, Map<String, Map<String, Map<String, TripleObject>>>>>() {}.getType();
+                return gson.fromJson(cachedElasticSearchTriplesMapStr, type);
+            } catch (Exception e) {
+                return new HashMap<>();
+            }
+        }
+        return new HashMap<>();
+    }
+
+    @Override
+    public void setElasticSearchTriplesMap(Map<String, Map<String, Map<String, Map<String, TripleObject>>>> elasticSearchTriplesMap) {
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .excludeFieldsWithoutExposeAnnotation()
+                .create();
+        JsonObject jElasticSearchTriplesMap = gson.fromJson(gson.toJson(elasticSearchTriplesMap),JsonObject.class);
+        redisRepository.add(ELASTICSEARCH_KEY,jElasticSearchTriplesMap.toString());
     }
 }

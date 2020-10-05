@@ -19,4 +19,8 @@ public interface RedisService {
 
     public void setEntityStats(EntityStats entityStats);
 
+    public Map<String, Map<String, Map<String, Map<String,TripleObject>>>> getElasticSearchTriplesMap();
+
+    public void setElasticSearchTriplesMap(Map<String, Map<String, Map<String, Map<String,TripleObject>>>> elasticSearchTriplesMap);
+
 }
