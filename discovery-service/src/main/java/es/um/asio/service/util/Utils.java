@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
 import es.um.asio.service.model.AttributeType;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.Normalizer;
@@ -11,6 +12,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import org.apache.commons.validator.GenericValidator;
+import org.apache.commons.validator.routines.UrlValidator;
 
 public class Utils {
 
@@ -83,5 +85,22 @@ public class Utils {
         s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
         s = s.replaceAll("\\p{Punct}","");
         return StringUtils.stripAccents(s);
+    }
+
+    public static boolean isPrimitive(Object o) {
+        return ClassUtils.isPrimitiveOrWrapper(o.getClass()) || o instanceof String;
+    }
+
+    public static boolean containsRegex(String text, String regex) {
+        return text.matches(regex);
+    }
+
+    public static boolean isValidURL(String url) {
+        return new UrlValidator().isValid(url);
+    }
+
+    public static String getLastFragmentURL(String url) {
+        String [] urlParts = url.split("/");
+        return urlParts[urlParts.length-1];
     }
 }

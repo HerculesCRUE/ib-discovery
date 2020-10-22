@@ -16,7 +16,7 @@ import es.um.asio.audit.autoconfigure.properties.AuditProperties;
 @Configuration
 @PropertySource("classpath:app-audit.properties")
 @ComponentScan(basePackageClasses = { AuditConfiguration.class })
-@ConditionalOnProperty(prefix = "app.audit", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "app.audit", name = "enabled", havingValue = "false", matchIfMissing = true)
 @EnableConfigurationProperties(AuditProperties.class)
 @EnableJpaAuditing
 public class AuditAutoConfiguration {

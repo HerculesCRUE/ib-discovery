@@ -43,7 +43,7 @@ public class TripleObjectES {
     public TripleObjectES(TripleObject to) {
         this.id = to.getId();
         this.className = to.getClassName();
-        this.lastModification = to.getLastModification();
+        this.lastModification = new Date(to.getLastModification());
         this.attributes = to.getAttributes();
         this.tripleStore = to.getTripleStore();
     }

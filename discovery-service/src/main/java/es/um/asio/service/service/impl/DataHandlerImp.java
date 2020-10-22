@@ -9,6 +9,8 @@ import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.appstate.DataType;
 import es.um.asio.service.model.appstate.State;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
+import es.um.asio.service.model.stats.EntityStats;
+import es.um.asio.service.model.stats.StatsHandler;
 import es.um.asio.service.repository.triplestore.TripleStoreHandler;
 import es.um.asio.service.service.DataHandler;
 import org.slf4j.Logger;
@@ -59,7 +61,6 @@ public class DataHandlerImp implements DataHandler {
     private void initialize() throws Exception {
         logger.info("Initializing DataHandlerImp");
         handlers = new ArrayList<>();
-        System.out.println();
     }
 
     @Override
@@ -68,7 +69,9 @@ public class DataHandlerImp implements DataHandler {
         logger.info("Populate data in DataHandlerImp");
         // 1º Load data in cache from redis if cache is empty or app is uninitialized
         if (!cache.isPopulatedCache() || applicationState.getAppState() == ApplicationState.AppState.UNINITIALIZED) {
+            // loadStatsFromRedisToCache();
             loadDataFromRedisToCache();
+            cache.updateStats();
             // Update State of Application
             applicationState.setAppState(ApplicationState.AppState.INITIALIZED_WITH_CACHED_DATA);
             applicationState.setDataState(DataType.REDIS, State.CACHED_DATA);
@@ -78,6 +81,7 @@ public class DataHandlerImp implements DataHandler {
         updateCachedData();
         // Update elasticSearch
         updateElasticData();
+        logger.info("Done Load data");
         return CompletableFuture.completedFuture(true);
     }
 
@@ -100,6 +104,7 @@ public class DataHandlerImp implements DataHandler {
 
     private void loadDataFromRedisToCache() {
         try {
+            // Load data from cache
             cache.setTriplesMap(redisService.getTriplesMap());
             if (cache.getTriplesMap().size() == 0) { // Get cache from file in firebase if is empty
                 Gson gson = new GsonBuilder()
@@ -110,7 +115,7 @@ public class DataHandlerImp implements DataHandler {
                 Type type = new TypeToken<Map<String, Map<String, Map<String, Map<String, TripleObject>>>>>() {
                 }.getType();
                 Map<String, Map<String, Map<String, Map<String, TripleObject>>>> triplesMap = gson.fromJson(content, type);
-                redisService.setTriplesMap(triplesMap);
+                redisService.setTriplesMap(triplesMap,true,true);
                 cache.setTriplesMap(triplesMap);
 
             }
@@ -120,12 +125,42 @@ public class DataHandlerImp implements DataHandler {
         }
     }
 
+    private void loadStatsFromRedisToCache() {
+        try {
+            // Load data from cache
+            cache.setStatsHandler(redisService.getEntityStats());
+            if (cache.getStatsHandler().getStats().size() == 0) { // Get cache from file in firebase if is empty
+                Gson gson = new GsonBuilder()
+                        .setPrettyPrinting()
+                        .excludeFieldsWithoutExposeAnnotation()
+                        .create();
+                String content = firebaseStorageStrategy.readFileFromStorage("jEntityStats.json");
+                Type type = new TypeToken<Map<String ,Map<String, Map<String, EntityStats>>>>() {
+                }.getType();
+                Map<String ,Map<String, Map<String,EntityStats>>> map = gson.fromJson(content, type);
+                StatsHandler sh = new StatsHandler();
+                sh.setStats(map);
+                redisService.setEntityStats(sh);
+                cache.setStatsHandler(sh);
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Fail on load data from firebase file: " + e.getMessage());
+        }
+    }
+
     private void updateCachedData() throws ParseException, IOException, URISyntaxException {
+        boolean isChanged = false;
         for (DataSourcesConfiguration.Node node : dataSourcesConfiguration.getNodes()) {
             for (DataSourcesConfiguration.Node.TripleStore ts : node.getTripleStores()) {
                 TripleStoreHandler handler = TripleStoreHandler.getHandler(ts.getType(), node.getNodeName(), ts.getBaseURL(), ts.getUser(), ts.getPassword());
-                handler.updateData(cache);
+                isChanged = isChanged ||  handler.updateData(cache);
             }
+        }
+        if(isChanged) {
+            cache.saveTriplesMapInCache();
+            cache.saveEntityStatsInCache();
         }
         applicationState.setAppState(ApplicationState.AppState.INITIALIZED);
         applicationState.setDataState(DataType.REDIS, State.UPLOAD_DATA);

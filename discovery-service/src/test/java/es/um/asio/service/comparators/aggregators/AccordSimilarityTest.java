@@ -40,7 +40,6 @@ class AccordSimilarityTest {
         String s1 = "Daniel Ruiz Santamaria";
         String s2 = "Ruiz Santamaría, D.";
         float similarity = AccordSimilarity.calculateAccordSimilarity(s1, s2);
-        System.out.println();
     }
 
     @Test

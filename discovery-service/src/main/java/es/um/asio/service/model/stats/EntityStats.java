@@ -1,55 +1,117 @@
 package es.um.asio.service.model.stats;
 
-import es.um.asio.service.model.TripleObject;
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import es.um.asio.service.util.Utils;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 @Getter
 @Setter
-@AllArgsConstructor
-public class EntityStats {
+public class EntityStats extends ObjectStat{
 
-    // node -> tiple -> class -> AttStats
-    Map<String ,Map<String, Map<String, Map<String,AttributeStats>>>> stats;
+    Map<String,AttributeStats> attValues;
+    Map<String,EntityStats> objValues;
 
-    public EntityStats() {
-        stats = new HashMap<>();
+    public EntityStats(String name) {
+        setName(name);
+        setCounter(0);
+        attValues = new HashMap<>();
+        objValues = new HashMap<>();
     }
 
-    public void addAttributes(String node, String triple, TripleObject to) {
-        if (!stats.containsKey(node))
-            stats.put(node, new HashMap<>());
-        if (!stats.get(node).containsKey(triple))
-            stats.get(node).put(triple, new HashMap<>());
-        if (!stats.get(node).get(triple).containsKey(to.getClassName()))
-            stats.get(node).get(triple).put(to.getClassName(), new HashMap<>());
-        for (Map.Entry<String, Object> attEntity: to.getAttributes().entrySet()) {
-            if (!stats.get(node).get(triple).get(to.getClassName()).containsKey(attEntity.getKey()))
-                stats.get(node).get(triple).get(to.getClassName()).put(attEntity.getKey(), new AttributeStats(attEntity.getKey()));
-            stats.get(node).get(triple).get(to.getClassName()).get(attEntity.getKey()).addValue(String.valueOf(attEntity.getValue()));
+    public void addValue(String name,Object value) {
+        if (getName().equals("Proyecto") && name.contains("nombre"))
+            System.out.println();
+        setCounter(getCounter()+1);
+        if (Utils.isPrimitive(value)) { // Si es primitivo
+            addAttValue(name,value);
+        } else { // Si es un objeto
+            addObjValue(name,value);
         }
     }
 
-    public float getAttributeVariety(String node, String triple, String className,String key) {
-        if (stats.get(node).get(triple).get(className).containsKey(key))
-            return stats.get(node).get(triple).get(className).get(key).getVariety();
-        else return 0f;
-    }
-
-    public Map<String,AttributeStats> getAttributesMap(String node, String triple, String className) {
-        if (stats.containsKey(node) && stats.get(node).containsKey(triple) && stats.get(node).get(triple).containsKey(className))
-            return stats.get(node).get(triple).get(className);
+    private void addAttValue(String name,Object value) {
+        setCounter(getCounter()+1);
+        AttributeStats attributeStats;
+        if (!attValues.containsKey(name))
+            attributeStats = new AttributeStats(name);
         else
-            return null;
+            attributeStats = attValues.get(name);
+        attributeStats.addValue(value);
+        attValues.put(name,attributeStats);
     }
 
+    private void addObjValue(String name,Object value) {
+        setCounter(getCounter()+1);
 
-    public boolean isEmpty() {
-        return stats.isEmpty();
+        EntityStats entityStats;
+        if (!objValues.containsKey(name))
+            entityStats = new EntityStats(name);
+        else
+            entityStats = objValues.get(name);
+        try {
+            if (!(value instanceof List)) { // Si no es una lista
+                Map<String, Object> attrs = new ObjectMapper().convertValue(value, Map.class); // Obtengo los atributos
+                for (Map.Entry<String, Object> att : attrs.entrySet()) { // Por cada atributo
+                    entityStats.addValue(att.getKey(),att.getValue());
+                }
+                objValues.put(entityStats.getName(),entityStats);
+            } else { // Si es una lista
+                for (Object v : (List) value) {
+                    addValue(name,v);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println();
+        }
     }
 
+    @Override
+    public float getRelativeImportanceRatio() {
+        float attrsRatio = 0f;
+        if (!attValues.isEmpty()) {
+            for (AttributeStats attributeStats : attValues.values()) {
+                attrsRatio += attributeStats.getRelativeImportanceRatio();
+            }
+        }
+
+        float entityRatio = 0f;
+        if (!objValues.isEmpty()) {
+            for (EntityStats entityStats : objValues.values()) {
+                entityRatio += entityStats.getRelativeImportanceRatio();
+            }
+        }
+        return (attrsRatio+entityRatio)/(attValues.size()+objValues.size());
+    }
+
+    public Map<String,Object> buildStats() {
+        Map<String,Object> stats = new HashMap<>();
+        stats.put("relativeRatio",getRelativeImportanceRatio());
+        stats.put("attributesSize",attValues.size());
+        stats.put("entitiesSize",objValues.size());
+        stats.put("isEmpty",(attValues.size()+objValues.size())==0);
+        if (!attValues.isEmpty()) {
+            stats.put("attributes", new HashMap<>());
+            for (AttributeStats attributeStats : attValues.values()) {
+                ((Map) stats.get("attributes")).put(attributeStats.getName(),attributeStats.getRelativeImportanceRatio());
+            }
+        }
+
+        float entityRatio = 0f;
+        if (!objValues.isEmpty()) {
+            stats.put("entities", new HashMap<>());
+            for (EntityStats entityStats : objValues.values()) {
+                ((Map) stats.get("entities")).put(entityStats.getName(),entityStats.buildStats());
+            }
+        }
+        return stats;
+
+    }
 }

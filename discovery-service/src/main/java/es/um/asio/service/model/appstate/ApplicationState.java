@@ -1,5 +1,6 @@
 package es.um.asio.service.model.appstate;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.annotation.Scope;
@@ -58,6 +59,11 @@ public class ApplicationState {
         if (appState.compare(this.appState)>=0) {
             this.appState = appState;
         }
+    }
+
+    public JsonObject buildAppState(){
+        JsonObject state = new JsonObject();
+        return state;
     }
 
     @Getter

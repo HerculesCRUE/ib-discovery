@@ -18,13 +18,4 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 @EnableAutoConfiguration
 public class ServiceConfig {
 
-
-/*    @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(jedisConnectionFactory());
-        return template;
-    }*/
-
-
 }

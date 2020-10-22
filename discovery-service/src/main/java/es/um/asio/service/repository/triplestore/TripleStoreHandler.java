@@ -5,11 +5,10 @@ import es.um.asio.service.service.impl.CacheServiceImp;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.Date;
 
 public abstract class TripleStoreHandler {
 
-    public abstract void updateData(CacheServiceImp cacheService) throws IOException, URISyntaxException, ParseException;
+    public abstract boolean updateData(CacheServiceImp cacheService) throws IOException, URISyntaxException, ParseException;
 
     public static TripleStoreHandler getHandler(String type, String node, String baseURL, String user, String password) {
         if (type.trim().toLowerCase().equals("trellis"))

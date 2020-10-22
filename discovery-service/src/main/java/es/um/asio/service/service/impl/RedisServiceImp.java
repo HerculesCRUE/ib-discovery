@@ -1,58 +1,176 @@
 package es.um.asio.service.service.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
+import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.stats.EntityStats;
+import es.um.asio.service.model.stats.StatsHandler;
 import es.um.asio.service.repository.StringRedisRepository;
 import es.um.asio.service.service.RedisService;
+import org.javatuples.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Service
+@EnableCaching
 public class RedisServiceImp implements RedisService {
+
+    private final Logger logger = LoggerFactory.getLogger(RedisServiceImp.class);
 
     @Autowired
     StringRedisRepository redisRepository;
 
-    private final String TRIPLES_MAP_KEY = "TRIPLES_MAP";
+    @Autowired
+    RedisServiceHelper redisServiceHelper;
+
+    private final String TRIPLES_MAP_PREFIX = "TRIPLES_MAP";
+    private final String TRIPLES_MAP_KEYS = "TRIPLES_MAP_KEYS";
     private final String FILTERED_KEY = "FILTERED";
     private final String ENTITY_STATS_KEY = "ENTITY_STATS_KEY";
     private final String ELASTICSEARCH_KEY = " ELASTICSEARCH_KEY";
 
-    @Override
-    public Map<String, Map<String, Map<String, Map<String, TripleObject>>>> getTriplesMap() {
-        String cachedTriplesMapStr = redisRepository.getBy(TRIPLES_MAP_KEY);
-        if (cachedTriplesMapStr!=null) {
-            try {
-                Gson gson = new GsonBuilder()
-                        .setPrettyPrinting()
-                        .excludeFieldsWithoutExposeAnnotation()
-                        .create();
-                Type type = new TypeToken<Map<String, Map<String, Map<String, Map<String, TripleObject>>>>>() {
-                }.getType();
-                return gson.fromJson(cachedTriplesMapStr, type);
-            } catch (Exception e) {
-                return new HashMap<>();
-            }
-        }
-        return new HashMap<>();
-    }
+    private Gson gson;
 
-    @Override
-    public void setTriplesMap(Map<String, Map<String, Map<String, Map<String, TripleObject>>>> triplesMap) {
-        Gson gson = new GsonBuilder()
+    @PostConstruct
+    public void init() {
+        gson = new GsonBuilder()
                 .setPrettyPrinting()
                 .excludeFieldsWithoutExposeAnnotation()
                 .create();
-        JsonObject jTriplesMap = gson.fromJson(gson.toJson(triplesMap),JsonObject.class);
-        redisRepository.add(TRIPLES_MAP_KEY,jTriplesMap.toString());
+    }
+
+    @Override
+    public Map<String, Map<String, Map<String, Map<String, TripleObject>>>> getTriplesMap() {
+        Map<String, Map<String, Map<String, Map<String, TripleObject>>>> cachedMap = new HashMap<>();
+        String cachedKeys = redisRepository.getBy(TRIPLES_MAP_KEYS);
+        List<String> keys = gson.fromJson(cachedKeys, List.class);
+        List<CompletableFuture<Pair<String,Map<String, TripleObject>>>> futures = new ArrayList<>();
+        if (keys!=null && !keys.isEmpty()) {
+            for (String key : keys) {
+                logger.info(String.format("Reading %s from redis cache", key));
+                futures.add(redisServiceHelper.getTripleMap(redisRepository,/*TRIPLES_MAP_PREFIX+":"+*/key));
+            }
+
+            for (CompletableFuture<Pair<String, Map<String, TripleObject>>> future : futures) {
+                Pair<String, Map<String, TripleObject>> pairMap = future.join();
+                logger.info(String.format("Reading %s from redis cache DONE, founds %d instances", pairMap.getValue0(), pairMap.getValue1().size()));
+                String k = pairMap.getValue0().replaceAll(TRIPLES_MAP_PREFIX + ":", "");
+                Map<String, TripleObject> m = pairMap.getValue1();
+
+                String[] kSet = k.split("\\.");
+                if (!cachedMap.containsKey(kSet[0])) {
+                    cachedMap.put(kSet[0], new HashMap<>());
+                }
+                if (!cachedMap.get(kSet[0]).containsKey(kSet[1])) {
+                    cachedMap.get(kSet[0]).put(kSet[1], new HashMap<>());
+                }
+                if (!cachedMap.get(kSet[0]).get(kSet[1]).containsKey(kSet[2])) {
+                    cachedMap.get(kSet[0]).get(kSet[1]).put(kSet[2], m);
+                }
+            }
+        }
+        return cachedMap;
+    }
+
+    @Override
+    public Map<String, Map<String, Map<String, Map<String, TripleObject>>>> getTriplesMapByNodeAndStorageAndClass(String node, String tripleStore, String className) {
+        Map<String, Map<String, Map<String, Map<String, TripleObject>>>> cachedMap = new HashMap<>();
+        String cachedKeys = redisRepository.getBy(TRIPLES_MAP_KEYS);
+        List<String> keys = gson.fromJson(cachedKeys, List.class);
+        List<CompletableFuture<Pair<String,Map<String, TripleObject>>>> futures = new ArrayList<>();
+        if (keys!=null && !keys.isEmpty()) {
+            for (String key : keys) {
+                String[] keyParts = key.replaceAll(TRIPLES_MAP_PREFIX + ":", "").split("\\.");
+                if (
+                        ( node==null || keyParts[0].trim().toLowerCase().equals(node) ) &&
+                        ( tripleStore==null || keyParts[1].trim().toLowerCase().equals(tripleStore) ) &&
+                        ( className==null || keyParts[2].trim().toLowerCase().equals(className) )
+                ) {
+                    logger.info(String.format("Reading %s from redis cache", key));
+                    futures.add(redisServiceHelper.getTripleMap(redisRepository,/*TRIPLES_MAP_PREFIX+":"+*/key));
+                }
+            }
+
+            for (CompletableFuture<Pair<String, Map<String, TripleObject>>> future : futures) {
+                Pair<String, Map<String, TripleObject>> pairMap = future.join();
+                logger.info(String.format("Reading %s from redis cache DONE", pairMap.getValue0()));
+                String k = pairMap.getValue0().replaceAll(TRIPLES_MAP_PREFIX + ":", "");
+                Map<String, TripleObject> m = pairMap.getValue1();
+
+                String[] kSet = k.split("\\.");
+                if (!cachedMap.containsKey(kSet[0])) {
+                    cachedMap.put(kSet[0], new HashMap<>());
+                }
+                if (!cachedMap.get(kSet[0]).containsKey(kSet[1])) {
+                    cachedMap.get(kSet[0]).put(kSet[1], new HashMap<>());
+                }
+                if (!cachedMap.get(kSet[0]).get(kSet[1]).containsKey(kSet[2])) {
+                    cachedMap.get(kSet[0]).get(kSet[1]).put(kSet[2], m);
+                }
+            }
+        }
+        return cachedMap;
+    }
+
+    @Override
+    public void setTriplesMap(Map<String, Map<String, Map<String, Map<String, TripleObject>>>> triplesMap, boolean keepKeys, boolean doAsync) {
+
+        // Obtencion del mapa de Keys anterior
+        Set<String> keys = new HashSet<>();
+        if (keepKeys) {
+            Map<String, Map<String, Map<String, Map<String, TripleObject>>>> cachedMap = new HashMap<>();
+            String cachedKeys = redisRepository.getBy(TRIPLES_MAP_KEYS);
+            if (cachedKeys!=null)
+                keys = gson.fromJson(cachedKeys, Set.class);
+        }
+
+        List<CompletableFuture<Boolean>> futures = new ArrayList<>();
+
+        for (Map.Entry<String, Map<String, Map<String, Map<String, TripleObject>>>> nodeEntry: triplesMap.entrySet()) { // Node
+            for (Map.Entry<String, Map<String, Map<String, TripleObject>>> tripleEntry: nodeEntry.getValue().entrySet()) { // TripleStore
+                for (Map.Entry<String, Map<String, TripleObject>> classEntry: tripleEntry.getValue().entrySet()) { // class
+                    Map<String, TripleObject> tMap = gson.fromJson(gson.toJson(classEntry.getValue()), LinkedTreeMap.class);
+                    String key = String.format("%s:%s.%s.%s",TRIPLES_MAP_PREFIX,nodeEntry.getKey(),tripleEntry.getKey(),classEntry.getKey());
+                    keys.add(key);
+                    futures.add(redisServiceHelper.setTripleMap(redisRepository,key,tMap));
+                }
+            }
+        }
+        if (!doAsync) {
+            CompletableFuture<Void> allFutures = CompletableFuture.allOf(
+                    futures.toArray(new CompletableFuture[futures.size()])
+            );
+        }
+        JsonArray jKeys = gson.fromJson(gson.toJson(keys), JsonArray.class);
+        redisRepository.add(TRIPLES_MAP_KEYS,jKeys.toString());
+    }
+
+    @Override
+    public void setTriplesMapByNodeAndStorageAndClass(String node, String tripleStore, String className, Map<String, TripleObject> triplesMap, boolean doAsync) {
+        List<CompletableFuture<Boolean>> futures = new ArrayList<>();
+        String cachedKeys = redisRepository.getBy(TRIPLES_MAP_KEYS);
+        List<String> keys = gson.fromJson(cachedKeys, List.class);
+
+        String key = String.format("%s:%s.%s.%s",TRIPLES_MAP_PREFIX,node,triplesMap,className);
+        keys.add(key);
+        futures.add(redisServiceHelper.setTripleMap(redisRepository,key,triplesMap));
+
+        if (!doAsync) {
+            CompletableFuture<Void> allFutures = CompletableFuture.allOf(
+                    futures.toArray(new CompletableFuture[futures.size()])
+            );
+        }
+        JsonArray jKeys = gson.fromJson(gson.toJson(keys), JsonArray.class);
+        redisRepository.add(TRIPLES_MAP_KEYS,jKeys.toString());
     }
 
     @Override
@@ -84,7 +202,7 @@ public class RedisServiceImp implements RedisService {
     }
 
     @Override
-    public EntityStats getEntityStats() {
+    public StatsHandler getEntityStats() {
         String entityStatsStr = redisRepository.getBy(ENTITY_STATS_KEY);
         if (entityStatsStr!=null) {
             try {
@@ -92,19 +210,23 @@ public class RedisServiceImp implements RedisService {
                         .setPrettyPrinting()
                         .excludeFieldsWithoutExposeAnnotation()
                         .create();
-                Type type = new TypeToken<EntityStats>() {}.getType();
-                return gson.fromJson(entityStatsStr, type);
+                Type type = new TypeToken<Map<String ,Map<String, Map<String, EntityStats>>>>() {}.getType();
+                Map<String ,Map<String, Map<String,EntityStats>>> stats = gson.fromJson(entityStatsStr, type);
+                StatsHandler statsHandler = new StatsHandler();
+                statsHandler.setStats(stats);
+                return statsHandler;
             } catch (Exception e) {
-                return new EntityStats();
+                return new StatsHandler();
             }
         }
-        return new EntityStats();
+        return new StatsHandler();
     }
 
     @Override
-    public void setEntityStats(EntityStats entityStats) {
+    public void setEntityStats(StatsHandler statsHandler) {
         Gson gson = new Gson();
-        JsonObject jEntityStats = gson.fromJson(gson.toJson(entityStats),JsonObject.class);
+        Map<String, Map<String, Map<String, EntityStats>>> stats = statsHandler.getStats();
+        JsonObject jEntityStats = gson.fromJson(gson.toJson(stats),JsonObject.class);
         redisRepository.add(ENTITY_STATS_KEY,jEntityStats.toString());
     }
 
@@ -136,3 +258,5 @@ public class RedisServiceImp implements RedisService {
         redisRepository.add(ELASTICSEARCH_KEY,jElasticSearchTriplesMap.toString());
     }
 }
+
+

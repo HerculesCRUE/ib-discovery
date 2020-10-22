@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -13,36 +14,42 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AttributeStats {
-    private String attribute;
-    private Set<String> values;
-    private int counter;
+public class AttributeStats extends ObjectStat{
 
-    public AttributeStats(String attribute) {
-        counter = 0;
-        this.attribute = attribute;
-        this.values = new HashSet<>();
+    Set<Object> values;
+
+    public AttributeStats(String name) {
+        setName(name);
+        setCounter(0);
+        values = new HashSet<>();
     }
 
-    public void addValue(String s) {
-        counter++;
-        this.values.add(s);
+    public AttributeStats(String name, Object value) {
+        this(name);
+        addValue(value);
     }
 
-    public float getVariety() {
-        return Float.valueOf(values.size())/Float.valueOf(counter);
+    public void addValue(Object value) {
+        setCounter(getCounter()+1);
+        getValues().add(value);
     }
+
+    @Override
+    public float getRelativeImportanceRatio() {
+        return Float.valueOf(getValues().size())/Float.valueOf(getCounter());
+    }
+
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
             AttributeStats that = (AttributeStats) o;
-        return Objects.equals(attribute, that.attribute);
+        return Objects.equals(getName(), that.getName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(attribute);
+        return Objects.hash(getName());
     }
 }

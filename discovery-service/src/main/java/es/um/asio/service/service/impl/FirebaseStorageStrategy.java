@@ -5,8 +5,9 @@ import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.*;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+//import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
@@ -16,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Date;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class FirebaseStorageStrategy{
@@ -42,13 +44,15 @@ public class FirebaseStorageStrategy{
         return fileContent;
     }
 
-    public String[] writeFile(String fileName, String content) {
+    @Async
+    public CompletableFuture<String[]> writeFile(String fileName, String content) {
         Storage storage = storageOptions.getService();
         BlobId blobId = BlobId.of(BUCKET_NAME, fileName);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
         Blob blob = storage.create(blobInfo, content.getBytes());
         log.info("File " + fileName + " uploaded to bucket " + BUCKET_NAME + " as " + fileName);
-        return new String[]{"fileUrl", fileName};
+        return CompletableFuture.completedFuture(new String[]{"fileUrl", fileName});
     }
+
 
 }

@@ -50,7 +50,7 @@ class RedisServiceImpTest {
             Type type = new TypeToken<Map<String, Map<String, Map<String, Map<String, TripleObject>>>>>() {
             }.getType();
             Map<String, Map<String, Map<String, Map<String, TripleObject>>>> triplesMap = gson.fromJson(content, type);
-            redisService.setTriplesMap(triplesMap);
+            redisService.setTriplesMap(triplesMap,true, true);
             Assert.assertTrue(true);
         } catch (Exception e) {
             e.printStackTrace();

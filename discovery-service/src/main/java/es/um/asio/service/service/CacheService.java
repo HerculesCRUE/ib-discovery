@@ -1,11 +1,10 @@
 package es.um.asio.service.service;
 
 import es.um.asio.service.model.TripleObject;
-import es.um.asio.service.model.stats.EntityStats;
+import es.um.asio.service.model.stats.StatsHandler;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Date;
 import java.util.Set;
 
 public interface CacheService {
@@ -20,6 +19,10 @@ public interface CacheService {
 
     public void saveTriplesMapInCache();
 
+    public void saveTriplesMapInCache(String node, String tripleStore, String className);
+
+    public Map<String, Map<String, Map<String, Map<String,TripleObject>>>> getTipleMapByNodeAndTripleStoreAndClassName(String node, String tripleStore, String className);
+
     public void saveFilterMapInCache();
 
     public void saveEntityStatsInCache();
@@ -32,7 +35,7 @@ public interface CacheService {
 
     public Map<String, Map<String, Map<String, Map<String,TripleObject>>>> loadElasticSearchTiplesMapFromCache();
 
-    public EntityStats loadEntitiesStatsFromCache();
+    public StatsHandler loadEntitiesStatsFromCache();
 
     public boolean isPopulatedCache();
 
@@ -45,4 +48,6 @@ public interface CacheService {
     public Map<String,TripleObject> getTripleObjects(String node,String tripleStore, String className);
 
     public TripleObject getTripleObject(String node, String tripleStore, String className, String id);
+
+    public void updateStats();
 }

@@ -4,21 +4,18 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.internal.LinkedTreeMap;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
-import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.service.impl.CacheServiceImp;
+import es.um.asio.service.util.Utils;
 import org.apache.http.impl.execchain.RequestAbortedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -48,27 +45,29 @@ public class TrellisHandler extends TripleStoreHandler {
     }
 
     @Override
-    public void updateData(CacheServiceImp cacheService) throws IOException, URISyntaxException, ParseException {
+    public boolean updateData(CacheServiceImp cacheService) throws IOException, URISyntaxException, ParseException {
         Set<TripleObject> triplesMapCached = cacheService.getAllTripleObjects();
         int instancesCounter = 0;
         int changes = 0;
         // Do request to Base URL
-        Response rMain = doRequest(this.baseURL);
+        Response rMain = doRequest(this.baseURL); // Request Classes
         JsonObject jBaseObject = new Gson().fromJson(rMain.body().string(), JsonObject.class);
         logger.info("Processing Node {}", nodeName);
-        if (jBaseObject.has("contains")) {
+        if (rMain!= null & jBaseObject.has("contains")) {
             int classesCounter = 0;
             int totalClasses = jBaseObject.get("contains").getAsJsonArray().size();
             // Para cada una de las clases contenidas en la Base URL
-            for (JsonElement jeClass : jBaseObject.get("contains").getAsJsonArray()) {
+            for (JsonElement jeClass : jBaseObject.get("contains").getAsJsonArray()) { // Comienzo clases
                 String classURL = jeClass.getAsString();
                 String className = classURL.replace(this.baseURL,"").replaceAll("/", "");
+                int classChanges = 0;
+
                 logger.info("	Processing Class {} ({}/{})", className,++classesCounter,totalClasses);
                 // Request to Class URL
-                Response rClass = doRequest(classURL);
+                Response rClass = doRequest(classURL); // Request
                 JsonObject jClassObject = new Gson().fromJson(rClass.body().string(), JsonObject.class);
                 // Si contiene instancias
-                if (jClassObject.has("@graph")) {
+                if (rClass!=null && jClassObject.has("@graph")) {
                     // Para cada una de las instancias de la clase
                     int instancesInClass = 0;
                     for (JsonElement jeGraphClass : jClassObject.get("@graph").getAsJsonArray()) {
@@ -84,41 +83,53 @@ public class TrellisHandler extends TripleStoreHandler {
                             for (JsonElement jeInstance : joGraphClass.get("contains").getAsJsonArray()) {
                                 String instanceURL = jeInstance.getAsString();
                                 String instanceId = instanceURL.replace(classURL,"").replace("/","");
+/*                                if (instanceId.contains("E0B7-05"))
+                                    System.out.println("BORRAR");*/
                                 TripleObject to = cacheService.getTripleObject(nodeName,"trellis",className,instanceId);
                                 // Si la cache contiene la instancia, no hag la petición
                                 boolean isNew = (to==null);
-                                if (to == null) {
+                                if (to == null || (className.contains("CvnRootBean") && to.getAttributes().size() < 2)) {
                                     // En caso contrario, hago la petición para añadir a la cache
                                     // Request to Instance URL
+
                                     Response rInstance = doRequest(instanceURL);
-                                    JsonObject jInstanceObject = new Gson().fromJson(rInstance.body().string(), JsonObject.class);
-                                    String lastModification = rInstance.headers().get("Last-Modified");
-
-                                    if (jClassObject.has("@graph")) {
-                                        for (JsonElement jeGraphInstance : jInstanceObject.get("@graph").getAsJsonArray()) {
-                                            JsonObject joGraphInstance = jeGraphInstance.getAsJsonObject();
-
-                                            if (joGraphInstance.has("@id") && joGraphInstance.get("@id").isJsonPrimitive() && joGraphInstance.get("@id").getAsString().equals(instanceURL)) {
-                                                joGraphInstance.remove("@id");
-                                                joGraphInstance.remove("@type");
-                                                to = new TripleObject(this.tripleStore, joGraphInstance, className, instanceId, lastModification);
-                                                changes++;
-                                            }
+                                    if (rInstance!=null) {
+                                        JsonObject jInstanceObject = new Gson().fromJson(rInstance.body().string(), JsonObject.class);
+                                        String lastModification = rInstance.headers().get("Last-Modified");
+                                        if (jClassObject.has("@graph")) {
+/*                                            if (className.contains("CvnRootBean") || true) {*/
+                                            String jStrInstance = jInstanceObject.toString().replace("j\\.[0-9]+:","");
+                                            JsonObject jeClassInstance = new Gson().fromJson(jStrInstance, JsonObject.class);
+                                            JsonObject jRootObject = parseJsonDataByCvn(jeClassInstance.get("@graph").getAsJsonArray(), className, instanceId);
+                                            //to = new TripleObject(this.tripleStore, jInstanceObject.get("@graph").getAsJsonArray(), className, instanceId, lastModification);
+                                            to = new TripleObject(this.tripleStore, jRootObject, className, instanceId, lastModification);
+                                            changes++;
+                                            classChanges ++;
                                         }
                                     }
                                 } else {
                                     triplesMapCached.remove(to);
                                 }
                                 if (to != null) {
-                                    to.setTripleStore(this.tripleStore);
-                                    String nText = ((isNew)?"(New) ":" ");
-                                    logger.info("		Processing Node {} Instances: {} ({}/{}): {}	,class ({}/{}):{}	,id: {}	,data:{}",nText, ++instancesCounter, ++instancesInClass,totalInClass, nodeName, classesCounter,totalClasses,className, instanceId, to.toString());
-                                    cacheService.addTripleObject(nodeName,"trellis", to);
+                                    try {
+                                        to.setTripleStore(this.tripleStore);
+                                        String nText = ((isNew)?"(New) ":" ");
+                                        logger.info("		Processing Node {} Instances: {} ({}/{}): {}	,class ({}/{}):{}	,id: {}	,data:{}",nText, ++instancesCounter, ++instancesInClass,totalInClass, nodeName, classesCounter,totalClasses,className, instanceId, to.toString());
+                                        cacheService.addTripleObject(nodeName,"trellis", to);
+                                    } catch (Exception e) {
+                                        System.out.println();
+/*                                        to.setTripleStore(this.tripleStore);
+                                        String nText = ((isNew)?"(New) ":" ");
+                                        logger.info("		Processing Node {} Instances: {} ({}/{}): {}	,class ({}/{}):{}	,id: {}	,data:{}",nText, ++instancesCounter, ++instancesInClass,totalInClass, nodeName, classesCounter,totalClasses,className, instanceId, to.toString());
+                                        cacheService.addTripleObject(nodeName,"trellis", to);*/
+                                    }
                                 }
 
                             }
                         }
                     }
+                    if (classChanges>0)
+                        cacheService.saveTriplesMapInCache(nodeName,"trellis",className);
                 }
 
             } // End of class
@@ -131,10 +142,91 @@ public class TrellisHandler extends TripleStoreHandler {
                 }
             }
             logger.info(String.format("Found %d changes in Trellis and %d instances will be deleted. Saving in Cache and Redis. The cache is updated",changes,triplesMapCached.size()));
-            cacheService.saveTriplesMapInCache();
+            return true;
         } else {
             logger.info(String.format("No changes Found in Trellis. The cache is updated"));
+            return false;
         }
+    }
+
+    private JsonObject parseJsonDataByCvn(JsonArray jData, String className, String id) {
+        jData.toString().replace("j\\.[0-9]+:","");
+        String uuid = id.substring(id.lastIndexOf("_")+1);
+        Map<String,Object> attrs = new LinkedTreeMap<>();
+        JsonObject jRootObject = null;
+        for (JsonElement jeAttribute : jData) {
+            JsonObject jAttribute = cleanAttrs(jeAttribute);
+            if (
+                    jAttribute.has("@id") && jAttribute.get("@id").isJsonPrimitive() && jAttribute.get("@id").getAsString().contains(uuid) &&
+                            jAttribute.has("@type") && jAttribute.get("@type").isJsonPrimitive() && jAttribute.get("@type").getAsString().contains(className)
+            ) {
+                jAttribute.remove("@id");
+                jAttribute.remove("@type");
+                jRootObject = jAttribute.deepCopy();
+            } else { // Si no es el objeto raiz
+                if (
+                        jAttribute.has("@id") && jAttribute.get("@id").isJsonPrimitive() && jAttribute.get("@id").getAsString().startsWith("_:b")
+                ) {
+                    String jId = jAttribute.get("@id").getAsString();
+                    jAttribute.remove("@id");
+                    jAttribute.remove("@type");
+                    attrs.put(jId,jAttribute);
+                }
+            }
+        }
+
+        if (jRootObject!=null)
+            jRootObject = buildCvnFromRoot(jRootObject,attrs);
+        return jRootObject;
+    }
+
+    private JsonObject buildCvnFromRoot(JsonObject jRoot, Map<String,Object> attrs ){
+        for (Map.Entry<String, JsonElement> jeAtt : jRoot.entrySet()) {
+            String key = jeAtt.getKey();
+
+
+            if (jeAtt.getValue().isJsonPrimitive()) { // Si es primitivo
+                if (jeAtt.getValue().getAsString().startsWith("_:b")) {
+                    if (attrs.containsKey(jeAtt.getValue().getAsString())) {
+                        JsonObject jContent = (JsonObject) attrs.get(jeAtt.getValue().getAsString());
+                        jeAtt.setValue(buildCvnFromRoot(jContent,attrs));
+                    }
+                }
+            } else if (jeAtt.getValue().isJsonArray()) { // Si es array
+                JsonArray jInners = new JsonArray();
+                for (JsonElement jeAttInner : jeAtt.getValue().getAsJsonArray()) {
+                    if (jeAttInner.isJsonPrimitive()) { // Si es primitivo
+                        if (jeAttInner.getAsString().startsWith("_:b")) {
+                            if (attrs.containsKey(jeAttInner.getAsString())) {
+                                JsonObject jContentInner = (JsonObject) attrs.get(jeAttInner.getAsString());
+                                jInners.add(buildCvnFromRoot(jContentInner,attrs));
+                            }
+                        }
+                    }
+                }
+                jeAtt.setValue(jInners);
+            }
+        }
+        return jRoot;
+    }
+
+    /*
+     * Clean prefix in attributes with shape of URL or trellis prefix of type j.number:
+     */
+    private JsonObject cleanAttrs(JsonElement je) {
+        String regex = "j\\.[0-9]+:";
+        JsonObject jo = new JsonObject();
+        for (Map.Entry<String, JsonElement> joInner : je.getAsJsonObject().entrySet()) {
+            String key = joInner.getKey();
+            if (Utils.containsRegex(key,regex+".*")) {
+                key = key.replaceAll(regex,"");
+            }
+            if (Utils.isValidURL(key)) {
+                key = Utils.getLastFragmentURL(key);
+            }
+            jo.add(key,joInner.getValue());
+        }
+        return jo;
     }
 
     private String getBasicAuthentication() {
@@ -153,7 +245,12 @@ public class TrellisHandler extends TripleStoreHandler {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Error in request",e);
-            throw new RequestAbortedException("Error doing request");
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            }
+            return null;
         }
     }
 

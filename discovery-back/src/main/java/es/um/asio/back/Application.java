@@ -1,8 +1,14 @@
 package es.um.asio.back;
 
+import es.um.asio.back.controller.discovery.DiscoveryController;
+import es.um.asio.service.service.impl.DataHandlerImp;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
@@ -11,14 +17,22 @@ import es.um.asio.service.ServiceConfig;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.concurrent.Executor;
 
-@SpringBootApplication
-@EnableAutoConfiguration
+@SpringBootApplication(exclude = { UserDetailsServiceAutoConfiguration.class })
+@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class })
 @Import({ ServiceConfig.class })
-@ComponentScan
+
+@ComponentScan(basePackages="es.um.asio.back.controller")
 @EnableAsync
 public class Application {
+
+    @Autowired
+    DataHandlerImp dataHandler;
+
     /**
      * Main method for embedded deployment.
      *
@@ -27,6 +41,13 @@ public class Application {
      */
     public static void main(final String[] args) {
         SpringApplication.run(Application.class, args);
+    }
+
+    @Bean
+    InitializingBean populateInitData() throws ParseException, IOException, URISyntaxException {
+        return () -> {
+            dataHandler.populateData();
+        };
     }
 
 }

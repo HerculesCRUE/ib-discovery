@@ -1,5 +1,6 @@
 package es.um.asio.service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
@@ -7,20 +8,19 @@ import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.comparators.entities.EntitySimilarity;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.model.stats.AttributeStats;
+import es.um.asio.service.model.stats.EntityStats;
+import es.um.asio.service.model.stats.ObjectStat;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import es.um.asio.service.util.Utils;
 import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 
 import javax.persistence.Id;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -33,8 +33,8 @@ public class TripleObject {
 
     @Expose(serialize = false, deserialize = false)
     @Transient
+    @JsonIgnore
     private final Logger logger = LoggerFactory.getLogger(TripleObject.class);
-
 
 
     @Expose(serialize = true, deserialize = true)
@@ -44,8 +44,8 @@ public class TripleObject {
     @Field(type = FieldType.Text)
     private String className;
     @Expose(serialize = true, deserialize = true)
-    @Field(type = FieldType.Date)
-    private Date lastModification;
+    @Field(type = FieldType.Long)
+    private long lastModification;
     @Expose(serialize = true, deserialize = true)
     @Field(type = FieldType.Object)
     private TripleStore tripleStore;
@@ -56,32 +56,37 @@ public class TripleObject {
     public TripleObject(TripleObjectES toES) {
         this.id = toES.getId();
         this.className = toES.getClassName();
-        this.lastModification = toES.getLastModification();
+        this.lastModification = toES.getLastModification().getTime();
         this.tripleStore = toES.getTripleStore();
         this.attributes = toES.getAttributes();
     }
+
 
     public TripleObject(TripleStore tripleStore, JsonObject jData, String className, String id, String lastMod) {
 
         this.className = className;
         this.id = id;
-        attributes = new Gson().fromJson(jData.toString(), LinkedTreeMap.class);
         try {
-            lastModification = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss", Locale.UK).parse(lastMod);
-        } catch (ParseException e) {
+            attributes = new Gson().fromJson(jData.toString(), LinkedTreeMap.class);
+            lastModification = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss", Locale.UK).parse(lastMod).getTime();
+        } catch (Exception e) {
+            attributes = new LinkedTreeMap<>();
+            lastModification = new Date().getTime();
             logger.error("ParseDateException",e.getMessage());
         }
     }
 
+    @JsonIgnore
     public int getYear(){
         Calendar c = Calendar.getInstance();
-        c.setTime(this.lastModification);
+        c.setTime(new Date(this.lastModification));
         return c.get(Calendar.YEAR);
     }
 
+    @JsonIgnore
     public int getMonth(){
         Calendar c = Calendar.getInstance();
-        c.setTime(this.lastModification);
+        c.setTime(new Date(this.lastModification));
         return c.get(Calendar.MONTH);
     }
 
@@ -109,8 +114,16 @@ public class TripleObject {
             eso.setSimilarity(0f);
             return eso;
         }
-        Map<String, AttributeStats> attributesMap = cacheService.getEntityStats().getAttributesMap(this.getTripleStore().getNode().getNode(), this.tripleStore.getTripleStore(), this.getClassName());
-        return EntitySimilarity.compare(other,attributesMap,this.getAttributes(),other.getAttributes());
+        EntityStats entityStats = cacheService.getStatsHandler().getAttributesMap(this.getTripleStore().getNode().getNode(), this.tripleStore.getTripleStore(), this.getClassName());
+        Map<String,AttributeStats> attributesMap = new HashMap<>();
+
+        for (Map.Entry<String, AttributeStats> entry : entityStats.getAttValues().entrySet()) {
+            if (entry.getValue() instanceof AttributeStats) {
+                attributesMap.put(entry.getKey(), (AttributeStats) entry.getValue());
+            }
+        }
+
+        return EntitySimilarity.compare(other, attributesMap,this.getAttributes(),other.getAttributes());
     }
 
     public float equalAttributesRatio(TripleObject other) {
@@ -127,7 +140,7 @@ public class TripleObject {
     }
 
     public TripleObject merge(TripleObject other) {
-        boolean isNewer = this.lastModification.after(other.lastModification);
+        boolean isNewer = new Date(this.lastModification).after(new Date(other.lastModification));
         TripleObject to;
         Set<String> atts = getAttributes().keySet();
         atts.addAll(other.getAttributes().keySet());
@@ -153,3 +166,4 @@ public class TripleObject {
         return to;
     }
 }
+

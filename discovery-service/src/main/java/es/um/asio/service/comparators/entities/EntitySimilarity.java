@@ -37,7 +37,7 @@ public class EntitySimilarity {
                 intersectionKeys.add(key);
                 float weight = 1;
                 if (attributeStatsMap!=null && attributeStatsMap.containsKey(key)) {
-                    weight = attributeStatsMap.get(key).getVariety();
+                    weight = attributeStatsMap.get(key).getRelativeImportanceRatio();
                 }
                 weightAggregate += weight;
                 float sim = compareAtt(to,attributeStatsMap, key, o1.get(key),o2.get(key));
@@ -55,7 +55,7 @@ public class EntitySimilarity {
 
     public static float compareAtt(TripleObject to,Map<String, AttributeStats> attributeStatsMap,String key, Object a1, Object a2) {
         if (isNumber(a1) && isNumber(a2)) {
-            return compareNumberAtt(((key!=null)?attributeStatsMap.get(key).getVariety():0.5f), Float.valueOf(a1.toString()), Float.valueOf(a2.toString()));
+            return compareNumberAtt(((key!=null)?attributeStatsMap.get(key).getRelativeImportanceRatio():0.5f), Float.valueOf(a1.toString()), Float.valueOf(a2.toString()));
         } else if(isBoolean(a1) && isBoolean(a1)) {
             return compareNumberAtt(Boolean.valueOf(a1.toString()), Boolean.valueOf(a2.toString()));
         } else if (isArrayList(a1) && isArrayList(a2)){

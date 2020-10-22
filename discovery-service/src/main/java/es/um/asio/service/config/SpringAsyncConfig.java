@@ -15,9 +15,9 @@ public class SpringAsyncConfig {
     public Executor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(6);
+        executor.setMaxPoolSize(20);
         executor.setQueueCapacity(500);
-        executor.setThreadNamePrefix("GithubLookup-");
+        executor.setThreadNamePrefix("DiscoveryLib-");
         executor.initialize();
         return executor;
     }

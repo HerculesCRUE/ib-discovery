@@ -1,4 +1,3 @@
----
 app:
   persistence:
     datasource:
@@ -26,9 +25,14 @@ app:
       - Content-Type
     maxAge: 3600
 
+  # Cache configuration
+  cache:
+    embedded:
+      enabled: true
+
   # Swagger
   swagger:
-    enabled: false
+    enabled: true
 
 data:
   elasticsearch:
@@ -56,6 +60,8 @@ data-sources:
 
 ## Actuator
 management:
+  security:
+    enabled: false
   endpoint:
     shutdown:
       enabled: true
@@ -64,6 +70,8 @@ management:
   endpoints:
     web:
       base-path: /management
+      exposure:
+        include: '*'
   server:
     port: 9321
   health:
@@ -74,9 +82,23 @@ management:
     redis:
       enabled: false
 
-# Spring
+## In case of configure web endpoints, remove it or change port number
+server:
+  port: ${management.server.port}
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    #org.hibernate.type: TRACE
+
 spring:
+  security:
+    enabled: false
   data:
     elasticsearch:
       cluster-name: es-asio-cluster
       cluster-nodes: localhost:9300
+
+security:
+  basic:
+    enabled: false
