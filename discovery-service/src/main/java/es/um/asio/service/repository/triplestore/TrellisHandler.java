@@ -83,12 +83,13 @@ public class TrellisHandler extends TripleStoreHandler {
                             for (JsonElement jeInstance : joGraphClass.get("contains").getAsJsonArray()) {
                                 String instanceURL = jeInstance.getAsString();
                                 String instanceId = instanceURL.replace(classURL,"").replace("/","");
-/*                                if (instanceId.contains("E0B7-05"))
-                                    System.out.println("BORRAR");*/
+/*                                if (instanceId.equals("http:_hercules.org_um_es-ES_rec_CvnRootBean_d4bbead1-0527-422d-9a40-fd0a904d06c5")) {
+                                    System.out.println(); // Remove
+                                }*/
                                 TripleObject to = cacheService.getTripleObject(nodeName,"trellis",className,instanceId);
                                 // Si la cache contiene la instancia, no hag la petición
                                 boolean isNew = (to==null);
-                                if (to == null || (className.contains("CvnRootBean") && to.getAttributes().size() < 2)) {
+                                if (to == null || (className.equals("Proyecto") /*&& to.getAttributes().size() < 2*/)) {
                                     // En caso contrario, hago la petición para añadir a la cache
                                     // Request to Instance URL
 
@@ -100,6 +101,7 @@ public class TrellisHandler extends TripleStoreHandler {
 /*                                            if (className.contains("CvnRootBean") || true) {*/
                                             String jStrInstance = jInstanceObject.toString().replace("j\\.[0-9]+:","");
                                             JsonObject jeClassInstance = new Gson().fromJson(jStrInstance, JsonObject.class);
+
                                             JsonObject jRootObject = parseJsonDataByCvn(jeClassInstance.get("@graph").getAsJsonArray(), className, instanceId);
                                             //to = new TripleObject(this.tripleStore, jInstanceObject.get("@graph").getAsJsonArray(), className, instanceId, lastModification);
                                             to = new TripleObject(this.tripleStore, jRootObject, className, instanceId, lastModification);
@@ -150,6 +152,8 @@ public class TrellisHandler extends TripleStoreHandler {
     }
 
     private JsonObject parseJsonDataByCvn(JsonArray jData, String className, String id) {
+/*        if (id.equals("http:_hercules.org_um_es-ES_rec_CvnRootBean_d4bbead1-0527-422d-9a40-fd0a904d06c5"))
+            System.out.println(); // Remove*/
         jData.toString().replace("j\\.[0-9]+:","");
         String uuid = id.substring(id.lastIndexOf("_")+1);
         Map<String,Object> attrs = new LinkedTreeMap<>();
@@ -176,20 +180,24 @@ public class TrellisHandler extends TripleStoreHandler {
         }
 
         if (jRootObject!=null)
-            jRootObject = buildCvnFromRoot(jRootObject,attrs);
+            jRootObject = buildCvnFromRoot(jRootObject.deepCopy(),jRootObject,attrs);
         return jRootObject;
     }
 
-    private JsonObject buildCvnFromRoot(JsonObject jRoot, Map<String,Object> attrs ){
+    private JsonObject buildCvnFromRoot(JsonObject jParentRoot,JsonObject jRoot, Map<String,Object> attrs ){
         for (Map.Entry<String, JsonElement> jeAtt : jRoot.entrySet()) {
             String key = jeAtt.getKey();
-
+/*            if (key.contains("cvnFamilyNameBean"))
+                System.out.println();*/
 
             if (jeAtt.getValue().isJsonPrimitive()) { // Si es primitivo
                 if (jeAtt.getValue().getAsString().startsWith("_:b")) {
                     if (attrs.containsKey(jeAtt.getValue().getAsString())) {
                         JsonObject jContent = (JsonObject) attrs.get(jeAtt.getValue().getAsString());
-                        jeAtt.setValue(buildCvnFromRoot(jContent,attrs));
+                        if (jContent.size()>=0)
+                            jeAtt.setValue(buildCvnFromRoot(jRoot,jContent,attrs));
+                        else
+                            jeAtt.setValue(jContent);
                     }
                 }
             } else if (jeAtt.getValue().isJsonArray()) { // Si es array
@@ -199,7 +207,7 @@ public class TrellisHandler extends TripleStoreHandler {
                         if (jeAttInner.getAsString().startsWith("_:b")) {
                             if (attrs.containsKey(jeAttInner.getAsString())) {
                                 JsonObject jContentInner = (JsonObject) attrs.get(jeAttInner.getAsString());
-                                jInners.add(buildCvnFromRoot(jContentInner,attrs));
+                                jInners.add(buildCvnFromRoot(jRoot,jContentInner,attrs));
                             }
                         }
                     }

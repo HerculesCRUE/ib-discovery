@@ -47,4 +47,6 @@ public class TripleObjectES {
         this.attributes = to.getAttributes();
         this.tripleStore = to.getTripleStore();
     }
+
+
 }

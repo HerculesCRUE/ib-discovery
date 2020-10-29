@@ -73,7 +73,7 @@ public class CacheServiceImp implements CacheService {
             triplesMap.get(node).get(triple).get(to.getClassName()).put(to.getId(), to);
             triplesMapByDate.get(node).get(triple).get(to.getClassName()).get(to.getYear()).get(to.getMonth()).put(to.getId(), to);
 
-            statsHandler.addAttributes(node, triple, to);
+            //statsHandler.addAttributes(node, triple, to);
         }
     }
 

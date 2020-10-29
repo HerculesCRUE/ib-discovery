@@ -3,8 +3,8 @@ package es.um.asio.service.comparators.entities;
 import com.google.gson.Gson;
 
 import es.um.asio.service.comparators.aggregators.AccordSimilarity;
-import es.um.asio.service.model.EntitySimilarityObj;
-import es.um.asio.service.model.SimilarityValue;
+import es.um.asio.service.model.EntitySimilarityObjOld;
+import es.um.asio.service.model.SimilarityValueOld;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.stats.AttributeStats;
 import es.um.asio.service.util.Utils;
@@ -15,12 +15,12 @@ import java.util.*;
 
 @Getter
 @Setter
-public class EntitySimilarity {
+public class EntitySimilarityOld {
 
 
-    public static EntitySimilarityObj compare(TripleObject to, Map<String, AttributeStats> attributeStatsMap, Object obj1, Object obj2) {
+    public static EntitySimilarityObjOld compare(TripleObject to, Map<String, AttributeStats> attributeStatsMap, Object obj1, Object obj2) {
         Gson gson = new Gson();
-        EntitySimilarityObj eso  = new EntitySimilarityObj(to);
+        EntitySimilarityObjOld eso  = new EntitySimilarityObjOld(to);
         Set<String> allKeys = new HashSet<>();
         LinkedHashMap o1 = gson.fromJson(gson.toJson(obj1),LinkedHashMap.class);
         LinkedHashMap o2 = gson.fromJson(gson.toJson(obj2),LinkedHashMap.class);
@@ -41,7 +41,7 @@ public class EntitySimilarity {
                 }
                 weightAggregate += weight;
                 float sim = compareAtt(to,attributeStatsMap, key, o1.get(key),o2.get(key));
-                eso.similarities.put(key,new SimilarityValue(sim,weight));
+                eso.similarities.put(key,new SimilarityValueOld(sim,weight));
                 similarityMetrics.add(weight*sim);
             } else {
                 similarityMetrics.add(0f);
@@ -63,7 +63,7 @@ public class EntitySimilarity {
             float r = ((float) fs.stream().mapToDouble(a->a).sum()) / ((float) fs.size());
             return ((float) fs.stream().mapToDouble(a->a).sum()) / ((float) fs.size());
         } else if (isObject(a1) && isObject(a2)){
-            return  EntitySimilarity.compare(to,attributeStatsMap,a1,a2).getSimilarity();
+            return  EntitySimilarityOld.compare(to,attributeStatsMap,a1,a2).getSimilarity();
         } else
             return compareNumberAtt(String.valueOf(a1.toString()), String.valueOf(a2.toString()));
 

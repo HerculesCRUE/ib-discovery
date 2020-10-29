@@ -46,4 +46,6 @@ class UtilsTest {
         Assert.assertFalse(Utils.isValidString(""));
         Assert.assertFalse(Utils.isValidString(null));
     }
+
+
 }

@@ -27,9 +27,11 @@ public class TripleObjectESCustomRepository{
     @Autowired
     private ElasticsearchTemplate elasticsearchTemplate;
 
-    public List<TripleObjectES> findByClassNameAndAttributesWithPartialMatch(String indexName, String className, List<Pair<String,Object>> attrs){
+    public List<TripleObjectES> findByClassNameAndAttributesWithPartialMatch(String indexName, List<Pair<String,String>> musts, List<Pair<String,Object>> attrs){
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.termQuery("className",className));
+        for (Pair<String,String> must : musts) {
+            boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.matchQuery(must.getValue0(), must.getValue1()));
+        }
         BoolQueryBuilder boolQueryBuilderAttrs = QueryBuilders.boolQuery();
         if (attrs.size()>0) {
             for (Pair<String,Object> att : attrs) {

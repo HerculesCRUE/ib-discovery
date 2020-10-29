@@ -10,13 +10,13 @@ import java.util.Map;
 @Getter
 @Setter
 @AllArgsConstructor
-public class EntitySimilarityObj {
+public class EntitySimilarityObjOld {
 
     public float similarity;
     public TripleObject tripleObject;
-    public Map<String,SimilarityValue> similarities;
+    public Map<String, SimilarityValueOld> similarities;
 
-    public EntitySimilarityObj(TripleObject to) {
+    public EntitySimilarityObjOld(TripleObject to) {
         this.tripleObject = to;
         similarities = new HashMap<>();
     }

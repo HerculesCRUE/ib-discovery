@@ -4,13 +4,16 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
 import es.um.asio.service.model.AttributeType;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Locale;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.apache.commons.validator.GenericValidator;
 import org.apache.commons.validator.routines.UrlValidator;
 
@@ -102,5 +105,22 @@ public class Utils {
     public static String getLastFragmentURL(String url) {
         String [] urlParts = url.split("/");
         return urlParts[urlParts.length-1];
+    }
+
+    public static <K, V extends Comparable<V>> Map<K, V> sortByValues(final Map<K, V> map) {
+        Comparator<K> valueComparator =
+                new Comparator<K>() {
+                    public int compare(K k1, K k2) {
+                        int compare = map.get(k2).compareTo(map.get(k1));
+                        if (compare == 0)
+                            return 1;
+                        else
+                            return compare;
+                    }
+                };
+        Map<K, V> sortedByValues =
+                new TreeMap<K, V>(valueComparator);
+        sortedByValues.putAll(map);
+        return sortedByValues;
     }
 }

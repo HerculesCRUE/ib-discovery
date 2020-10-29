@@ -7,10 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.lang.reflect.Array;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 @Setter
@@ -75,25 +72,38 @@ public class EntityStats extends ObjectStat{
 
     @Override
     public float getRelativeImportanceRatio() {
-        float attrsRatio = 0f;
+        float maxAtt = getAttRelativeImportanceRatio();
+        float maxEnt = getEntRelativeImportanceRatio();
+        return Math.max(maxAtt,maxEnt);
+    }
+
+    public float getAttRelativeImportanceRatio(){
+        List<Float> attrsRatio = new ArrayList<>();
         if (!attValues.isEmpty()) {
             for (AttributeStats attributeStats : attValues.values()) {
-                attrsRatio += attributeStats.getRelativeImportanceRatio();
+                float ratio = attributeStats.getRelativeImportanceRatio();
+                attrsRatio.add(ratio);
             }
         }
+        return !attrsRatio.isEmpty()?Collections.max(attrsRatio):0f;
+    }
 
-        float entityRatio = 0f;
+    public float getEntRelativeImportanceRatio(){
+        List<Float> entityRatio = new ArrayList<>();
         if (!objValues.isEmpty()) {
             for (EntityStats entityStats : objValues.values()) {
-                entityRatio += entityStats.getRelativeImportanceRatio();
+                float ratio = entityStats.getRelativeImportanceRatio();
+                entityRatio.add(ratio);
             }
         }
-        return (attrsRatio+entityRatio)/(attValues.size()+objValues.size());
+        return !entityRatio.isEmpty()?Collections.max(entityRatio):0f;
     }
 
     public Map<String,Object> buildStats() {
         Map<String,Object> stats = new HashMap<>();
-        stats.put("relativeRatio",getRelativeImportanceRatio());
+        stats.put("maxRelativeRatio",getRelativeImportanceRatio());
+        stats.put("maxAttributesRelativeRatio",getAttRelativeImportanceRatio());
+        stats.put("maxEntitiesRelativeRatio",getEntRelativeImportanceRatio());
         stats.put("attributesSize",attValues.size());
         stats.put("entitiesSize",objValues.size());
         stats.put("isEmpty",(attValues.size()+objValues.size())==0);
@@ -112,6 +122,18 @@ public class EntityStats extends ObjectStat{
             }
         }
         return stats;
+    }
 
+    public Map<String,Float> generateMoreRelevantAttributesMap(String prefix){
+        String p = Utils.isValidString(prefix)?((prefix.charAt(prefix.length()-1)=='.')?prefix:prefix+"."):"";
+        Map<String,Float> attrs = new TreeMap<>();
+        for (Map.Entry<String, AttributeStats> att : attValues.entrySet()) { // Para cada atributo
+            attrs.put(p + att.getKey(),att.getValue().getRelativeImportanceRatio());
+        }
+        for ( Map.Entry<String, EntityStats> obj : objValues.entrySet()) {
+            attrs.putAll(obj.getValue().generateMoreRelevantAttributesMap(Utils.isValidString(p)?p+obj.getValue().getName():obj.getValue().getName()));
+        }
+        attrs = Utils.sortByValues(attrs);
+        return attrs;
     }
 }

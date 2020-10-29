@@ -80,8 +80,9 @@ public class DataHandlerImp implements DataHandler {
         // Update data from triple store (add deltas)
         updateCachedData();
         // Update elasticSearch
+        logger.info("Write Triple Objects in Elasticsearch");
         updateElasticData();
-        logger.info("Done Load data");
+        logger.info("Completed load data");
         return CompletableFuture.completedFuture(true);
     }
 
@@ -116,7 +117,9 @@ public class DataHandlerImp implements DataHandler {
                 }.getType();
                 Map<String, Map<String, Map<String, Map<String, TripleObject>>>> triplesMap = gson.fromJson(content, type);
                 redisService.setTriplesMap(triplesMap,true,true);
+                logger.info("Load Data From cache complete");
                 cache.setTriplesMap(triplesMap);
+                logger.info("Set triples map complete");
 
             }
         } catch (Exception e) {
@@ -159,6 +162,7 @@ public class DataHandlerImp implements DataHandler {
             }
         }
         if(isChanged) {
+            cache.updateStats();
             cache.saveTriplesMapInCache();
             cache.saveEntityStatsInCache();
         }

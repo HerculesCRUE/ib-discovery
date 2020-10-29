@@ -2,6 +2,8 @@ package es.um.asio.service.service.impl;
 
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
+import es.um.asio.service.model.stats.EntityStats;
+import es.um.asio.service.model.stats.StatsHandler;
 import es.um.asio.service.repository.elasticsearch.TripleObjectESCustomRepository;
 import es.um.asio.service.repository.elasticsearch.TripleObjectESRepository;
 import es.um.asio.service.service.ElasticsearchService;
@@ -35,6 +37,9 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
 
     @Autowired
     ElasticsearchTemplate elasticsearchTemplate;
+
+    @Autowired
+    CacheServiceImp cache;
 
     @Override
     public TripleObjectES saveTripleObjectES(TripleObjectES toES) {
@@ -160,10 +165,14 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     }
 
     @Override
-    public List<TripleObjectES> getTripleObjectsESByClassNameAndAttributes(String indexName, String className, List<Pair<String, Object>> params) {
+    public List<TripleObjectES> getTripleObjectsESByFilterAndAttributes(String indexName, String node,String tripleStore,String className, List<Pair<String, Object>> params) {
         List<TripleObjectES> tripleObjectsES = new ArrayList<>();
+        List<Pair<String,String>> filters = new ArrayList<>();
+        filters.add(new Pair<>("tripleStore.node.node",node));
+        filters.add(new Pair<>("tripleStore.tripleStore",tripleStore));
+        filters.add(new Pair<>("className",className));
         try {
-            tripleObjectsES = customRepository.findByClassNameAndAttributesWithPartialMatch(indexName,className,params);
+            tripleObjectsES = customRepository.findByClassNameAndAttributesWithPartialMatch(indexName,filters,params);
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
@@ -171,16 +180,34 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     }
 
     @Override
-    public List<TripleObject> getTripleObjectsByClassNameAndAttributes(String indexName, String className, List<Pair<String, Object>> params) {
+    public List<TripleObject> getTripleObjectsByFilterAndAttributes(String indexName, String node,String tripleStore,String className, List<Pair<String, Object>> params) {
         List<TripleObject> tripleObjects = new ArrayList<>();
+        List<Pair<String,String>> filters = new ArrayList<>();
+        filters.add(new Pair<>("tripleStore.node.node",node));
+        filters.add(new Pair<>("tripleStore.tripleStore",tripleStore));
+        filters.add(new Pair<>("className",className));
         try {
-            List<TripleObjectES> responses = customRepository.findByClassNameAndAttributesWithPartialMatch(indexName,className,params);
+
+            List<TripleObjectES> responses = customRepository.findByClassNameAndAttributesWithPartialMatch(indexName,filters,params);
             for (TripleObjectES toES : responses) {
                 tripleObjects.add(new TripleObject(toES));
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
+        return tripleObjects;
+    }
+
+    @Override
+    public List<TripleObjectES> getSimilarTripleObjectsES(TripleObject tripleObject) {
+        List<TripleObjectES> tripleObjectsES = new ArrayList<>();
+        StatsHandler stats = cache.getStatsHandler();
+        return tripleObjectsES;
+    }
+
+    @Override
+    public List<TripleObject> getSimilarTripleObjects(TripleObject tripleObject) {
+        List<TripleObject> tripleObjects = new ArrayList<>();
         return tripleObjects;
     }
 }

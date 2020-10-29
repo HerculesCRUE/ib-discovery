@@ -5,11 +5,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.internal.LinkedTreeMap;
-import es.um.asio.service.comparators.entities.EntitySimilarity;
+import es.um.asio.service.comparators.entities.EntitySimilarityOld;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.model.stats.AttributeStats;
 import es.um.asio.service.model.stats.EntityStats;
-import es.um.asio.service.model.stats.ObjectStat;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import es.um.asio.service.util.Utils;
 import lombok.*;
@@ -108,9 +107,9 @@ public class TripleObject {
         return Objects.hash(id);
     }
 
-    public EntitySimilarityObj compare(CacheServiceImp cacheService, TripleObject other) {
+    public EntitySimilarityObjOld compare(CacheServiceImp cacheService, TripleObject other) {
         if (equalAttributesRatio(other)< 0.5f) {
-            EntitySimilarityObj eso = new EntitySimilarityObj(other);
+            EntitySimilarityObjOld eso = new EntitySimilarityObjOld(other);
             eso.setSimilarity(0f);
             return eso;
         }
@@ -123,7 +122,7 @@ public class TripleObject {
             }
         }
 
-        return EntitySimilarity.compare(other, attributesMap,this.getAttributes(),other.getAttributes());
+        return EntitySimilarityOld.compare(other, attributesMap,this.getAttributes(),other.getAttributes());
     }
 
     public float equalAttributesRatio(TripleObject other) {
@@ -164,6 +163,38 @@ public class TripleObject {
             }
         }
         return to;
+    }
+
+    public boolean hasAttribute(String att,LinkedTreeMap map) {
+        if (!Utils.isValidString(att))
+            return false;
+        String[] attrs = att.split("\\.");
+        String key = attrs[0];
+        if (map == null || map.get(key)==null)
+            return false;
+        else if (Utils.isPrimitive(map.get(key)))
+            return true;
+        else {
+            String attAux = String.join(".", Arrays.asList(Arrays.copyOfRange(attrs, 1, attrs.length)));
+            LinkedTreeMap val = (LinkedTreeMap) map.get(key);
+            return (val != null) && hasAttribute(attAux, val);
+        }
+    }
+
+    public Object getAttributeValue(String att,LinkedTreeMap map) {
+        if (!Utils.isValidString(att))
+            return null;
+        String[] attrs = att.split("\\.");
+        String key = attrs[0];
+        if (map == null || map.get(key)==null)
+            return null;
+        else if (Utils.isPrimitive(map.get(key)))
+            return map.get(key);
+        else {
+            String attAux = String.join(".", Arrays.asList(Arrays.copyOfRange(attrs, 1, attrs.length)));
+            LinkedTreeMap val = (LinkedTreeMap) map.get(key);
+            return getAttributeValue(attAux, val);
+        }
     }
 }
 

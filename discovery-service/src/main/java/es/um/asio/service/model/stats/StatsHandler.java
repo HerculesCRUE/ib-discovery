@@ -73,4 +73,13 @@ public class StatsHandler {
             return null;
     }
 
+    public Map<String,Float> generateMoreRelevantAttributesMap(String node, String triple, String className){
+        if (this.stats.containsKey(node) && this.stats.get(node).containsKey(triple) && this.stats.get(node).get(triple).containsKey(className)) {
+            return this.stats.get(node).get(triple).get(className).generateMoreRelevantAttributesMap(null);
+        } else
+            return null;
+    }
+
+
+
 }

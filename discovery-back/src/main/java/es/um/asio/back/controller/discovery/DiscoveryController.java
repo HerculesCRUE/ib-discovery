@@ -1,7 +1,9 @@
 package es.um.asio.back.controller.discovery;
 
 //import es.um.asio.service.model.Role;
+import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.appstate.ApplicationState;
+import es.um.asio.service.service.EntitiesHandlerService;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import es.um.asio.service.validation.group.Create;
 import io.swagger.annotations.ApiParam;
@@ -13,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,6 +31,9 @@ public class DiscoveryController {
 
     @Autowired
     CacheServiceImp cache;
+
+    @Autowired
+    EntitiesHandlerService entitiesHandlerService;
 
     /**
      * Status.
@@ -63,6 +69,29 @@ public class DiscoveryController {
     }
 
     /**
+     * Get Entity Stats.
+     *
+     * @return Get the Entty Stats
+     */
+    @GetMapping(Mappings.ENTITY_LINK)
+    //@Secured(Role.ANONYMOUS_ROLE)
+    public Map<String, Object> findEntityLinkByNodeTripleStoreAndClass(
+            @ApiParam(name = "node", value = "um", defaultValue = "um", required = false)
+            @RequestParam(required = false, defaultValue = "um") @Validated(Create.class) final String node,
+            @ApiParam(name = "tripleStore", value = "trellis", defaultValue = "trellis", required = false)
+            @RequestParam(required = false, defaultValue = "trellis") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "className", value = "Class Name", required = false)
+            @RequestParam(required = true) @Validated(Create.class) final String className
+    ) {
+        List<TripleObject> entities = entitiesHandlerService.findEntitiesLinksByNodeAndTripleStoreAndClass(node,tripleStore,className);
+        Map<String,Object> stats = new HashMap<>();
+        stats.put("status", applicationState);
+        stats.put("stats",cache.getStatsHandler().buildStats(node,tripleStore,className));
+        return stats;
+    }
+
+
+    /**
      * Mappgins.
      */
     @NoArgsConstructor(access = AccessLevel.PUBLIC)
@@ -75,6 +104,8 @@ public class DiscoveryController {
         protected static final String STATUS = "/status";
 
         protected static final String STATS = "/stats";
+
+        protected static final String ENTITY_LINK = "/entity-link";
 
     }
 }

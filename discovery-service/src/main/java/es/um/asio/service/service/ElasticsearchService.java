@@ -36,7 +36,11 @@ public interface ElasticsearchService {
 
     public TripleObject getTripleObjectById(String id);
 
-    public List<TripleObjectES> getTripleObjectsESByClassNameAndAttributes(String indexName, String className, List<Pair<String,Object>> params);
+    public List<TripleObjectES> getTripleObjectsESByFilterAndAttributes(String indexName, String node, String tripleStore,String className, List<Pair<String,Object>> params);
 
-    public List<TripleObject> getTripleObjectsByClassNameAndAttributes(String indexName, String className, List<Pair<String,Object>> params);
+    public List<TripleObject> getTripleObjectsByFilterAndAttributes(String indexName, String node, String tripleStore,String className, List<Pair<String,Object>> params);
+
+    public List<TripleObjectES> getSimilarTripleObjectsES(TripleObject tripleObject);
+
+    public List<TripleObject> getSimilarTripleObjects(TripleObject tripleObject);
 }
