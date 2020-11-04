@@ -48,7 +48,7 @@ class FirebaseStorageStrategyTest {
     }
 
     @Test
-    void writeRedisTriplesInFireBase() throws JsonProcessingException {
+    void writeRedisTriplesInFireBase(boolean isAsync) throws JsonProcessingException {
         if (writeTriplesMapInFireBase) {
 
             Gson gson = new GsonBuilder()
@@ -62,9 +62,10 @@ class FirebaseStorageStrategyTest {
 
             Map<String, Map<String, Map<String, Map<String, TripleObject>>>> triplesMap = gson.fromJson(content, type);
             JsonObject jTriplesMap = gson.fromJson(gson.toJson(triplesMap),JsonObject.class);
-            CompletableFuture<String[]> rFuture = firebaseStorageStrategy.writeFile("jTriplesMap.json",jTriplesMap.toString());
-            rFuture.join();
-            System.out.println();
+            if (!isAsync) {
+                CompletableFuture<String[]> rFuture = firebaseStorageStrategy.writeFile("jTriplesMap.json", jTriplesMap.toString());
+                rFuture.join();
+            }
         }
 
     }

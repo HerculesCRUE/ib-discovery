@@ -1,6 +1,7 @@
 package es.um.asio.back.controller.discovery;
 
 //import es.um.asio.service.model.Role;
+import es.um.asio.service.comparators.entities.EntitySimilarityObj;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.service.EntitiesHandlerService;
@@ -83,10 +84,10 @@ public class DiscoveryController {
             @ApiParam(name = "className", value = "Class Name", required = false)
             @RequestParam(required = true) @Validated(Create.class) final String className
     ) {
-        List<TripleObject> entities = entitiesHandlerService.findEntitiesLinksByNodeAndTripleStoreAndClass(node,tripleStore,className);
+        Map<String, List<EntitySimilarityObj>> entitiesSimilarities = entitiesHandlerService.findEntitiesLinksByNodeAndTripleStoreAndClass(node,tripleStore,className);
         Map<String,Object> stats = new HashMap<>();
         stats.put("status", applicationState);
-        stats.put("stats",cache.getStatsHandler().buildStats(node,tripleStore,className));
+        stats.put("similarities",entitiesSimilarities);
         return stats;
     }
 

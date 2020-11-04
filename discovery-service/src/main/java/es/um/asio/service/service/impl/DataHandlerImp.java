@@ -80,7 +80,7 @@ public class DataHandlerImp implements DataHandler {
         // Update data from triple store (add deltas)
         updateCachedData();
         // Update elasticSearch
-        logger.info("Write Triple Objects in Elasticsearch");
+        logger.info("Writing Triple Objects in Elasticsearch");
         updateElasticData();
         logger.info("Completed load data");
         return CompletableFuture.completedFuture(true);

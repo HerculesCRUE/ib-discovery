@@ -29,6 +29,10 @@ public class DataSourcesConfiguration {
     public static class Thresholds {
         private double manualThreshold;
         private double automaticThreshold;
+        private double elasticSearchAttributesThresholdSimple;
+        private double elasticSearchAttributesNumberRatioSimple;
+        private double elasticSearchAttributesThresholdComplex;
+        private double elasticSearchAttributesNumberRatioComplex;
 
     }
 

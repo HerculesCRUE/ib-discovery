@@ -46,6 +46,10 @@ data:
 data-sources:
   useCachedData: true
   thresholds:
+    elasticSearchAttributesThresholdSimple: 0.8
+    elasticSearchAttributesNumberRatioSimple: 0.4
+    elasticSearchAttributesThresholdComplex: 0.5
+    elasticSearchAttributesNumberRatioComplex: 0.2
     manualThreshold: 0.6
     automaticThreshold: 0.9
   nodes:

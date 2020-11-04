@@ -237,7 +237,6 @@ class ElasticsearchServiceImpTest {
         params.add(new Pair<>("idPersona","9920"));
         params.add(new Pair<>("depNombre","SERVICIO GESTION INVESTIGACION"));
         List<TripleObject> res = esService.getTripleObjectsByFilterAndAttributes("triple-object",  "um", "trellis", "Persona", params);
-        System.out.println();
     }
 
     @Test
@@ -248,28 +247,6 @@ class ElasticsearchServiceImpTest {
     @Test
     @Order(16)
     void postProjectTripleObjectES() {
-       /* TripleObjectES toES = new TripleObjectES();
-        toES.setClassName("ProyectoNuevo");
-        toES.setTripleStore(new TripleStore("trellis","um","http://herc-iz-front-desa.atica.um.es/","admin","admin"));
-        toES.setId("http:_hercules.org_um_es-ES_rec_Proyecto_147290");
-        toES.setLastModification(new Date(1589429447000l));
-        LinkedTreeMap<String,Object> attrs = new LinkedTreeMap<>();
-*//*        attrs.put("cerrado",new LinkedTreeMap<String,Object>());
-        ((LinkedTreeMap) attrs.get("cerrado")).put("language1","es");
-        ((LinkedTreeMap) attrs.get("cerrado")).put("value1","2031/09/12 00:00:00");*//*
-        attrs.put("descripcion","esta"*//*new LinkedTreeMap<String,Object>()*//*);
-*//*        ((LinkedTreeMap) attrs.get("descripcion")).put("language2","es");
-        ((LinkedTreeMap) attrs.get("descripcion")).put("value2","PATENTE/DPI/MODELO DE UTILIDAD");*//*
-        *//*attrs.put("id",new LinkedTreeMap<String,Object>());
-        ((LinkedTreeMap) attrs.get("id")).put("language3","es");
-        ((LinkedTreeMap) attrs.get("id")).put("value3","14729");
-        attrs.put("nombre",new LinkedTreeMap<String,Object>());
-        ((LinkedTreeMap) attrs.get("nombre")).put("language4","es");
-        ((LinkedTreeMap) attrs.get("nombre")).put("value4","CONTRATO DE LICENCIA DE EXPLOTACION ENTRE LA UNIVERSIDAD DE MURCIA Y PLASTICOS ROMERO");
-        attrs.put("tipo",new LinkedTreeMap<String,Object>());
-        ((LinkedTreeMap) attrs.get("tipo")).put("language5","es");
-        ((LinkedTreeMap) attrs.get("tipo")).put("value5","PATENTES");*//*
-        toES.setAttributes(attrs);*/
 
         TripleStore ts = new TripleStore("trellis", "um", "http://herc-iz-front-desa.atica.um.es/", "admin", "admin");
         JsonObject jData = new JsonObject();

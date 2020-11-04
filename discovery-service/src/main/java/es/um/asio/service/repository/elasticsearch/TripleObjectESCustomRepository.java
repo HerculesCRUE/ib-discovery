@@ -1,6 +1,7 @@
 package es.um.asio.service.repository.elasticsearch;
 
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
+import es.um.asio.service.service.impl.TextHandlerServiceImp;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -27,6 +28,9 @@ public class TripleObjectESCustomRepository{
     @Autowired
     private ElasticsearchTemplate elasticsearchTemplate;
 
+    @Autowired
+    private TextHandlerServiceImp textHandler;
+
     public List<TripleObjectES> findByClassNameAndAttributesWithPartialMatch(String indexName, List<Pair<String,String>> musts, List<Pair<String,Object>> attrs){
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         for (Pair<String,String> must : musts) {
@@ -36,9 +40,19 @@ public class TripleObjectESCustomRepository{
         if (attrs.size()>0) {
             for (Pair<String,Object> att : attrs) {
                 if (att.getValue(1) instanceof String) {
-                    boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format("attributes.%s", att.getValue(0)), att.getValue(1)));
+                    boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format("attributes.%s", att.getValue(0)), textHandler.removeStopWords((String) att.getValue(1))));
                 } else {
-                    boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.termQuery(String.format("attributes.%s", att.getValue(0)), att.getValue(1)));
+                    if (att.getValue(1) instanceof List) {
+                        for (Object val : (List)att.getValue(1)) {
+                            if (val instanceof String) {
+                                boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format("attributes.%s", att.getValue(0)), textHandler.removeStopWords((String) val)));
+                            } else {
+                                boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.termQuery(String.format("attributes.%s", att.getValue(0)), val));
+                            }
+                        }
+                    } else {
+                        boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.termQuery(String.format("attributes.%s", att.getValue(0)), att.getValue(1)));
+                    }
                 }
             }
             boolQueryBuilder.must(boolQueryBuilderAttrs);
@@ -55,7 +69,9 @@ public class TripleObjectESCustomRepository{
             scroll = (ScrolledPage<TripleObjectES>) elasticsearchTemplate.continueScroll(scroll.getScrollId(),6000,TripleObjectES.class);
         }
         elasticsearchTemplate.clearScroll(scroll.getScrollId());
-        return new ArrayList<>(results);
+        List<TripleObjectES> lResult = new ArrayList<>(results);
+        Collections.sort(lResult);
+        return lResult;
     }
 
     public List<TripleObjectES> getAllTripleObjectsESByClassByClassName(String className) {

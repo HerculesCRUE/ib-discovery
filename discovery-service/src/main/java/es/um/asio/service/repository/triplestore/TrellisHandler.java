@@ -1,5 +1,6 @@
 package es.um.asio.service.repository.triplestore;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -89,7 +90,7 @@ public class TrellisHandler extends TripleStoreHandler {
                                 TripleObject to = cacheService.getTripleObject(nodeName,"trellis",className,instanceId);
                                 // Si la cache contiene la instancia, no hag la petición
                                 boolean isNew = (to==null);
-                                if (to == null || (className.equals("Proyecto") /*&& to.getAttributes().size() < 2*/)) {
+                                if (to == null || to.getAttributes() == null/*|| (className.equals("CvnRootBean") && to.getAttributes().size() < 2)*/) {
                                     // En caso contrario, hago la petición para añadir a la cache
                                     // Request to Instance URL
 
@@ -97,12 +98,14 @@ public class TrellisHandler extends TripleStoreHandler {
                                     if (rInstance!=null) {
                                         JsonObject jInstanceObject = new Gson().fromJson(rInstance.body().string(), JsonObject.class);
                                         String lastModification = rInstance.headers().get("Last-Modified");
-                                        if (jClassObject.has("@graph")) {
+
+                                        if (jClassObject.has("@graph") && jClassObject.has("@context")) {
 /*                                            if (className.contains("CvnRootBean") || true) {*/
+                                            JsonObject jContext = jClassObject.get("@context").getAsJsonObject();
                                             String jStrInstance = jInstanceObject.toString().replace("j\\.[0-9]+:","");
                                             JsonObject jeClassInstance = new Gson().fromJson(jStrInstance, JsonObject.class);
 
-                                            JsonObject jRootObject = parseJsonDataByCvn(jeClassInstance.get("@graph").getAsJsonArray(), className, instanceId);
+                                            JsonObject jRootObject = parseJsonDataByCvn(jeClassInstance.get("@graph").getAsJsonArray(),jContext, className, instanceId);
                                             //to = new TripleObject(this.tripleStore, jInstanceObject.get("@graph").getAsJsonArray(), className, instanceId, lastModification);
                                             to = new TripleObject(this.tripleStore, jRootObject, className, instanceId, lastModification);
                                             changes++;
@@ -119,7 +122,7 @@ public class TrellisHandler extends TripleStoreHandler {
                                         logger.info("		Processing Node {} Instances: {} ({}/{}): {}	,class ({}/{}):{}	,id: {}	,data:{}",nText, ++instancesCounter, ++instancesInClass,totalInClass, nodeName, classesCounter,totalClasses,className, instanceId, to.toString());
                                         cacheService.addTripleObject(nodeName,"trellis", to);
                                     } catch (Exception e) {
-                                        System.out.println();
+                                        e.printStackTrace();
 /*                                        to.setTripleStore(this.tripleStore);
                                         String nText = ((isNew)?"(New) ":" ");
                                         logger.info("		Processing Node {} Instances: {} ({}/{}): {}	,class ({}/{}):{}	,id: {}	,data:{}",nText, ++instancesCounter, ++instancesInClass,totalInClass, nodeName, classesCounter,totalClasses,className, instanceId, to.toString());
@@ -151,43 +154,65 @@ public class TrellisHandler extends TripleStoreHandler {
         }
     }
 
-    private JsonObject parseJsonDataByCvn(JsonArray jData, String className, String id) {
-/*        if (id.equals("http:_hercules.org_um_es-ES_rec_CvnRootBean_d4bbead1-0527-422d-9a40-fd0a904d06c5"))
-            System.out.println(); // Remove*/
-        jData.toString().replace("j\\.[0-9]+:","");
-        String uuid = id.substring(id.lastIndexOf("_")+1);
-        Map<String,Object> attrs = new LinkedTreeMap<>();
-        JsonObject jRootObject = null;
-        for (JsonElement jeAttribute : jData) {
-            JsonObject jAttribute = cleanAttrs(jeAttribute);
-            if (
-                    jAttribute.has("@id") && jAttribute.get("@id").isJsonPrimitive() && jAttribute.get("@id").getAsString().contains(uuid) &&
-                            jAttribute.has("@type") && jAttribute.get("@type").isJsonPrimitive() && jAttribute.get("@type").getAsString().contains(className)
-            ) {
-                jAttribute.remove("@id");
-                jAttribute.remove("@type");
-                jRootObject = jAttribute.deepCopy();
-            } else { // Si no es el objeto raiz
+    private JsonObject parseJsonDataByCvn(JsonArray jData,JsonObject jContext, String className, String id) {
+        try {
+            if (id.contains("e02ad815-f4ca-496b-af87-207d7ce3ac94") && !id.equals("e02ad815-f4ca-496b-af87-207d7ce3ac93"))
+                System.out.println(); // Remove
+            jData.toString().replace("j\\.[0-9]+:", "");
+            String uuid = id.substring(id.lastIndexOf("_") + 1);
+            Map<String, Object> attrs = new LinkedTreeMap<>();
+            JsonObject jRootObject = null;
+            for (JsonElement jeAttribute : jData) {
+                JsonObject jAttribute = cleanAttrs(jeAttribute);
                 if (
-                        jAttribute.has("@id") && jAttribute.get("@id").isJsonPrimitive() && jAttribute.get("@id").getAsString().startsWith("_:b")
+                        (
+                                jAttribute.has("@id") && jAttribute.get("@id").isJsonPrimitive() && jAttribute.get("@id").getAsString().contains(uuid)
+                        ) && (
+                            (
+                                    jAttribute.has("@type") && jAttribute.get("@type").isJsonPrimitive() && (jAttribute.get("@type").getAsString().contains(className)
+                            )
+                            ||
+                            (
+                                jAttribute.has("@type") && jAttribute.get("@type").isJsonPrimitive() &&
+                                jAttribute.get("@type").getAsString().matches("j\\.[0-9]+") && jContext.has(jAttribute.get("@type").getAsString()) &&
+                                jContext.get(jAttribute.get("@type").getAsString()).getAsString().contains(className)
+                            )
+                            )
+                        )
                 ) {
-                    String jId = jAttribute.get("@id").getAsString();
                     jAttribute.remove("@id");
                     jAttribute.remove("@type");
-                    attrs.put(jId,jAttribute);
+                    jRootObject = jAttribute.deepCopy();
+                } else { // Si no es el objeto raiz
+                    if (
+                            jAttribute.has("@id") && jAttribute.get("@id").isJsonPrimitive() && jAttribute.get("@id").getAsString().startsWith("_:b")
+                    ) {
+                        String jId = jAttribute.get("@id").getAsString();
+                        jAttribute.remove("@id");
+                        jAttribute.remove("@type");
+                        attrs.put(jId, jAttribute);
+                    }
                 }
             }
-        }
 
-        if (jRootObject!=null)
-            jRootObject = buildCvnFromRoot(jRootObject.deepCopy(),jRootObject,attrs);
-        return jRootObject;
+            if (jRootObject != null)
+                jRootObject = buildCvnFromRoot(id, jRootObject.deepCopy(), jRootObject, attrs);
+            else {
+                jRootObject = new Gson().fromJson(new ObjectMapper().writeValueAsString(attrs), JsonObject.class);
+            }
+            return jRootObject;
+        } catch (Exception e) {
+            return new JsonObject();
+        }
     }
 
-    private JsonObject buildCvnFromRoot(JsonObject jParentRoot,JsonObject jRoot, Map<String,Object> attrs ){
+    private JsonObject buildCvnFromRoot(String id, JsonObject jParentRoot,JsonObject jRoot, Map<String,Object> attrs ){
         for (Map.Entry<String, JsonElement> jeAtt : jRoot.entrySet()) {
             String key = jeAtt.getKey();
 /*            if (key.contains("cvnFamilyNameBean"))
+                System.out.println();*/
+
+/*            if (id.contains("de5d387c-494d-4289-8e4c-190297793adc") && jeAtt.getKey().equals("cvnFamilyNameBean"))
                 System.out.println();*/
 
             if (jeAtt.getValue().isJsonPrimitive()) { // Si es primitivo
@@ -195,7 +220,7 @@ public class TrellisHandler extends TripleStoreHandler {
                     if (attrs.containsKey(jeAtt.getValue().getAsString())) {
                         JsonObject jContent = (JsonObject) attrs.get(jeAtt.getValue().getAsString());
                         if (jContent.size()>=0)
-                            jeAtt.setValue(buildCvnFromRoot(jRoot,jContent,attrs));
+                            jeAtt.setValue(buildCvnFromRoot(id,jRoot,jContent,attrs));
                         else
                             jeAtt.setValue(jContent);
                     }
@@ -207,12 +232,14 @@ public class TrellisHandler extends TripleStoreHandler {
                         if (jeAttInner.getAsString().startsWith("_:b")) {
                             if (attrs.containsKey(jeAttInner.getAsString())) {
                                 JsonObject jContentInner = (JsonObject) attrs.get(jeAttInner.getAsString());
-                                jInners.add(buildCvnFromRoot(jRoot,jContentInner,attrs));
+                                jInners.add(buildCvnFromRoot(id,jRoot,jContentInner,attrs));
                             }
                         }
                     }
                 }
                 jeAtt.setValue(jInners);
+            } else if(jeAtt.getValue().isJsonObject()) {
+                jeAtt.setValue(buildCvnFromRoot(id,jRoot,jeAtt.getValue().getAsJsonObject(),attrs));
             }
         }
         return jRoot;

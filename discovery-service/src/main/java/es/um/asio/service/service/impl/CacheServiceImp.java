@@ -74,6 +74,7 @@ public class CacheServiceImp implements CacheService {
             triplesMapByDate.get(node).get(triple).get(to.getClassName()).get(to.getYear()).get(to.getMonth()).put(to.getId(), to);
 
             //statsHandler.addAttributes(node, triple, to);
+            // to.buildFlattenAttributes();
         }
     }
 
@@ -293,6 +294,7 @@ public class CacheServiceImp implements CacheService {
                                     triplesMapByDate.get(node.getKey()).get(tripleStore.getKey()).put(className.getKey(), new HashMap<>());
                                 if (className != null && className.getValue() != null && className.getValue().entrySet() != null) {
                                     for (Map.Entry<String, TripleObject> to : className.getValue().entrySet()) {
+                                        to.getValue().buildFlattenAttributes();
                                         TripleObject toInner = null;
                                         try {
                                             toInner = new ObjectMapper().convertValue(to.getValue(), TripleObject.class);
@@ -312,7 +314,6 @@ public class CacheServiceImp implements CacheService {
                                             }
                                         } catch (Exception e) {
                                             e.printStackTrace();
-                                            System.out.println();
                                         }
                                         if (toInner.getLastModification() != 0) {
                                             Calendar cal = Calendar.getInstance();

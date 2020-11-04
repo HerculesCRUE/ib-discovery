@@ -1,5 +1,6 @@
 package es.um.asio.service.model.elasticsearch;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
@@ -10,14 +11,17 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Score;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 @Document(indexName = "triple-object", type = "classes", shards = 2)
 @Data
 @AllArgsConstructor
-public class TripleObjectES {
+public class TripleObjectES implements Comparable<TripleObjectES>{
 
     @Id
     private String id;
@@ -28,6 +32,9 @@ public class TripleObjectES {
     private TripleStore tripleStore;
     @Field(type = FieldType.Object)
     private LinkedTreeMap<String,Object> attributes;
+    @Score
+    @JsonIgnore
+    private float score;
 
     public TripleObjectES() {
         attributes = new LinkedTreeMap();
@@ -48,5 +55,18 @@ public class TripleObjectES {
         this.tripleStore = to.getTripleStore();
     }
 
+    @Override
+    public int compareTo(TripleObjectES o) {
+        return ((Float) o.getScore()).compareTo((Float) this.getScore());
+    }
 
+    public static List<TripleObject> getTripleObjects(List<TripleObjectES> tosES) {
+        List<TripleObject> tos = new ArrayList<>();
+        if (tosES!=null) {
+            for (TripleObjectES toES :tosES) {
+                tos.add(new TripleObject(toES));
+            }
+        }
+        return tos;
+    }
 }

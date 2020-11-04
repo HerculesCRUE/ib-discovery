@@ -24,8 +24,6 @@ public class EntityStats extends ObjectStat{
     }
 
     public void addValue(String name,Object value) {
-        if (getName().equals("Proyecto") && name.contains("nombre"))
-            System.out.println();
         setCounter(getCounter()+1);
         if (Utils.isPrimitive(value)) { // Si es primitivo
             addAttValue(name,value);
@@ -66,7 +64,7 @@ public class EntityStats extends ObjectStat{
                 }
             }
         } catch (Exception e) {
-            System.out.println();
+            e.printStackTrace();
         }
     }
 

@@ -12,16 +12,10 @@ import java.util.stream.Collectors;
 public class Test1 {
     @Test
     public void main(){
-        HashMap<String, Float> map = new HashMap<String, Float>();
+        String texto = "j.0";
+        String regex = "j\\.[0-9]+";
+        System.out.println(texto.matches(regex));
 
-        map.put("D", 1.5f);
-        map.put("B", 67.4f);
-        map.put("C", 67.8f);
-        map.put("A", 67.3f);
-
-        Map<String, Float> sorted = Utils.sortByValues(map);
-
-        System.out.println(sorted);
 
     }
 }
