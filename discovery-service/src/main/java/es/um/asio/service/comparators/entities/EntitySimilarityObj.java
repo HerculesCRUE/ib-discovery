@@ -45,4 +45,19 @@ public class EntitySimilarityObj {
     public Map<String, SimilarityValue> getSimilarities() {
         return similarities;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EntitySimilarityObj that = (EntitySimilarityObj) o;
+        return Float.compare(that.similarity, similarity) == 0 &&
+                Objects.equals(tripleObject, that.tripleObject) &&
+                Objects.equals(similarities, that.similarities);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tripleObject.getId());
+    }
 }

@@ -70,12 +70,18 @@ services:
           - redis.svc
   zookeeper:
     image: 'bitnami/zookeeper:latest'
+    container_name: zookeeper_asio
     ports:
       - '2181:2181'
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+    depends_on:
+      - db
+      - elasticsearch
+      - redis
   kafka:
     image: 'bitnami/kafka:latest'
+    container_name: kafka_asio
     ports:
       - '9092:9092'
     environment:

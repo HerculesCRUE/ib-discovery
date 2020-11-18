@@ -9,10 +9,16 @@ import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.appstate.DataType;
 import es.um.asio.service.model.appstate.State;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
+import es.um.asio.service.model.relational.CacheRegistry;
+import es.um.asio.service.model.relational.DiscoveryApplication;
 import es.um.asio.service.model.stats.EntityStats;
 import es.um.asio.service.model.stats.StatsHandler;
+import es.um.asio.service.repository.relational.CacheRegistryRepository;
+import es.um.asio.service.repository.relational.DiscoveryApplicationRepository;
+import es.um.asio.service.repository.relational.JobRegistryRepository;
 import es.um.asio.service.repository.triplestore.TripleStoreHandler;
 import es.um.asio.service.service.DataHandler;
+import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,10 +63,31 @@ public class DataHandlerImp implements DataHandler {
     @Autowired
     ElasticsearchServiceImp elasticsearchService;
 
+    @Autowired
+    DiscoveryApplicationRepository appRepo;
+
+    @Autowired
+    JobRegistryRepository jobRegistryRepository;
+
+    @Autowired
+    CacheRegistryRepository cacheRegistryRepository;
+
+
     @PostConstruct
     private void initialize() throws Exception {
         logger.info("Initializing DataHandlerImp");
         handlers = new ArrayList<>();
+        DiscoveryApplication discoveryApplication = applicationState.getApplication();
+        if (discoveryApplication!=null) {
+            discoveryApplication = appRepo.save(discoveryApplication);
+            jobRegistryRepository.closeOtherJobRegistryByAppId(discoveryApplication.getId());
+            applicationState.setApplication(discoveryApplication);
+        }
+
+/*        CacheRegistry cr = new CacheRegistry(discoveryApplication,"nodo","triplestore","clase");
+        cacheRegistryRepository.save(cr);
+        System.out.println("DOOOOOOONE");*/
+
     }
 
     @Override
@@ -78,7 +105,7 @@ public class DataHandlerImp implements DataHandler {
             applicationState.setDataState(DataType.CACHE, State.CACHED_DATA);
         }
         // Update data from triple store (add deltas)
-        updateCachedData();
+        updateCachedData(); // TODO: quit comment
         // Update elasticSearch
         logger.info("Writing Triple Objects in Elasticsearch");
         updateElasticData();
@@ -88,16 +115,32 @@ public class DataHandlerImp implements DataHandler {
 
     private void updateElasticData() {
         // Load cache data
-        cache.setEsTriplesMap(redisService.getElasticSearchTriplesMap());
-        Set<TripleObject> tosES =  cache.getEsTriplesMapAsSet(); // Tripletas cacheadas
+        Map<String, Set<String>> savedInES =elasticsearchService.getAllSimplifiedTripleObject();
+
+        Map<String,Map<String,TripleObjectES>> toSaveES = new HashMap<>();
         Set<TripleObject> tos =  cache.getAllTripleObjects(); // Todas las tripletas
-        tos.removeAll(tosES); // Elimino de todas, las ya cacheadas
-        List<TripleObject> toToSaveES = new ArrayList<>(tos); // Creo una lista con las pendientes
-        elasticsearchService.saveTripleObjects(toToSaveES); // Guardo en elastic
-        for (TripleObject to : toToSaveES) {
+
+        for (TripleObject to : tos) {
+            if (!savedInES.containsKey(to.getClassName()) || !savedInES.get(to.getClassName()).contains(to.getId()) ) {
+                if (!toSaveES.containsKey(to.getClassName()))
+                    toSaveES.put(to.getClassName(), new HashMap<>());
+                toSaveES.get(to.getClassName()).put(to.getId(),new TripleObjectES(to));
+            }
+        }
+
+        for (Map.Entry<String, Map<String, TripleObjectES>> classEntry : toSaveES.entrySet()) {
+            List<TripleObjectES> toSave = new ArrayList<>();
+            for (Map.Entry<String, TripleObjectES> toEntry : classEntry.getValue().entrySet()) {
+                toSave.add(toEntry.getValue());
+            }
+            Map<String, Map<String, String>> saveResult = elasticsearchService.saveTripleObjectsES(toSave);
+            logger.info("Saved in Elasticsearch className:" + classEntry.getKey() +", elements: "+ toSave.size() + ", inserted: "+saveResult.get("INSERTED").size()+" fails: "+saveResult.get("FAILED").size());
+            System.out.println();
+        }
+/*        for (TripleObject to : toToSaveES) {
             cache.addTripleObjectES(to.getTripleStore().getNode().getNode(), to.getTripleStore().getTripleStore(), to);
         }
-        cache.saveElasticSearchTriplesMapInCache();
+        cache.saveElasticSearchTriplesMapInCache();*/
         applicationState.setDataState(DataType.ELASTICSEARCH, State.UPLOAD_DATA);
         // List<TripleObjectES> tosESAfter = elasticsearchService.getAll();
 

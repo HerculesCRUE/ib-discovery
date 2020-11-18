@@ -152,17 +152,24 @@ public class Utils {
         return s.trim().toLowerCase().matches(regex);
     }
 
-    public static boolean isDate(String s) {
-        for (Locale locale: Locale.getAvailableLocales()) {
-            if (GenericValidator.isDate(s,locale))
-                return true;
-        }
-        try {
-            new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss", Locale.UK).parse(s);
+    public static boolean getBoolean(String s) {
+        s = s.strip().toLowerCase();
+        if (s.equals("true") || s.equals("yes") || s.equals("si") || s.equals("s"))
             return true;
-        } catch (ParseException e) {
+        else if (s.equals("false") || s.equals("no")  || s.equals("n"))
             return false;
+        else {
+            try {
+                return Boolean.getBoolean(s);
+            } catch (Exception e) {
+                return false;
+            }
         }
+    }
+
+    public static boolean isDate(String s) {
+        String regex = "[0-9]{2,4}(/|-|\\.)[0-9]{2,4}(/|-|\\.)[0-9]{2,4}((\\s|T)[0-5][0-9]:[0-5][0-9]:[0-5][0-9](Z|\\.[0-9]||\\.[0-9]{2,3})?)?";
+        return s.matches(regex);
     }
 
     public static Date getDate(String s) {
@@ -252,4 +259,66 @@ public class Utils {
         sortedByValues.putAll(map);
         return sortedByValues;
     }
+
+    public static boolean checkIfFloat(String s) {
+        try {
+            String regex = "^([+-]?\\d*\\.\\d+(e\\d+)?)$";
+            double f = Float.parseFloat(s);
+            double d = Double.parseDouble(s);
+            return s.matches(regex) && d >= Float.MIN_VALUE && d <= Float.MAX_VALUE;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+
+    public static boolean checkIfDouble(String s) {
+        try {
+            String regex = "^([+-]?\\d*\\.\\d+(e\\d+)?)$";
+            double d = Double.parseDouble(s);
+            return s.matches(regex) && d >= Double.MIN_VALUE && d <= Double.MAX_VALUE;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean checkIfInt(String s) {
+        try {
+            String regex = "[+-]?[0-9]+";
+            double l = Long.parseLong(s);
+            return s.matches(regex) && l >= Integer.MIN_VALUE && l <= Integer.MAX_VALUE;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean checkIfLong(String s) {
+        try {
+            String regex = "[+-]?[0-9]+";
+            double l = Long.parseLong(s);
+            return s.matches(regex) && l >= Long.MIN_VALUE && l <= Long.MAX_VALUE;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean checkIfBoolean(String s) {
+        return isBoolean(s);
+    }
+
+    public static boolean checkIfDaten(String s) {
+        return isDate(s);
+    }
+
+    public static boolean checkIfString(Object o) {
+        try {
+            String.valueOf(o);
+            if (o instanceof String)
+                return true;
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }

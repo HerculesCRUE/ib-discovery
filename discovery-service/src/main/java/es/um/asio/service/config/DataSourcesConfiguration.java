@@ -33,6 +33,8 @@ public class DataSourcesConfiguration {
         private double elasticSearchAttributesNumberRatioSimple;
         private double elasticSearchAttributesThresholdComplex;
         private double elasticSearchAttributesNumberRatioComplex;
+        private double elasticSearchMaxDesirableNumbersOfResults;
+        private double elasticSearchCutOffAccordPercentile;
 
     }
 

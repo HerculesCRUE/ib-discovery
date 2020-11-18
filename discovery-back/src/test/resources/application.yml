@@ -50,8 +50,10 @@ data-sources:
     elasticSearchAttributesNumberRatioSimple: 0.4
     elasticSearchAttributesThresholdComplex: 0.5
     elasticSearchAttributesNumberRatioComplex: 0.2
-    manualThreshold: 0.6
-    automaticThreshold: 0.9
+    elasticSearchMaxDesirableNumbersOfResults: 50
+    elasticSearchCutOffAccordPercentile: 0.5
+    manualThreshold: 0.7
+    automaticThreshold: 0.95
   nodes:
     -
       nodeName: um

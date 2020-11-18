@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-@Document(indexName = "triple-object", type = "classes", shards = 2)
+@Document(indexName = "triple-object", type = "classes", shards = 10)
 @Data
 @AllArgsConstructor
 public class TripleObjectES implements Comparable<TripleObjectES>{

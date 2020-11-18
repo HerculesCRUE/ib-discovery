@@ -166,16 +166,16 @@ public class AttributeSimilarity {
             a2 = o2;
         }
         Class c = getClassOffAttributes(a1,a2);
-        if (c == Integer.class) {
-            return compareInteger((int) a1,(int) a2,weight);
-        } else if (c == Long.class) {
-            return compareLong((long) a1,(long) a2,weight);
-        } else if (c == Float.class) {
-            return compareFloat((float) a1,(float) a2,weight);
-        } else if (c == Double.class) {
-            return compareDouble((double) a1,(double) a2,weight);
-        }  else if (c == Boolean.class) {
-            return compareBoolean((boolean) a1,(boolean) a2,weight);
+        if (c == int.class) {
+            return compareInteger(Integer.parseInt(a1.toString()),Integer.parseInt(a2.toString()),weight);
+        } else if (c == long.class) {
+            return compareLong(Long.parseLong(a1.toString()),Long.parseLong(a2.toString()),weight);
+        } else if (c == float.class) {
+            return compareFloat(Float.parseFloat(a1.toString()),Float.parseFloat(a2.toString()),weight);
+        } else if (c == double.class) {
+            return compareDouble(Double.parseDouble(a1.toString()),Double.parseDouble(a2.toString()),weight);
+        }  else if (c == boolean.class) {
+            return compareBoolean(Utils.getBoolean(a1.toString()),Utils.getBoolean(a2.toString()),weight);
         } else if (c == Date.class) {
             return compareDate( getDate(a1),getDate(a2),weight);
         } else if (c == List.class) {
@@ -204,16 +204,16 @@ public class AttributeSimilarity {
 
     public static Class getClassOffAttributes(Object a1, Object a2) {
         if (isNumber(a1) && isNumber(a2)) {
-            if (a1 instanceof Float || a2 instanceof Float)
-                return float.class;
-            else if (a1 instanceof Double || a2 instanceof Double)
-                return double.class;
-            else if (a1 instanceof Long || a2 instanceof Long)
-                return long.class;
-            else if (a1 instanceof Integer || a2 instanceof Integer)
+            if (Utils.checkIfInt(a1.toString()) && Utils.checkIfInt(a2.toString()))
                 return int.class;
-            else
+            else if (Utils.checkIfLong(a1.toString()) && Utils.checkIfLong(a2.toString()))
+                return long.class;
+            else if (Utils.checkIfFloat(a1.toString()) && Utils.checkIfFloat(a2.toString()))
                 return float.class;
+            else if (Utils.checkIfDouble(a1.toString()) && Utils.checkIfDouble(a2.toString()))
+                return double.class;
+            else
+                return double.class;
         } else if (isBoolean(a1) && isBoolean(a2)) {
             return boolean.class;
         } else if (isDate(a1) && isDate(a2)) {

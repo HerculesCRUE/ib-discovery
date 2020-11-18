@@ -6,17 +6,18 @@ import org.javatuples.Pair;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface ElasticsearchService {
 
 
-    public TripleObjectES saveTripleObjectES(TripleObjectES toES);
+    public String saveTripleObjectES(TripleObjectES toES);
 
-    public Iterable<TripleObjectES> saveTripleObjectsES(List<TripleObjectES> tosES);
+    public Map<String, Map<String, String>> saveTripleObjectsES(List<TripleObjectES> tosES);
 
-    public TripleObjectES saveTripleObject(TripleObject to);
+    public String saveTripleObject(TripleObject to);
 
-    public Iterable<TripleObjectES> saveTripleObjects(List<TripleObject> tosES);
+    public Map<String, Map<String, String>> saveTripleObjects(List<TripleObject> tosES);
 
     public void deleteTripleObjectES(TripleObjectES toES);
 
@@ -43,4 +44,6 @@ public interface ElasticsearchService {
     public List<TripleObjectES> getSimilarTripleObjectsES(TripleObject tripleObject);
 
     public List<TripleObject> getSimilarTripleObjects(TripleObject tripleObject);
+
+    public Map<String, Set<String>> getAllSimplifiedTripleObject();
 }

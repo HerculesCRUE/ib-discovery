@@ -12,6 +12,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
+import es.um.asio.service.repository.relational.CacheRegistryRepository;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import es.um.asio.service.util.Utils;
 import org.apache.http.impl.execchain.RequestAbortedException;
@@ -90,7 +91,7 @@ public class TrellisHandler extends TripleStoreHandler {
                                 TripleObject to = cacheService.getTripleObject(nodeName,"trellis",className,instanceId);
                                 // Si la cache contiene la instancia, no hag la petición
                                 boolean isNew = (to==null);
-                                if (to == null || to.getAttributes() == null/*|| (className.equals("CvnRootBean") && to.getAttributes().size() < 2)*/) {
+                                if (to == null || to.getAttributes() == null || to.getAttributes().size() == 0 /*|| (className.equals("Universidad"))*/   /*|| to.getAttributes().size() < 2*/ ) {
                                     // En caso contrario, hago la petición para añadir a la cache
                                     // Request to Instance URL
 
@@ -183,7 +184,7 @@ public class TrellisHandler extends TripleStoreHandler {
                     jAttribute.remove("@id");
                     jAttribute.remove("@type");
                     jRootObject = jAttribute.deepCopy();
-                } else { // Si no es el objeto raiz
+                } else { // Si no es el objeto raíz
                     if (
                             jAttribute.has("@id") && jAttribute.get("@id").isJsonPrimitive() && jAttribute.get("@id").getAsString().startsWith("_:b")
                     ) {
@@ -207,8 +208,10 @@ public class TrellisHandler extends TripleStoreHandler {
     }
 
     private JsonObject buildCvnFromRoot(String id, JsonObject jParentRoot,JsonObject jRoot, Map<String,Object> attrs ){
+        List<String> toRemove = new ArrayList<>();
         for (Map.Entry<String, JsonElement> jeAtt : jRoot.entrySet()) {
             String key = jeAtt.getKey();
+            JsonElement value = jeAtt.getValue();
 /*            if (key.contains("cvnFamilyNameBean"))
                 System.out.println();*/
 
@@ -224,6 +227,8 @@ public class TrellisHandler extends TripleStoreHandler {
                         else
                             jeAtt.setValue(jContent);
                     }
+                } else if (jeAtt.getValue().getAsString().strip().trim().equals("")) {
+                    toRemove.add(jeAtt.getKey());
                 }
             } else if (jeAtt.getValue().isJsonArray()) { // Si es array
                 JsonArray jInners = new JsonArray();
@@ -239,8 +244,20 @@ public class TrellisHandler extends TripleStoreHandler {
                 }
                 jeAtt.setValue(jInners);
             } else if(jeAtt.getValue().isJsonObject()) {
-                jeAtt.setValue(buildCvnFromRoot(id,jRoot,jeAtt.getValue().getAsJsonObject(),attrs));
+                JsonObject jData = jeAtt.getValue().getAsJsonObject();
+                // Elimino objetos de tipo @Language, @value
+                if (jData.size()==2 && jData.has("@language") && jData.has("@value")) {
+                    if (!jData.get("@value").getAsString().strip().trim().equals(""))
+                        jeAtt.setValue(jData.get("@value"));
+                    else
+                        toRemove.add(jeAtt.getKey());
+                } else {
+                    jeAtt.setValue(buildCvnFromRoot(id, jRoot, jeAtt.getValue().getAsJsonObject(), attrs));
+                }
             }
+        }
+        for (String remove : toRemove) {
+            jRoot.remove(remove);
         }
         return jRoot;
     }

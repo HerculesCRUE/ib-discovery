@@ -1,5 +1,6 @@
 package es.um.asio.service.model.stats;
 
+import es.um.asio.service.util.Utils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,8 +31,10 @@ public class AttributeStats extends ObjectStat{
     }
 
     public void addValue(Object value) {
-        setCounter(getCounter()+1);
-        getValues().add(value);
+        if (value!=null && (!(value instanceof String) || Utils.isValidString(value.toString()))) {
+            setCounter(getCounter() + 1);
+            getValues().add(value);
+        }
     }
 
     @Override

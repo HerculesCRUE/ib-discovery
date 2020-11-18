@@ -4,9 +4,13 @@ import com.google.gson.*;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import es.um.asio.service.model.TripleObject;
+import es.um.asio.service.model.appstate.ApplicationState;
+import es.um.asio.service.model.relational.CacheRegistry;
 import es.um.asio.service.model.stats.EntityStats;
 import es.um.asio.service.model.stats.StatsHandler;
 import es.um.asio.service.repository.StringRedisRepository;
+import es.um.asio.service.repository.relational.CacheRegistryRepository;
+/*import es.um.asio.service.repository.relational.ElasticRegistryRepository;*/
 import es.um.asio.service.service.RedisService;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
@@ -31,6 +35,12 @@ public class RedisServiceImp implements RedisService {
 
     @Autowired
     RedisServiceHelper redisServiceHelper;
+
+    @Autowired
+    CacheRegistryRepository cacheRegistryRepository;
+
+    @Autowired
+    ApplicationState applicationState;
 
     private final String TRIPLES_MAP_PREFIX = "TRIPLES_MAP";
     private final String TRIPLES_MAP_KEYS = "TRIPLES_MAP_KEYS";
@@ -62,19 +72,21 @@ public class RedisServiceImp implements RedisService {
 
             for (CompletableFuture<Pair<String, Map<String, TripleObject>>> future : futures) {
                 Pair<String, Map<String, TripleObject>> pairMap = future.join();
-                logger.info(String.format("Reading %s from redis cache DONE, founds %d instances", pairMap.getValue0(), pairMap.getValue1().size()));
-                String k = pairMap.getValue0().replaceAll(TRIPLES_MAP_PREFIX + ":", "");
-                Map<String, TripleObject> m = pairMap.getValue1();
+                if (pairMap.getValue1()!=null) {
+                    logger.info(String.format("Reading %s from redis cache DONE, founds %d instances", pairMap.getValue0(), pairMap.getValue1().size()));
+                    String k = pairMap.getValue0().replaceAll(TRIPLES_MAP_PREFIX + ":", "");
+                    Map<String, TripleObject> m = pairMap.getValue1();
 
-                String[] kSet = k.split("\\.");
-                if (!cachedMap.containsKey(kSet[0])) {
-                    cachedMap.put(kSet[0], new HashMap<>());
-                }
-                if (!cachedMap.get(kSet[0]).containsKey(kSet[1])) {
-                    cachedMap.get(kSet[0]).put(kSet[1], new HashMap<>());
-                }
-                if (!cachedMap.get(kSet[0]).get(kSet[1]).containsKey(kSet[2])) {
-                    cachedMap.get(kSet[0]).get(kSet[1]).put(kSet[2], m);
+                    String[] kSet = k.split("\\.");
+                    if (!cachedMap.containsKey(kSet[0])) {
+                        cachedMap.put(kSet[0], new HashMap<>());
+                    }
+                    if (!cachedMap.get(kSet[0]).containsKey(kSet[1])) {
+                        cachedMap.get(kSet[0]).put(kSet[1], new HashMap<>());
+                    }
+                    if (!cachedMap.get(kSet[0]).get(kSet[1]).containsKey(kSet[2])) {
+                        cachedMap.get(kSet[0]).get(kSet[1]).put(kSet[2], m);
+                    }
                 }
             }
         }
@@ -141,6 +153,9 @@ public class RedisServiceImp implements RedisService {
                     Map<String, TripleObject> tMap = gson.fromJson(gson.toJson(classEntry.getValue()), LinkedTreeMap.class);
                     String key = String.format("%s:%s.%s.%s",TRIPLES_MAP_PREFIX,nodeEntry.getKey(),tripleEntry.getKey(),classEntry.getKey());
                     keys.add(key);
+                    // DiscoveryApplication discoveryApplication, String node, String tripleStore, String className
+                    CacheRegistry cacheRegistry = new CacheRegistry(applicationState.getApplication(),nodeEntry.getKey(),tripleEntry.getKey(),classEntry.getKey());
+                    cacheRegistryRepository.save(cacheRegistry);
                     futures.add(redisServiceHelper.setTripleMap(redisRepository,key,tMap));
                 }
             }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
 import es.um.asio.service.model.stats.StatsHandler;
+import es.um.asio.service.repository.relational.CacheRegistryRepository;
 import es.um.asio.service.service.CacheService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,9 @@ public class CacheServiceImp implements CacheService {
 
     @Autowired
     RedisServiceImp redisServiceImp;
+
+    @Autowired
+    CacheRegistryRepository cacheRegistryRepository;
 
     @PostConstruct
     private void initialize() throws Exception {

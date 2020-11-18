@@ -1,25 +1,20 @@
 package es.um.asio.service.service.impl;
 
 import es.um.asio.service.model.TripleObject;
+import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
-import es.um.asio.service.model.stats.EntityStats;
+import es.um.asio.service.model.relational.ElasticRegistry;
 import es.um.asio.service.model.stats.StatsHandler;
 import es.um.asio.service.repository.elasticsearch.TripleObjectESCustomRepository;
 import es.um.asio.service.repository.elasticsearch.TripleObjectESRepository;
+import es.um.asio.service.repository.relational.ElasticRegistryRepository;
 import es.um.asio.service.service.ElasticsearchService;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.data.elasticsearch.ElasticsearchException;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -41,48 +36,104 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     @Autowired
     CacheServiceImp cache;
 
+    @Autowired
+    ElasticRegistryRepository elasticRegistryRepository;
+
+    @Autowired
+    ApplicationState applicationState;
+
     @Override
-    public TripleObjectES saveTripleObjectES(TripleObjectES toES) {
+    public String saveTripleObjectES(TripleObjectES toES) {
         try {
-            return repository.save(toES);
+            TripleObjectES res = repository.save(toES);
+            return "inserted";
+            //return repository.save(toES);
+        } catch (ElasticsearchException e) {
+            Map<String, String> fails = e.getFailedDocuments();
+            logger.error(e.getMessage());
+            return fails.containsKey(toES.getId())?fails.get(toES.getId()):"fail";
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return null;
+            return "fail";
         }
     }
 
     @Override
-    public Iterable<TripleObjectES> saveTripleObjectsES(List<TripleObjectES> tosES) {
+    public Map<String, Map<String, String>> saveTripleObjectsES(List<TripleObjectES> tosES) {
+        Map<String, Map<String, String>> result = new HashMap<>();
+        Map<String,String> inserted = new HashMap<>();
+        Map<String,String> fails = new HashMap<>();
+        List<ElasticRegistry> insertedRegistry = new ArrayList<>();
         try {
-            return repository.saveAll(tosES);
+            Iterable<TripleObjectES> res = repository.saveAll(tosES);
+            for (TripleObjectES toES : res) {
+                inserted.put(toES.getId(),"inserted");
+                insertedRegistry.add(new ElasticRegistry(applicationState.getApplication(),toES));
+            }
+
+        } catch (ElasticsearchException e) {
+            Map<String, String> failsResult = e.getFailedDocuments();
+            for (TripleObjectES toES : tosES) {
+                if (failsResult.containsKey(toES.getId()))
+                    fails.put(toES.getId(),failsResult.get(toES.getId()));
+                else {
+                    inserted.put(toES.getId(), "inserted");
+                    insertedRegistry.add(new ElasticRegistry(applicationState.getApplication(),toES));
+                }
+            }
+
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return null;
+        }
+        result.put("INSERTED",inserted);
+        result.put("FAILED",fails);
+        elasticRegistryRepository.saveAll(insertedRegistry);
+        return result;
+    }
+
+    @Override
+    public String saveTripleObject(TripleObject to) {
+        try {
+            TripleObjectES toES = repository.save(new TripleObjectES(to));
+            return "inserted";
+        } catch (ElasticsearchException e) {
+            Map<String, String> fails = e.getFailedDocuments();
+            logger.error(e.getMessage());
+            return fails.containsKey(to.getId())?fails.get(to.getId()):"fail";
+        }catch (Exception e) {
+            logger.error(e.getMessage());
+            return "fail";
         }
     }
 
     @Override
-    public TripleObjectES saveTripleObject(TripleObject to) {
-        try {
-            return repository.save(new TripleObjectES(to));
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return null;
-        }
-    }
-
-    @Override
-    public Iterable<TripleObjectES> saveTripleObjects(List<TripleObject> tos) {
+    public Map<String, Map<String, String>> saveTripleObjects(List<TripleObject> tos) {
         List<TripleObjectES> tripleObjectES = new ArrayList<>();
+        Map<String, Map<String, String>> result = new HashMap<>();
+        Map<String,String> inserted = new HashMap<>();
+        Map<String,String> fails = new HashMap<>();
         try {
             for (TripleObject to :tos) {
                 tripleObjectES.add(new TripleObjectES(to));
             }
-            return saveTripleObjectsES(tripleObjectES);
+            Iterable<TripleObjectES> res = repository.saveAll(tripleObjectES);
+            for (TripleObjectES toES : res) {
+                inserted.put(toES.getId(),"inserted");
+            }
+        } catch (ElasticsearchException e) {
+            Map<String, String> failsResult = e.getFailedDocuments();
+            for (TripleObjectES toES : tripleObjectES) {
+                if (failsResult.containsKey(toES.getId()))
+                    fails.put(toES.getId(),failsResult.get(toES.getId()));
+                else
+                    inserted.put(toES.getId(),"inserted");
+            }
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return tripleObjectES;
         }
+        result.put("INSERTED",inserted);
+        result.put("FAILED",fails);
+        return result;
     }
 
     @Override
@@ -209,5 +260,10 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     public List<TripleObject> getSimilarTripleObjects(TripleObject tripleObject) {
         List<TripleObject> tripleObjects = new ArrayList<>();
         return tripleObjects;
+    }
+
+    @Override
+    public Map<String, Set<String>> getAllSimplifiedTripleObject() {
+        return customRepository.getAllClassAndId();
     }
 }

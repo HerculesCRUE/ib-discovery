@@ -1,14 +1,18 @@
 package es.um.asio.service.model.appstate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.JsonObject;
+import es.um.asio.service.listener.AppEvents;
+import es.um.asio.service.model.relational.DiscoveryApplication;
+import es.um.asio.service.repository.relational.DiscoveryApplicationRepository;
 import lombok.Getter;
 import lombok.Setter;
+import org.elasticsearch.client.license.LicensesStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Scope("singleton")
@@ -16,12 +20,21 @@ import java.util.Map;
 @Setter
 public class ApplicationState {
 
+    @JsonIgnore
+    private DiscoveryApplication application;
+    private String name;
     private AppState appState;
     private Map<DataType,DataState> states;
     private Map<String,Date> lastFilterDate;
+    private int stateCode = 503;
+    @JsonIgnore
+    private Set<AppEvents> appEventListeners;
 
     public ApplicationState() {
+        this.appEventListeners = new HashSet<>();
+        application = new DiscoveryApplication("DISCOVERY LIBRARY");
         appState = AppState.UNINITIALIZED;
+        stateCode = 503;
         states = new HashMap<>();
         lastFilterDate = new HashMap<>();
         states.put(DataType.CACHE, new DataState());
@@ -29,18 +42,47 @@ public class ApplicationState {
         states.put(DataType.REDIS, new DataState());
     }
 
+    public void addAppListener(AppEvents appEvents) {
+        appEventListeners.add(appEvents);
+    }
+
+    public void removeAppListener(AppEvents appEvents) {
+        appEventListeners.remove(appEvents);
+    }
+
     public DataState getDataState(DataType dataType){
         return states.get(dataType);
     }
 
     public void setDataState(DataType dataType,State state, Date lastUpdate) {
-        if (!states.containsKey(dataType) || state.compareTo(states.get(dataType).getState())>=0) // Si no existía o el estado es mas actual
-            states.put(dataType, new DataState(state,lastUpdate));
+        if (!states.containsKey(dataType) || state.compareTo(states.get(dataType).getState())>=0) {// Si no existía o el estado es mas actual
+            states.put(dataType, new DataState(state, lastUpdate));
+            propagueEvents(dataType,state);
+        }
+
+    }
+
+    private void propagueEvents(DataType dataType,State state) {
+        if (dataType == DataType.REDIS && state.getOrder() == 2) {
+            for (AppEvents listener :appEventListeners) {
+                listener.onCachedDataIsReady();
+            }
+        } else if (dataType == DataType.CACHE && state.getOrder() == 2) {
+            for (AppEvents listener :appEventListeners) {
+                listener.onRealDataIsReady();
+            }
+        } else if (dataType == DataType.ELASTICSEARCH && state.getOrder() == 2) {
+            for (AppEvents listener :appEventListeners) {
+                listener.onElasticSearchIsReady();
+            }
+        }
     }
 
     public void setDataState(DataType dataType,State state) {
-        if (!states.containsKey(dataType) || state.compareTo(states.get(dataType).getState())>=0) // Si no existía o el estado es mas actual
+        if (!states.containsKey(dataType) || state.compareTo(states.get(dataType).getState())>=0) {// Si no existía o el estado es mas actual
             states.put(dataType, new DataState(state));
+            propagueEvents(dataType,state);
+        }
     }
 
     public Date getLastFilterDate(String className) {
@@ -58,6 +100,9 @@ public class ApplicationState {
     public void setAppState(AppState appState) {
         if (appState.compare(this.appState)>=0) {
             this.appState = appState;
+        }
+        if (appState.getOrder() > 0) {
+            this.stateCode = 200;
         }
     }
 

@@ -50,8 +50,10 @@ data-sources:
     elasticSearchAttributesNumberRatioSimple: 0.4
     elasticSearchAttributesThresholdComplex: 0.5
     elasticSearchAttributesNumberRatioComplex: 0.2
-    manualThreshold: 0.6
-    automaticThreshold: 0.9
+    elasticSearchMaxDesirableNumbersOfResults: 50
+    elasticSearchCutOffAccordPercentile: 0.5
+    manualThreshold: 0.7
+    automaticThreshold: 0.95
   nodes:
     -
       nodeName: um
@@ -92,7 +94,13 @@ server:
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
     #org.hibernate.type: TRACE
 
 spring:
@@ -102,6 +110,12 @@ spring:
     elasticsearch:
       cluster-name: es-asio-cluster
       cluster-nodes: localhost:9300
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
 
 security:
   basic:

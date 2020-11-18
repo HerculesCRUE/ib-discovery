@@ -2,6 +2,11 @@ package es.um.asio.service.repository.elasticsearch;
 
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.service.impl.TextHandlerServiceImp;
+import es.um.asio.service.util.Utils;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -11,16 +16,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.ScrolledPage;
-import org.springframework.data.elasticsearch.core.query.Criteria;
-import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.*;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import java.util.*;
+
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
 @Repository
 public class TripleObjectESCustomRepository{
@@ -45,7 +49,10 @@ public class TripleObjectESCustomRepository{
                     if (att.getValue(1) instanceof List) {
                         for (Object val : (List)att.getValue(1)) {
                             if (val instanceof String) {
-                                boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format("attributes.%s", att.getValue(0)), textHandler.removeStopWords((String) val)));
+                                if (!Utils.isDate((String) val))
+                                    boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format("attributes.%s", att.getValue(0)), textHandler.removeStopWords((String) val)));
+                                else
+                                    boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format("attributes.%s", att.getValue(0)), (String) val));
                             } else {
                                 boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.termQuery(String.format("attributes.%s", att.getValue(0)), val));
                             }
@@ -109,4 +116,47 @@ public class TripleObjectESCustomRepository{
 
         return new ArrayList<>(results);
     }
+
+    public Map<String,Set<String>>getAllClassAndId() {
+        Map<String,Set<String>> results = new HashMap<>();
+
+        String[] includes = new String[]{"id", "className"};
+
+        //NativeSearchQuery build = new NativeSearchQueryBuilder().build();
+        SearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(matchAllQuery())
+                .withSourceFilter(
+                        new FetchSourceFilterBuilder()
+                                .withIncludes(includes)
+                                .build()
+                ).build();
+
+        searchQuery.addIndices("triple-object");
+        searchQuery.addTypes("classes");
+        searchQuery.setPageable(PageRequest.of(0,5000));
+
+        ScrolledPage<PairES> scroll = (ScrolledPage<PairES>) elasticsearchTemplate.startScroll(6000, searchQuery,PairES.class);
+        while (scroll.hasContent()) {
+            List<PairES> pairsES = scroll.getContent();
+            for (PairES p : pairsES) {
+                if (!results.containsKey(p.getClassName())) {
+                    results.put(p.getClassName(), new HashSet<>());
+                }
+                results.get(p.getClassName()).add(p.getId());
+            }
+            scroll = (ScrolledPage<PairES>) elasticsearchTemplate.continueScroll(scroll.getScrollId(),6000,PairES.class);
+        }
+        elasticsearchTemplate.clearScroll(scroll.getScrollId());
+
+        return results;
+    }
+}
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+class PairES {
+    private String id;
+    private String className;
 }

@@ -34,9 +34,9 @@ import java.util.Set;
  */
 @Configuration
 @EnableConfigurationProperties(PersistenceProperties.class)
-//@EnableJpaRepositories(basePackageClasses = { UserRepository.class })
+@EnableJpaRepositories(basePackages = "es.um.asio.service.repository.relational")
 @EnableTransactionManagement
-// @EntityScan(basePackageClasses = { User.class })
+@EntityScan(basePackages = "es.um.asio.service.model.relational")
 public class PersistenceConfig {
 
     @Autowired

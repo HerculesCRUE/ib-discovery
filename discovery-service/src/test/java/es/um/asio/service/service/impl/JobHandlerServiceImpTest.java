@@ -1,0 +1,126 @@
+package es.um.asio.service.service.impl;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.internal.LinkedTreeMap;
+import es.um.asio.service.model.TripleObject;
+import es.um.asio.service.model.TripleStore;
+import es.um.asio.service.model.appstate.ApplicationState;
+import es.um.asio.service.model.elasticsearch.TripleObjectES;
+import es.um.asio.service.model.relational.*;
+import es.um.asio.service.proxy.RequestRegistryProxy;
+import es.um.asio.service.proxy.impl.RequestRegistryProxyImp;
+import es.um.asio.service.repository.relational.DiscoveryApplicationRepository;
+import es.um.asio.service.repository.relational.JobRegistryRepository;
+import es.um.asio.service.repository.relational.ObjectResultRepository;
+import es.um.asio.service.repository.relational.RequestRegistryRepository;
+import es.um.asio.service.test.TestApplication;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes={TestApplication.class})
+class JobHandlerServiceImpTest {
+
+    @Autowired
+    DiscoveryApplicationRepository discoveryApplicationRepository;
+
+    @Autowired
+    JobRegistryRepository jobRegistryRepository;
+
+    @Autowired
+    RequestRegistryRepository requestRegistryRepository;
+
+    @Autowired
+    RequestRegistryProxy requestRegistryProxy;
+
+    @Autowired
+    ApplicationState applicationState;
+
+    @Autowired
+    ObjectResultRepository objectResultRepository;
+
+
+    @Test
+    void testCreateApplication() {
+        DiscoveryApplication discoveryApplication = new DiscoveryApplication("appTest");
+        discoveryApplication = discoveryApplicationRepository.save(discoveryApplication);
+        Assert.assertFalse(discoveryApplicationRepository.findById(discoveryApplication.getId()).isEmpty());
+        discoveryApplicationRepository.delete(discoveryApplication);
+        Assert.assertTrue(discoveryApplicationRepository.findById(discoveryApplication.getId()).isEmpty());
+    }
+
+
+/*    @Test
+    void testJobRegistry() {
+        DiscoveryApplication discoveryApplication = applicationState.getApplication();
+        JobRegistry jobRegistry = jobRegistryRepository.findOpenJobsByDiscoveryAppAndNodeAndTripleStoreAndClassName(discoveryApplication.getId(),"um","trellis","test");
+        if (jobRegistry == null) {
+            jobRegistry = new JobRegistry(discoveryApplication,"um","trellis","test");
+        }
+        RequestRegistry requestRegistry1 = new RequestRegistry("u1","r1", RequestType.ENTITY_LINK_CLASS,new Date());
+        jobRegistry.addRequestRegistry(requestRegistry1);
+        RequestRegistry requestRegistry2 = new RequestRegistry("u1","r2", RequestType.ENTITY_LINK_INSTANCE,new Date());
+        jobRegistry.addRequestRegistry(requestRegistry2);
+        jobRegistryRepository.save(jobRegistry);
+        for (RequestRegistry requestRegistry: jobRegistry.getRequestRegistries()) {
+            requestRegistryRepository.save(requestRegistry);
+        }
+        JobRegistry jobRegistry2 = jobRegistryRepository.findOpenJobsByDiscoveryAppAndNodeAndTripleStoreAndClassName(discoveryApplication.getId(),"um","trellis","test");
+        System.out.println();
+    }*/
+
+    @Test void testSimilarities() throws Exception {
+        DiscoveryApplication discoveryApplication = applicationState.getApplication();
+        JobRegistry jobRegistry = jobRegistryRepository.findOpenJobsByDiscoveryAppAndNodeAndTripleStoreAndClassName(discoveryApplication.getId(),"um","trellis","test");
+        if (jobRegistry == null) {
+            jobRegistry = new JobRegistry(discoveryApplication,"um","trellis","test");
+        }
+        RequestRegistry requestRegistry;
+        Optional<RequestRegistry> requestRegistryOpt = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType("u1","r1", RequestType.ENTITY_LINK_CLASS);
+        if (requestRegistryOpt.isEmpty()) {
+            requestRegistry = new RequestRegistry("u1","r1", RequestType.ENTITY_LINK_CLASS,new Date());
+        } else {
+            requestRegistry = requestRegistryOpt.get();
+        }
+        jobRegistry.addRequestRegistry(requestRegistry);
+        jobRegistryRepository.save(jobRegistry);
+
+        // Creation of TO (String node, String tripleStore, String className, JSONObject jData )
+        JSONObject jData = new JSONObject();
+        JSONObject jDataInner = new JSONObject();
+        jDataInner.put("año","2012");
+        jDataInner.put("mes","10");
+        jDataInner.put("dia","22");
+        jData.put("descripcion","CONTRATACIÓN LABORAL DE DOCTORES RECIÉN TITULADOS EN ORGANISMOS DE INVESTIGACIÓN");
+        //jData.put("fechaConvocatoria","2012/10/22 00:00:00");
+        jData.put("fechaConvocatoria",jDataInner);
+        jData.put("fechaPublicacionBoletin","2012/10/22 00:00:00");
+        jData.put("idConvocatoriaRecursoHumano","1244");
+        JSONArray jArray = new JSONArray();
+        jArray.put("11411");
+        jArray.put("11412");
+        jArray.put("11413");
+        jData.put("idEmpresaFinanciadora",jArray);
+        TripleObject to = new TripleObject("um","trellis","ConvocatoriaRecursosHumanos",jData);
+        to.setId("12345");
+        ObjectResult or = new ObjectResult(jobRegistry,to,0.99f);
+        objectResultRepository.save(or);
+        System.out.println();
+    }
+
+}

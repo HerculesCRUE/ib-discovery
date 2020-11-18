@@ -17,6 +17,7 @@ import lombok.*;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
@@ -66,6 +67,13 @@ public class TripleObject {
         this.tripleStore = toES.getTripleStore();
         this.attributes = toES.getAttributes();
         buildFlattenAttributes();
+    }
+
+    public TripleObject(String node, String tripleStore, String className, JSONObject jData ) throws Exception {
+        this.setTripleStore(new TripleStore(tripleStore,node));
+        this.className = className;
+        this.attributes = new Gson().fromJson(jData.toString(), LinkedTreeMap.class);
+        this.flattenAttributes = new HashMap<>();
     }
 
 

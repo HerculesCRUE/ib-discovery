@@ -80,6 +80,11 @@ public class TripleStore {
         this.password = password;
     }
 
+    public TripleStore(String tripleStore, String node) {
+        this.tripleStore = tripleStore;
+        this.node = new Node(node);
+    }
+
     public TripleStore() {
     }
 }

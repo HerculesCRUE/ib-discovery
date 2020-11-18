@@ -1,12 +1,13 @@
 package es.um.asio.service.service;
 
-import es.um.asio.service.comparators.entities.EntitySimilarityObj;
+import es.um.asio.service.model.SimilarityResult;
 import es.um.asio.service.model.TripleObject;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 public interface EntitiesHandlerService {
 
-    Map<String, List<EntitySimilarityObj>> findEntitiesLinksByNodeAndTripleStoreAndClass (String node, String tripleStore, String className);
+    Set<SimilarityResult> findEntitiesLinksByNodeAndTripleStoreAndClass (String node, String tripleStore, String className);
+
+    SimilarityResult findEntitiesLinksByNodeAndTripleStoreAndTripleObject (TripleObject tripleObject);
 }
