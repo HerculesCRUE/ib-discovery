@@ -51,7 +51,7 @@ public class Value {
         this.dataType = getDataType(value);
         this.attributes = new HashSet<>();
         if (dataType == DataType.OBJECT) {
-            LinkedTreeMap<String,Object> attrs = (LinkedTreeMap) value;
+            LinkedTreeMap<String,Object> attrs = (LinkedTreeMap<String,Object>) value;
             for (Map.Entry<String,Object> vEntry: attrs.entrySet()) {
                 Attribute at = new Attribute(vEntry.getKey(),vEntry.getValue(),null);
                 at.setParentValue(this);
@@ -61,6 +61,26 @@ public class Value {
             this.value = String.valueOf(value);
         }
 
+    }
+
+    public Object getValueParsedToType() {
+        if (dataType == DataType.FLOAT) {
+            return Float.valueOf(value);
+        } else if (dataType == DataType.DOUBLE) {
+            return Double.valueOf(value);
+        } else if (dataType == DataType.INTEGER) {
+            return Integer.valueOf(value);
+        } else if (dataType == DataType.LONG) {
+            return Long.valueOf(value);
+        } else if (dataType == DataType.BOOLEAN) {
+            return Boolean.valueOf(value);
+        } else if (dataType == DataType.DATE) {
+            return Utils.getDate(value);
+        } else if (dataType == DataType.STRING) {
+            return String.valueOf(value);
+        } else {
+            return attributes;
+        }
     }
 
     public DataType getDataType(Object v){

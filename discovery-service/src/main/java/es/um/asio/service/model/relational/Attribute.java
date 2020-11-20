@@ -1,14 +1,15 @@
 package es.um.asio.service.model.relational;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.gson.JsonElement;
 import es.um.asio.service.util.Utils;
 import lombok.*;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.w3c.dom.Attr;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = Attribute.TABLE)

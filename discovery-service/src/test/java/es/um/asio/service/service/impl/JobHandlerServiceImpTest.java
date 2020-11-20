@@ -1,5 +1,6 @@
 package es.um.asio.service.service.impl;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
@@ -114,12 +115,107 @@ class JobHandlerServiceImpTest {
         JSONArray jArray = new JSONArray();
         jArray.put("11411");
         jArray.put("11412");
-        jArray.put("11413");
+        JSONObject jDataInArray = new JSONObject();
+        jDataInArray.put("p1","p1");
+        jDataInArray.put("p2","p2");
+        jDataInArray.put("p3","p3");
+        jDataInArray.put("p4","p4");
+        jArray.put(jDataInArray);
         jData.put("idEmpresaFinanciadora",jArray);
-        TripleObject to = new TripleObject("um","trellis","ConvocatoriaRecursosHumanos",jData);
-        to.setId("12345");
-        ObjectResult or = new ObjectResult(jobRegistry,to,0.99f);
-        objectResultRepository.save(or);
+        TripleObject to1 = new TripleObject("um","trellis","ConvocatoriaRecursosHumanos",jData);
+        to1.setId("12345");
+        ObjectResult or = new ObjectResult(jobRegistry,to1,0.99f);
+        TripleObject to2 = or.toTripleObject();
+        // objectResultRepository.save(or);
+        TripleObject t3 = to2.merge(to1);
+        System.out.println();
+    }
+
+    @Test void testMerge() throws Exception {
+        String data1 = "{\n" +
+                "  \"description\": \"CONTRATACIÓN LABORAL DE DOCTORES RECIÉN TITULADOS EN ORGANISMOS DE INVESTIGACIÓN\",\n" +
+                "  \"nombre\": \"Proyecto 1\",\n" +
+                "  \"fechaInicio\":\"2012/01/01 01:01:01\",\n" +
+                "  \"fechaFin\":\"2020/01/01 01:01:01\",\n" +
+                "  \"gruposDeInvestigacion\": [\n" +
+                "    {\n" +
+                "      \"id\":1,\n" +
+                "      \"nombre\": \"grupo 1\",\n" +
+                "      \"miembros\": [\n" +
+                "        {\n" +
+                "          \"id\":\"1\",\n" +
+                "          \"nombre\": \"Persona 1\",\n" +
+                "          \"apellidos\": \"Apellidos 1\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "          \"id\":\"2\",\n" +
+                "          \"nombre\": \"Persona 2\",\n" +
+                "          \"apellidos\": \"Apellidos 1\"\n" +
+                "        }\n" +
+                "        \n" +
+                "      ]\n" +
+                "    },\n" +
+                "        {\n" +
+                "      \"id\":2,\n" +
+                "      \"nombre\": \"grupo 2\",\n" +
+                "      \"miembros\": [\n" +
+                "        {\n" +
+                "          \"id\":\"3\",\n" +
+                "          \"nombre\": \"Persona 3\",\n" +
+                "          \"apellidos\": \"Apellidos 3\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "          \"id\":\"4\",\n" +
+                "          \"nombre\": \"Persona 4\",\n" +
+                "          \"apellidos\": \"Apellidos 4\"\n" +
+                "        }\n" +
+                "        \n" +
+                "      ]\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
+        String data2 = "{\n" +
+                "  \"description\": \"CONTRATACIÓN LABORAL DE DOCTORES RECIÉN TITULADOS EN ORGANISMOS DE INVESTIGACIÓN\",\n" +
+                "  \"nombre\": \"Proyecto 1\",\n" +
+                "  \"fechaInicio\":\"2012/01/01 01:01:01\",\n" +
+                "  \"fechaFin\":\"2020/01/01 01:01:01\",\n" +
+                "  \"gruposDeInvestigacion\": [\n" +
+                "    {\n" +
+                "      \"id\":1,\n" +
+                "      \"nombre\": \"grupo 1\",\n" +
+                "      \"miembros\": [\n" +
+                "        {\n" +
+                "          \"id\":\"1\",\n" +
+                "          \"nombre\": \"Persona 1\",\n" +
+                "          \"apellidos\": \"Apellidos 1\"\n" +
+                "        }\n" +
+                "        \n" +
+                "      ]\n" +
+                "    },\n" +
+                "        {\n" +
+                "      \"id\":2,\n" +
+                "      \"nombre\": \"grupo 2\",\n" +
+                "      \"miembros\": [\n" +
+                "        {\n" +
+                "          \"id\":\"3\",\n" +
+                "          \"nombre\": \"Persona 3\",\n" +
+                "          \"apellidos\": \"Apellidos 3\"\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
+        JSONObject jData1 = new JSONObject(data1);
+        JSONObject jData2 = new JSONObject(data2);
+        TripleObject to1 = new TripleObject("um","trellis","Proyecto",jData1);
+        to1.setId("1");
+        to1.setLastModification(new Date().getTime()-10000);
+        TripleObject to2 = new TripleObject("um","trellis","Proyecto",jData2);
+        to2.setId("2");
+        to2.setLastModification(new Date().getTime());
+        TripleObject to3 = to1.merge(to2);
         System.out.println();
     }
 

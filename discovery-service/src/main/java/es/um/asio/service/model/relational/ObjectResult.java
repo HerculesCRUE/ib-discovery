@@ -1,15 +1,13 @@
 package es.um.asio.service.model.relational;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.model.TripleObject;
 import lombok.*;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 @Entity
@@ -45,6 +43,9 @@ public class ObjectResult {
     @EqualsAndHashCode.Include
     private String entityId;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "objectResult", cascade = CascadeType.ALL)
+    private Set<Attribute> attributes;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentAutomatic", cascade = CascadeType.ALL)
     private Set<ObjectResult> automatic;
 
@@ -72,8 +73,6 @@ public class ObjectResult {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "objectResultParent", cascade = CascadeType.ALL)
     private Set<ActionResult> actionResults;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "objectResult", cascade = CascadeType.ALL)
-    private Set<Attribute> attributes;
 
     @Column(name = Columns.SIMILARITY, nullable = true)
     private Float similarity;
@@ -129,17 +128,37 @@ public class ObjectResult {
     }
 
     public TripleObject toTripleObject() {
-        //  String node, String tripleStore, String className, JSONObject jData
-        try {
-/*            JobRegistry jr = getRecursiveJobRegistry();
-            JSONObject jData = generateJsonAttributes();
-            TripleObject to = new TripleObject(jr.getNode(), jr.getTripleStore(), jr.getClassName(), jData);
-            return to;*/
-            return null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        JobRegistry jobRegistry = getRecursiveJobRegistry();
+        LinkedTreeMap<String,Object> attrs = getAttributesAsMap(attributes, new LinkedTreeMap<String,Object>() );
+        TripleObject to = new TripleObject(jobRegistry.getNode(), jobRegistry.getTripleStore(),jobRegistry.getClassName(),attrs);
+        return to;
+    }
+
+    public LinkedTreeMap<String,Object> getAttributesAsMap(Set<Attribute> attributesSet,LinkedTreeMap<String,Object> attrs) {
+        for (Attribute attribute :attributesSet) {
+            String key = attribute.getKey();
+            List<Value> values = new ArrayList<Value>(attribute.getValues());
+            if (values.size() == 1) { // Si no es una lista
+                DataType type = values.get(0).getDataType();
+                if (type != DataType.OBJECT) {
+                    attrs.put(key,values.get(0).getValueParsedToType());
+                } else { // Si es un Objeto
+                    attrs.put(key,getAttributesAsMap(values.get(0).getAttributes(),new LinkedTreeMap<>()));
+                }
+            } else if (values.size()>1) { // Si es una lista
+                List<Object> vls = new ArrayList<>();
+                for (Value value: values) { // Recorro todos los valores
+                    DataType type = value.getDataType();
+                    if (type != DataType.OBJECT) {
+                        vls.add(value.getValueParsedToType());
+                    } else { // Si es un Objeto
+                        vls.add(getAttributesAsMap(value.getAttributes(),new LinkedTreeMap<>()));
+                    }
+                }
+                attrs.put(key,vls);
+            }
         }
+        return attrs;
     }
 
     public JobRegistry getRecursiveJobRegistry() {

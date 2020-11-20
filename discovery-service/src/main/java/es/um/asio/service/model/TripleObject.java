@@ -76,6 +76,13 @@ public class TripleObject {
         this.flattenAttributes = new HashMap<>();
     }
 
+    public TripleObject(String node, String tripleStore, String className, LinkedTreeMap<String,Object> attributes ) {
+        this.setTripleStore(new TripleStore(tripleStore,node));
+        this.className = className;
+        this.attributes = attributes;
+        this.flattenAttributes = new HashMap<>();
+    }
+
 
     public TripleObject(TripleStore tripleStore, JsonObject jData, String className, String id, String lastMod) {
 
@@ -155,7 +162,7 @@ public class TripleObject {
         return ((float)equals)/((float) allAttrs.size());
     }
 
-    public TripleObject merge(TripleObject other) {
+/*    public TripleObject merge(TripleObject other) {
         boolean isNewer = new Date(this.lastModification).after(new Date(other.lastModification));
         TripleObject to;
         Set<String> atts = getAttributes().keySet();
@@ -180,7 +187,7 @@ public class TripleObject {
             }
         }
         return to;
-    }
+    }*/
 
     public boolean hasAttribute(String att,LinkedTreeMap map) {
         try {
@@ -289,98 +296,38 @@ public class TripleObject {
     }
 
 
-/*    public void buildFlattenAttributes() {
-        try {
-            if (className.contains("CvnRootBean"))
-                System.out.println();
-            Map<String,List<Object>> faAux = new TreeMap<>();
-            if (attributes!=null) {
-                for (Map.Entry<String, Object> attEntry : attributes.entrySet()) {
-                    Map<String, List<Object>> res = flattAttribute(attEntry.getKey(), attEntry.getValue());
-                    faAux.putAll(res);
-                }
-            }
-
-            this.flattenAttributes = faAux;
-
-            if (className.contains("CvnRootBean"))
-                System.out.println();
-        } catch (Exception e) {
-            System.out.println();
+    public TripleObject merge(TripleObject other) {
+        TripleObject mergedTO;
+        TripleObject oldTO;
+        if (this.getLastModification()> other.getLastModification()) {
+            mergedTO = this;
+            oldTO = other;
+        } else {
+            mergedTO = other;
+            oldTO = this;
         }
+        mergedTO.attributes = mergeAttributes(mergedTO.getAttributes(),oldTO.getAttributes());
+        return mergedTO;
     }
 
-    public List<Pair<String,Object>> flattAttribute(String p, Object att) {
-        p = !Utils.isValidString(p)?"":p;
-        if (Utils.isPrimitive(att)) {
-            return new ArrayList<>(Arrays.asList(new Pair<>(p,att))); // Retorno un par en forma de lista con el path y el valor
-        } else {
-            if (att instanceof List) { // Si es una lista
-
-            } else { // Entonces es un mapa
-                List<Pair<String,Object>> collect = new ArrayList<>();
-                for (Map.Entry<String, Object> attAux : ((LinkedTreeMap<String,Object>) att).entrySet()) { // PAra todos los attributos
-                    try {
-                        List<Pair<String,Object>> r = flattAttribute(p + "." + attAux.getKey(), attAux.getValue());
-                        if (r!=null) {
-                            collect.addAll(r);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+    private LinkedTreeMap<String,Object> mergeAttributes(LinkedTreeMap<String,Object> main, LinkedTreeMap<String,Object> other ) {
+        List<String> allKeys = new ArrayList<>(main.keySet());
+        allKeys.addAll(other.keySet());
+        for (String key : allKeys) {
+            if (!main.containsKey(key)) { // Si el principal no lo contiene
+                main.put(key,other.get(key));
+            } else { // Si el principal lo contiene
+                if (main.get(key) instanceof Map) { // Si es un objeto
+                    if (other.containsKey(key)) { // Si el otro no lo tiene
+                        main.put(key,mergeAttributes((LinkedTreeMap) main.get(key),(LinkedTreeMap) other.get(key)));
                     }
+                } else if (main.get(key) instanceof List) { // Si es una lista,
+                    // TODO: De momento la lista principal e queda como esta, en el futuro es posible que convenga revisar
                 }
-                return collect;
             }
         }
-
-    }*/
-
-
-
-
-    /*private List<Pair<String,Object>> flattAttribute(String p, Object att) {
-        p = !Utils.isValidString(p)?"":p;
-
-        Map<String,List<Object>> res = new HashMap<>();
-        if (Utils.isPrimitive(att)) { // Si es un Objeto Simple
-            res.put(p,Arrays.asList(att));
-            return res;
-        } else {
-            if (att instanceof List) { // Si es una Lista
-                List<Map<String,List<Object>>> lRes= new ArrayList<>();
-                for (Object a: (List)att) {
-                    lRes.add(flattAttribute(p, a));
-                }
-                Map<String,List<Object>> resInner = new HashMap<>();
-                for (Map<String,List<Object>> o : lRes) {
-                    for (Map.Entry<String, List<Object>> entryInner : o.entrySet()) {
-                        if (!resInner.containsKey(entryInner.getKey())) {
-                            resInner.put(entryInner.getKey(), new ArrayList<>());
-                        }
-                        resInner.get(entryInner.getKey()).add(entryInner.getValue());
-                    }
-                }
-                return resInner;
-            } else { // Si es map
-                Map<String,List<Object>> aux =new HashMap<>();
-                for (Map.Entry<String, Object> attAux : ((LinkedTreeMap<String,Object>) att).entrySet()) {
-                    try {
-                        Map<String,List<Object>> r = flattAttribute(p + "." + attAux.getKey(), attAux.getValue());
-                        if (attAux.getKey().equals("@id") && r.size()>1) {
-                            System.out.println();
-                        }
-                        if (r!=null) {
-                            aux.putAll(r);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                return aux;
-            }
-        }
-    }*/
-
+        return main;
+    }
 
 
     public boolean checkIsSimpleObject() {
