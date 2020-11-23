@@ -1,0 +1,48 @@
+package es.um.asio.service.service.impl;
+
+import com.google.gson.JsonObject;
+import es.um.asio.service.config.DataProperties;
+import es.um.asio.service.model.relational.ActionResult;
+import es.um.asio.service.model.relational.ObjectResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+
+@Service
+public class KafkaHandlerService {
+
+    private final Logger logger = LoggerFactory.getLogger(KafkaHandlerService.class);
+
+    @Autowired
+    private KafkaTemplate<String,String> kafkaTemplate;
+
+    @Autowired
+    DataProperties dataProperties;
+
+    @PostConstruct
+    public void init() {
+        logger.info("initialized kafka handler service");
+    }
+
+    void sendMessageAction(ActionResult actionResult) {
+        String topic = dataProperties.getKafka().getTopicDiscoveryAction().getTopic();
+        for (ObjectResult or : actionResult.getObjectResults()) {
+            JsonObject jObjectResult = or.toSimplifiedJson(false);
+            JsonObject jMessage = new JsonObject();
+            jMessage.addProperty("action",actionResult.getAction().toString());
+            jMessage.add("object",jObjectResult);
+            kafkaTemplate.send(topic,jMessage.toString());
+        }
+    }
+
+    @KafkaListener(topics = "${data.kafka.topicEntityChange.topic}", groupId = "${data.kafka.topicEntityChange.group_id}")
+    public void onEntityChange(String message) {
+        System.out.println();
+    }
+
+}

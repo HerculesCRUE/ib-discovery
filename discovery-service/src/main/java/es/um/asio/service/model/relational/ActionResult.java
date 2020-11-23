@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -35,6 +36,16 @@ public class ActionResult {
     @JsonIgnore
     @ManyToOne(optional = true, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     private ObjectResult objectResultParent;
+
+    public ActionResult(Action action, ObjectResult objectResultParent) {
+        this.action = action;
+        this.objectResults = new HashSet<>();
+        this.objectResultParent = objectResultParent;
+    }
+
+    public void addObjectResult(ObjectResult or) {
+        this.objectResults.add(or);
+    }
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     static final class Columns {

@@ -29,6 +29,11 @@ public class DataProperties {
      */
     private Redis redis;
 
+    /**
+     * Redis Configuration
+     */
+    private Kafka kafka;
+
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
@@ -48,6 +53,39 @@ public class DataProperties {
         private String host;
         private int port;
         private String password;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class Kafka {
+        private String host;
+        private int port;
+        private TopicEntityChange topicEntityChange;
+        private TopicDiscoveryAction topicDiscoveryAction;
+
+        public String getBootStrapAddress() {
+            return host+":"+port;
+        }
+
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Getter
+        @Setter
+        public static class TopicEntityChange {
+            private String topic;
+            private String group_id;
+        }
+
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Getter
+        @Setter
+        public static class TopicDiscoveryAction {
+            private String topic;
+            private String group_id;
+        }
     }
 
 }

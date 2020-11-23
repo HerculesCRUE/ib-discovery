@@ -1,6 +1,8 @@
 package es.um.asio.back.controller.discovery;
 
 //import es.um.asio.service.model.Role;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
 import es.um.asio.service.config.DataSourcesConfiguration;
@@ -11,10 +13,14 @@ import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.appstate.DataState;
 import es.um.asio.service.model.appstate.DataType;
 import es.um.asio.service.model.appstate.State;
+import es.um.asio.service.model.relational.Action;
+import es.um.asio.service.model.relational.ActionResult;
 import es.um.asio.service.model.relational.JobRegistry;
+import es.um.asio.service.model.relational.ObjectResult;
 import es.um.asio.service.service.EntitiesHandlerService;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import es.um.asio.service.service.impl.JobHandlerServiceImp;
+import es.um.asio.service.util.Utils;
 import es.um.asio.service.validation.group.Create;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -30,6 +36,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 
@@ -96,38 +103,42 @@ public class DiscoveryController {
      */
     @GetMapping(Mappings.ENTITY_LINK)
     //@Secured(Role.ANONYMOUS_ROLE)
-    public Map<String, Object>  findEntityLinkByNodeTripleStoreAndClass(
+    public Map findEntityLinkByNodeTripleStoreAndClass(
             @ApiParam(name = "userId", value = "1", defaultValue = "1", required = true)
-            @RequestParam(required = false, defaultValue = "1") @Validated(Create.class) final String userId,
+            @RequestParam(required = true, defaultValue = "1") @Validated(Create.class) final String userId,
             @ApiParam(name = "requestCode", value = "12345", defaultValue = "12345", required = true)
-            @RequestParam(required = false, defaultValue = "12345") @Validated(Create.class) final String requestCode,
+            @RequestParam(required = true, defaultValue = "12345") @Validated(Create.class) final String requestCode,
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = false)
-            @RequestParam(required = false, defaultValue = "um") @Validated(Create.class) final String node,
+            @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
             @ApiParam(name = "tripleStore", value = "trellis", defaultValue = "trellis", required = false)
-            @RequestParam(required = false, defaultValue = "trellis") @Validated(Create.class) final String tripleStore,
+            @RequestParam(required = true, defaultValue = "trellis") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "className", value = "Class Name", required = false)
-            @RequestParam(required = true) @Validated(Create.class) final String className
+            @RequestParam(required = true) @Validated(Create.class) final String className,
+            @ApiParam(name = "doSynchronous", value = "false", required = false)
+            @RequestParam(required = false, defaultValue = "false") @Validated(Create.class) final boolean doSynchronous,
+            @ApiParam(name = "webHook", value = "Web Hook, URL Callback with response", required = false)
+            @RequestParam(required = false) @Validated(Create.class) final String webHook,
+            @ApiParam(name = "propague_in_kafka", value = "true", required = false)
+            @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka
+
     ) {
-        JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForClass(applicationState.getApplication(),userId,requestCode,node,tripleStore,className);
-        Map<String,Object> response = new HashMap<>();
 
-        Map<String,Object> appState = new HashMap<>();
-        appState.put("appState",applicationState.getAppState());
-        appState.put("cacheState",applicationState.getDataState(DataType.REDIS));
-        appState.put("dataState",applicationState.getDataState(DataType.CACHE));
-        appState.put("elasticState",applicationState.getDataState(DataType.ELASTICSEARCH));
-        response.put("state",appState);
-
-        Map<String,Object> jobResponse = new HashMap<>();
-        jobResponse.put("id",jobRegistry.getId());
-        jobResponse.put("node",jobRegistry.getNode());
-        jobResponse.put("tripleStore",jobRegistry.getTripleStore());
-        jobResponse.put("className",jobRegistry.getClassName());
-        jobResponse.put("status",jobRegistry.getStatusResult());
-        jobResponse.put("requestCode",requestCode);
-        jobResponse.put("userId",userId);
-        response.put("response",jobResponse);
-        return response;
+        if (!doSynchronous && ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
+            throw new CustomDiscoveryException("The request must be synchronous or web hook or/and propague in kafka must be valid" );
+        }
+        JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForClass(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka);
+        JsonObject jResponse = new JsonObject();
+        jResponse.add("state",applicationState.toSimplifiedJson());
+        if (jobRegistry!=null) {
+            JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
+            jJobRegistry.addProperty("userId", userId);
+            jJobRegistry.addProperty("requestCode", requestCode);
+            jResponse.add("response", jJobRegistry);
+        } else {
+            jResponse.addProperty("message","Application is not ready, please retry late");
+        }
+        Map res = new Gson().fromJson(jResponse,Map.class);
+        return res;
     }
 
     /**
@@ -208,6 +219,7 @@ public class DiscoveryController {
         protected static final String ENTITY_LINK = "/entity-link";
 
         protected static final String ENTITY_LINK_ENTITY = "/entity-link/entity";
+
 
     }
 }

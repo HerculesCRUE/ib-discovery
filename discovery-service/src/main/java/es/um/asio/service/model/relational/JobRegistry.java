@@ -1,13 +1,14 @@
 package es.um.asio.service.model.relational;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import es.um.asio.service.util.Utils;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Entity
 @Table(name = JobRegistry.TABLE)
@@ -59,6 +60,9 @@ public class JobRegistry {
     @Column(name = Columns.IS_STARTED, nullable = false)
     private boolean isStarted = false;
 
+    @Column(name = Columns.DO_SYNCHRONOUS, nullable = false)
+    private boolean doSync = false;
+
     @Column(name = Columns.BODY_REQUEST, nullable = true,columnDefinition = "TEXT")
     private String bodyRequest;
 
@@ -74,6 +78,7 @@ public class JobRegistry {
         this.className = className;
         this.statusResult = StatusResult.PENDING;
         this.requestRegistries = new HashSet<>();
+        this.objectResults = new HashSet<>();
     }
 
     public Date getMaxRequestDate() {
@@ -93,6 +98,57 @@ public class JobRegistry {
         requestRegistry.setJobRegistry(this);
         this.requestRegistries.remove(requestRegistry);
         this.requestRegistries.add(requestRegistry);
+    }
+
+    public String getStarDateStr() {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(getStartedDate());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String getCompletedDateStr() {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(getCompletedDate());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public JsonObject toSimplifiedJson() {
+        JsonObject jResponse = new JsonObject();
+        jResponse.addProperty("node",getNode());
+        jResponse.addProperty("tripleStore", getTripleStore());
+        jResponse.addProperty("className", getClassName());
+        jResponse.addProperty("startDate", getStarDateStr());
+        jResponse.addProperty("endDate", getCompletedDateStr());
+        jResponse.addProperty("status", getStatusResult().toString());
+
+        JsonArray jResultsArray = new JsonArray();
+        for (ObjectResult or : getObjectResults()) {
+            jResultsArray.add(or.toSimplifiedJson(true));
+        }
+        jResponse.add("results",jResultsArray);
+        return jResponse;
+    }
+
+    public Set<String> getWebHooks() {
+        Set<String> webHooks = new HashSet<>();
+        for (RequestRegistry rr : requestRegistries) {
+            if (Utils.isValidString(rr.getWebHook())){
+                webHooks.add(rr.getWebHook());
+            }
+        }
+        return webHooks;
+    }
+
+    public boolean isPropagatedInKafka() {
+        for (RequestRegistry rr : requestRegistries) {
+            if(rr.isPropagueInKafka())
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -152,6 +208,10 @@ public class JobRegistry {
          * STARTED_DATE column.
          */
         protected static final String STARTED_DATE = "started_date";
+        /**
+         * STARTED_DATE column.
+         */
+        protected static final String DO_SYNCHRONOUS = "do_synchronous";
     }
 
 }

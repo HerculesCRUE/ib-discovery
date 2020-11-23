@@ -41,6 +41,13 @@ public class RequestRegistry {
     @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private JobRegistry jobRegistry;
 
+    @Column(name = Columns.WEB_HOOK, nullable = true,columnDefinition = "VARCHAR(600)",length = 600)
+    @EqualsAndHashCode.Include
+    private String webHook;
+
+    @Column(name = Columns.PROPAGUE_IN_KAFKA, nullable = false)
+    private boolean propagueInKafka = false;
+
     public RequestRegistry(String userId, String requestCode, RequestType requestType, Date requestDate) {
         this.userId = userId;
         this.requestCode = requestCode;
@@ -87,5 +94,13 @@ public class RequestRegistry {
          * REQUEST_DATE column.
          */
         protected static final String REQUEST_DATE = "request_date";
+        /**
+         * WEB_HOOK column.
+         */
+        protected static final String WEB_HOOK = "web_hook";
+        /**
+         * PROPAGUE_IN_KAFKA column.
+         */
+        protected static final String PROPAGUE_IN_KAFKA ="propague_in_kafka";
     }
 }

@@ -126,6 +126,14 @@ public class ApplicationState {
         public int compare(AppState other) {
             return this.getOrder() - other.getOrder();
         }
+    }
 
+    public JsonObject toSimplifiedJson() {
+        JsonObject jState = new JsonObject();
+        jState.addProperty("appState",getAppState().toString());
+        jState.addProperty("cacheState",getDataState(DataType.CACHE).getState().toString());
+        jState.addProperty("dataState",getDataState(DataType.CACHE).getState().toString());
+        jState.addProperty("elasticState",getDataState(DataType.ELASTICSEARCH).getState().toString());
+        return jState;
     }
 }

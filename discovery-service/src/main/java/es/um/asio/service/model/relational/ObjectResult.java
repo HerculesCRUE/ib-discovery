@@ -1,6 +1,9 @@
 package es.um.asio.service.model.relational;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.model.TripleObject;
 import lombok.*;
@@ -127,10 +130,13 @@ public class ObjectResult {
         this.manual.add(objectResult);
     }
 
-    public TripleObject toTripleObject() {
+    public TripleObject toTripleObject(JobRegistry jr) {
         JobRegistry jobRegistry = getRecursiveJobRegistry();
+        if (jobRegistry == null)
+            jobRegistry = jr;
         LinkedTreeMap<String,Object> attrs = getAttributesAsMap(attributes, new LinkedTreeMap<String,Object>() );
         TripleObject to = new TripleObject(jobRegistry.getNode(), jobRegistry.getTripleStore(),jobRegistry.getClassName(),attrs);
+        to.setId(this.entityId);
         return to;
     }
 
@@ -174,39 +180,41 @@ public class ObjectResult {
             return null;
     }
 
-/*    public JSONObject generateJsonAttributes() throws JSONException {
-        JSONObject jData = new JSONObject();
-        for(Attribute att : this.attributes) {
-            Set<Value> values = att.getValues();
-            String key = att.getKey();
-            if (values.size() == 1 ){ // Si no es un array
-                if (Utils.isPrimitive(values.toArray()[0])) { // Si es un objeto simple
-                    jData.put(key,values.toArray()[0]);
-                } else {
-                    jData.put(key,)
-                }
+    public JsonObject toSimplifiedJson(boolean expands) {
+        JsonObject jResponse = new JsonObject();
+        jResponse.addProperty("entityId",getEntityId());
+        LinkedTreeMap<String,Object> attrsMap = getAttributesAsMap(attributes, new LinkedTreeMap<String,Object>());
+        jResponse.add("attributes",new Gson().toJsonTree(attrsMap).getAsJsonObject());
+        if (getAutomatic()!=null && expands) {
+            JsonArray jAutomatics = new JsonArray();
+            for (ObjectResult or : getAutomatic()) {
+                jAutomatics.add(or.toSimplifiedJson(false));
             }
+            jResponse.add("automatics",jAutomatics);
         }
-        return jData;
-    }*/
-
-
-
-/*    @ManyToOne(optional = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(referencedColumnName = "id",nullable = true)
-    private ObjectResult referenceObjectResult;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "id", cascade = CascadeType.ALL)
-    //@JoinColumn(nullable = true)
-    private Set<ObjectResult> automatic;*/
-
-/*    @OneToMany(fetch = FetchType.LAZY, mappedBy = "id", cascade = CascadeType.ALL)
-    //@JoinColumn(nullable = true)
-    private Set<ObjectResult> manual;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "id", cascade = CascadeType.ALL)
-    //@JoinColumn(nullable = true)
-    private Set<ObjectResult> mergeRequests;*/
+        if (getManual()!=null && expands) {
+            JsonArray jManuals = new JsonArray();
+            for (ObjectResult or : getManual()) {
+                jManuals.add(or.toSimplifiedJson(false));
+            }
+            jResponse.add("manuals",jManuals);
+        }
+        if (getActionResults()!=null && expands) {
+            JsonArray jActionResults = new JsonArray();
+            for (ActionResult ar : getActionResults()) {
+                JsonObject jAction = new JsonObject();
+                jAction.addProperty("action",ar.getAction().toString());
+                JsonArray jObjectResultActionsArray = new JsonArray();
+                for (ObjectResult or : ar.getObjectResults()) {
+                    jObjectResultActionsArray.add(or.toSimplifiedJson(false));
+                }
+                jAction.add("items",jObjectResultActionsArray);
+                jActionResults.add(jAction);
+            }
+            jResponse.add("actions",jActionResults);
+        }
+        return jResponse;
+    }
 
     /**
      * Column name constants.

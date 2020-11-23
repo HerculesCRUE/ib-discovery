@@ -125,7 +125,7 @@ class JobHandlerServiceImpTest {
         TripleObject to1 = new TripleObject("um","trellis","ConvocatoriaRecursosHumanos",jData);
         to1.setId("12345");
         ObjectResult or = new ObjectResult(jobRegistry,to1,0.99f);
-        TripleObject to2 = or.toTripleObject();
+        TripleObject to2 = or.toTripleObject(jobRegistry);
         // objectResultRepository.save(or);
         TripleObject t3 = to2.merge(to1);
         System.out.println();

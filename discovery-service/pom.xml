@@ -197,6 +197,11 @@
 			<artifactId>simmetrics-core</artifactId>
 			<version>4.1.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+			<version>2.5.2.RELEASE</version>
+		</dependency>
 	</dependencies>
 
 </project>

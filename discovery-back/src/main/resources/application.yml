@@ -43,6 +43,15 @@ data:
     host: localhost
     port: 16379
     password: redispass
+  kafka:
+    host: localhost
+    port: 9092
+    topicEntityChange:
+      topic: entity_change
+      group_id: entity_change_1
+    topicDiscoveryAction:
+      topic: discovery_action
+      group_id: discovery_action_1
 
 data-sources:
   useCachedData: true
