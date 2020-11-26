@@ -1,7 +1,9 @@
 package es.um.asio.service.model.relational;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.util.Utils;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -68,6 +70,10 @@ public class JobRegistry {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "jobRegistry", cascade = CascadeType.ALL)
     private Set<ObjectResult> objectResults;
+
+    @Transient
+    @JsonIgnore
+    private TripleObject tripleObject;
 
 
 

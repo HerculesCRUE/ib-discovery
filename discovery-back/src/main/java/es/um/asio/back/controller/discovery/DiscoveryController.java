@@ -7,18 +7,19 @@ import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
 import es.um.asio.service.config.DataSourcesConfiguration;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
+import es.um.asio.service.model.Action;
 import es.um.asio.service.model.SimilarityResult;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.appstate.DataState;
 import es.um.asio.service.model.appstate.DataType;
 import es.um.asio.service.model.appstate.State;
-import es.um.asio.service.model.relational.Action;
 import es.um.asio.service.model.relational.ActionResult;
 import es.um.asio.service.model.relational.JobRegistry;
 import es.um.asio.service.model.relational.ObjectResult;
 import es.um.asio.service.service.EntitiesHandlerService;
 import es.um.asio.service.service.impl.CacheServiceImp;
+import es.um.asio.service.service.impl.DataHandlerImp;
 import es.um.asio.service.service.impl.JobHandlerServiceImp;
 import es.um.asio.service.util.Utils;
 import es.um.asio.service.validation.group.Create;
@@ -39,6 +40,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Message controller.
@@ -62,6 +64,9 @@ public class DiscoveryController {
 
     @Autowired
     JobHandlerServiceImp jobHandlerServiceImp;
+
+    @Autowired
+    DataHandlerImp dataHandler;
 
     /**
      * Status.
@@ -101,7 +106,7 @@ public class DiscoveryController {
      *
      * @return Get the Entty Stats
      */
-    @GetMapping(Mappings.ENTITY_LINK)
+    @PostMapping(Mappings.ENTITY_LINK)
     //@Secured(Role.ANONYMOUS_ROLE)
     public Map findEntityLinkByNodeTripleStoreAndClass(
             @ApiParam(name = "userId", value = "1", defaultValue = "1", required = true)
@@ -154,7 +159,7 @@ public class DiscoveryController {
                     dataType = "TripleObject",
                     examples = @io.swagger.annotations.Example(
                             value = {
-                                    @ExampleProperty(value = "’object‘：{'id': '1','className: 'Actividad','attributes':{" +
+                                    @ExampleProperty(value = "’object‘：{'id': '1','className': 'Actividad','attributes':{" +
                                             "'codTipoActividad': '00',"+
                                             "'codTipoMoneda': 'EUR',"+
                                             "'fechaInicioActividad': '2008/04/28 00:00:00',"+
@@ -171,17 +176,62 @@ public class DiscoveryController {
                             }))
     })
     @ResponseBody
-    public ResponseEntity findEntityLinkByEntityAndNodeTripleStoreAndClass(
+    public Map findEntityLinkByEntityAndNodeTripleStoreAndClass(
+            @ApiParam(name = "userId", value = "1", defaultValue = "1", required = true)
+            @RequestParam(required = true, defaultValue = "1") @Validated(Create.class) final String userId,
+            @ApiParam(name = "requestCode", value = "12345", defaultValue = "12345", required = true)
+            @RequestParam(required = true, defaultValue = "12345") @Validated(Create.class) final String requestCode,
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = false)
             @RequestParam(required = false, defaultValue = "um") @Validated(Create.class) final String node,
             @ApiParam(name = "tripleStore", value = "trellis", defaultValue = "trellis", required = false)
             @RequestParam(required = false, defaultValue = "trellis") @Validated(Create.class) final String tripleStore,
-            @ApiParam(name = "className", value = "Class Name", required = false)
+            @ApiParam(name = "className", value = "Class Name", required = true)
             @RequestParam(required = true) @Validated(Create.class) final String className,
+            @ApiParam(name = "entityId", value = "12345", required = true)
+            @RequestParam(required = true) @Validated(Create.class) final String entityId,
+            @ApiParam(name = "doSynchronous", value = "false", required = false)
+            @RequestParam(required = false, defaultValue = "false") @Validated(Create.class) final boolean doSynchronous,
+            @ApiParam(name = "webHook", value = "Web Hook, URL Callback with response", required = false)
+            @RequestParam(required = false) @Validated(Create.class) final String webHook,
+            @ApiParam(name = "propague_in_kafka", value = "true", required = false)
+            @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka,
             @NotNull @RequestBody final Object object
     ) {
         JSONObject jsonData = new JSONObject((LinkedHashMap) object);
-        TripleObject tripleObject = null;
+        String jBodyStr = jsonData.toString();
+        TripleObject tripleObject;
+        if (!doSynchronous && ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
+            throw new CustomDiscoveryException("The request must be synchronous or web hook or/and propague in kafka must be valid" );
+        }
+        try {
+            JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForInstance(
+                    applicationState.getApplication(),
+                    userId,
+                    requestCode,
+                    node,
+                    tripleStore,
+                    className,
+                    entityId,
+                    jBodyStr,
+                    doSynchronous,webHook,propagueInKafka);
+            JsonObject jResponse = new JsonObject();
+            jResponse.add("state",applicationState.toSimplifiedJson());
+            if (jobRegistry!=null) {
+                JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
+                jJobRegistry.addProperty("userId", userId);
+                jJobRegistry.addProperty("requestCode", requestCode);
+                jResponse.add("response", jJobRegistry);
+            } else {
+                jResponse.addProperty("message","Application is not ready, please retry late");
+            }
+            Map res = new Gson().fromJson(jResponse,Map.class);
+            return res;
+        } catch (Exception e) {
+            throw new CustomDiscoveryException("Object data parse error");
+        }
+
+
+        /*TripleObject tripleObject = null;
         try {
             tripleObject = new TripleObject(node,tripleStore,className,jsonData);
         } catch (Exception e) {
@@ -198,9 +248,47 @@ public class DiscoveryController {
             stats.put("status", applicationState);
             stats.put("similarity", null);
             return new ResponseEntity<Map<String, Object>>(stats,HttpStatus.SERVICE_UNAVAILABLE);
-        }
+        }*/
     }
 
+    /**
+     * Get Entity Stats.
+     *
+     * @return Get the Entty Stats
+     */
+    @PostMapping(Mappings.ENTITY_CHANGE)
+    //@Secured(Role.ANONYMOUS_ROLE)
+    public ResponseEntity<String> entityChange(
+            @ApiParam(name = "node", value = "um", defaultValue = "um", required = true)
+            @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
+            @ApiParam(name = "tripleStore", value = "trellis", defaultValue = "trellis", required = true)
+            @RequestParam(required = true, defaultValue = "trellis") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "className", value = "Class Name", required = true)
+            @RequestParam(required = true) @Validated(Create.class) final String className,
+            @ApiParam(name = "entityLocalURI", required = true)
+            @RequestParam(required = true) @Validated(Create.class) final String entityLocalURI,
+            @ApiParam(name = "action", value = "", required = true)
+            @RequestParam(required = true) @Validated(Create.class) final String action
+
+    ) {
+        if (Action.fromString(action) == null) {
+            new ResponseEntity<String>("Action not valid: "+ action+ ". Values allowed are [INSERT,UPDATE,DELETE]",HttpStatus.NOT_ACCEPTABLE);
+        }
+        if (applicationState.getAppState() != ApplicationState.AppState.INITIALIZED) {
+            new ResponseEntity<String>("Application not initialized yet. The entity will be updated from cache on app start",HttpStatus.CONFLICT);
+        }
+        boolean result = false;
+        try {
+            CompletableFuture<Boolean> future = dataHandler.actualizeData(node, tripleStore, className, entityLocalURI, Action.fromString(action));
+            result = future.join();
+        } catch (Exception e) {
+            return new ResponseEntity<>("FAIL",HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        if (result)
+            return new ResponseEntity<>("DONE",HttpStatus.ACCEPTED);
+        else
+            return new ResponseEntity<>("FAIL",HttpStatus.NOT_ACCEPTABLE);
+    }
 
     /**
      * Mappgins.
@@ -218,7 +306,9 @@ public class DiscoveryController {
 
         protected static final String ENTITY_LINK = "/entity-link";
 
-        protected static final String ENTITY_LINK_ENTITY = "/entity-link/entity";
+        protected static final String ENTITY_LINK_ENTITY = "/entity-link/instance";
+
+        protected static final String ENTITY_CHANGE = "/entity/change";
 
 
     }

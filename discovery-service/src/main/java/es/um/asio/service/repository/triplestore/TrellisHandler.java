@@ -10,6 +10,7 @@ import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+import es.um.asio.service.model.Action;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
 import es.um.asio.service.repository.relational.CacheRegistryRepository;
@@ -18,12 +19,12 @@ import es.um.asio.service.util.Utils;
 import org.apache.http.impl.execchain.RequestAbortedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.*;
-
 
 public class TrellisHandler extends TripleStoreHandler {
 
@@ -155,7 +156,90 @@ public class TrellisHandler extends TripleStoreHandler {
         }
     }
 
-    private JsonObject parseJsonDataByCvn(JsonArray jData,JsonObject jContext, String className, String id) {
+    @Override
+    public boolean updateTripleObject(CacheServiceImp cacheService,String node, String tripleStore, String className,String localURI, Action action) throws IOException, URISyntaxException, ParseException {
+        Response rClass = doRequest(this.baseURL+className); // Request
+        JsonObject jClassObject = new Gson().fromJson(rClass.body().string(), JsonObject.class);
+
+        String[] urisParts = localURI.split("/");
+        String instanceId;
+        if (Utils.isValidString(urisParts[urisParts.length-1]))
+            instanceId = urisParts[urisParts.length-1];
+        else
+            instanceId = urisParts[urisParts.length-2];
+
+        TripleObject to = cacheService.getTripleObject(nodeName,"trellis",className,instanceId);
+        if (action.equals(Action.DELETE)) {
+            if (to!=null) {
+                cacheService.removeTripleObject(node, tripleStore, to);
+            }
+            return true;
+        } else {
+            Response rInstance = doRequest(localURI);
+            if (rInstance!=null) {
+                JsonObject jInstanceObject = new Gson().fromJson(rInstance.body().string(), JsonObject.class);
+                String lastModification = rInstance.headers().get("Last-Modified");
+
+                if (jClassObject.has("@graph") && jClassObject.has("@context")) {
+                    JsonObject jContext = jClassObject.get("@context").getAsJsonObject();
+                    String jStrInstance = jInstanceObject.toString().replace("j\\.[0-9]+:","");
+                    JsonObject jeClassInstance = new Gson().fromJson(jStrInstance, JsonObject.class);
+
+                    JsonObject jRootObject = parseJsonDataByCvn(jeClassInstance.get("@graph").getAsJsonArray(),jContext, className, instanceId);
+                    TripleStore ts = new TripleStore(tripleStore,node);
+                    to = new TripleObject(ts, jRootObject, className, instanceId, lastModification);
+                    cacheService.addTripleObject(node,tripleStore,to);
+                    return true;
+                }
+            }
+        }
+
+
+        return false;
+
+
+       /* TripleObject to = cacheService.getTripleObject(nodeName,"trellis",className,instanceId);
+        // Si la cache contiene la instancia, no hag la petición
+        boolean isNew = (to==null);
+            // En caso contrario, hago la petición para añadir a la cache
+            // Request to Instance URL
+
+            Response rInstance = doRequest(instanceURL);
+            if (rInstance!=null) {
+                JsonObject jInstanceObject = new Gson().fromJson(rInstance.body().string(), JsonObject.class);
+                String lastModification = rInstance.headers().get("Last-Modified");
+
+                if (jClassObject.has("@graph") && jClassObject.has("@context")) {
+                    *//*                                            if (className.contains("CvnRootBean") || true) {*//*
+                    JsonObject jContext = jClassObject.get("@context").getAsJsonObject();
+                    String jStrInstance = jInstanceObject.toString().replace("j\.[0-9]+:","");
+                    JsonObject jeClassInstance = new Gson().fromJson(jStrInstance, JsonObject.class);
+
+                    JsonObject jRootObject = parseJsonDataByCvn(jeClassInstance.get("@graph").getAsJsonArray(),jContext, className, instanceId);
+                    //to = new TripleObject(this.tripleStore, jInstanceObject.get("@graph").getAsJsonArray(), className, instanceId, lastModification);
+                    to = new TripleObject(this.tripleStore, jRootObject, className, instanceId, lastModification);
+                    changes++;
+                    classChanges ++;
+                }
+            }
+
+        if (to != null) {
+            try {
+                to.setTripleStore(this.tripleStore);
+                String nText = ((isNew)?"(New) ":" ");
+                logger.info("		Processing Node {} Instances: {} ({}/{}): {}	,class ({}/{}):{}	,id: {}	,data:{}",nText, ++instancesCounter, ++instancesInClass,totalInClass, nodeName, classesCounter,totalClasses,className, instanceId, to.toString());
+                cacheService.addTripleObject(nodeName,"trellis", to);
+            } catch (Exception e) {
+                e.printStackTrace();
+*//*                                        to.setTripleStore(this.tripleStore);
+                                        String nText = ((isNew)?"(New) ":" ");
+                                        logger.info("		Processing Node {} Instances: {} ({}/{}): {}	,class ({}/{}):{}	,id: {}	,data:{}",nText, ++instancesCounter, ++instancesInClass,totalInClass, nodeName, classesCounter,totalClasses,className, instanceId, to.toString());
+                                        cacheService.addTripleObject(nodeName,"trellis", to);*//*
+            }
+        }*/
+    }
+
+    private JsonObject parseJsonDataByCvn(JsonArray jData, JsonObject jContext, String className, String id) {
         try {
             if (id.contains("e02ad815-f4ca-496b-af87-207d7ce3ac94") && !id.equals("e02ad815-f4ca-496b-af87-207d7ce3ac93"))
                 System.out.println(); // Remove

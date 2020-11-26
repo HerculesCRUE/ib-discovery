@@ -29,13 +29,14 @@ public class KafkaHandlerService {
         logger.info("initialized kafka handler service");
     }
 
-    void sendMessageAction(ActionResult actionResult) {
+    void sendMessageAction(ActionResult actionResult,String node, String tripleStore, String className) {
         String topic = dataProperties.getKafka().getTopicDiscoveryAction().getTopic();
         for (ObjectResult or : actionResult.getObjectResults()) {
             JsonObject jObjectResult = or.toSimplifiedJson(false);
             JsonObject jMessage = new JsonObject();
             jMessage.addProperty("action",actionResult.getAction().toString());
             jMessage.add("object",jObjectResult);
+            String msgStr = jMessage.toString();
             kafkaTemplate.send(topic,jMessage.toString());
         }
     }

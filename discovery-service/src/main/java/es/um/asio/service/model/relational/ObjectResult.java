@@ -42,7 +42,7 @@ public class ObjectResult {
     @JoinColumn(nullable = true)
     private JobRegistry jobRegistry;
 
-    @Column(name = Columns.ENTITY_ID, nullable = false,columnDefinition = "VARCHAR(200)",length = 200)
+    @Column(name = Columns.ENTITY_ID, nullable = true,columnDefinition = "VARCHAR(200)",length = 200)
     @EqualsAndHashCode.Include
     private String entityId;
 
@@ -65,13 +65,6 @@ public class ObjectResult {
     @JoinColumn(referencedColumnName = "id")
     private ObjectResult parentManual;
 
-/*    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentMerge", cascade = CascadeType.ALL)
-    private Set<ObjectResult> merges;
-
-    @JsonIgnore
-    @ManyToOne(optional = true, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
-    @JoinColumn(referencedColumnName = "id")
-    private ObjectResult parentMerge;*/
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "objectResultParent", cascade = CascadeType.ALL)
     private Set<ActionResult> actionResults;

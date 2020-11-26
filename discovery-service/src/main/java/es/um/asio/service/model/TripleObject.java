@@ -85,7 +85,7 @@ public class TripleObject {
 
 
     public TripleObject(TripleStore tripleStore, JsonObject jData, String className, String id, String lastMod) {
-
+        this.tripleStore = tripleStore;
         this.className = className;
         this.id = id;
         try {

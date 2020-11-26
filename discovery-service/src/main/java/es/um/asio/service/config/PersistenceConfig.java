@@ -15,7 +15,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -37,6 +39,8 @@ import java.util.Set;
 @EnableJpaRepositories(basePackages = "es.um.asio.service.repository.relational")
 @EnableTransactionManagement
 @EntityScan(basePackages = "es.um.asio.service.model.relational")
+@EnableRedisRepositories(basePackages = "es.um.asio.service.repository.redis")
+@EnableElasticsearchRepositories(basePackages = "es.um.asio.service.repository.elasticsearch")
 public class PersistenceConfig {
 
     @Autowired

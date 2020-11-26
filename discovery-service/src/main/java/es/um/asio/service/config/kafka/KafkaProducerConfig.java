@@ -43,7 +43,12 @@ public class KafkaProducerConfig {
 
     @Bean
     public KafkaTemplate<String, String> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+        try {
+            return new KafkaTemplate<>(producerFactory());
+        } catch (Exception e) {
+            System.out.println();
+            return null;
+        }
     }
 
 }

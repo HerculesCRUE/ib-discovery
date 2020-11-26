@@ -227,6 +227,8 @@ public class Utils {
     }
 
     public static boolean isPrimitive(Object o) {
+        if (o == null)
+            return true;
         return ClassUtils.isPrimitiveOrWrapper(o.getClass()) || o instanceof String;
     }
 

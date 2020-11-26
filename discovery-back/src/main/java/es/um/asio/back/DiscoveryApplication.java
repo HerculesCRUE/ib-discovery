@@ -1,6 +1,5 @@
 package es.um.asio.back;
 
-import es.um.asio.back.controller.discovery.DiscoveryController;
 import es.um.asio.service.service.impl.DataHandlerImp;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +14,10 @@ import org.springframework.context.annotation.Import;
 
 import es.um.asio.service.ServiceConfig;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.concurrent.Executor;
 
 @SpringBootApplication(exclude = { UserDetailsServiceAutoConfiguration.class })
 @EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class })
@@ -28,7 +25,7 @@ import java.util.concurrent.Executor;
 
 @ComponentScan(basePackages="es.um.asio.back.controller")
 @EnableAsync
-public class Application {
+public class DiscoveryApplication {
 
     @Autowired
     DataHandlerImp dataHandler;
@@ -40,7 +37,7 @@ public class Application {
      *            the arguments
      */
     public static void main(final String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(DiscoveryApplication.class, args);
     }
 
     @Bean

@@ -8,7 +8,7 @@ import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.relational.CacheRegistry;
 import es.um.asio.service.model.stats.EntityStats;
 import es.um.asio.service.model.stats.StatsHandler;
-import es.um.asio.service.repository.StringRedisRepository;
+import es.um.asio.service.repository.redis.StringRedisRepository;
 import es.um.asio.service.repository.relational.CacheRegistryRepository;
 /*import es.um.asio.service.repository.relational.ElasticRegistryRepository;*/
 import es.um.asio.service.service.RedisService;

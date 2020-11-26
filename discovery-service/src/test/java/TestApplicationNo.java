@@ -1,24 +1,21 @@
-package es.um.asio.back.test;
 
-import es.um.asio.back.controller.URISController;
-import es.um.asio.service.mapper.MapperConfig;
+import org.junit.runner.RunWith;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.context.junit4.SpringRunner;
 
-@SpringBootApplication
+/*@SpringBootApplication
 @EnableAsync
 @EnableAutoConfiguration
 @Import(MapperConfig.class)
-@ActiveProfiles("dev")
-public class TestApplication {
+@ActiveProfiles("dev")*/
+/*@SpringBootApplication(exclude = { UserDetailsServiceAutoConfiguration.class })
+@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class })
+@Import({ ServiceConfig.class })
+
+@ComponentScan(basePackages="es.um.asio.back.controller")
+@EnableAsync*/
+@RunWith(SpringRunner.class)
+public class TestApplicationNo {
     /**@SpringBootApplication
      @EnableAutoConfiguration
      @Import({ ServiceConfig.class })
@@ -41,16 +38,16 @@ public class TestApplication {
     }*/
 
     public static void main(final String[] args) {
-        SpringApplication.run(TestApplication.class, args);
+        SpringApplication.run(TestApplicationNo.class, args);
     }
 
     /**
      * Creates the password encoder BCrypt.
      *
      * @return The password encoder.
-     */
+     *//*
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
+    }*/
 }

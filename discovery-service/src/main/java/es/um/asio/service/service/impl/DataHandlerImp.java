@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import es.um.asio.service.config.DataSourcesConfiguration;
+import es.um.asio.service.model.Action;
 import es.um.asio.service.model.TripleObject;
+import es.um.asio.service.model.TripleStore;
 import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.appstate.DataType;
 import es.um.asio.service.model.appstate.State;
@@ -84,10 +86,6 @@ public class DataHandlerImp implements DataHandler {
             applicationState.setApplication(discoveryApplication);
         }
 
-/*        CacheRegistry cr = new CacheRegistry(discoveryApplication,"nodo","triplestore","clase");
-        cacheRegistryRepository.save(cr);
-        System.out.println("DOOOOOOONE");*/
-
     }
 
     @Override
@@ -111,6 +109,30 @@ public class DataHandlerImp implements DataHandler {
         updateElasticData();
         logger.info("Completed load data");
         return CompletableFuture.completedFuture(true);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> actualizeData(String nodeName, String tripleStore, String className,String entityURL, Action action) throws ParseException, IOException, URISyntaxException {
+        DataSourcesConfiguration.Node node = dataSourcesConfiguration.getNodeByName(nodeName);
+        if (applicationState.getAppState() == ApplicationState.AppState.INITIALIZED) {
+            if (node != null) {
+                DataSourcesConfiguration.Node.TripleStore ts = node.getTripleStoreByType(tripleStore);
+                if (ts != null) {
+                    TripleStoreHandler handler = TripleStoreHandler.getHandler(ts.getType(), node.getNodeName(), ts.getBaseURL(), ts.getUser(), ts.getPassword());
+                    if (handler != null) {
+                        boolean isCompleted = handler.updateTripleObject(cache, nodeName, tripleStore, className, entityURL, action);
+                        if (isCompleted) {
+                            cache.saveTriplesMapInCache(nodeName,tripleStore,className);
+                            logger.info(String.format("Entity with URL: %s was be updated in cache",entityURL));
+                            updateElasticData();
+                            logger.info(String.format("Entity with URL: %s was be updated in Elasticsearch",entityURL));
+                            return CompletableFuture.completedFuture(true);
+                        }
+                    }
+                }
+            }
+        }
+        return CompletableFuture.completedFuture(false);
     }
 
     private void updateElasticData() {

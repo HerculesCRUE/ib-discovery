@@ -66,7 +66,7 @@ public class RequestRegistry {
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, requestCode);
+        return Objects.hash(userId, requestCode,requestType);
     }
 
     /**

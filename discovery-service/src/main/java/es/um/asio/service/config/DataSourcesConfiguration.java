@@ -22,6 +22,14 @@ public class DataSourcesConfiguration {
     private Thresholds thresholds;
     private List<Node> nodes = new ArrayList<>();
 
+    public Node getNodeByName(String nodeName) {
+        for (Node node: nodes) {
+            if (node.getNodeName().equalsIgnoreCase(nodeName))
+                return node;
+        }
+        return null;
+    }
+
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter

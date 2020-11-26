@@ -5,31 +5,19 @@ import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
-import es.um.asio.service.repository.elasticsearch.TripleObjectESCustomRepository;
-import es.um.asio.service.repository.elasticsearch.TripleObjectESRepository;
+
 import es.um.asio.service.test.TestApplication;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHits;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.jupiter.api.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+
 import org.springframework.test.context.junit4.SpringRunner;
 import org.javatuples.Pair;
 import java.util.*;
 import org.junit.jupiter.api.Order;
 
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 
 
 @RunWith(SpringRunner.class)

@@ -1,5 +1,7 @@
 package es.um.asio.service.repository.triplestore;
 
+import es.um.asio.service.model.Action;
+import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.service.impl.CacheServiceImp;
 
 import java.io.IOException;
@@ -9,6 +11,8 @@ import java.text.ParseException;
 public abstract class TripleStoreHandler {
 
     public abstract boolean updateData(CacheServiceImp cacheService) throws IOException, URISyntaxException, ParseException;
+
+    public abstract boolean updateTripleObject(CacheServiceImp cacheService,String node, String tripleStore, String className,String localURI, Action action) throws IOException, URISyntaxException, ParseException;
 
     public static TripleStoreHandler getHandler(String type, String node, String baseURL, String user, String password) {
         if (type.trim().toLowerCase().equals("trellis"))

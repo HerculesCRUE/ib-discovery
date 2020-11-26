@@ -3,6 +3,7 @@ package es.um.asio.service.service.impl;
 import com.google.api.client.util.Charsets;
 import com.google.gson.JsonObject;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
+import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.listener.AppEvents;
 import es.um.asio.service.model.SimilarityResult;
 import es.um.asio.service.model.TripleObject;
@@ -22,6 +23,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +47,7 @@ public class JobHandlerServiceImp {
     Map<String, Map<String,Map<String,Map<String,JobRegistry>>>> jrClassMap;
     Map<String, Map<String,Map<String,Map<String,JobRegistry>>>> jrEntityMap;
     Queue<JobRegistry> qClasses;
-    Queue<JobRegistry> qEntities;
+    Queue<JobRegistry> qInstances;
     boolean isWorking;
     boolean isAppReady;
 
@@ -79,7 +81,7 @@ public class JobHandlerServiceImp {
         jrClassMap = new LinkedHashMap<>();
         jrEntityMap = new LinkedHashMap<>();
         qClasses = new LinkedList<>();
-        qEntities = new LinkedList<>();
+        qInstances = new LinkedList<>();
         isWorking = false;
         isAppReady = false;
         applicationState.addAppListener(new AppEvents() {
@@ -165,8 +167,163 @@ public class JobHandlerServiceImp {
     }
 
 
-    public JobRegistry addJobRegistryForEntity(DiscoveryApplication application,String requestCode,String node, String tripleStore, String className, String body) {
-        return null;
+    public JobRegistry addJobRegistryForInstance (
+            DiscoveryApplication application,
+            String userId,
+            String requestCode,
+            String node,
+            String tripleStore,
+            String className,
+            String entityId,
+            String jBodyStr,
+            boolean doSync,
+            String webHook,
+            boolean propagueInKafka) throws CustomDiscoveryException {
+        if (!jrEntityMap.containsKey(node))
+            jrEntityMap.put(node,new LinkedHashMap<>());
+        if (!jrEntityMap.get(node).containsKey(tripleStore))
+            jrEntityMap.get(node).put(tripleStore,new LinkedHashMap<>());
+        if (!jrEntityMap.get(node).get(tripleStore).containsKey(className))
+            jrEntityMap.get(node).get(tripleStore).put(className,new LinkedHashMap<>());
+
+        // Busco si existe un JobRegistry anterior
+
+        TripleObject tripleObject;
+        try {
+            JSONObject jData = new JSONObject(jBodyStr);
+            tripleObject = new TripleObject(node,tripleStore,className,jData);
+            tripleObject.setId(entityId);
+        } catch (Exception e) {
+            throw new CustomDiscoveryException("Object data parse error");
+        }
+        JobRegistry jobRegistry = null;
+        boolean isNewJob = false;
+        // Recupero los jobEntry si hubiese
+        for (Map.Entry<String, JobRegistry> jrClassEntry: jrEntityMap.get(node).get(tripleStore).get(className).entrySet()) {
+            if (!jrClassEntry.getValue().isCompleted() && (jobRegistry==null || jrClassEntry.getValue().getMaxRequestDate().after(jobRegistry.getMaxRequestDate()))) {
+                jobRegistry = jrClassEntry.getValue();
+            }
+        }
+        if (jobRegistry==null) { // Si no existe lo creo
+            jobRegistry = new JobRegistry(application,node,tripleStore,className);
+            isNewJob = true;
+        }
+        jobRegistry.setDoSync(doSync);
+        jobRegistry.setBodyRequest(jBodyStr);
+        jobRegistry.setTripleObject(tripleObject);
+        RequestRegistry requestRegistry;
+        Optional<RequestRegistry> requestRegistryOpt = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode, RequestType.ENTITY_LINK_INSTANCE);
+        if (requestRegistryOpt.isEmpty()) {
+            requestRegistry = new RequestRegistry(userId,requestCode, RequestType.ENTITY_LINK_INSTANCE,new Date());
+        } else {
+            requestRegistry = requestRegistryOpt.get();
+        }
+        requestRegistry.setWebHook(webHook);
+        requestRegistry.setPropagueInKafka(propagueInKafka);
+        requestRegistry.setJobRegistry(jobRegistry);
+        //requestRegistryProxy.save(requestRegistry);
+
+        jobRegistry.addRequestRegistry(requestRegistry);
+        jrEntityMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()),jobRegistry);
+
+        jobRegistryRepository.save(jobRegistry);
+        for (RequestRegistry rr :jobRegistry.getRequestRegistries()) {
+            requestRegistryProxy.save(rr);
+        }
+        if (doSync) {
+            if (isAppReady)
+                jobRegistry = findSimilaritiesByInstance(jobRegistry);
+            else
+                return null;
+        } else {
+            if (isNewJob) {
+                qInstances.add(jobRegistry);
+            }
+        }
+        handleQueueFindSimilarities();
+        return jobRegistry;
+    }
+
+    // Gestiona la petición pesada de búsqueda de similaridades en una misma clase
+    public JobRegistry findSimilaritiesByInstance(JobRegistry jobRegistry) {
+        TripleObject to = jobRegistry.getTripleObject();
+        if (to==null) {
+            logger.error("Triple Object can´t be null");
+            jobRegistry.setCompleted(true);
+            jobRegistry.setCompletedDate(new Date());
+            jobRegistry.setStatusResult(StatusResult.FAIL);
+            jobRegistryRepository.save(jobRegistry);
+        }
+        jobRegistry.setStarted(true);
+        jobRegistry.setStartedDate(new Date());
+        isWorking = true;
+        try {
+            SimilarityResult similarityResult = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndTripleObject(to);
+
+            ObjectResult objectResult = new ObjectResult(jobRegistry, similarityResult.getTripleObject(), null);
+            ObjectResult toUpdate = objectResult;
+            Set<ObjectResult> toDelete = new HashSet<>();
+            for (EntitySimilarityObj eso : similarityResult.getAutomatic()) { // Para todos las similitudes automáticas
+                ObjectResult objResAuto = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity());
+                objectResult.addAutomatic(objResAuto);
+                // Merges
+
+                ObjectResult toUpdateAux = new ObjectResult(null,toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry)),eso.similarity);
+                if (!toUpdateAux.getEntityId().equals(toUpdate.getEntityId())) {
+                    toDelete.remove(toUpdateAux);
+                    toDelete.add(toUpdate);
+                    toUpdate = toUpdateAux;
+                } else {
+                    toDelete.add(objResAuto);
+                }
+            }
+            for (EntitySimilarityObj eso : similarityResult.getManual()) { // Para todos las similitudes automáticas
+                ObjectResult objResManual = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity());
+                objectResult.addManual(objResManual);
+            }
+
+            // Merges control
+            if (objectResult.getAutomatic().size()>0) {
+                if (toUpdate!=null) {
+                    ActionResult actionResult = new ActionResult(Action.UPDATE,objectResult);
+                    actionResult.addObjectResult(toUpdate);
+                    objectResult.getActionResults().add(actionResult);
+                    toUpdate.setActionResultParent(actionResult);
+                }
+                if (toDelete!=null && !toDelete.isEmpty()) {
+                    ActionResult actionResult = new ActionResult(Action.DELETE,objectResult);
+                    for (ObjectResult orDelete : toDelete) {
+                        actionResult.addObjectResult(orDelete);
+                        orDelete.setActionResultParent(actionResult);
+                    }
+                    // actionResultRepository.save(actionResult);
+                    objectResult.getActionResults().add(actionResult);
+                }
+            }
+
+            //objectResultRepository.save(objectResult);
+            jobRegistry.getObjectResults().add(objectResult);
+            objectResultRepository.save(objectResult);
+
+            jobRegistry.setCompleted(true);
+            jobRegistry.setCompletedDate(new Date());
+            jobRegistry.setStatusResult(StatusResult.COMPLETED);
+            jobRegistryRepository.save(jobRegistry);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Fail on findSimilaritiesByClass: "+e.getMessage());
+            e.printStackTrace();
+            jobRegistry.setCompleted(true);
+            jobRegistry.setCompletedDate(new Date());
+            jobRegistry.setStatusResult(StatusResult.FAIL);
+            jobRegistryRepository.save(jobRegistry);
+        }
+        isWorking = false;
+        handleQueueFindSimilarities();
+        sendWebHooks(jobRegistry);
+        if (jobRegistry.isPropagatedInKafka())
+            propagueKafkaActions(jobRegistry);
+        return jobRegistry;
     }
 
     // Gestiona la petición pesada de búsqueda de similaridades en una misma clase
@@ -251,8 +408,8 @@ public class JobHandlerServiceImp {
         if (isAppReady) {
             if (!qClasses.isEmpty()) {
                 return CompletableFuture.supplyAsync(()->findSimilaritiesByClass(qClasses.poll()));
-            } else if (!qEntities.isEmpty()) {
-                return CompletableFuture.supplyAsync(()->findSimilaritiesByClass(qEntities.poll()));
+            } else if (!qInstances.isEmpty()) {
+                return CompletableFuture.supplyAsync(()->findSimilaritiesByClass(qInstances.poll()));
             }
         }
         return CompletableFuture.completedFuture(null);
@@ -283,7 +440,7 @@ public class JobHandlerServiceImp {
     private void propagueKafkaActions(JobRegistry jobRegistry) {
         for (ObjectResult or : jobRegistry.getObjectResults()) { // Por todas las acciones
             for (ActionResult ar : or.getActionResults()) { // Por todos las Acciones
-                kafkaHandlerService.sendMessageAction(ar);
+                kafkaHandlerService.sendMessageAction(ar, or.getRecursiveJobRegistry().getNode(),or.getRecursiveJobRegistry().getTripleStore(),or.getClassName() );
             }
         }
     }

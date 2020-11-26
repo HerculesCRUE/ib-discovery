@@ -74,6 +74,13 @@ data-sources:
           user: admin
           password: admin
 
+    - nodeName: um-2
+      tripleStores:
+        - type: trellis
+          baseURL: http://herc-iz-front-desa.atica.um.es/
+          user: admin
+          password: admin
+
 ## Actuator
 management:
   security:

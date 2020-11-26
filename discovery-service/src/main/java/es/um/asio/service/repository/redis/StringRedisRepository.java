@@ -1,4 +1,4 @@
-package es.um.asio.service.repository;
+package es.um.asio.service.repository.redis;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 

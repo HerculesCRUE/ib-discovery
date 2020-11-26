@@ -3,9 +3,12 @@ package es.um.asio.service.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
+import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.model.stats.StatsHandler;
 import es.um.asio.service.repository.relational.CacheRegistryRepository;
 import es.um.asio.service.service.CacheService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +19,8 @@ import java.util.*;
 
 @Service
 public class CacheServiceImp implements CacheService {
+
+    private final Logger logger = LoggerFactory.getLogger(CacheServiceImp.class);
 
     private Map<String, Map<String, Map<String, Map<String,TripleObject>>>> triplesMap; // Class --> Instances
     private Map<String, Map<String, Map<String, Map<Integer,Map<Integer,Map<String,TripleObject>>>>>> triplesMapByDate; // Class --> Instances
@@ -83,20 +88,9 @@ public class CacheServiceImp implements CacheService {
     }
 
     @Override
-    public void addTripleObjectES(String node, String triple, TripleObject to) {
-        if (!esTriplesMap.containsKey(node)) {
-            esTriplesMap.put(node,new HashMap<>());
-        }
-
-        if (!esTriplesMap.get(node).containsKey(triple)) {
-            esTriplesMap.get(node).put(triple, new HashMap<>());
-        }
-
-        if (!esTriplesMap.get(node).get(triple).containsKey(to.getClassName())) {
-            esTriplesMap.get(node).get(triple).put(to.getClassName(),new HashMap<>());
-        }
-
-        esTriplesMap.get(node).get(triple).get(to.getClassName()).put(to.getId(),to);
+    public void addTripleObjectES(String node, String triple, TripleObjectES toES) {
+        TripleObject to = new TripleObject(toES);
+        addTripleObject(node,triple,to);
     }
 
     @Override
@@ -294,6 +288,7 @@ public class CacheServiceImp implements CacheService {
                             triplesMapByDate.get(node.getKey()).put(tripleStore.getKey(), new HashMap<>());
                         if (tripleStore != null && tripleStore.getValue() != null && tripleStore.getValue().entrySet() != null) {
                             for (Map.Entry<String, Map<String, TripleObject>> className : tripleStore.getValue().entrySet()) {
+                                logger.info("complete load in cache class: " + className.getKey());
                                 if (!triplesMapByDate.get(node.getKey()).get(tripleStore.getKey()).containsKey(className.getKey()))
                                     triplesMapByDate.get(node.getKey()).get(tripleStore.getKey()).put(className.getKey(), new HashMap<>());
                                 if (className != null && className.getValue() != null && className.getValue().entrySet() != null) {
@@ -341,6 +336,7 @@ public class CacheServiceImp implements CacheService {
                 }
             }
         }
+        logger.info("Completed load in cache");
     }
 
     public void setEsTriplesMap(Map<String, Map<String, Map<String, Map<String,TripleObject>>>> esTriplesMap) {
@@ -383,9 +379,15 @@ public class CacheServiceImp implements CacheService {
         for (Map.Entry<String, Map<String, Map<String, Map<String, TripleObject>>>> nodeEntry: triplesMap.entrySet()) { // Node
             for (Map.Entry<String, Map<String, Map<String, TripleObject>>> tripleEntry: nodeEntry.getValue().entrySet()) { // Triple
                 for (Map.Entry<String, Map<String, TripleObject>> classEntry: tripleEntry.getValue().entrySet()) { // Class
+                    logger.info("Update Stats by class: "+ classEntry.getKey());
                     for (Map.Entry<String, TripleObject> tipleObjectEntry: classEntry.getValue().entrySet()) { // TO
-                        TripleStore ts = tipleObjectEntry.getValue().getTripleStore();
-                        statsHandler.addAttributes(ts.getNode().getNode() , ts.getTripleStore(),tipleObjectEntry.getValue());
+                        try {
+                            TripleStore ts = tipleObjectEntry.getValue().getTripleStore();
+                            statsHandler.addAttributes(ts.getNode().getNode(), ts.getTripleStore(), tipleObjectEntry.getValue());
+                        } catch (Exception e) {
+                            logger.error("Update Stats Error: "+ e.getMessage());
+                            e.printStackTrace();
+                        }
                     }
                 }
             }

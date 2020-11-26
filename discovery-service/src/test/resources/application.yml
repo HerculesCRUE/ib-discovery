@@ -1,3 +1,4 @@
+---
 app:
   persistence:
     datasource:
@@ -42,6 +43,15 @@ data:
     host: localhost
     port: 16379
     password: redispass
+  kafka:
+    host: localhost
+    port: 9092
+    topicEntityChange:
+      topic: entity_change
+      group_id: entity_change_3
+    topicDiscoveryAction:
+      topic: discovery_action
+      group_id: discovery_action_3
 
 data-sources:
   useCachedData: true
@@ -94,13 +104,7 @@ server:
 
 logging:
   level:
-    org:
-      hibernate:
-        SQL: DEBUG
-        type:
-          descriptor:
-            sql:
-              BasicBinder: TRACE
+    org.hibernate.SQL: DEBUG
     #org.hibernate.type: TRACE
 
 spring:
@@ -110,12 +114,6 @@ spring:
     elasticsearch:
       cluster-name: es-asio-cluster
       cluster-nodes: localhost:9300
-  jpa:
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-
 
 security:
   basic:
