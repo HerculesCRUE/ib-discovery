@@ -2,6 +2,7 @@ package es.um.asio.service.model.relational;
 
 import data.DataGenerator;
 import es.um.asio.service.TestDiscoveryApplication;
+import es.um.asio.service.util.Utils;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +36,7 @@ class AttributeTest {
         for(ObjectResult or : jobRegistry.getObjectResults()) {
             attributes.addAll(or.getAttributes());
         }
+        System.out.println();
     }
 
     @Test
@@ -112,23 +114,39 @@ class AttributeTest {
     void getId() {
         for (Attribute att : attributes) {
             long id = new Random().nextLong();
-            Assert.assertTrue(att.getId());
+            att.setId(id);
+            Assert.assertTrue(att.getId() == id);
         }
     }
 
     @Test
     void getKey() {
+        for (Attribute att : attributes) {
+            Assert.assertTrue(Utils.isValidString(att.getKey()));
+        }
     }
 
     @Test
     void getObjectResult() {
+        for (Attribute att : attributes) {
+            Assert.assertNotNull(att.getObjectResult());
+        }
     }
 
     @Test
     void getValues() {
+        for (Attribute att : attributes) {
+            Assert.assertTrue(att.getValues().size()>0);
+        }
     }
 
     @Test
     void getParentValue() {
+        int counter = 0;
+        for (Attribute att : attributes) {
+            Value v = new Value(att,new Integer(++counter));
+            att.setParentValue(v);
+            Assert.assertTrue(att.getParentValue().equals(v));
+        }
     }
 }

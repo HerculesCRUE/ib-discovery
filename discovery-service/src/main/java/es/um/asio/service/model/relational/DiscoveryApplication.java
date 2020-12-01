@@ -6,6 +6,7 @@ import org.springframework.boot.system.ApplicationPid;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -58,6 +59,9 @@ public class DiscoveryApplication {
         this.name = name;
         this.startDate = new Date();
         this.pid = new ApplicationPid().toString();
+        this.jobRegistries = new HashSet<>();
+        this.cacheRegistries = new HashSet<>();
+        this.elasticRegistries = new HashSet<>();
     }
 
     /**
