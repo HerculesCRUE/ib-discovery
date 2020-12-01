@@ -23,7 +23,7 @@ public class Node {
      * The Node.
      */
     @Id
-    @Column(name = "node",columnDefinition = "VARCHAR(100)")
+/*    @Column(name = "node",columnDefinition = "VARCHAR(100)")*/
     @EqualsAndHashCode.Include
     @Expose(serialize = true, deserialize = true)
     @Field(type = FieldType.Keyword)
@@ -35,4 +35,5 @@ public class Node {
 
     public Node() {
     }
+
 }

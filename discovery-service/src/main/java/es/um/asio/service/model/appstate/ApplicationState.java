@@ -106,10 +106,6 @@ public class ApplicationState {
         }
     }
 
-    public JsonObject buildAppState(){
-        JsonObject state = new JsonObject();
-        return state;
-    }
 
     @Getter
     public enum AppState {
@@ -131,7 +127,7 @@ public class ApplicationState {
     public JsonObject toSimplifiedJson() {
         JsonObject jState = new JsonObject();
         jState.addProperty("appState",getAppState().toString());
-        jState.addProperty("cacheState",getDataState(DataType.CACHE).getState().toString());
+        jState.addProperty("cacheState",getDataState(DataType.REDIS).getState().toString());
         jState.addProperty("dataState",getDataState(DataType.CACHE).getState().toString());
         jState.addProperty("elasticState",getDataState(DataType.ELASTICSEARCH).getState().toString());
         return jState;

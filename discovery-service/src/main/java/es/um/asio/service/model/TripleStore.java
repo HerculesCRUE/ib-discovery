@@ -29,7 +29,7 @@ public class TripleStore {
      * The id.
      */
     @Id
-    @Column(name = "id", nullable = false,columnDefinition = "VARCHAR(100)",length = 100)
+/*    @Column(name = "id", nullable = false,columnDefinition = "VARCHAR(100)",length = 100)*/
     @EqualsAndHashCode.Include
     @Expose(serialize = true, deserialize = true)
     private String id;
@@ -37,7 +37,7 @@ public class TripleStore {
     /**
      * The tripleStore.
      */
-    @Column(name = "triple_store", nullable = false,columnDefinition = "VARCHAR(100)",length = 100)
+/*    @Column(name = "triple_store", nullable = false,columnDefinition = "VARCHAR(100)",length = 100)*/
     @EqualsAndHashCode.Include
     @Expose(serialize = true, deserialize = true)
     @Field(type = FieldType.Keyword)
@@ -47,14 +47,14 @@ public class TripleStore {
      * Node.
      * Relation Bidirectional ManyToOne
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+/*    @ManyToOne(fetch = FetchType.LAZY)*/
     @Expose(serialize = true, deserialize = true)
     private Node node;
 
     /**
      * The baseURL.
      */
-    @Column(name = "base_url", nullable = false,columnDefinition = "VARCHAR(400)",length = 400)
+/*    @Column(name = "base_url", nullable = false,columnDefinition = "VARCHAR(400)",length = 400)*/
     @EqualsAndHashCode.Include
     @Expose(serialize = true, deserialize = true)
     private String baseURL;
@@ -62,7 +62,7 @@ public class TripleStore {
     /**
      * The user.
      */
-    @Column(name = "user", nullable = false,columnDefinition = "VARCHAR(100)",length = 100)
+/*    @Column(name = "user", nullable = false,columnDefinition = "VARCHAR(100)",length = 100)*/
     @EqualsAndHashCode.Include
     @Expose(serialize = true, deserialize = true)
     private String user;
@@ -70,7 +70,7 @@ public class TripleStore {
     /**
      * The password.
      */
-    @Column(name = "password", nullable = false,columnDefinition = "VARCHAR(100)",length = 100)
+/*    @Column(name = "password", nullable = false,columnDefinition = "VARCHAR(100)",length = 100)*/
     @ColumnTransformer(read = "pgp_sym_decrypt(password, 'asio-secret-key')", write = "pgp_sym_encrypt(?, 'asio-secret-key')")
     @EqualsAndHashCode.Include
     @Expose(serialize = true, deserialize = true)
