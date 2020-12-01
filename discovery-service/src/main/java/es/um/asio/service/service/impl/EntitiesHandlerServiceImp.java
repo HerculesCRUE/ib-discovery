@@ -36,11 +36,20 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
     private final static String AUTOMATIC_KEY="AUTOMATIC";
 
     @Override
-    public Set<SimilarityResult> findEntitiesLinksByNodeAndTripleStoreAndClass(String node, String tripleStore, String className) {
+    public Set<SimilarityResult> findEntitiesLinksByNodeAndTripleStoreAndClass(String node, String tripleStore, String className, boolean searchInOtherNodes, Date deltaDate) {
         Set<SimilarityResult> similarities = new HashSet<>();
         Map<String, TripleObject> tripleObjects = cache.getTripleObjects(node,tripleStore,className);
-        if (tripleObjects.isEmpty())
-            throw new CustomDiscoveryException(String.format("Not found for [ Node: %s, TripleStore: %s, ClassName: %s]",node,tripleStore, className));
+        if (deltaDate!=null) {
+            tripleObjects = tripleObjects.entrySet()
+                    .stream()
+                    .filter(map -> map.getValue().getLastModification() >= deltaDate.getTime())
+                    .collect(Collectors.toMap(map -> map.getKey(), map -> map.getValue()));
+        } else {
+            if (tripleObjects.isEmpty())
+                throw new CustomDiscoveryException(String.format("Not found for [ Node: %s, TripleStore: %s, ClassName: %s]", node, tripleStore, className));
+
+        }
+
         StatsHandler statsHandler = cache.getStatsHandler();
         Map<String, Float> stats = statsHandler.generateMoreRelevantAttributesMap(node,tripleStore,className);
         int counter = 0;
@@ -50,7 +59,8 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
                 ++counter;
                 continue;
             }
-            List<TripleObject> matches = getSimilarEntitiesFromElasticsearch(to1, stats);
+            // TODO : Hacer que pueda buscar similitudes o no en otro nodo
+            List<TripleObject> matches = getSimilarEntitiesFromElasticsearch(to1, stats, searchInOtherNodes);
             logger.info(String.format("For [Node: %s, TripleStore: %s, ClassName: %s], founds %d similarities in Elasticsearch for id: %s", to1.getTripleStore().getNode().getNode(), to1.getTripleStore().getTripleStore(), to1.getClassName(), matches.size(), to1.getId()));
             if (matches.size()>1) {
                 Map<String, List<EntitySimilarityObj>> similarity = calculateSimilarities(to1, stats, matches);
@@ -75,14 +85,14 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
     }
 
     @Override
-    public SimilarityResult findEntitiesLinksByNodeAndTripleStoreAndTripleObject(TripleObject to) {
+    public SimilarityResult findEntitiesLinksByNodeAndTripleStoreAndTripleObject(TripleObject to, boolean searchInOtherNodes) {
         Map<String, TripleObject> tripleObjects = cache.getTripleObjects(to.getTripleStore().getNode().getNode(),to.getTripleStore().getTripleStore(),to.getClassName());
         if (tripleObjects.isEmpty())
             throw new CustomDiscoveryException(String.format("Not found for [ Node: %s, TripleStore: %s, ClassName: %s]",to.getTripleStore().getNode().getNode(),to.getTripleStore().getTripleStore(), to.getClassName()));
         StatsHandler statsHandler = cache.getStatsHandler();
 
         Map<String, Float> stats = statsHandler.generateMoreRelevantAttributesMap(to.getTripleStore().getNode().getNode(),to.getTripleStore().getTripleStore(),to.getClassName());
-        List<TripleObject> matches = getSimilarEntitiesFromElasticsearch(to, stats);
+        List<TripleObject> matches = getSimilarEntitiesFromElasticsearch(to, stats, searchInOtherNodes);
         logger.info(String.format("For [Node: %s, TripleStore: %s, ClassName: %s], founds %d similarities in Elasticsearch for id: %s", to.getTripleStore().getNode().getNode(), to.getTripleStore().getTripleStore(), to.getClassName(), matches.size(), to.getId()));
         if (matches.size()>=1) {
             Map<String, List<EntitySimilarityObj>> similarity = calculateSimilarities(to, stats, matches);
@@ -116,7 +126,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
     }
 
 
-    private List<TripleObject> getSimilarEntitiesFromElasticsearch(TripleObject to,Map<String, Float> stats) {
+    private List<TripleObject> getSimilarEntitiesFromElasticsearch(TripleObject to,Map<String, Float> stats, boolean otherNodes) {
         List<String> moreRelevant = getMoreRelevantAttributes(to,stats);
         List<Pair<String,Object>> params = new ArrayList<>();
         for (String relevantParam : moreRelevant) {
@@ -126,8 +136,14 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
             }
         }
         if (to.getAttributes()!=null && to.getAttributes().size()>0) {
-            List<TripleObjectES> matches = es.getTripleObjectsESByFilterAndAttributes("triple-object", to.getTripleStore().getNode().getNode(), to.getTripleStore().getTripleStore(), to.getClassName(), params)
-                    .stream().filter(toInner -> !toInner.getId().equals(to.getId())).collect(Collectors.toList());
+            List<TripleObjectES> matches = es.getTripleObjectsESByFilterAndAttributes("triple-object", !otherNodes?to.getTripleStore().getNode().getNode():null, !otherNodes?to.getTripleStore().getTripleStore():null, to.getClassName(), params)
+                    .stream().filter(toInner -> !( // Quito el propio elemento de el resultado
+                            toInner.getEntityId().equals(to.getId())
+                            && toInner.getTripleStore().getTripleStore().equals(to.getTripleStore().getTripleStore())
+                            && toInner.getTripleStore().getNode().getNode().equals(to.getTripleStore().getNode().getNode())
+                            )
+                    ).collect(Collectors.toList()
+                    );
             if (matches.size()>=dataSourcesConfiguration.getThresholds().getElasticSearchMaxDesirableNumbersOfResults()) {
                 float filterScore = matches.get(matches.size()-1).getScore()+ ((matches.get(0).getScore()-matches.get(matches.size()-1).getScore())*(float) dataSourcesConfiguration.getThresholds().getElasticSearchCutOffAccordPercentile());
                 matches = matches.stream().filter(toEs -> toEs.getScore() >= filterScore).collect(Collectors.toList());

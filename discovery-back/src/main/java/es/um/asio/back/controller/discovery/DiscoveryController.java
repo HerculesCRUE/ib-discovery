@@ -3,20 +3,12 @@ package es.um.asio.back.controller.discovery;
 //import es.um.asio.service.model.Role;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.internal.LinkedTreeMap;
-import es.um.asio.service.comparators.entities.EntitySimilarityObj;
 import es.um.asio.service.config.DataSourcesConfiguration;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
-import es.um.asio.service.model.Action;
-import es.um.asio.service.model.SimilarityResult;
+import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.appstate.ApplicationState;
-import es.um.asio.service.model.appstate.DataState;
-import es.um.asio.service.model.appstate.DataType;
-import es.um.asio.service.model.appstate.State;
-import es.um.asio.service.model.relational.ActionResult;
 import es.um.asio.service.model.relational.JobRegistry;
-import es.um.asio.service.model.relational.ObjectResult;
 import es.um.asio.service.service.EntitiesHandlerService;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import es.um.asio.service.service.impl.DataHandlerImp;
@@ -37,8 +29,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -102,7 +96,7 @@ public class DiscoveryController {
     }
 
     /**
-     * Get Entity Stats.
+     * Find similarities by Class Name.
      *
      * @return Get the Entty Stats
      */
@@ -119,19 +113,22 @@ public class DiscoveryController {
             @RequestParam(required = true, defaultValue = "trellis") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "className", value = "Class Name", required = false)
             @RequestParam(required = true) @Validated(Create.class) final String className,
-            @ApiParam(name = "doSynchronous", value = "false", required = false)
+            @ApiParam(name = "doSynchronous", value = "Handle request as synchronous request", defaultValue = "false", required = false)
             @RequestParam(required = false, defaultValue = "false") @Validated(Create.class) final boolean doSynchronous,
             @ApiParam(name = "webHook", value = "Web Hook, URL Callback with response", required = false)
             @RequestParam(required = false) @Validated(Create.class) final String webHook,
-            @ApiParam(name = "propague_in_kafka", value = "true", required = false)
-            @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka
-
+            @ApiParam(name = "propague_in_kafka", value = "Propague result in Kafka", defaultValue = "true", required = false)
+            @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka,
+            @ApiParam(name = "linkEntities", value = "Search also in other Nodes and Triple Stores for link", defaultValue = "false", required = true)
+            @RequestParam(required = true) @Validated(Create.class) final boolean linkEntities,
+            @ApiParam(name = "applyDelta", value = "Search only from last date in similar request", defaultValue = "true",required = true)
+            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta
     ) {
 
         if (!doSynchronous && ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
             throw new CustomDiscoveryException("The request must be synchronous or web hook or/and propague in kafka must be valid" );
         }
-        JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForClass(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka);
+        JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForClass(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka,linkEntities,applyDelta);
         JsonObject jResponse = new JsonObject();
         jResponse.add("state",applicationState.toSimplifiedJson());
         if (jobRegistry!=null) {
@@ -195,6 +192,8 @@ public class DiscoveryController {
             @RequestParam(required = false) @Validated(Create.class) final String webHook,
             @ApiParam(name = "propague_in_kafka", value = "true", required = false)
             @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka,
+            @ApiParam(name = "linkEntities", value = "true", required = true)
+            @RequestParam(required = true) @Validated(Create.class) final boolean linkEntities,
             @NotNull @RequestBody final Object object
     ) {
         JSONObject jsonData = new JSONObject((LinkedHashMap) object);
@@ -213,7 +212,10 @@ public class DiscoveryController {
                     className,
                     entityId,
                     jBodyStr,
-                    doSynchronous,webHook,propagueInKafka);
+                    doSynchronous,webHook,
+                    propagueInKafka,
+                    linkEntities
+            );
             JsonObject jResponse = new JsonObject();
             jResponse.add("state",applicationState.toSimplifiedJson());
             if (jobRegistry!=null) {
@@ -271,7 +273,7 @@ public class DiscoveryController {
             @RequestParam(required = true) @Validated(Create.class) final String action
 
     ) {
-        if (Action.fromString(action) == null) {
+        if (BasicAction.fromString(action) == null) {
             new ResponseEntity<String>("Action not valid: "+ action+ ". Values allowed are [INSERT,UPDATE,DELETE]",HttpStatus.NOT_ACCEPTABLE);
         }
         if (applicationState.getAppState() != ApplicationState.AppState.INITIALIZED) {
@@ -279,7 +281,7 @@ public class DiscoveryController {
         }
         boolean result = false;
         try {
-            CompletableFuture<Boolean> future = dataHandler.actualizeData(node, tripleStore, className, entityLocalURI, Action.fromString(action));
+            CompletableFuture<Boolean> future = dataHandler.actualizeData(node, tripleStore, className, entityLocalURI, BasicAction.fromString(action));
             result = future.join();
         } catch (Exception e) {
             return new ResponseEntity<>("FAIL",HttpStatus.INTERNAL_SERVER_ERROR);
@@ -288,6 +290,25 @@ public class DiscoveryController {
             return new ResponseEntity<>("DONE",HttpStatus.ACCEPTED);
         else
             return new ResponseEntity<>("FAIL",HttpStatus.NOT_ACCEPTABLE);
+    }
+
+    @PostMapping(Mappings.RELOAD_CACHE)
+    public ResponseEntity<String> doForceReloadCache() {
+        try {
+            if (applicationState.getAppState().getOrder() >= ApplicationState.AppState.INITIALIZED.getOrder()) {
+                dataHandler.populateData();
+                return new ResponseEntity<>("DONE",HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("IN PROCESS",HttpStatus.OK);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>("FAIL",HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -303,6 +324,8 @@ public class DiscoveryController {
         protected static final String STATUS = "/status";
 
         protected static final String STATS = "/stats";
+
+        protected static final String RELOAD_CACHE = "/cache/force-reload";
 
         protected static final String ENTITY_LINK = "/entity-link";
 

@@ -50,7 +50,7 @@ public class EntityAction {
      */
     @Column(name = "action")
     @Enumerated(EnumType.STRING)
-    private Action action;
+    private BasicAction basicAction;
 
     /**
      * state.
@@ -74,11 +74,11 @@ public class EntityAction {
     @OneToMany(mappedBy = "entityAction")
     private Set<EntityAttribute> entityAttributes;
 
-    public EntityAction(TripleObject tripleObject, Action action) {
+    public EntityAction(TripleObject tripleObject, BasicAction basicAction) {
         this.tripleStore = tripleObject.getTripleStore();
         this.uri = tripleObject.getId();
         this.className = tripleObject.getClassName();
-        this.action = action;
+        this.basicAction = basicAction;
         this.entityState = EntityState.PENDING;
         this.actionDate = new Date();
         this.entityAttributes = new HashSet<>();

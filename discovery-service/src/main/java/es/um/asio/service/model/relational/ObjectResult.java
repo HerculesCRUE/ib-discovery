@@ -30,9 +30,21 @@ public class ObjectResult {
     @EqualsAndHashCode.Include
     private long id;
 
+    @Column(name = Columns.NODE, nullable = true,columnDefinition = "VARCHAR(100)",length = 100)
+    @EqualsAndHashCode.Include
+    private String node;
+
+    @Column(name = Columns.TRIPLE_STORE, nullable = true,columnDefinition = "VARCHAR(100)",length = 100)
+    @EqualsAndHashCode.Include
+    private String tripleStore;
+
     @Column(name = Columns.CLASS_NAME, nullable = false,columnDefinition = "VARCHAR(200)",length = 200)
     @EqualsAndHashCode.Include
     private String className;
+
+    @Column(name = Columns.LOCAL_URI, nullable = true,columnDefinition = "VARCHAR(800)",length = 800)
+    @EqualsAndHashCode.Include
+    private String localURI;
 
     @Column(name = Columns.LAST_MODIFICATION, nullable = false,columnDefinition = "DATETIME")
     private Date lastModification;
@@ -65,6 +77,14 @@ public class ObjectResult {
     @JoinColumn(referencedColumnName = "id")
     private ObjectResult parentManual;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentLink", cascade = CascadeType.ALL)
+    private Set<ObjectResult> link;
+
+    @JsonIgnore
+    @ManyToOne(optional = true, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @JoinColumn(referencedColumnName = "id")
+    private ObjectResult parentLink;
+
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "objectResultParent", cascade = CascadeType.ALL)
     private Set<ActionResult> actionResults;
@@ -85,6 +105,9 @@ public class ObjectResult {
     @Column(name = Columns.IS_MERGE, nullable = false)
     private boolean isMerge= false;
 
+    @Column(name = Columns.IS_LINK, nullable = false)
+    private boolean isLink= false;
+
     @Column(name = Columns.MERGE_ACTION, nullable = true,columnDefinition = "VARCHAR(40)",length = 40)
     @Enumerated(value = EnumType.STRING)
     private MergeAction mergeAction;
@@ -95,11 +118,15 @@ public class ObjectResult {
 
     public ObjectResult(JobRegistry jobRegistry, TripleObject to, Float similarity) {
         this.className = to.getClassName();
+        this.node = to.getTripleStore().getNode().getNode();
+        this.tripleStore = to.getTripleStore().getTripleStore();
+        this.localURI = to.getLocalURI();
         this.jobRegistry = jobRegistry;
         this.lastModification = new Date(to.getLastModification());
         this.entityId = to.getId();
         this.automatic = new HashSet<>();
         this.manual = new HashSet<>();
+        this.link = new HashSet<>();
         this.actionResults = new HashSet<>();
         this.attributes = new HashSet<>();
         if (similarity!=null)
@@ -128,7 +155,8 @@ public class ObjectResult {
         if (jobRegistry == null)
             jobRegistry = jr;
         LinkedTreeMap<String,Object> attrs = getAttributesAsMap(attributes, new LinkedTreeMap<String,Object>() );
-        TripleObject to = new TripleObject(jobRegistry.getNode(), jobRegistry.getTripleStore(),jobRegistry.getClassName(),attrs);
+        TripleObject to = new TripleObject(getNode(), getTripleStore(),jobRegistry.getClassName(),attrs);
+        to.setLocalURI(getLocalURI());
         to.setId(this.entityId);
         return to;
     }
@@ -175,7 +203,11 @@ public class ObjectResult {
 
     public JsonObject toSimplifiedJson(boolean expands) {
         JsonObject jResponse = new JsonObject();
+        jResponse.addProperty("node",getNode());
+        jResponse.addProperty("tripleStore",getTripleStore());
         jResponse.addProperty("entityId",getEntityId());
+        jResponse.addProperty("localUri",getLocalURI());
+
         LinkedTreeMap<String,Object> attrsMap = getAttributesAsMap(attributes, new LinkedTreeMap<String,Object>());
         jResponse.add("attributes",new Gson().toJsonTree(attrsMap).getAsJsonObject());
         if (getAutomatic()!=null && expands) {
@@ -223,6 +255,18 @@ public class ObjectResult {
          */
         protected static final String CLASS_NAME = "class_name";
         /**
+         * CLASS_NAME column.
+         */
+        protected static final String NODE = "node";
+        /**
+         * CLASS_NAME column.
+         */
+        protected static final String TRIPLE_STORE = "triple_Store";
+        /**
+         * CLASS_NAME column.
+         */
+        protected static final String LOCAL_URI = "local_uri";
+        /**
          * REQUEST_DATE column.
          */
         protected static final String LAST_MODIFICATION = "last_modification";
@@ -247,11 +291,15 @@ public class ObjectResult {
          */
         protected static final String IS_MANUAL = "is_manual";
         /**
-         * MERGE column.
+         * IS_MERGE column.
          */
         protected static final String IS_MERGE = "is_merge";
         /**
-         * MERGE column.
+         * IS_LINK column.
+         */
+        protected static final String IS_LINK = "is_link";
+        /**
+         * MERGE_ACTION column.
          */
         protected static final String MERGE_ACTION = "merge_action";
 

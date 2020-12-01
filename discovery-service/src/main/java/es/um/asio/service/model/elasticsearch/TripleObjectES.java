@@ -13,10 +13,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.Score;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Document(indexName = "triple-object", type = "classes", shards = 10)
 @Data
@@ -24,7 +21,9 @@ import java.util.List;
 public class TripleObjectES implements Comparable<TripleObjectES>{
 
     @Id
-    private String id;
+    private int id;
+    private String entityId;
+    private String localURI;
     private String className;
     @Field(type = FieldType.Date)
     private Date lastModification;
@@ -40,19 +39,23 @@ public class TripleObjectES implements Comparable<TripleObjectES>{
         attributes = new LinkedTreeMap();
     }
 
-    public TripleObjectES(String id, String className, Date lastName) {
+    public TripleObjectES(String id, String node, String tripleStore, String className, Date lastName) {
         attributes = new LinkedTreeMap();
-        this.id = id;
+        this.entityId = id;
+        this.tripleStore = new TripleStore(tripleStore,node);
+        this.id = generateComposedId();
         this.className = className;
         this.lastModification = lastName;
     }
 
     public TripleObjectES(TripleObject to) {
-        this.id = to.getId();
+        this.entityId = to.getId();
+        this.localURI = to.getLocalURI();
         this.className = to.getClassName();
         this.lastModification = new Date(to.getLastModification());
         this.attributes = to.getAttributes();
         this.tripleStore = to.getTripleStore();
+        this.id = generateComposedId();
     }
 
     @Override
@@ -69,4 +72,10 @@ public class TripleObjectES implements Comparable<TripleObjectES>{
         }
         return tos;
     }
+
+    private int generateComposedId() {
+        return Objects.hash(entityId,tripleStore.getNode().getNode(),tripleStore.getTripleStore());
+    }
+
+
 }

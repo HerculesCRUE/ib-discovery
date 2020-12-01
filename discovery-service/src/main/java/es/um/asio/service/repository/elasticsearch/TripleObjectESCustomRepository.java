@@ -12,6 +12,7 @@ import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.javatuples.Pair;
+import org.javatuples.Triplet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
@@ -35,10 +36,13 @@ public class TripleObjectESCustomRepository{
     @Autowired
     private TextHandlerServiceImp textHandler;
 
-    public List<TripleObjectES> findByClassNameAndAttributesWithPartialMatch(String indexName, List<Pair<String,String>> musts, List<Pair<String,Object>> attrs){
+    public List<TripleObjectES> findByClassNameAndAttributesWithPartialMatch(String indexName, List<Triplet<String,String,String>> musts, List<Pair<String,Object>> attrs){
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        for (Pair<String,String> must : musts) {
-            boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.matchQuery(must.getValue0(), must.getValue1()));
+        for (Triplet<String,String,String> must : musts) {
+            if (must.getValue2().equals("TERM"))
+                boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.termQuery(must.getValue0(), must.getValue1()));
+            else
+                boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.matchQuery(must.getValue0(), must.getValue1()));
         }
         BoolQueryBuilder boolQueryBuilderAttrs = QueryBuilders.boolQuery();
         if (attrs.size()>0) {
@@ -81,10 +85,13 @@ public class TripleObjectESCustomRepository{
         return lResult;
     }
 
-    public List<TripleObjectES> getAllTripleObjectsESByClassByClassName(String className) {
+    public List<TripleObjectES> getAllTripleObjectsESByNodeAndTripleStoreAndClassName(String node,String tripleStore,String className) {
         Set<TripleObjectES> results = new HashSet<>();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.termQuery("className",className));
+        //boolQueryBuilder.must(QueryBuilders.queryStringQuery(node).field("tripleStore.node.node"));
+        boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.termQuery("tripleStore.node.node", node));
+        boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.termQuery("tripleStore.tripleStore", tripleStore));
+        boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.termQuery("className", className));
         NativeSearchQuery build = new NativeSearchQueryBuilder().withQuery(boolQueryBuilder).build();
         build.addIndices("triple-object");
         build.addTypes("classes");
@@ -117,14 +124,19 @@ public class TripleObjectESCustomRepository{
         return new ArrayList<>(results);
     }
 
-    public Map<String,Set<String>>getAllClassAndId() {
+    public Map<String,Set<String>>getAllClassAndId(String node, String tripleStore) {
         Map<String,Set<String>> results = new HashMap<>();
 
-        String[] includes = new String[]{"id", "className"};
+        String[] includes = new String[]{"entityId", "className"};
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.termQuery("tripleStore.node.node", node));
+        boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.termQuery("tripleStore.tripleStore", tripleStore));
+
 
         //NativeSearchQuery build = new NativeSearchQueryBuilder().build();
         SearchQuery searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(matchAllQuery())
+                .withQuery(boolQueryBuilder)
                 .withSourceFilter(
                         new FetchSourceFilterBuilder()
                                 .withIncludes(includes)
@@ -142,7 +154,7 @@ public class TripleObjectESCustomRepository{
                 if (!results.containsKey(p.getClassName())) {
                     results.put(p.getClassName(), new HashSet<>());
                 }
-                results.get(p.getClassName()).add(p.getId());
+                results.get(p.getClassName()).add(p.getEntityId());
             }
             scroll = (ScrolledPage<PairES>) elasticsearchTemplate.continueScroll(scroll.getScrollId(),6000,PairES.class);
         }
@@ -157,6 +169,6 @@ public class TripleObjectESCustomRepository{
 @Getter
 @Setter
 class PairES {
-    private String id;
+    private String entityId;
     private String className;
 }

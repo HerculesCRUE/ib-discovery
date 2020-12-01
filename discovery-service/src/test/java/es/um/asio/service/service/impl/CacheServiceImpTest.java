@@ -2,20 +2,17 @@ package es.um.asio.service.service.impl;
 
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
-import org.checkerframework.checker.units.qual.C;
+import main.TestApplicationOld;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes={main.TestApplication.class})
+@SpringBootTest(classes={TestApplicationOld.class})
 class CacheServiceImpTest {
 
     @Autowired

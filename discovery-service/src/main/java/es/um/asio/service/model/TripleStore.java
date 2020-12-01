@@ -6,6 +6,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.annotations.ColumnTransformer;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
 import javax.persistence.Id;
 
 import javax.persistence.*;
@@ -37,6 +40,7 @@ public class TripleStore {
     @Column(name = "triple_store", nullable = false,columnDefinition = "VARCHAR(100)",length = 100)
     @EqualsAndHashCode.Include
     @Expose(serialize = true, deserialize = true)
+    @Field(type = FieldType.Keyword)
     private String tripleStore;
 
     /**

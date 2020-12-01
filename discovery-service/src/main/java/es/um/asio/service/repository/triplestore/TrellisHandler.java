@@ -10,16 +10,14 @@ import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
-import es.um.asio.service.model.Action;
+import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
-import es.um.asio.service.repository.relational.CacheRegistryRepository;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import es.um.asio.service.util.Utils;
 import org.apache.http.impl.execchain.RequestAbortedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -49,7 +47,7 @@ public class TrellisHandler extends TripleStoreHandler {
 
     @Override
     public boolean updateData(CacheServiceImp cacheService) throws IOException, URISyntaxException, ParseException {
-        Set<TripleObject> triplesMapCached = cacheService.getAllTripleObjects();
+        Set<TripleObject> triplesMapCached = cacheService.getAllTripleObjects(this.nodeName,this.tripleStore.getTripleStore());
         int instancesCounter = 0;
         int changes = 0;
         // Do request to Base URL
@@ -92,7 +90,7 @@ public class TrellisHandler extends TripleStoreHandler {
                                 TripleObject to = cacheService.getTripleObject(nodeName,"trellis",className,instanceId);
                                 // Si la cache contiene la instancia, no hag la petición
                                 boolean isNew = (to==null);
-                                if (to == null || to.getAttributes() == null || to.getAttributes().size() == 0 /*|| (className.equals("Universidad"))*/   /*|| to.getAttributes().size() < 2*/ ) {
+                                if (to == null || to.getAttributes() == null || to.getAttributes().size() == 0 || !Utils.isValidString(to.getLocalURI())/*to.getClassName().equals("ConvocatoriaRecursosHumanos")*/) {
                                     // En caso contrario, hago la petición para añadir a la cache
                                     // Request to Instance URL
 
@@ -109,13 +107,17 @@ public class TrellisHandler extends TripleStoreHandler {
 
                                             JsonObject jRootObject = parseJsonDataByCvn(jeClassInstance.get("@graph").getAsJsonArray(),jContext, className, instanceId);
                                             //to = new TripleObject(this.tripleStore, jInstanceObject.get("@graph").getAsJsonArray(), className, instanceId, lastModification);
-                                            to = new TripleObject(this.tripleStore, jRootObject, className, instanceId, lastModification);
+                                            to = new TripleObject(this.tripleStore, jRootObject, className, instanceId,instanceURL, lastModification);
                                             changes++;
                                             classChanges ++;
                                         }
                                     }
                                 } else {
                                     triplesMapCached.remove(to);
+/*                                    to.setLocalURI(instanceURL);
+                                    to.setClassName(className);
+                                    changes++;
+                                    classChanges ++;*/
                                 }
                                 if (to != null) {
                                     try {
@@ -157,7 +159,7 @@ public class TrellisHandler extends TripleStoreHandler {
     }
 
     @Override
-    public boolean updateTripleObject(CacheServiceImp cacheService,String node, String tripleStore, String className,String localURI, Action action) throws IOException, URISyntaxException, ParseException {
+    public boolean updateTripleObject(CacheServiceImp cacheService,String node, String tripleStore, String className,String localURI, BasicAction basicAction) throws IOException, URISyntaxException, ParseException {
         Response rClass = doRequest(this.baseURL+className); // Request
         JsonObject jClassObject = new Gson().fromJson(rClass.body().string(), JsonObject.class);
 
@@ -169,7 +171,7 @@ public class TrellisHandler extends TripleStoreHandler {
             instanceId = urisParts[urisParts.length-2];
 
         TripleObject to = cacheService.getTripleObject(nodeName,"trellis",className,instanceId);
-        if (action.equals(Action.DELETE)) {
+        if (basicAction.equals(BasicAction.DELETE)) {
             if (to!=null) {
                 cacheService.removeTripleObject(node, tripleStore, to);
             }
@@ -187,7 +189,7 @@ public class TrellisHandler extends TripleStoreHandler {
 
                     JsonObject jRootObject = parseJsonDataByCvn(jeClassInstance.get("@graph").getAsJsonArray(),jContext, className, instanceId);
                     TripleStore ts = new TripleStore(tripleStore,node);
-                    to = new TripleObject(ts, jRootObject, className, instanceId, lastModification);
+                    to = new TripleObject(ts, jRootObject, className, instanceId,localURI, lastModification);
                     cacheService.addTripleObject(node,tripleStore,to);
                     return true;
                 }

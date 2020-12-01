@@ -38,29 +38,29 @@ public class ElasticRegistry {
     @Column(name = Columns.CLASS_NAME, nullable = false,columnDefinition = "VARCHAR(200)",length = 200)
     private String className;
 
-    @Column(name = Columns.ENTITY_ID, nullable = false,columnDefinition = "VARCHAR(400)",length = 400)
-    private String entityId;
+    @Column(name = Columns.INSERTED, nullable = false)
+    private int inserted;
 
     @Column(name = Columns.LAST_UPDATE, nullable = false,columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP",insertable = true, updatable = false)
     private Date lastUpdate;
 
-    public ElasticRegistry(DiscoveryApplication discoveryApplication, String node, String tripleStore, String className,String entityId) {
+    public ElasticRegistry(DiscoveryApplication discoveryApplication, String node, String tripleStore, String className,int inserted) {
         this.discoveryApplication = discoveryApplication;
         this.node = node;
         this.tripleStore = tripleStore;
         this.className = className;
-        this.entityId = entityId;
+        this.inserted = inserted;
         this.lastUpdate = new Date();
     }
 
-    public ElasticRegistry(DiscoveryApplication discoveryApplication, TripleObjectES toES) {
+/*    public ElasticRegistry(DiscoveryApplication discoveryApplication, TripleObjectES toES) {
         this.discoveryApplication = discoveryApplication;
         this.node = toES.getTripleStore().getNode().getNode();
         this.tripleStore = toES.getTripleStore().getTripleStore();
         this.className = toES.getClassName();
-        this.entityId = toES.getId();
+        this.entityId = toES.getEntityId();
         this.lastUpdate = new Date();
-    }
+    }*/
 
     /**
      * Column name constants.
@@ -89,7 +89,7 @@ public class ElasticRegistry {
          * CLASS_NAME column.
          */
 
-        protected static final String ENTITY_ID = "entity_id";
+        protected static final String INSERTED = "inserted";
          /**
          * REQUEST_DATE column.
          */

@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface TripleObjectESRepository extends ElasticsearchRepository<TripleObjectES,String> {
 
-    List<TripleObjectES> findByIdAndClassName(String id, String className);
+    List<TripleObjectES> findByEntityIdAndClassName(String id, String className);
 
 /*    @Query("{\"bool\": " +
             "{\"must\": [" +

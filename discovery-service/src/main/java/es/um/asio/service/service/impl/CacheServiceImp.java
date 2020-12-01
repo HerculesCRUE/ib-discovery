@@ -226,13 +226,13 @@ public class CacheServiceImp implements CacheService {
     }
 
     @Override
-    public Set<TripleObject> getAllTripleObjects() {
+    public Set<TripleObject> getAllTripleObjects(String node, String tripleStore) {
         Set<TripleObject> triples = new HashSet<>();
         if (triplesMap!=null && triplesMap.entrySet() != null) {
             for (Map.Entry<String, Map<String, Map<String, Map<String, TripleObject>>>> nodeEntry : triplesMap.entrySet()) { // Node
-                if (nodeEntry!=null && nodeEntry.getValue() != null && nodeEntry.getValue().entrySet() != null) {
+                if (nodeEntry!=null && nodeEntry.getKey().equals(node) && nodeEntry.getValue() != null && nodeEntry.getValue().entrySet() != null) {
                     for (Map.Entry<String, Map<String, Map<String, TripleObject>>> tripleEntry : nodeEntry.getValue().entrySet()) { // Node
-                        if (tripleEntry!=null && tripleEntry.getValue() != null && tripleEntry.getValue().entrySet() != null) {
+                        if (tripleEntry!=null && tripleEntry.getKey().equals(tripleStore) && tripleEntry.getValue() != null && tripleEntry.getValue().entrySet() != null) {
                             for (Map.Entry<String, Map<String, TripleObject>> classEntry : tripleEntry.getValue().entrySet()) { // Node
                                 if (classEntry!=null && classEntry.getValue() != null && classEntry.getValue().entrySet() != null) {
                                     for (Map.Entry<String, TripleObject> tipleObjectEntry : classEntry.getValue().entrySet()) { // Node
@@ -288,10 +288,10 @@ public class CacheServiceImp implements CacheService {
                             triplesMapByDate.get(node.getKey()).put(tripleStore.getKey(), new HashMap<>());
                         if (tripleStore != null && tripleStore.getValue() != null && tripleStore.getValue().entrySet() != null) {
                             for (Map.Entry<String, Map<String, TripleObject>> className : tripleStore.getValue().entrySet()) {
-                                logger.info("complete load in cache class: " + className.getKey());
+                                logger.info(String.format("complete load in cache node: %s, tripleStore: %s, class: %s",node.getKey(),tripleStore.getKey(),className.getKey()));
                                 if (!triplesMapByDate.get(node.getKey()).get(tripleStore.getKey()).containsKey(className.getKey()))
                                     triplesMapByDate.get(node.getKey()).get(tripleStore.getKey()).put(className.getKey(), new HashMap<>());
-                                if (className != null && className.getValue() != null && className.getValue().entrySet() != null) {
+                                if (className != null &&  className.getValue() != null && className.getValue().entrySet() != null) {
                                     for (Map.Entry<String, TripleObject> to : className.getValue().entrySet()) {
                                         to.getValue().buildFlattenAttributes();
                                         TripleObject toInner = null;
@@ -392,5 +392,19 @@ public class CacheServiceImp implements CacheService {
                 }
             }
         }
+    }
+
+    @Override
+    public Set<String> getAllNodes() {
+        return triplesMap.keySet();
+    }
+
+    @Override
+    public Set<String> getAllTripleStoreByNode(String node) {
+        Set<String> tripleStores = new HashSet<>();
+        if (triplesMap.containsKey(node)) {
+            return triplesMap.get(node).keySet();
+        }
+        return tripleStores;
     }
 }

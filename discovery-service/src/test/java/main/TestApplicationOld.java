@@ -9,10 +9,10 @@ import org.springframework.context.annotation.Import;
 @SpringBootApplication
 @EnableAutoConfiguration
 @Import({ ServiceConfig.class })
-public class TestApplication {
+public class TestApplicationOld {
 
     public static void main(String[] args) {
-        SpringApplication.run(TestApplication.class);
+        SpringApplication.run(TestApplicationOld.class);
     }
 
 }

@@ -29,7 +29,7 @@ public interface ElasticsearchService {
 
     public List<TripleObjectES> getAll();
 
-    public List<TripleObjectES> getAllByClassName(String className);
+    public List<TripleObjectES> getAllByNodeAndTripleStoreAndClassName(String node, String tripleStore, String className);
 
     public Map<String,TripleObjectES> getAllMappedById();
 
@@ -45,5 +45,5 @@ public interface ElasticsearchService {
 
     public List<TripleObject> getSimilarTripleObjects(TripleObject tripleObject);
 
-    public Map<String, Set<String>> getAllSimplifiedTripleObject();
+    public Map<String, Set<String>> getAllSimplifiedTripleObject(String node, String tripleStore);
 }

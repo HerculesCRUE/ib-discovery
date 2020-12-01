@@ -4,14 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import es.um.asio.service.config.DataSourcesConfiguration;
-import es.um.asio.service.model.Action;
+import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.TripleObject;
-import es.um.asio.service.model.TripleStore;
 import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.appstate.DataType;
 import es.um.asio.service.model.appstate.State;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
-import es.um.asio.service.model.relational.CacheRegistry;
 import es.um.asio.service.model.relational.DiscoveryApplication;
 import es.um.asio.service.model.stats.EntityStats;
 import es.um.asio.service.model.stats.StatsHandler;
@@ -20,7 +18,6 @@ import es.um.asio.service.repository.relational.DiscoveryApplicationRepository;
 import es.um.asio.service.repository.relational.JobRegistryRepository;
 import es.um.asio.service.repository.triplestore.TripleStoreHandler;
 import es.um.asio.service.service.DataHandler;
-import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +25,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -112,7 +108,7 @@ public class DataHandlerImp implements DataHandler {
     }
 
     @Override
-    public CompletableFuture<Boolean> actualizeData(String nodeName, String tripleStore, String className,String entityURL, Action action) throws ParseException, IOException, URISyntaxException {
+    public CompletableFuture<Boolean> actualizeData(String nodeName, String tripleStore, String className,String entityURL, BasicAction basicAction) throws ParseException, IOException, URISyntaxException {
         DataSourcesConfiguration.Node node = dataSourcesConfiguration.getNodeByName(nodeName);
         if (applicationState.getAppState() == ApplicationState.AppState.INITIALIZED) {
             if (node != null) {
@@ -120,7 +116,7 @@ public class DataHandlerImp implements DataHandler {
                 if (ts != null) {
                     TripleStoreHandler handler = TripleStoreHandler.getHandler(ts.getType(), node.getNodeName(), ts.getBaseURL(), ts.getUser(), ts.getPassword());
                     if (handler != null) {
-                        boolean isCompleted = handler.updateTripleObject(cache, nodeName, tripleStore, className, entityURL, action);
+                        boolean isCompleted = handler.updateTripleObject(cache, nodeName, tripleStore, className, entityURL, basicAction);
                         if (isCompleted) {
                             cache.saveTriplesMapInCache(nodeName,tripleStore,className);
                             logger.info(String.format("Entity with URL: %s was be updated in cache",entityURL));
@@ -136,34 +132,33 @@ public class DataHandlerImp implements DataHandler {
     }
 
     private void updateElasticData() {
-        // Load cache data
-        Map<String, Set<String>> savedInES =elasticsearchService.getAllSimplifiedTripleObject();
+        for (String node : cache.getAllNodes()) {
+            for (String tripleStore : cache.getAllTripleStoreByNode(node)) {
+                Map<String,Map<String,TripleObjectES>> toSaveES = new HashMap<>();
+                // Cargo los datos actuales de ES
+                Map<String, Set<String>> savedInES = elasticsearchService.getAllSimplifiedTripleObject(node,tripleStore);
+                Set<TripleObject> tos = cache.getAllTripleObjects(node,tripleStore); // Todas las tripletas
 
-        Map<String,Map<String,TripleObjectES>> toSaveES = new HashMap<>();
-        Set<TripleObject> tos =  cache.getAllTripleObjects(); // Todas las tripletas
+                for (TripleObject to : tos) {
+                    if (!savedInES.containsKey(to.getClassName()) || !savedInES.get(to.getClassName()).contains(to.getId())) {
+                        if (!toSaveES.containsKey(to.getClassName()))
+                            toSaveES.put(to.getClassName(), new HashMap<>());
+                        toSaveES.get(to.getClassName()).put(to.getId(), new TripleObjectES(to));
+                    }
+                }
 
-        for (TripleObject to : tos) {
-            if (!savedInES.containsKey(to.getClassName()) || !savedInES.get(to.getClassName()).contains(to.getId()) ) {
-                if (!toSaveES.containsKey(to.getClassName()))
-                    toSaveES.put(to.getClassName(), new HashMap<>());
-                toSaveES.get(to.getClassName()).put(to.getId(),new TripleObjectES(to));
+                for (Map.Entry<String, Map<String, TripleObjectES>> classEntry : toSaveES.entrySet()) {
+                    List<TripleObjectES> toSave = new ArrayList<>();
+                    for (Map.Entry<String, TripleObjectES> toEntry : classEntry.getValue().entrySet()) {
+                        toSave.add(toEntry.getValue());
+                    }
+                    Map<String, Map<String, String>> saveResult = elasticsearchService.saveTripleObjectsES(toSave);
+                    logger.info("Saved in Elasticsearch className:" + classEntry.getKey() + ", elements: " + toSave.size() + ", inserted: " + saveResult.get("INSERTED").size() + " fails: " + saveResult.get("FAILED").size());
+                }
             }
         }
-
-        for (Map.Entry<String, Map<String, TripleObjectES>> classEntry : toSaveES.entrySet()) {
-            List<TripleObjectES> toSave = new ArrayList<>();
-            for (Map.Entry<String, TripleObjectES> toEntry : classEntry.getValue().entrySet()) {
-                toSave.add(toEntry.getValue());
-            }
-            Map<String, Map<String, String>> saveResult = elasticsearchService.saveTripleObjectsES(toSave);
-            logger.info("Saved in Elasticsearch className:" + classEntry.getKey() +", elements: "+ toSave.size() + ", inserted: "+saveResult.get("INSERTED").size()+" fails: "+saveResult.get("FAILED").size());
-            System.out.println();
-        }
-/*        for (TripleObject to : toToSaveES) {
-            cache.addTripleObjectES(to.getTripleStore().getNode().getNode(), to.getTripleStore().getTripleStore(), to);
-        }
-        cache.saveElasticSearchTriplesMapInCache();*/
         applicationState.setDataState(DataType.ELASTICSEARCH, State.UPLOAD_DATA);
+
         // List<TripleObjectES> tosESAfter = elasticsearchService.getAll();
 
     }
@@ -223,7 +218,7 @@ public class DataHandlerImp implements DataHandler {
         for (DataSourcesConfiguration.Node node : dataSourcesConfiguration.getNodes()) {
             for (DataSourcesConfiguration.Node.TripleStore ts : node.getTripleStores()) {
                 TripleStoreHandler handler = TripleStoreHandler.getHandler(ts.getType(), node.getNodeName(), ts.getBaseURL(), ts.getUser(), ts.getPassword());
-                isChanged = isChanged ||  handler.updateData(cache);
+                isChanged = isChanged |  handler.updateData(cache);
             }
         }
         if(isChanged) {
@@ -231,8 +226,10 @@ public class DataHandlerImp implements DataHandler {
             cache.saveTriplesMapInCache();
             cache.saveEntityStatsInCache();
         }
-        applicationState.setAppState(ApplicationState.AppState.INITIALIZED);
-        applicationState.setDataState(DataType.REDIS, State.UPLOAD_DATA);
-        applicationState.setDataState(DataType.CACHE, State.UPLOAD_DATA);
+        if (applicationState.getAppState().getOrder()< ApplicationState.AppState.INITIALIZED.getOrder()) {
+            applicationState.setAppState(ApplicationState.AppState.INITIALIZED);
+            applicationState.setDataState(DataType.REDIS, State.UPLOAD_DATA);
+            applicationState.setDataState(DataType.CACHE, State.UPLOAD_DATA);
+        }
     }
 }

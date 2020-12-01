@@ -1,5 +1,6 @@
 package es.um.asio.service.config;
 
+import es.um.asio.service.util.Utils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -62,6 +63,10 @@ public class DataSourcesConfiguration {
                 }
             }
             return null;
+        }
+
+        public String getNodeName() {
+            return Utils.normalize(nodeName);
         }
 
         @AllArgsConstructor

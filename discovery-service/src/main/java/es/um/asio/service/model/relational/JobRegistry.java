@@ -43,7 +43,7 @@ public class JobRegistry {
     @Column(name = Columns.CLASS_NAME, nullable = false,columnDefinition = "VARCHAR(200)",length = 200)
     private String className;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "jobRegistry", cascade = CascadeType.MERGE)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "jobRegistry", cascade = CascadeType.ALL, orphanRemoval = true/*{CascadeType.PERSIST ,CascadeType.REMOVE}*/)
     private Set<RequestRegistry> requestRegistries;
 
     @Column(name = Columns.COMPLETION_DATE, nullable = true,columnDefinition = "DATETIME")
@@ -65,6 +65,12 @@ public class JobRegistry {
     @Column(name = Columns.DO_SYNCHRONOUS, nullable = false)
     private boolean doSync = false;
 
+    @Column(name = Columns.SEARCH_LINKS, nullable = false)
+    private boolean searchLinks = false;
+
+    @Column(name = Columns.SEARCH_FROM_DELTA, nullable = true)
+    private Date searchFromDelta;
+
     @Column(name = Columns.BODY_REQUEST, nullable = true,columnDefinition = "TEXT")
     private String bodyRequest;
 
@@ -77,11 +83,12 @@ public class JobRegistry {
 
 
 
-    public JobRegistry(DiscoveryApplication discoveryApplication, String node, String tripleStore, String className) {
+    public JobRegistry(DiscoveryApplication discoveryApplication, String node, String tripleStore, String className, boolean searchLinks) {
         this.discoveryApplication = discoveryApplication;
         this.node = node;
         this.tripleStore = tripleStore;
         this.className = className;
+        this.searchLinks = searchLinks;
         this.statusResult = StatusResult.PENDING;
         this.requestRegistries = new HashSet<>();
         this.objectResults = new HashSet<>();
@@ -167,14 +174,6 @@ public class JobRegistry {
          */
         protected static final String ID = "id";
         /**
-         * REQUEST_CODE column.
-         */
-        protected static final String REQUEST_CODE = "request_code";
-        /**
-         * REQUEST_TYPE column.
-         */
-        protected static final String REQUEST_TYPE = "request_type";
-        /**
          * NODE column.
          */
         protected static final String NODE = "node";
@@ -186,10 +185,6 @@ public class JobRegistry {
          * CLASS_NAME column.
          */
         protected static final String CLASS_NAME = "class_name";
-        /**
-         * REQUEST_DATE column.
-         */
-        protected static final String REQUEST_DATE = "request_date";
         /**
          * COMPLETION_DATE column.
          */
@@ -218,6 +213,14 @@ public class JobRegistry {
          * STARTED_DATE column.
          */
         protected static final String DO_SYNCHRONOUS = "do_synchronous";
+        /**
+         * STARTED_DATE column.
+         */
+        protected static final String SEARCH_LINKS = "search_links";
+        /**
+         * STARTED_DATE column.
+         */
+        protected static final String SEARCH_FROM_DELTA = "search_from_delta";
     }
 
 }

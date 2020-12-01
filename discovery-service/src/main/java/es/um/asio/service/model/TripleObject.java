@@ -1,5 +1,6 @@
 package es.um.asio.service.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -39,14 +40,19 @@ public class TripleObject {
     @Expose(serialize = false, deserialize = false)
     @Transient
     @JsonIgnore
+    @Getter(value = AccessLevel.NONE)
+    @Setter(value = AccessLevel.NONE)
     private final Logger logger = LoggerFactory.getLogger(TripleObject.class);
 
 
     @Expose(serialize = true, deserialize = true)
     @Id
     private String id;
-    @Expose(serialize = true, deserialize = true)
     @Field(type = FieldType.Text)
+    @Expose(serialize = true, deserialize = true)
+    private String localURI;
+    @Field(type = FieldType.Text)
+    @Expose(serialize = true, deserialize = true)
     private String className;
     @Expose(serialize = true, deserialize = true)
     @Field(type = FieldType.Long)
@@ -61,8 +67,9 @@ public class TripleObject {
     private Map<String,List<Object>> flattenAttributes;
 
     public TripleObject(TripleObjectES toES) {
-        this.id = toES.getId();
+        this.id = toES.getEntityId();
         this.className = toES.getClassName();
+        this.localURI = toES.getLocalURI();
         this.lastModification = toES.getLastModification().getTime();
         this.tripleStore = toES.getTripleStore();
         this.attributes = toES.getAttributes();
@@ -84,10 +91,11 @@ public class TripleObject {
     }
 
 
-    public TripleObject(TripleStore tripleStore, JsonObject jData, String className, String id, String lastMod) {
+    public TripleObject(TripleStore tripleStore, JsonObject jData, String className, String id,String localURI, String lastMod) {
         this.tripleStore = tripleStore;
         this.className = className;
         this.id = id;
+        this.localURI = localURI;
         try {
             attributes = new Gson().fromJson(jData.toString(), LinkedTreeMap.class);
             lastModification = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss", Locale.UK).parse(lastMod).getTime();
@@ -260,7 +268,7 @@ public class TripleObject {
         }
     }
 
-    public void handleFlattenAttributes(String p, Object att, Map<String,List<Object>> flattens) {
+    private void handleFlattenAttributes(String p, Object att, Map<String,List<Object>> flattens) {
         p = !Utils.isValidString(p)?"":p;
         if (att!=null) {
             if (Utils.isPrimitive(att)) { // Si es primitivo, añado a la lista de sus paths

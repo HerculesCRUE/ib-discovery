@@ -2,7 +2,7 @@ package es.um.asio.service.model.relational;
 
 public enum Action {
 
-    INSERT("INSERT"),UPDATE("UPDATE"),DELETE("DELETE");
+    INSERT("INSERT"),UPDATE("UPDATE"),DELETE("DELETE"),LINK("LINK");
 
     private String text;
 

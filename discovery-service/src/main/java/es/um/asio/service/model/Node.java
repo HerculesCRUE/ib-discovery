@@ -4,6 +4,8 @@ import com.google.gson.annotations.Expose;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -24,6 +26,7 @@ public class Node {
     @Column(name = "node",columnDefinition = "VARCHAR(100)")
     @EqualsAndHashCode.Include
     @Expose(serialize = true, deserialize = true)
+    @Field(type = FieldType.Keyword)
     private String node;
 
     public Node(String node) {

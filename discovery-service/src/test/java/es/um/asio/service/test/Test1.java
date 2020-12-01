@@ -15,9 +15,7 @@ import java.util.stream.Collectors;
 public class Test1 {
     @Test
     public void main(){
-        for (int i=0; i<10; i++) {
-            System.out.println(UUID.randomUUID().toString().length());
-        }
+        System.out.println(Utils.normalize("um??2"));
 
     }
 }

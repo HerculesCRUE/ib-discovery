@@ -2,6 +2,7 @@ package es.um.asio.service.service.impl;
 
 import com.google.gson.JsonObject;
 import es.um.asio.service.config.DataProperties;
+import es.um.asio.service.model.relational.Action;
 import es.um.asio.service.model.relational.ActionResult;
 import es.um.asio.service.model.relational.ObjectResult;
 import org.slf4j.Logger;
@@ -36,6 +37,10 @@ public class KafkaHandlerService {
             JsonObject jMessage = new JsonObject();
             jMessage.addProperty("action",actionResult.getAction().toString());
             jMessage.add("object",jObjectResult);
+            if (actionResult.getAction() == Action.LINK) {
+                JsonObject jLink = actionResult.getObjectResultParent().toSimplifiedJson(false);
+                jMessage.add("linkedTo", jLink);
+            }
             String msgStr = jMessage.toString();
             kafkaTemplate.send(topic,jMessage.toString());
         }

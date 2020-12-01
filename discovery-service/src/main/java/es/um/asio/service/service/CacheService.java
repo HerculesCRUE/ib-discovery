@@ -4,6 +4,7 @@ import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.model.stats.StatsHandler;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -44,11 +45,15 @@ public interface CacheService {
 
     public Iterator<TripleObject> getFilteredIterator();
 
-    public Set<TripleObject> getAllTripleObjects();
+    public Set<TripleObject> getAllTripleObjects(String node, String tripleStore);
 
     public Map<String,TripleObject> getTripleObjects(String node,String tripleStore, String className);
 
     public TripleObject getTripleObject(String node, String tripleStore, String className, String id);
 
     public void updateStats();
+
+    public Set<String> getAllNodes();
+
+    public Set<String> getAllTripleStoreByNode(String node);
 }

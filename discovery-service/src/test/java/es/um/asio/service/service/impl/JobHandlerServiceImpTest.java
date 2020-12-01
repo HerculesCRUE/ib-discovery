@@ -89,7 +89,7 @@ class JobHandlerServiceImpTest {
         DiscoveryApplication discoveryApplication = applicationState.getApplication();
         JobRegistry jobRegistry = jobRegistryRepository.findOpenJobsByDiscoveryAppAndNodeAndTripleStoreAndClassName(discoveryApplication.getId(),"um","trellis","test");
         if (jobRegistry == null) {
-            jobRegistry = new JobRegistry(discoveryApplication,"um","trellis","test");
+            jobRegistry = new JobRegistry(discoveryApplication,"um","trellis","test",false);
         }
         RequestRegistry requestRegistry;
         Optional<RequestRegistry> requestRegistryOpt = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType("u1","r1", RequestType.ENTITY_LINK_CLASS);

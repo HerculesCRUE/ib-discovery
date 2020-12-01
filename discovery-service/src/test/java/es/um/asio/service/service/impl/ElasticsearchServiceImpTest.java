@@ -34,7 +34,7 @@ class ElasticsearchServiceImpTest {
         tripleObjectsES = new HashSet<>();
 
         for (int i = 0 ; i < 10 ; i++) {
-            TripleObjectES to = new TripleObjectES(String.valueOf(i),String.format("clase1"), new Date());
+            TripleObjectES to = new TripleObjectES(String.valueOf(i),"um","trellis",String.format("clase1"), new Date());
             to.setTripleStore(new TripleStore("trellis","um","http://herc-iz-front-desa.atica.um.es/","admin","admin"));
             LinkedTreeMap<String,Object> attrs = new LinkedTreeMap<>();
             for (int j = 1 ; j <= 5 ; j++){
@@ -58,7 +58,7 @@ class ElasticsearchServiceImpTest {
         String res = esService.saveTripleObjectES(tripleObjectES);
         Assert.assertTrue(res.equals("inserted"));
         esService.deleteTripleObjectES(tripleObjectES);
-        Assert.assertNull(esService.getTripleObjectESById(tripleObjectES.getId()));
+        Assert.assertNull(esService.getTripleObjectESById(tripleObjectES.getEntityId()));
     }
 
     @Test
@@ -82,7 +82,7 @@ class ElasticsearchServiceImpTest {
         String res = esService.saveTripleObject(tripleObject);
         Assert.assertTrue(res.equals("inserted"));
         esService.deleteTripleObjectES(tripleObjectES);
-        Assert.assertNull(esService.getTripleObjectESById(tripleObjectES.getId()));
+        Assert.assertNull(esService.getTripleObjectESById(tripleObjectES.getEntityId()));
     }
 
     @Test
@@ -110,7 +110,7 @@ class ElasticsearchServiceImpTest {
         String res = esService.saveTripleObjectES(tripleObjectES);
         Assert.assertTrue(res.equals("inserted"));
         esService.deleteTripleObjectES(tripleObjectES);
-        Assert.assertNull(esService.getTripleObjectESById(tripleObjectES.getId()));
+        Assert.assertNull(esService.getTripleObjectESById(tripleObjectES.getEntityId()));
     }
 
     @Test
@@ -133,7 +133,7 @@ class ElasticsearchServiceImpTest {
         String res = esService.saveTripleObject(tripleObject);
         Assert.assertTrue(res.equals("inserted"));
         esService.deleteTripleObject(tripleObject);
-        Assert.assertNull(esService.getTripleObjectESById(tripleObjectES.getId()));
+        Assert.assertNull(esService.getTripleObjectESById(tripleObjectES.getEntityId()));
     }
 
     @Test
@@ -181,7 +181,7 @@ class ElasticsearchServiceImpTest {
         String res = esService.saveTripleObjectES(tripleObjectES);
         Assert.assertTrue(res.equals("inserted"));
         esService.deleteTripleObjectES(tripleObjectES);
-        Assert.assertNull(esService.getTripleObjectESById(tripleObjectES.getId()));
+        Assert.assertNull(esService.getTripleObjectESById(tripleObjectES.getEntityId()));
     }
 
     @Test
@@ -189,7 +189,7 @@ class ElasticsearchServiceImpTest {
     void getTripleObjectById() {
         TripleObjectES tripleObjectES = (TripleObjectES) tripleObjectsES.toArray()[0];
         String res = esService.saveTripleObjectES(tripleObjectES);
-        Assert.assertNotNull(esService.getTripleObjectESById(tripleObjectES.getId()));
+        Assert.assertNotNull(esService.getTripleObjectESById(tripleObjectES.getEntityId()));
         Assert.assertTrue(res.equals("inserted"));
     }
 
@@ -235,7 +235,7 @@ class ElasticsearchServiceImpTest {
     @Order(16)
     void postProjectTripleObjectES() {
 
-        TripleStore ts = new TripleStore("trellis", "um", "http://herc-iz-front-desa.atica.um.es/", "admin", "admin");
+        TripleStore ts = new TripleStore("trellis", "um-2", "http://herc-iz-front-desa.atica.um.es/", "admin", "admin");
         JsonObject jData = new JsonObject();
         jData.add("proyecto.cerrado",new JsonObject());
         jData.get("proyecto.cerrado").getAsJsonObject().addProperty("@language","es");
@@ -252,18 +252,19 @@ class ElasticsearchServiceImpTest {
         jData.add("proyecto.tipo",new JsonObject());
         jData.get("proyecto.tipo").getAsJsonObject().addProperty("@language","es");
         jData.get("proyecto.tipo").getAsJsonObject().addProperty("@value","AYUDA");
-        TripleObject to = new TripleObject(ts, jData, "Proyecto","http:_hercules.org_um_es-ES_rec_Proyecto_12140", "Fri, 15 May 2020 13:34:23 GMT");
+        TripleObject to = new TripleObject(ts, jData, "Proyecto","http:_hercules.org_um_es-ES_rec_Proyecto_12140","http:_hercules.org_um_es-ES_rec_Proyecto_12140", "Fri, 15 May 2020 13:34:23 GMT");
         TripleObjectES toES = new TripleObjectES(to);
         String res = esService.saveTripleObjectES(new TripleObjectES(to));
         Assert.assertTrue(res.equals("inserted"));
+        List<TripleObjectES> res2 = esService.getAllByNodeAndTripleStoreAndClassName("um-2","trellis","Proyecto");
         esService.deleteTripleObjectES(new TripleObjectES(to));
-        Assert.assertNull(esService.getTripleObjectESById(toES.getId()));
+        Assert.assertNull(esService.getTripleObjectESById(toES.getEntityId()));
     }
 
     @Test
     @Order(17)
     void getAllClassAndId() {
-        Map<String, Set<String>> response = esService.getAllSimplifiedTripleObject();
+        Map<String, Set<String>> response = esService.getAllSimplifiedTripleObject("um","trellis");
         Assert.assertNull(response);
     }
 }

@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.Date;
+
 public interface JobRegistryRepository extends JpaRepository<JobRegistry,String> {
 
     @Query(value = "select j.* from job_registry j " +
@@ -36,4 +38,20 @@ public interface JobRegistryRepository extends JpaRepository<JobRegistry,String>
             "j.status_result = 'PENDING'"
             , nativeQuery = true)
     void closeOtherJobRegistryByAppId(@Param("appId") String appId);
+
+    @Query(value = "SELECT max(completion_date) " +
+            "FROM job_registry j " +
+            "left join request_registry as r on j.id = r.jobRegistry_id " +
+            "WHERE j.node = :node and " +
+            "j.triple_store = :tripleStore and " +
+            "j.class_name = :className and " +
+            "j.status_result = 'COMPLETED' and " +
+            "r.request_type = :requestType "
+            , nativeQuery = true)
+    Date getLastDateFromNodeAndTripleStoreAndClassName(
+            @Param("node") String node,
+            @Param("tripleStore") String tripleStore,
+            @Param("className") String className,
+            @Param("requestType") String requestType
+    );
 }

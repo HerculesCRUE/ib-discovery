@@ -9,6 +9,8 @@ import es.um.asio.service.repository.elasticsearch.TripleObjectESCustomRepositor
 import es.um.asio.service.repository.elasticsearch.TripleObjectESRepository;
 import es.um.asio.service.repository.relational.ElasticRegistryRepository;
 import es.um.asio.service.service.ElasticsearchService;
+import org.apache.commons.lang3.tuple.Triple;
+import org.javatuples.Triplet;
 import org.springframework.data.elasticsearch.ElasticsearchException;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
@@ -63,22 +65,55 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
         Map<String, Map<String, String>> result = new HashMap<>();
         Map<String,String> inserted = new HashMap<>();
         Map<String,String> fails = new HashMap<>();
+        Map<String,Map<String,Map<String,Integer>>> insertedCounter = new HashMap<>();
         List<ElasticRegistry> insertedRegistry = new ArrayList<>();
         try {
             Iterable<TripleObjectES> res = repository.saveAll(tosES);
             for (TripleObjectES toES : res) {
-                inserted.put(toES.getId(),"inserted");
-                insertedRegistry.add(new ElasticRegistry(applicationState.getApplication(),toES));
+                inserted.put(toES.getEntityId(),"inserted");
+                //insertedRegistry.add(new ElasticRegistry(applicationState.getApplication(),toES));
+                if (!insertedCounter.containsKey(toES.getTripleStore().getNode().getNode()))
+                    insertedCounter.put(toES.getTripleStore().getNode().getNode(), new HashMap<>());
+                if (!insertedCounter.get(toES.getTripleStore().getNode().getNode()).containsKey(toES.getTripleStore().getTripleStore()))
+                    insertedCounter.get(toES.getTripleStore().getNode().getNode()).put(toES.getTripleStore().getTripleStore(), new HashMap<>());
+                if (!insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).containsKey(toES.getClassName()))
+                    insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).put(toES.getClassName(),0);
+                insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).put(toES.getClassName(),insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).get(toES.getClassName())+1);
+            }
+            // insertedRegistry.add(new ElasticRegistry(applicationState.getApplication(),toES));
+            /// (DiscoveryApplication discoveryApplication, String node, String tripleStore, String className,int inserted)
+            for (Map.Entry<String, Map<String, Map<String, Integer>>> nodeEntry : insertedCounter.entrySet()) {
+                for (Map.Entry<String, Map<String, Integer>> tsEntry :  nodeEntry.getValue().entrySet()) {
+                    for (Map.Entry<String, Integer> classEntry : tsEntry.getValue().entrySet()) {
+                        insertedRegistry.add(new ElasticRegistry(applicationState.getApplication(),nodeEntry.getKey(),tsEntry.getKey(),classEntry.getKey(),classEntry.getValue()));
+                    }
+                }
             }
 
         } catch (ElasticsearchException e) {
             Map<String, String> failsResult = e.getFailedDocuments();
             for (TripleObjectES toES : tosES) {
                 if (failsResult.containsKey(toES.getId()))
-                    fails.put(toES.getId(),failsResult.get(toES.getId()));
+                    fails.put(toES.getEntityId(),failsResult.get(toES.getId()));
                 else {
-                    inserted.put(toES.getId(), "inserted");
-                    insertedRegistry.add(new ElasticRegistry(applicationState.getApplication(),toES));
+                    inserted.put(toES.getEntityId(), "failed");
+                    if (!insertedCounter.containsKey(toES.getTripleStore().getNode().getNode()))
+                        insertedCounter.put(toES.getTripleStore().getNode().getNode(), new HashMap<>());
+                    if (!insertedCounter.get(toES.getTripleStore().getNode().getNode()).containsKey(toES.getTripleStore().getTripleStore()))
+                        insertedCounter.get(toES.getTripleStore().getNode().getNode()).put(toES.getTripleStore().getTripleStore(), new HashMap<>());
+                    if (!insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).containsKey(toES.getClassName()))
+                        insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).put(toES.getClassName(),0);
+                    insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).put(toES.getClassName(),insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).get(toES.getClassName())+1);
+
+
+                }
+            }
+
+            for (Map.Entry<String, Map<String, Map<String, Integer>>> nodeEntry : insertedCounter.entrySet()) {
+                for (Map.Entry<String, Map<String, Integer>> tsEntry :  nodeEntry.getValue().entrySet()) {
+                    for (Map.Entry<String, Integer> classEntry : tsEntry.getValue().entrySet()) {
+                        insertedRegistry.add(new ElasticRegistry(applicationState.getApplication(),nodeEntry.getKey(),tsEntry.getKey(),classEntry.getKey(),classEntry.getValue()));
+                    }
                 }
             }
 
@@ -118,15 +153,15 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
             }
             Iterable<TripleObjectES> res = repository.saveAll(tripleObjectES);
             for (TripleObjectES toES : res) {
-                inserted.put(toES.getId(),"inserted");
+                inserted.put(toES.getEntityId(),"inserted");
             }
         } catch (ElasticsearchException e) {
             Map<String, String> failsResult = e.getFailedDocuments();
             for (TripleObjectES toES : tripleObjectES) {
                 if (failsResult.containsKey(toES.getId()))
-                    fails.put(toES.getId(),failsResult.get(toES.getId()));
+                    fails.put(toES.getEntityId(),failsResult.get(toES.getId()));
                 else
-                    inserted.put(toES.getId(),"inserted");
+                    inserted.put(toES.getEntityId(),"inserted");
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -177,8 +212,8 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     }
 
     @Override
-    public List<TripleObjectES> getAllByClassName(String className) {
-        return customRepository.getAllTripleObjectsESByClassByClassName(className);
+    public List<TripleObjectES> getAllByNodeAndTripleStoreAndClassName(String node, String tripleStore, String className) {
+        return customRepository.getAllTripleObjectsESByNodeAndTripleStoreAndClassName(node,tripleStore,className);
     }
 
     @Override
@@ -191,7 +226,7 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
         Map<String,TripleObjectES> allTripleObjectES = new HashMap<>();
         try {
             for ( TripleObjectES toES: getAll()) {
-                allTripleObjectES.put(toES.getId(),toES);
+                allTripleObjectES.put(toES.getEntityId(),toES);
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -218,10 +253,12 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     @Override
     public List<TripleObjectES> getTripleObjectsESByFilterAndAttributes(String indexName, String node,String tripleStore,String className, List<Pair<String, Object>> params) {
         List<TripleObjectES> tripleObjectsES = new ArrayList<>();
-        List<Pair<String,String>> filters = new ArrayList<>();
-        filters.add(new Pair<>("tripleStore.node.node",node));
-        filters.add(new Pair<>("tripleStore.tripleStore",tripleStore));
-        filters.add(new Pair<>("className",className));
+        List<Triplet<String,String,String>> filters = new ArrayList<>();
+        if (node!=null)
+            filters.add(new Triplet<>("tripleStore.node.node",node,"TERM"));
+        if (tripleStore!=null)
+            filters.add(new Triplet<>("tripleStore.tripleStore",tripleStore,"TERM"));
+        filters.add(new Triplet<>("className",className,"MATCH"));
         try {
             tripleObjectsES = customRepository.findByClassNameAndAttributesWithPartialMatch(indexName,filters,params);
         } catch (Exception e) {
@@ -233,10 +270,12 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     @Override
     public List<TripleObject> getTripleObjectsByFilterAndAttributes(String indexName, String node,String tripleStore,String className, List<Pair<String, Object>> params) {
         List<TripleObject> tripleObjects = new ArrayList<>();
-        List<Pair<String,String>> filters = new ArrayList<>();
-        filters.add(new Pair<>("tripleStore.node.node",node));
-        filters.add(new Pair<>("tripleStore.tripleStore",tripleStore));
-        filters.add(new Pair<>("className",className));
+        List<Triplet<String,String,String>> filters = new ArrayList<>();
+        if (node!=null)
+            filters.add(new Triplet<>("tripleStore.node.node",node,"TERM"));
+        if (tripleStore!=null)
+            filters.add(new Triplet<>("tripleStore.tripleStore",tripleStore,"TERM"));
+        filters.add(new Triplet<>("className",className,"MATCH"));
         try {
 
             List<TripleObjectES> responses = customRepository.findByClassNameAndAttributesWithPartialMatch(indexName,filters,params);
@@ -263,7 +302,7 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     }
 
     @Override
-    public Map<String, Set<String>> getAllSimplifiedTripleObject() {
-        return customRepository.getAllClassAndId();
+    public Map<String, Set<String>> getAllSimplifiedTripleObject(String node, String tripleStore) {
+        return customRepository.getAllClassAndId(node, tripleStore);
     }
 }
