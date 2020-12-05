@@ -17,10 +17,10 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes={TestApplication.class})
+/*@SpringBootTest(classes={TestApplication.class})*/
 class TrellisHandlerTest {
 
-    @Autowired
+    /*@Autowired
     CacheServiceImp cacheServiceImp;
 
     @Autowired
@@ -42,5 +42,5 @@ class TrellisHandlerTest {
         Assert.assertTrue(isChangedDelete);
         boolean isChangedUpdate = trellisHandler.updateTripleObject(cacheServiceImp,"um","trellis","ConvocatoriaRecursosHumanos","http://herc-iz-front-desa.atica.um.es/ConvocatoriaRecursosHumanos/http:_hercules.org_um_es-ES_rec_ConvocatoriaRecursosHumanos_01d1452a-86bf-4944-b216-385127fc7ab2", BasicAction.UPDATE);
         Assert.assertTrue(isChangedUpdate);
-    }
+    }*/
 }

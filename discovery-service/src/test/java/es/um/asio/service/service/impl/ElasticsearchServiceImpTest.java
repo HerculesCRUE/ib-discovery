@@ -21,10 +21,10 @@ import org.junit.jupiter.api.Order;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes={TestApplication.class})
+/*@SpringBootTest(classes={TestApplication.class})*/
 class ElasticsearchServiceImpTest {
 
-    @Autowired
+    /*@Autowired
     ElasticsearchServiceImp esService;
 
     static Set<TripleObjectES> tripleObjectsES;
@@ -266,5 +266,5 @@ class ElasticsearchServiceImpTest {
     void getAllClassAndId() {
         Map<String, Set<String>> response = esService.getAllSimplifiedTripleObject("um","trellis");
         Assert.assertNull(response);
-    }
+    }*/
 }

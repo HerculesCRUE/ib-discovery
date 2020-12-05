@@ -24,10 +24,10 @@ import java.util.concurrent.CompletableFuture;
 /*@RunWith(SpringRunner.class)
 @ActiveProfiles("unit-test")*/
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes={TestApplicationOld.class})
+/*@SpringBootTest(classes={TestApplicationOld.class})*/
 class DataHandlerImpTest {
 
-    @Autowired
+    /*@Autowired
     DataHandlerImp dataHandler;
 
     @Autowired
@@ -47,5 +47,5 @@ class DataHandlerImpTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 }

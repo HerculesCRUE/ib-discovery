@@ -22,32 +22,36 @@ import java.util.concurrent.CompletableFuture;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes={TestApplication.class})
+/*@SpringBootTest(classes={TestApplication.class})*/
 class FirebaseStorageStrategyTest {
 
     @Autowired
     FirebaseStorageStrategy firebaseStorageStrategy;
 
-    @Autowired
+    /*@Autowired
     RedisServiceImp redisServiceImp;
 
-    boolean writeTriplesMapInFireBase = true;
+    boolean writeTriplesMapInFireBase = true;*/
 
 
     @Test
-    void readFileFromStorage() {
+    void readFileFromStorage() throws Exception {
+        firebaseStorageStrategy = new FirebaseStorageStrategy();
+        firebaseStorageStrategy.initializeFirebase();
         String str = firebaseStorageStrategy.readFileFromStorage("test.txt");
         Assert.assertTrue(str.trim().equals("Hola Mundo"));
     }
 
     @Test
-    void writeFile() {
+    void writeFile() throws Exception {
+        firebaseStorageStrategy = new FirebaseStorageStrategy();
+        firebaseStorageStrategy.initializeFirebase();
         String content = "Hola Mundo";
         firebaseStorageStrategy.writeFile("test.txt","Hola Mundo");
         Assert.assertTrue(content.equals(firebaseStorageStrategy.readFileFromStorage("test.txt").trim()));
     }
 
-    @Test
+    /*@Test
     void writeRedisTriplesInFireBase() throws JsonProcessingException {
         if (writeTriplesMapInFireBase) {
 
@@ -68,5 +72,5 @@ class FirebaseStorageStrategyTest {
 
         }
 
-    }
+    }*/
 }

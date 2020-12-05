@@ -28,7 +28,7 @@ public class FirebaseStorageStrategy{
     private static String BUCKET_NAME = "discovery-lib.appspot.com";
 
     @PostConstruct
-    private void initializeFirebase() throws Exception {
+    public void initializeFirebase() throws Exception {
         URI uri = getClass().getClassLoader().getResource("discovery-lib-firebase-adminsdk-93pb4-46e5934f16.json").toURI();
         FileInputStream serviceAccount = new FileInputStream(uri.getPath());
         this.storageOptions = StorageOptions.newBuilder()

@@ -19,11 +19,11 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes={TestApplication.class})
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+/*@SpringBootTest(classes={TestApplication.class})
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)*/
 class RedisServiceImpTest {
 
-    @Autowired
+    /*@Autowired
     RedisServiceImp redisService;
 
     @Autowired
@@ -85,5 +85,5 @@ class RedisServiceImpTest {
             e.printStackTrace();
             Assert.assertTrue(false);
         }
-    }
+    }*/
 }

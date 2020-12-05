@@ -13,12 +13,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class UtilsTest {
     @Test
     void isInteger() {
-        Assert.assertTrue(Utils.isInteger("1996"));
+        Assert.assertTrue(Utils.isInteger("-1996"));
     }
 
     @Test
     void isNumber() {
-        Assert.assertTrue(Utils.isNumber("1996.01"));
+        Assert.assertTrue(Utils.isNumber("-1996.01"));
     }
 
     @Test

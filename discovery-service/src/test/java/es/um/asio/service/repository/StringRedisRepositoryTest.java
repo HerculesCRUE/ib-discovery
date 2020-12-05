@@ -14,10 +14,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes={TestApplication.class})
+/*@SpringBootTest(classes={TestApplication.class})*/
 class StringRedisRepositoryTest {
 
-    @Autowired
+    /*@Autowired
     StringRedisRepository stringRedisRepository;
 
     @Test
@@ -81,5 +81,5 @@ class StringRedisRepositoryTest {
         Assert.assertNotNull(stringRedisRepository.getBy(key));
         stringRedisRepository.delete(key);
         Assert.assertNull(stringRedisRepository.getBy(key));
-    }
+    }*/
 }

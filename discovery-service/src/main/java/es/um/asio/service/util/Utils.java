@@ -134,12 +134,12 @@ public class Utils {
 
 
     public static boolean isInteger(String s) {
-        String regex = "\\d+";
+        String regex = "-?\\d+";
         return s.trim().matches(regex);
     }
 
     public static boolean isNumber(String s) {
-        String regex = "^[1-9]\\d*\\.(\\d+)?$";
+        String regex = "^-?[1-9]\\d*\\.(\\d+)?$";
         return s.trim().matches(regex);
     }
 

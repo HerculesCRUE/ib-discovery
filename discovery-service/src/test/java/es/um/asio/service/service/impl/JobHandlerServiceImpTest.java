@@ -34,10 +34,12 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes={TestApplication.class})
+/*@SpringBootTest(classes={TestApplication.class})*/
 class JobHandlerServiceImpTest {
 
-    @Autowired
+
+
+    /*@Autowired
     DiscoveryApplicationRepository discoveryApplicationRepository;
 
     @Autowired
@@ -63,7 +65,7 @@ class JobHandlerServiceImpTest {
         Assert.assertFalse(discoveryApplicationRepository.findById(discoveryApplication.getId()).isEmpty());
         discoveryApplicationRepository.delete(discoveryApplication);
         Assert.assertTrue(discoveryApplicationRepository.findById(discoveryApplication.getId()).isEmpty());
-    }
+    }*/
 
 
 /*    @Test
@@ -85,7 +87,7 @@ class JobHandlerServiceImpTest {
         System.out.println();
     }*/
 
-    @Test void testSimilarities() throws Exception {
+/*    @Test void testSimilarities() throws Exception {
         DiscoveryApplication discoveryApplication = applicationState.getApplication();
         JobRegistry jobRegistry = jobRegistryRepository.findOpenJobsByDiscoveryAppAndNodeAndTripleStoreAndClassName(discoveryApplication.getId(),"um","trellis","test");
         if (jobRegistry == null) {
@@ -129,7 +131,7 @@ class JobHandlerServiceImpTest {
         // objectResultRepository.save(or);
         TripleObject t3 = to2.merge(to1);
         System.out.println();
-    }
+    }*/
 
     @Test void testMerge() throws Exception {
         String data1 = "{\n" +
@@ -216,7 +218,7 @@ class JobHandlerServiceImpTest {
         to2.setId("2");
         to2.setLastModification(new Date().getTime());
         TripleObject to3 = to1.merge(to2);
-        System.out.println();
+        Assert.assertTrue(to3.getId() == to2.getId() || to3.getId() == to1.getId() );
     }
 
 }
