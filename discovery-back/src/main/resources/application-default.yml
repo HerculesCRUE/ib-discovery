@@ -12,3 +12,30 @@ management:
   health:
     redis:
       enabled: false
+  server:
+    port: 9327
+
+server:
+    port: 9327
+## Data sources      
+data-sources:
+  nodes:
+    -
+      nodeName: um
+      tripleStores:
+        -
+          type: trellis
+          baseURL: http://localhost:80/
+          user: admin
+          password: admin
+
+    - nodeName: um2
+      tripleStores:
+        - type: trellis
+          baseURL: http://localhost:80/
+          user: admin
+          password: admin
+data:
+  kafka:
+    host: localhost
+    port: 29092
