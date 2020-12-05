@@ -1,5 +1,10 @@
 package es.um.asio.service.model.relational;
 
+import org.apache.commons.lang3.RandomStringUtils;
+
+import java.util.Date;
+import java.util.Random;
+
 public enum Action {
 
     INSERT("INSERT"),UPDATE("UPDATE"),DELETE("DELETE"),LINK("LINK");

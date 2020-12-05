@@ -4,14 +4,19 @@ import es.um.asio.service.model.Node;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
 import es.um.asio.service.model.relational.*;
+import es.um.asio.service.service.impl.CacheServiceImp;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.*;
 
+@Getter
+@Setter
 public final class DataGenerator {
 
+    private CacheServiceImp cacheServiceImp;
     private static List<TripleObject> tripleObjects;
     private static Map<String, Map<String, Map<String, Map<String, TripleObject>>>> triplesMap;
     private static List<Node> nodes;
@@ -22,7 +27,6 @@ public final class DataGenerator {
         triplesMap = new HashMap<>();
         nodes = new ArrayList<>();
         JSONObject jData = new JSONObject();
-        TripleStore ts = new TripleStore("trellis","um");
         for (int i = 1; i <= 5; i++) {
             for (int j = 1; j <= 5; j++) {
                 jData.put(String.format("att-%s", j), String.format("value-%s", j));
@@ -108,6 +112,8 @@ public final class DataGenerator {
             actionResults.add(arLink);
             or.getActionResults().addAll(actionResults);
         }
+        cacheServiceImp = new CacheServiceImp();
+        cacheServiceImp.initialize();
     }
 
     public  List<TripleObject> getTripleObjects() {

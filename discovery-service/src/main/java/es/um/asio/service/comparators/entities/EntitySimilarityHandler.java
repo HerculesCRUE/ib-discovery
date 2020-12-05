@@ -44,9 +44,9 @@ public class EntitySimilarityHandler {
             counter++;
             EntitySimilarityObj entitySimilarityObj = tripleObject.compare(cache,other);
             if (entitySimilarityObj.getSimilarity() >= automaticThreshold)
-                similarities.get("automatic").add(entitySimilarityObj);
+                similarities.get(AUTOMATIC_KEY).add(entitySimilarityObj);
             else if (entitySimilarityObj.getSimilarity() >= manualThreshold)
-                similarities.get("manual").add(entitySimilarityObj);
+                similarities.get(MANUAL_KEY).add(entitySimilarityObj);
             if (entitySimilarityObj.getSimilarity() > maxSimilarity) {
                 maxSimilarity = entitySimilarityObj.getSimilarity();
                 maxSimilarityObj = entitySimilarityObj;

@@ -36,7 +36,7 @@ public class CacheServiceImp implements CacheService {
     CacheRegistryRepository cacheRegistryRepository;
 
     @PostConstruct
-    private void initialize() throws Exception {
+    public void initialize() throws Exception {
         triplesMap = new HashMap<>();
         triplesMapByDate = new HashMap<>();
         filtered = new HashMap<>();
@@ -209,7 +209,8 @@ public class CacheServiceImp implements CacheService {
                 }
             }
         }
-        redisServiceImp.setEntityStats(statsHandler);
+        if (redisServiceImp!=null)
+            redisServiceImp.setEntityStats(statsHandler);
     }
 
     @Override

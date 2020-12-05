@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootApplication
-@EnableAutoConfiguration
+/*@EnableAutoConfiguration*/
 @Import(MapperConfig.class)
 //@WebMvcTest(URISController.class)
 @ActiveProfiles("dev")

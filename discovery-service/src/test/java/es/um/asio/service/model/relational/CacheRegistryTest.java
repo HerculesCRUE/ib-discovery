@@ -35,7 +35,6 @@ class CacheRegistryTest {
     public void init() throws Exception {
         cacheRegistries = new ArrayList<>();
         dg = new DataGenerator();
-        JobRegistry jobRegistry = dg.getJobRegistry();
         DiscoveryApplication discoveryApplication = new DiscoveryApplication("app1");
         for (int i = 1 ; i <= 5 ; i++) {
             CacheRegistry cr = new CacheRegistry(

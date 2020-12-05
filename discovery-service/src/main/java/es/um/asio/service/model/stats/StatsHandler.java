@@ -1,26 +1,21 @@
 package es.um.asio.service.model.stats;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonObject;
-import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.model.TripleObject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import  es.um.asio.service.util.Utils;
-import org.apache.commons.lang3.ClassUtils;
 
 @Getter
 @Setter
 @AllArgsConstructor
 public class StatsHandler {
 
+
     // node -> tiple -> class -> EntityStat
-    Map<String ,Map<String, Map<String,EntityStats>>> stats;
+    private Map<String ,Map<String, Map<String,EntityStats>>> stats;
 
     public StatsHandler() {
         stats = new HashMap<>();
@@ -56,10 +51,6 @@ public class StatsHandler {
 
     public boolean isEmpty() {
         return stats.isEmpty();
-    }
-
-    public JsonObject getJsonEntityStat() {
-        return null;
     }
 
     public void cleanStats() {
