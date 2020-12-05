@@ -14,8 +14,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestDiscoveryApplication.class)
-@ExtendWith(SpringExtension.class)
 class BasicActionTest {
 
     @Test

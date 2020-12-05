@@ -4,6 +4,7 @@ import data.DataGenerator;
 import es.um.asio.service.TestDiscoveryApplication;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -18,16 +19,14 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestDiscoveryApplication.class)
-@ExtendWith(SpringExtension.class)
 class ValueTest {
 
     Set<Value> values;
     Set<Attribute> attributes;
     JobRegistry jr;
 
-    @PostConstruct
-    private void init() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         DataGenerator dg = new DataGenerator();
         jr = dg.getJobRegistry();
         values = new HashSet<>();

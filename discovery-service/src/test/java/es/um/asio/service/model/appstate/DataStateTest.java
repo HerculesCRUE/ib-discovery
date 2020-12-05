@@ -2,6 +2,7 @@ package es.um.asio.service.model.appstate;
 
 import es.um.asio.service.TestDiscoveryApplication;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -15,14 +16,12 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestDiscoveryApplication.class)
-@ExtendWith(SpringExtension.class)
 class DataStateTest {
 
     DataState dataState;
 
-    @PostConstruct
-    private void init() {
+    @BeforeEach
+    private void setUp() {
         dataState = new DataState();
     }
 

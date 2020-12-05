@@ -21,8 +21,6 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestDiscoveryApplication.class)
-@ExtendWith(SpringExtension.class)
 class AttributeSimilarityTest {
 
     @Test
@@ -135,7 +133,7 @@ class AttributeSimilarityTest {
 
     @Test
     void isNumber() {
-        Assert.assertTrue(AttributeSimilarity.isNumber(new Random().nextInt()));
+        Assert.assertTrue(AttributeSimilarity.isNumber(String.valueOf(new Random().nextInt())));
         Assert.assertFalse(AttributeSimilarity.isNumber(RandomStringUtils.randomAlphabetic(10)));
     }
 
@@ -147,7 +145,7 @@ class AttributeSimilarityTest {
 
     @Test
     void isDate() {
-        Assert.assertTrue(AttributeSimilarity.isDate(new Date(Math.abs(new Random().nextLong()))));
+        Assert.assertTrue(AttributeSimilarity.isDate("2020-01-01"));
         Assert.assertFalse(AttributeSimilarity.isDate(RandomStringUtils.randomAlphabetic(10)));
     }
 

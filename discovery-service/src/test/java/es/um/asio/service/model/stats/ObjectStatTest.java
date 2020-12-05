@@ -4,6 +4,7 @@ import es.um.asio.service.TestDiscoveryApplication;
 import es.um.asio.service.model.relational.ObjectResult;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -19,15 +20,13 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestDiscoveryApplication.class)
-@ExtendWith(SpringExtension.class)
 class ObjectStatTest {
 
     ObjectStat os;
     float ratio;
 
-    @PostConstruct
-    public void init() {
+    @BeforeEach
+    public void setUp() {
         ratio = Math.abs(new Random().nextFloat());
         os = new ObjectStat() {
             @Override

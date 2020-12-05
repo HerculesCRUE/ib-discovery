@@ -5,6 +5,7 @@ import es.um.asio.service.TestDiscoveryApplication;
 import es.um.asio.service.util.Utils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -21,15 +22,13 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestDiscoveryApplication.class)
-@ExtendWith(SpringExtension.class)
 class ElasticRegistryTest {
 
     List<ElasticRegistry> elasticRegistries;
     DataGenerator dg;
 
-    @PostConstruct
-    public void init() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         elasticRegistries = new ArrayList<>();
         dg = new DataGenerator();
         DiscoveryApplication discoveryApplication = new DiscoveryApplication("app1");

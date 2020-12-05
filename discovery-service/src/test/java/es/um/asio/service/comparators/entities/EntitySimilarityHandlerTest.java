@@ -7,6 +7,7 @@ import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.stats.AttributeStats;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -22,22 +23,19 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestDiscoveryApplication.class)
-@ExtendWith(SpringExtension.class)
 class EntitySimilarityHandlerTest {
 
     List<TripleObject> tos;
 
-    @Autowired
+    DataGenerator dg;
     CacheServiceImp cache;
 
-    @Autowired
-    DataSourcesConfiguration dataSourcesConfiguration;
-
-    @PostConstruct
+    @BeforeEach
     public void init() throws Exception {
-        DataGenerator dataGenerator = new DataGenerator();
-        tos = dataGenerator.getTripleObjects();
+        dg = new DataGenerator();
+        tos = dg.getTripleObjects();
+        cache = dg.getCacheServiceImp();
+        cache.initialize();
         for (TripleObject to : tos) {
             cache.addTripleObject(to.getTripleStore().getNode().getNode(), to.getTripleStore().getTripleStore(), to);
         }
@@ -52,8 +50,8 @@ class EntitySimilarityHandlerTest {
                     cache,
                     to,
                     tos,
-                    dataSourcesConfiguration.getThresholds().getManualThreshold(),
-                    dataSourcesConfiguration.getThresholds().getAutomaticThreshold()
+                    0.6f,
+                    0.9f
             );
             Assert.assertTrue(esos.containsKey("MANUAL"));
             Assert.assertTrue(esos.containsKey("AUTOMATIC"));

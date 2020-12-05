@@ -6,6 +6,7 @@ import es.um.asio.service.config.DataSourcesConfiguration;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -24,25 +25,18 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestDiscoveryApplication.class)
-@ExtendWith(SpringExtension.class)
 class EntitySimilarityObjTest {
 
     List<TripleObject> tos;
 
     Set<EntitySimilarityObj> esos;
-
-    @Autowired
     CacheServiceImp cache;
 
-    @Autowired
-    DataSourcesConfiguration conf;
 
-
-
-    @PostConstruct
-    public void init() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         DataGenerator dataGenerator = new DataGenerator();
+        cache = dataGenerator.getCacheServiceImp();
         esos = new HashSet<>();
         tos = dataGenerator.getTripleObjects();
         for (TripleObject to : tos) {
@@ -51,7 +45,7 @@ class EntitySimilarityObjTest {
         cache.generateEntityStats();
 
         for (TripleObject to : tos) {
-            Map<String, List<EntitySimilarityObj>> esoMaps = EntitySimilarityHandler.calculateSimilarityInEntities(cache, to, tos, conf.getThresholds().getManualThreshold(), conf.getThresholds().getAutomaticThreshold());
+            Map<String, List<EntitySimilarityObj>> esoMaps = EntitySimilarityHandler.calculateSimilarityInEntities(cache, to, tos, .6f, .9f);
             esos.addAll(esoMaps.get("AUTOMATIC"));
             esos.addAll(esoMaps.get("MANUAL"));
         }

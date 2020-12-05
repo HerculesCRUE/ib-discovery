@@ -10,6 +10,7 @@ import main.TestApplicationOld;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -21,23 +22,21 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.annotation.PostConstruct;
 import java.util.*;
 
-
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestDiscoveryApplication.class)
-@ExtendWith(SpringExtension.class)
 class TripleObjectTest {
 
     List<TripleObject> tripleObjects;
     Map<String, Map<String, Map<String, Map<String, TripleObject>>>> triplesMap;
 
-    @Autowired
     CacheServiceImp cacheServiceImp;
 
-    @PostConstruct
-    public void init() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         DataGenerator dataGenerator = new DataGenerator();
+        cacheServiceImp = dataGenerator.getCacheServiceImp();
         tripleObjects = dataGenerator.getTripleObjects();
         triplesMap = dataGenerator.getTriplesMap();
+        cacheServiceImp.initialize();
         cacheServiceImp.setTriplesMap(triplesMap);
         cacheServiceImp.generateEntityStats();
     }

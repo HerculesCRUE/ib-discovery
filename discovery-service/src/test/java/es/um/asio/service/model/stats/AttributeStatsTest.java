@@ -6,6 +6,7 @@ import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.relational.Value;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -19,15 +20,13 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestDiscoveryApplication.class)
-@ExtendWith(SpringExtension.class)
 class AttributeStatsTest {
 
     StatsHandler statsHandler;
     Map<String,AttributeStats> attributeStats;
 
-    @PostConstruct
-    public void init() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         DataGenerator dg = new DataGenerator();
         List<TripleObject> tos = dg.getTripleObjects();
         attributeStats = new HashMap<>();

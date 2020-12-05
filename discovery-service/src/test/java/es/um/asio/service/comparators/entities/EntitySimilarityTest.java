@@ -8,6 +8,7 @@ import es.um.asio.service.model.stats.AttributeStats;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -28,21 +29,19 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestDiscoveryApplication.class)
-@ExtendWith(SpringExtension.class)
 class EntitySimilarityTest {
 
     TripleObject to1,to2;
     Map<String,Float> stats;
     Map<String, AttributeStats> attributeStatsMap;
 
-
-    @Autowired
     CacheServiceImp cache;
 
-    @PostConstruct
-    public void init() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         DataGenerator dg = new DataGenerator();
+        cache = dg.getCacheServiceImp();
+        cache.generateEntityStats();
         // TripleObject(String node, String tripleStore, String className, JSONObject jData )
         JSONObject jData1 = new JSONObject("{\"attrs\":{\"k1\":\"v1\",\"k2\":\"v2\",\"k3\":\"v3\"}}");
         JSONObject jData2 = new JSONObject("{\"attrs\":{\"k1\":\"vn1\",\"k2\":\"vn2\",\"k3\":\"vn3\"}}");

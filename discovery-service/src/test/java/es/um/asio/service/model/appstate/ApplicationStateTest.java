@@ -5,6 +5,7 @@ import es.um.asio.service.TestDiscoveryApplication;
 import es.um.asio.service.listener.AppEvents;
 import es.um.asio.service.model.relational.DiscoveryApplication;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -21,14 +22,12 @@ import javax.annotation.PostConstruct;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestDiscoveryApplication.class)
-@ExtendWith(SpringExtension.class)
 class ApplicationStateTest {
 
     ApplicationState applicationState;
     AppEvents appEvents;
 
-    @PostConstruct
+    @BeforeEach
     public void init(){
         applicationState = new ApplicationState();
         appEvents = new AppEvents() {
