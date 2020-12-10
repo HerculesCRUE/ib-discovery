@@ -7,6 +7,7 @@ import es.um.asio.service.config.DataSourcesConfiguration;
 import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.appstate.ApplicationState;
+import es.um.asio.service.model.appstate.DataState;
 import es.um.asio.service.model.appstate.DataType;
 import es.um.asio.service.model.appstate.State;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
@@ -96,10 +97,12 @@ public class DataHandlerImp implements DataHandler {
             // Update State of Application
             applicationState.setAppState(ApplicationState.AppState.INITIALIZED_WITH_CACHED_DATA);
             applicationState.setDataState(DataType.REDIS, State.CACHED_DATA);
+            updateState(DataType.REDIS,cache.getTriplesMap());
             applicationState.setDataState(DataType.CACHE, State.CACHED_DATA);
+            updateState(DataType.CACHE,cache.getTriplesMap());
         }
         // Update data from triple store (add deltas)
-        updateCachedData(); // TODO: quit comment
+        // updateCachedData(); // TODO: quit comment
         // Update elasticSearch
         logger.info("Writing Triple Objects in Elasticsearch");
         updateElasticData();
@@ -158,6 +161,7 @@ public class DataHandlerImp implements DataHandler {
             }
         }
         applicationState.setDataState(DataType.ELASTICSEARCH, State.UPLOAD_DATA);
+        updateState(DataType.ELASTICSEARCH,cache.getTriplesMap());
 
         // List<TripleObjectES> tosESAfter = elasticsearchService.getAll();
 
@@ -229,7 +233,21 @@ public class DataHandlerImp implements DataHandler {
         if (applicationState.getAppState().getOrder()< ApplicationState.AppState.INITIALIZED.getOrder()) {
             applicationState.setAppState(ApplicationState.AppState.INITIALIZED);
             applicationState.setDataState(DataType.REDIS, State.UPLOAD_DATA);
+            updateState(DataType.REDIS, cache.getTriplesMap());
             applicationState.setDataState(DataType.CACHE, State.UPLOAD_DATA);
+            updateState(DataType.CACHE, cache.getTriplesMap());
         }
+    }
+
+    private void updateState(DataType dataType, Map<String, Map<String, Map<String, Map<String, TripleObject>>>> data) {
+        DataState dataState = applicationState.getDataState(dataType);
+        for (Map.Entry<String, Map<String, Map<String, Map<String, TripleObject>>>> nEntry : data.entrySet()) {
+            for (Map.Entry<String, Map<String, Map<String, TripleObject>>> tsEntry : nEntry.getValue().entrySet()) {
+                for (Map.Entry<String, Map<String, TripleObject>> cnEntry : tsEntry.getValue().entrySet()) {
+                    dataState.addDataStats(nEntry.getKey(),tsEntry.getKey(),cnEntry.getKey(),cnEntry.getValue().size());
+                }
+            }
+        }
+        System.out.println();
     }
 }

@@ -56,7 +56,7 @@ public class ApplicationState {
 
     public void setDataState(DataType dataType,State state, Date lastUpdate) {
         if (!states.containsKey(dataType) || state.compareTo(states.get(dataType).getState())>=0) {// Si no existía o el estado es mas actual
-            states.put(dataType, new DataState(state, lastUpdate));
+            states.put(dataType, new DataState(state));
             propagueEvents(dataType,state);
         }
 

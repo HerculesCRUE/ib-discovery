@@ -29,13 +29,13 @@ data-sources:
           user: admin
           password: admin
 
-    - nodeName: um2
-      tripleStores:
-        - type: trellis
-          baseURL: http://localhost:80/
-          user: admin
-          password: admin
+#    - nodeName: um2
+#      tripleStores:
+#        - type: trellis
+#          baseURL: http://localhost:80/
+#          user: admin
+#          password: admin
 data:
   kafka:
     host: localhost
-    port: 29092
+    port: 9092

@@ -3,6 +3,7 @@ package es.um.asio.service.service.impl;
 import com.google.gson.*;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
+import es.um.asio.service.config.DataSourcesConfiguration;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.relational.CacheRegistry;
@@ -23,6 +24,7 @@ import javax.annotation.PostConstruct;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 @EnableCaching
@@ -41,6 +43,9 @@ public class RedisServiceImp implements RedisService {
 
     @Autowired
     ApplicationState applicationState;
+
+    @Autowired
+    DataSourcesConfiguration dataSourcesConfiguration;
 
     private final String TRIPLES_MAP_PREFIX = "TRIPLES_MAP";
     private final String TRIPLES_MAP_KEYS = "TRIPLES_MAP_KEYS";
@@ -63,11 +68,23 @@ public class RedisServiceImp implements RedisService {
         Map<String, Map<String, Map<String, Map<String, TripleObject>>>> cachedMap = new HashMap<>();
         String cachedKeys = redisRepository.getBy(TRIPLES_MAP_KEYS);
         List<String> keys = gson.fromJson(cachedKeys, List.class);
+        List<String> nodesPrefixes = new ArrayList<>();
+        // Filtro los keys para los data sources definidos
+        for (DataSourcesConfiguration.Node node : dataSourcesConfiguration.getNodes()) {
+            for (DataSourcesConfiguration.Node.TripleStore tripleStore : node.getTripleStores()) {
+                nodesPrefixes.add(TRIPLES_MAP_PREFIX+":"+node.getNodeName()+"."+tripleStore.getType()+".");
+            }
+        }
+
+        for (String nodePrefix : nodesPrefixes) {
+            keys = keys.stream().filter(k -> k.contains(nodePrefix)).collect(Collectors.toList());
+        }
+
         List<CompletableFuture<Pair<String,Map<String, TripleObject>>>> futures = new ArrayList<>();
         if (keys!=null && !keys.isEmpty()) {
             for (String key : keys) {
                 logger.info(String.format("Reading %s from redis cache", key));
-                futures.add(redisServiceHelper.getTripleMap(redisRepository,/*TRIPLES_MAP_PREFIX+":"+*/key));
+                futures.add(redisServiceHelper.getTripleMap(redisRepository,key));
             }
 
             for (CompletableFuture<Pair<String, Map<String, TripleObject>>> future : futures) {

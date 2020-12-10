@@ -79,7 +79,7 @@ public class DiscoveryController {
      *
      * @return Get the Entty Stats
      */
-    @GetMapping(Mappings.STATS)
+    @GetMapping(Mappings.ENTITY_STATS)
     //@Secured(Role.ANONYMOUS_ROLE)
     public Map<String, Object> getEntityStats(
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = false)
@@ -323,7 +323,7 @@ public class DiscoveryController {
 
         protected static final String STATUS = "/status";
 
-        protected static final String STATS = "/stats";
+        protected static final String ENTITY_STATS = "/entity/stats";
 
         protected static final String RELOAD_CACHE = "/cache/force-reload";
 
