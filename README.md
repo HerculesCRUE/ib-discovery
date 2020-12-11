@@ -15,6 +15,10 @@
 
 # ASIO - Discovery
 
+|     | Master |
+| --- | ------ |
+| Quality Gate | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=HerculesCRUE_ib-discovery&metric=alert_status)](https://sonarcloud.io/dashboard?id=HerculesCRUE_ib-discovery) |
+
 Librería de descubrimiento para el proyecto Backend SGI (ASIO).
 
 ## OnBoarding
