@@ -1,37 +1,13 @@
 package es.um.asio.service.service.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.model.TripleObject;
-import es.um.asio.service.model.TripleStore;
-import es.um.asio.service.model.appstate.ApplicationState;
-import es.um.asio.service.model.elasticsearch.TripleObjectES;
-import es.um.asio.service.model.relational.*;
-import es.um.asio.service.proxy.RequestRegistryProxy;
-import es.um.asio.service.proxy.impl.RequestRegistryProxyImp;
-import es.um.asio.service.repository.relational.DiscoveryApplicationRepository;
-import es.um.asio.service.repository.relational.JobRegistryRepository;
-import es.um.asio.service.repository.relational.ObjectResultRepository;
-import es.um.asio.service.repository.relational.RequestRegistryRepository;
-import es.um.asio.service.test.TestApplication;
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 /*@SpringBootTest(classes={TestApplication.class})*/

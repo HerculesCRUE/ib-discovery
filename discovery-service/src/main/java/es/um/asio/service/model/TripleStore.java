@@ -1,7 +1,6 @@
 package es.um.asio.service.model;
 
 import com.google.gson.annotations.Expose;
-import es.um.asio.service.model.Node;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -9,9 +8,9 @@ import org.hibernate.annotations.ColumnTransformer;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import javax.persistence.Entity;
 import javax.persistence.Id;
-
-import javax.persistence.*;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "TRIPLE_STORE")

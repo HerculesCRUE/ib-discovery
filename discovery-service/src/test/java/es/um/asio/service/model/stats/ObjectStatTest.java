@@ -1,23 +1,13 @@
 package es.um.asio.service.model.stats;
 
-import es.um.asio.service.TestDiscoveryApplication;
-import es.um.asio.service.model.relational.ObjectResult;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.annotation.PostConstruct;
-import javax.validation.constraints.AssertTrue;
-
 import java.util.Random;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 class ObjectStatTest {

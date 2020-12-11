@@ -1,8 +1,8 @@
 package es.um.asio.audit.abstractions.service;
 
-import java.util.List;
-
 import es.um.asio.audit.abstractions.exception.NoSuchEntityException;
+
+import java.util.List;
 
 /**
  * Interface for services that save entities to the database.

@@ -1,13 +1,12 @@
 package es.um.asio.back.filter;
 
-import java.io.IOException;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.web.filter.OncePerRequestFilter;
+import java.io.IOException;
 
 public class SimpleCORSFilter extends OncePerRequestFilter {
     /** ACCESS_CONTROL_MAX_AGE header name. */

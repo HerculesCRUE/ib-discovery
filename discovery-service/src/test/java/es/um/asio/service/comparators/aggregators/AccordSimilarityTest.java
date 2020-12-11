@@ -11,8 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class AccordSimilarityTest {
     private final Logger logger = LoggerFactory.getLogger(AccordSimilarityTest.class);
     String name = "Accord Similarity";
@@ -40,6 +38,7 @@ class AccordSimilarityTest {
         String s1 = "Daniel Ruiz Santamaria";
         String s2 = "Ruiz Santamaría, D.";
         float similarity = AccordSimilarity.calculateAccordSimilarity(s1, s2);
+        Assert.assertTrue(similarity>= 0.2);
     }
 
     @Test

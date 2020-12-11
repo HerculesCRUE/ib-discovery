@@ -1,13 +1,12 @@
 package es.um.asio.audit.abstractions.service;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Optional;
-
+import es.um.asio.audit.abstractions.filter.EntityFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import es.um.asio.audit.abstractions.filter.EntityFilter;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Interface for services that perform queries on given entities.

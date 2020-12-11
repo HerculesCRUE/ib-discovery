@@ -25,7 +25,7 @@ data-sources:
       tripleStores:
         -
           type: trellis
-          baseURL: http://localhost:80/
+          baseURL: http://herc-iz-front-desa.atica.um.es/
           user: admin
           password: admin
 

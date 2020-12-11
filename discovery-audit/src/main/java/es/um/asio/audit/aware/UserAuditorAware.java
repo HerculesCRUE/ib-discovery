@@ -1,11 +1,11 @@
 package es.um.asio.audit.aware;
 
-import java.util.Optional;
-
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 /**
  * Aware of the application's current auditor.

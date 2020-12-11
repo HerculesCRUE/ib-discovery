@@ -3,6 +3,7 @@ package es.um.asio.service.service.impl;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import es.um.asio.service.config.DataProperties;
 import es.um.asio.service.config.DataSourcesConfiguration;
 import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.TripleObject;
@@ -57,6 +58,9 @@ public class DataHandlerImp implements DataHandler {
     DataSourcesConfiguration dataSourcesConfiguration;
 
     @Autowired
+    DataProperties dataProperties;
+
+    @Autowired
     ApplicationState applicationState;
 
     @Autowired
@@ -102,7 +106,7 @@ public class DataHandlerImp implements DataHandler {
             updateState(DataType.CACHE,cache.getTriplesMap());
         }
         // Update data from triple store (add deltas)
-        // updateCachedData(); // TODO: quit comment
+        updateCachedData(); // TODO: quit comment
         // Update elasticSearch
         logger.info("Writing Triple Objects in Elasticsearch");
         updateElasticData();
@@ -171,7 +175,7 @@ public class DataHandlerImp implements DataHandler {
         try {
             // Load data from cache
             cache.setTriplesMap(redisService.getTriplesMap());
-            if (cache.getTriplesMap().size() == 0) { // Get cache from file in firebase if is empty
+            if (cache.getTriplesMap().size() == 0 && dataProperties.isReadCacheFromFirebase()) { // Get cache from file in firebase if is empty
                 Gson gson = new GsonBuilder()
                         .setPrettyPrinting()
                         .excludeFieldsWithoutExposeAnnotation()

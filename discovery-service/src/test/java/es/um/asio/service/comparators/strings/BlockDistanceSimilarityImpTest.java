@@ -11,8 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class BlockDistanceSimilarityImpTest {
     private final Logger logger = LoggerFactory.getLogger(BlockDistanceSimilarityImpTest.class);
     String name = "Block Distance Similarity";

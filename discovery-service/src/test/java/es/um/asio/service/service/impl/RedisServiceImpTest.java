@@ -1,22 +1,7 @@
 package es.um.asio.service.service.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import es.um.asio.service.model.TripleObject;
-import es.um.asio.service.test.TestApplication;
-import org.junit.Assert;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.lang.reflect.Type;
-import java.util.Map;
 
 @RunWith(SpringRunner.class)
 /*@SpringBootTest(classes={TestApplication.class})

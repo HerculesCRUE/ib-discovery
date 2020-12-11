@@ -1,7 +1,6 @@
 package es.um.asio.service.comparators.entities;
 
 import com.google.gson.Gson;
-
 import es.um.asio.service.comparators.aggregators.AccordSimilarity;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.stats.AttributeStats;

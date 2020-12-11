@@ -3,7 +3,6 @@ package es.um.asio.service.comparators.attribute;
 import es.um.asio.service.comparators.aggregators.AccordSimilarity;
 import es.um.asio.service.comparators.entities.SimilarityValue;
 import es.um.asio.service.util.Utils;
-import org.jsoup.select.Evaluator;
 
 import java.util.*;
 

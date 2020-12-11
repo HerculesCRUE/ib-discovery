@@ -2,20 +2,15 @@ package es.um.asio.service.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-
 import es.um.asio.service.model.AttributeType;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.UrlValidator;
 
 import java.text.DateFormat;
 import java.text.Normalizer;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import org.apache.commons.validator.GenericValidator;
-import org.apache.commons.validator.routines.UrlValidator;
-import org.w3c.dom.ls.LSInput;
 
 public class Utils {
 

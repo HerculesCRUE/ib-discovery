@@ -1,10 +1,10 @@
 package es.um.asio.audit.dto;
 
-import java.util.Date;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.Date;
 
 /**
  * Auditable entity DTO

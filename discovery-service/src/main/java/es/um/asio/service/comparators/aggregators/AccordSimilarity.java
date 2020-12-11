@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 public class AccordSimilarity {
 
+    private AccordSimilarity() {}
+
     static Map<String, Similarity> algorithms;
 
     public static float calculateAccordSimilarity(String str1, String str2) {
@@ -24,8 +26,7 @@ public class AccordSimilarity {
             Collections.sort(lMetrics,Collections.reverseOrder());
         else
             Collections.sort(lMetrics);
-        float mean = getDescendantWeightMean(lMetrics,(1f/3f));
-        return mean;
+        return getDescendantWeightMean(lMetrics,(1f/3f));
     }
 
 
@@ -41,12 +42,10 @@ public class AccordSimilarity {
             algorithms.put("EuclideanDistanceSimilarityImp",new EuclideanDistanceSimilarityImp());
             algorithms.put("GeneralizedJaccardSimilarityImp",new GeneralizedJaccardSimilarityImp());
             algorithms.put("JaccardSimilarityImp",new JaccardSimilarityImp());
-            // algorithms.put("JaroSimilarityImp",new JaroSimilarityImp());
             algorithms.put("JaroWinklerSimilarityImp",new JaroWinklerSimilarityImp());
             algorithms.put("LevenshteinSimilarityImp",new LevenshteinSimilarityImp());
             algorithms.put("LongestCommonSubsequenceSimilarityImp",new LongestCommonSubsequenceSimilarityImp());
             algorithms.put("LongestCommonSubStringSimilarityImp",new LongestCommonSubStringSimilarityImp());
-            // algorithms.put("NeedlemanWunchSimilarityImp",new NeedlemanWunchSimilarityImp());
             algorithms.put("OverlapCoefificientSimilarityImp",new OverlapCoefficientSimilarityImp());
             algorithms.put("SimonWhiteSimilarityImp",new SimonWhiteSimilarityImp());
             algorithms.put("SmithWetermanGotohSimilarityImp",new SmithWetermanGotohSimilarityImp());
@@ -57,7 +56,6 @@ public class AccordSimilarity {
 
     public static float getDescendantWeightMean(List<Float> l, float ratio) {
         float mean = 0f;
-        int n = 0;
         float w = 1f;
         float p = 0f;
         for (int i = 0; i < l.size()-2 ; i++) {

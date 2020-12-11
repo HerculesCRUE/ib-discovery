@@ -2,12 +2,10 @@ package data;
 
 import es.um.asio.service.model.Node;
 import es.um.asio.service.model.TripleObject;
-import es.um.asio.service.model.TripleStore;
 import es.um.asio.service.model.relational.*;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.*;

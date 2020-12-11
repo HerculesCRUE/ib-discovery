@@ -1,22 +1,17 @@
 package es.um.asio.service.model.relational;
 
 import data.DataGenerator;
-import es.um.asio.service.TestDiscoveryApplication;
 import es.um.asio.service.model.TripleObject;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.annotation.PostConstruct;
-
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 @RunWith(SpringRunner.class)
 class ActionResultTest {
 
@@ -63,7 +58,7 @@ class ActionResultTest {
             int rnd = (int) ((Math.random() * (4 - 0)) + 0);
             Action action = Action.values()[rnd];
             actionResult.setAction(action);
-            actionResult.getAction().equals(action);
+            Assert.assertTrue(actionResult.getAction().equals(action));
         }
     }
 

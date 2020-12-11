@@ -7,7 +7,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.model.TripleObject;
 import lombok.*;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import javax.persistence.*;
 import java.util.*;

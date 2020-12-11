@@ -2,25 +2,19 @@ package es.um.asio.service.model;
 
 import com.google.gson.internal.LinkedTreeMap;
 import data.DataGenerator;
-import es.um.asio.service.TestDiscoveryApplication;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import es.um.asio.service.util.Utils;
-import main.TestApplicationOld;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @RunWith(SpringRunner.class)
 class TripleObjectTest {

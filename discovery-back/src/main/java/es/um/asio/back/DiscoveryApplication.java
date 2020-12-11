@@ -1,5 +1,6 @@
 package es.um.asio.back;
 
+import es.um.asio.service.ServiceConfig;
 import es.um.asio.service.service.impl.DataHandlerImp;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,6 @@ import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServic
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
-
-import es.um.asio.service.ServiceConfig;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.io.IOException;

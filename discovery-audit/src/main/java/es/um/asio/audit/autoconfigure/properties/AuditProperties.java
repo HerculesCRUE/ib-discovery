@@ -1,11 +1,10 @@
 package es.um.asio.audit.autoconfigure.properties;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.validation.annotation.Validated;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * Properties for Audit.

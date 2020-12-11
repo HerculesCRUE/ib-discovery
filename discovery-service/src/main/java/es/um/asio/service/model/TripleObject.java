@@ -1,21 +1,18 @@
 package es.um.asio.service.model;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.internal.LinkedTreeMap;
-import es.um.asio.service.comparators.entities.EntitySimilarityObj;
 import es.um.asio.service.comparators.entities.EntitySimilarity;
+import es.um.asio.service.comparators.entities.EntitySimilarityObj;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.model.stats.AttributeStats;
 import es.um.asio.service.model.stats.EntityStats;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import es.um.asio.service.util.Utils;
-import jdk.jshell.execution.Util;
 import lombok.*;
-import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -23,12 +20,9 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-
-import javax.annotation.PostConstruct;
 import javax.persistence.Id;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter

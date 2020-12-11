@@ -1,17 +1,8 @@
 package es.um.asio.service.repository;
 
 
-import es.um.asio.service.repository.redis.StringRedisRepository;
-import es.um.asio.service.test.TestApplication;
-import org.junit.Assert;
-import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @RunWith(SpringRunner.class)
 /*@SpringBootTest(classes={TestApplication.class})*/

@@ -36,7 +36,7 @@ public class CacheServiceImp implements CacheService {
     CacheRegistryRepository cacheRegistryRepository;
 
     @PostConstruct
-    public void initialize() throws Exception {
+    public void initialize() {
         triplesMap = new HashMap<>();
         triplesMapByDate = new HashMap<>();
         filtered = new HashMap<>();
@@ -82,8 +82,6 @@ public class CacheServiceImp implements CacheService {
             triplesMap.get(node).get(triple).get(to.getClassName()).put(to.getId(), to);
             triplesMapByDate.get(node).get(triple).get(to.getClassName()).get(to.getYear()).get(to.getMonth()).put(to.getId(), to);
 
-            //statsHandler.addAttributes(node, triple, to);
-            // to.buildFlattenAttributes();
         }
     }
 
@@ -267,7 +265,7 @@ public class CacheServiceImp implements CacheService {
             else
                 return null;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(String.format("Error in getTripleObject: %s", e.getMessage()));
             return null;
         }
 
@@ -313,7 +311,7 @@ public class CacheServiceImp implements CacheService {
 
                                             }
                                         } catch (Exception e) {
-                                            e.printStackTrace();
+                                            logger.error(e.getMessage());
                                         }
                                         if (toInner.getLastModification() != 0) {
                                             Calendar cal = Calendar.getInstance();
@@ -387,7 +385,6 @@ public class CacheServiceImp implements CacheService {
                             statsHandler.addAttributes(ts.getNode().getNode(), ts.getTripleStore(), tipleObjectEntry.getValue());
                         } catch (Exception e) {
                             logger.error("Update Stats Error: "+ e.getMessage());
-                            e.printStackTrace();
                         }
                     }
                 }

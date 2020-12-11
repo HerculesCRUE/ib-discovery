@@ -1,23 +1,18 @@
 package es.um.asio.service.service.impl;
 
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.*;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-//import org.springframework.web.multipart.MultipartFile;
+
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import java.io.*;
+import java.io.FileInputStream;
 import java.net.URI;
-import java.nio.channels.Channels;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Objects;
-import java.util.Date;
 import java.util.concurrent.CompletableFuture;
+
+//import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class FirebaseStorageStrategy{

@@ -1,6 +1,5 @@
 package es.um.asio.service.service.impl;
 
-import com.google.api.client.util.Charsets;
 import com.google.gson.JsonObject;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
@@ -15,12 +14,6 @@ import es.um.asio.service.repository.relational.JobRegistryRepository;
 import es.um.asio.service.repository.relational.ObjectResultRepository;
 import es.um.asio.service.repository.relational.RequestRegistryRepository;
 import es.um.asio.service.util.Utils;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +22,12 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @EnableAspectJAutoProxy(proxyTargetClass = true)

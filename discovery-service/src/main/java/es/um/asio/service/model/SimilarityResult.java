@@ -1,10 +1,8 @@
 package es.um.asio.service.model;
 
-import es.um.asio.service.comparators.entities.EntitySimilarity;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;

@@ -36,6 +36,7 @@ app:
     enabled: true
 
 data:
+  readCacheFromFirebase: false
   elasticsearch:
     host: localhost
     port: 9200

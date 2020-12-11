@@ -1,11 +1,11 @@
 package es.um.asio.swagger;
 
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.classmate.TypeResolver;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import es.um.asio.swagger.annotation.AnnotationProxy;
+import es.um.asio.swagger.properties.SwaggerProperties;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -17,14 +17,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.classmate.TypeResolver;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-
-import es.um.asio.swagger.annotation.AnnotationProxy;
-import es.um.asio.swagger.properties.SwaggerProperties;
-import io.swagger.annotations.ApiParam;
 import springfox.documentation.builders.AlternateTypeBuilder;
 import springfox.documentation.builders.AlternateTypePropertyBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -32,18 +24,19 @@ import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.schema.AlternateTypeRule;
 import springfox.documentation.schema.AlternateTypeRuleConvention;
 import springfox.documentation.schema.AlternateTypeRules;
-import springfox.documentation.service.AuthorizationScope;
-import springfox.documentation.service.GrantType;
-import springfox.documentation.service.OAuth;
-import springfox.documentation.service.ResourceOwnerPasswordCredentialsGrant;
-import springfox.documentation.service.SecurityReference;
-import springfox.documentation.service.SecurityScheme;
+import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger.web.SecurityConfiguration;
 import springfox.documentation.swagger.web.SecurityConfigurationBuilder;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Swagger configuration.

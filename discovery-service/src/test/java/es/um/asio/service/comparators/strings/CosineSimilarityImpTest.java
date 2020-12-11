@@ -11,8 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class CosineSimilarityImpTest {
     private final Logger logger = LoggerFactory.getLogger(CosineSimilarityImpTest.class);
     String name = "Cosine Similarity";

@@ -4,11 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.JsonObject;
 import es.um.asio.service.listener.AppEvents;
 import es.um.asio.service.model.relational.DiscoveryApplication;
-import es.um.asio.service.repository.relational.DiscoveryApplicationRepository;
 import lombok.Getter;
 import lombok.Setter;
-import org.elasticsearch.client.license.LicensesStatus;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +21,7 @@ public class ApplicationState {
     private DiscoveryApplication application;
     private String name;
     private AppState appState;
-    private Map<DataType,DataState> states;
+    private EnumMap<DataType,DataState> states;
     private Map<String,Date> lastFilterDate;
     private int stateCode = 503;
     @JsonIgnore
@@ -35,7 +32,7 @@ public class ApplicationState {
         application = new DiscoveryApplication("DISCOVERY LIBRARY");
         appState = AppState.UNINITIALIZED;
         stateCode = 503;
-        states = new HashMap<>();
+        states = new EnumMap<DataType, DataState>(DataType.class);
         lastFilterDate = new HashMap<>();
         states.put(DataType.CACHE, new DataState());
         states.put(DataType.ELASTICSEARCH, new DataState());

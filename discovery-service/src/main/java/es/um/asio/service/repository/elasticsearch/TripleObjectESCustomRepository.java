@@ -8,8 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
@@ -17,15 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.ScrolledPage;
-import org.springframework.data.elasticsearch.core.query.*;
-import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
-import org.springframework.stereotype.Component;
+import org.springframework.data.elasticsearch.core.query.FetchSourceFilterBuilder;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.*;
-
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
 @Repository
 public class TripleObjectESCustomRepository{

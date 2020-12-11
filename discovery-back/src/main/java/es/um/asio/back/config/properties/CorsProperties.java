@@ -1,13 +1,12 @@
 package es.um.asio.back.config.properties;
 
-import java.util.Arrays;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.validation.annotation.Validated;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
+
+import java.util.Arrays;
 
 /**
  * Cors related configuration properties.

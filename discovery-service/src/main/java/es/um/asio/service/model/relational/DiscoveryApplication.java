@@ -1,7 +1,6 @@
 package es.um.asio.service.model.relational;
 
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
 import org.springframework.boot.system.ApplicationPid;
 
 import javax.persistence.*;

@@ -1,25 +1,15 @@
 package es.um.asio.service.model.appstate;
 
 import com.google.gson.JsonObject;
-import es.um.asio.service.TestDiscoveryApplication;
 import es.um.asio.service.listener.AppEvents;
 import es.um.asio.service.model.relational.DiscoveryApplication;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.*;
 
 @RunWith(SpringRunner.class)
 class ApplicationStateTest {
@@ -142,7 +132,7 @@ class ApplicationStateTest {
 
     @Test
     void setStates() {
-        Map<DataType,DataState> states = new HashMap<>();
+        EnumMap<DataType,DataState> states = new EnumMap<DataType, DataState>(DataType.class);
         states.put(DataType.REDIS,new DataState());
         states.put(DataType.CACHE,new DataState());
         states.put(DataType.ELASTICSEARCH,new DataState());
@@ -185,7 +175,7 @@ class ApplicationStateTest {
 
     @Test
     void getStates() {
-        Map<DataType,DataState> states = new HashMap<>();
+        EnumMap<DataType,DataState> states = new EnumMap<DataType, DataState>(DataType.class);
         states.put(DataType.REDIS,new DataState());
         states.put(DataType.CACHE,new DataState());
         states.put(DataType.ELASTICSEARCH,new DataState());

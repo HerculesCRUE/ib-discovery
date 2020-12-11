@@ -1,15 +1,14 @@
 package es.um.asio.service.comparators.entities;
 
-import com.google.gson.Gson;
-import es.um.asio.service.comparators.aggregators.AccordSimilarity;
 import es.um.asio.service.model.TripleObject;
-import es.um.asio.service.model.stats.AttributeStats;
-import es.um.asio.service.util.Utils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 @Getter
 @Setter

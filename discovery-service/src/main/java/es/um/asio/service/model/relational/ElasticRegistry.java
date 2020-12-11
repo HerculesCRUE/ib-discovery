@@ -1,6 +1,5 @@
 package es.um.asio.service.model.relational;
 
-import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import lombok.*;
 
 import javax.persistence.*;

@@ -1,12 +1,10 @@
 package es.um.asio.service.model.stats;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.um.asio.service.util.Utils;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 @Getter

@@ -84,16 +84,13 @@ public class TrellisHandler extends TripleStoreHandler {
                             for (JsonElement jeInstance : joGraphClass.get("contains").getAsJsonArray()) {
                                 String instanceURL = jeInstance.getAsString();
                                 String instanceId = instanceURL.replace(classURL,"").replace("/","");
-/*                                if (instanceId.equals("http:_hercules.org_um_es-ES_rec_CvnRootBean_d4bbead1-0527-422d-9a40-fd0a904d06c5")) {
-                                    System.out.println(); // Remove
-                                }*/
+
                                 TripleObject to = cacheService.getTripleObject(nodeName,"trellis",className,instanceId);
                                 // Si la cache contiene la instancia, no hag la petición
                                 boolean isNew = (to==null);
                                 if (to == null || to.getAttributes() == null || to.getAttributes().size() == 0 || !Utils.isValidString(to.getLocalURI())/*to.getClassName().equals("ConvocatoriaRecursosHumanos")*/) {
                                     // En caso contrario, hago la petición para añadir a la cache
                                     // Request to Instance URL
-
                                     Response rInstance = doRequest(instanceURL);
                                     if (rInstance!=null) {
                                         JsonObject jInstanceObject = new Gson().fromJson(rInstance.body().string(), JsonObject.class);
@@ -243,8 +240,6 @@ public class TrellisHandler extends TripleStoreHandler {
 
     private JsonObject parseJsonDataByCvn(JsonArray jData, JsonObject jContext, String className, String id) {
         try {
-            if (id.contains("e02ad815-f4ca-496b-af87-207d7ce3ac94") && !id.equals("e02ad815-f4ca-496b-af87-207d7ce3ac93"))
-                System.out.println(); // Remove
             jData.toString().replace("j\\.[0-9]+:", "");
             String uuid = id.substring(id.lastIndexOf("_") + 1);
             Map<String, Object> attrs = new LinkedTreeMap<>();

@@ -5,8 +5,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.Arrays;
-
 /**
  * Cors related configuration properties.
  */
@@ -19,6 +17,9 @@ import java.util.Arrays;
 @NoArgsConstructor
 @Validated
 public class DataProperties {
+
+
+    private boolean readCacheFromFirebase;
     /**
      * Elastic Search Configuration
      */

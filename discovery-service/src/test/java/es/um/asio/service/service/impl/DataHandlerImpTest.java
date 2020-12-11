@@ -1,17 +1,7 @@
 package es.um.asio.service.service.impl;
 
-import es.um.asio.service.model.appstate.ApplicationState;
-import es.um.asio.service.model.appstate.DataType;
-import es.um.asio.service.model.appstate.State;
-import main.TestApplicationOld;
-import org.junit.Assert;
-import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.concurrent.CompletableFuture;
 
 /*@RunWith(SpringRunner.class)
 *//*@SpringBootTest(classes={main.TestApplication.class})*//*

@@ -1,22 +1,7 @@
 package es.um.asio.service.service.impl;
 
-import com.google.gson.JsonObject;
-import com.google.gson.internal.LinkedTreeMap;
-import es.um.asio.service.model.TripleObject;
-import es.um.asio.service.model.TripleStore;
-import es.um.asio.service.model.elasticsearch.TripleObjectES;
-
-import es.um.asio.service.test.TestApplication;
-import org.junit.Assert;
-import org.junit.jupiter.api.*;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import org.springframework.test.context.junit4.SpringRunner;
-import org.javatuples.Pair;
-import java.util.*;
-import org.junit.jupiter.api.Order;
 
 
 

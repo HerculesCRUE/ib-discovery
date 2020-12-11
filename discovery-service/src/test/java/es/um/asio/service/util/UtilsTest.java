@@ -8,8 +8,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class UtilsTest {
     @Test
     void isInteger() {

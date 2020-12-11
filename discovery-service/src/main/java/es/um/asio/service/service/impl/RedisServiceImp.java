@@ -1,6 +1,9 @@
 package es.um.asio.service.service.impl;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import es.um.asio.service.config.DataSourcesConfiguration;
@@ -11,7 +14,6 @@ import es.um.asio.service.model.stats.EntityStats;
 import es.um.asio.service.model.stats.StatsHandler;
 import es.um.asio.service.repository.redis.StringRedisRepository;
 import es.um.asio.service.repository.relational.CacheRegistryRepository;
-/*import es.um.asio.service.repository.relational.ElasticRegistryRepository;*/
 import es.um.asio.service.service.RedisService;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
@@ -25,6 +27,8 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+/*import es.um.asio.service.repository.relational.ElasticRegistryRepository;*/
 
 @Service
 @EnableCaching
