@@ -20,13 +20,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Utils {
-
-    private Utils(){}
-
-    static List<String> dateFormats = generateValidFormatDates();
+        static List<String> dateFormats = generateValidFormatDates();
     static List<Locale> locales = generateLocales();
-
-    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
     public static List<String> generateValidFormatDates() {
         List<String> dateFormats = new ArrayList<>();
@@ -179,13 +174,14 @@ public class Utils {
     }
 
     public static Date getDate(String s) {
+        Map<Locale,List<String>> formats = getStringFormat();
         for (Locale l : locales) {
             for (String f: dateFormats) {
                 DateFormat sdf = new SimpleDateFormat(f,l);
                 try {
-                    return sdf.parse(s);
+                    Date d = sdf.parse(s);
+                    return d;
                 } catch (Exception e) {
-                    logger.error(e.getMessage());
                 }
             }
         }
@@ -195,12 +191,10 @@ public class Utils {
     public static boolean isObject(String s) {
         try {
             JsonElement je = new Gson().fromJson(s, JsonElement.class);
-            boolean isObject;
             if (je.isJsonArray() || je.isJsonObject())
-                isObject = true;
+                return true;
             else
-                isObject = false;
-            return isObject;
+                return false;
         } catch (Exception e) {
             return false;
         }
@@ -264,7 +258,7 @@ public class Utils {
                     }
                 };
         Map<K, V> sortedByValues =
-                new TreeMap(valueComparator);
+                new TreeMap<K, V>(valueComparator);
         sortedByValues.putAll(map);
         return sortedByValues;
     }
@@ -272,6 +266,7 @@ public class Utils {
     public static boolean checkIfFloat(String s) {
         try {
             String regex = "^([+-]?\\d*\\.\\d+(e\\d+)?)$";
+            double f = Float.parseFloat(s);
             double d = Double.parseDouble(s);
             return s.matches(regex) && d >= Float.MIN_VALUE && d <= Float.MAX_VALUE;
         } catch (Exception e) {
@@ -321,20 +316,19 @@ public class Utils {
     public static boolean checkIfString(Object o) {
         try {
             String.valueOf(o);
-            boolean isString = false;
             if (o instanceof String)
-                isString = true;
-            return isString;
+                return true;
+            return false;
         } catch (Exception e) {
             return false;
         }
     }
 
-    public static boolean checkIfComposeStringIsSame(String str1, String str2) {
-        List<String> str1List = Arrays.asList(str1.split("(?=\\p{Upper})"));
-        List<String> str2List = Arrays.asList(str2.split("(?=\\p{Upper})"));
-        str1List = str1List.stream().map(String::toLowerCase).collect(Collectors.toList());
-        str2List = str2List.stream().map(String::toLowerCase).collect(Collectors.toList());
+        public static boolean checkIfComposeStringIsSame(String str1, String str2) {
+        List<String> str1List = Arrays.asList(str1.split("(?=\\p{Upper})|-"));
+        List<String> str2List = Arrays.asList(str2.split("(?=\\p{Upper})|-"));
+        str1List = str1List.stream().filter(s -> Utils.isValidString(s)).map(String::toLowerCase).collect(Collectors.toList());
+        str2List = str2List.stream().filter(s -> Utils.isValidString(s)).map(String::toLowerCase).collect(Collectors.toList());
         for (String token : str1List) {
             if (!str2List.contains(token))
                 return false;
@@ -355,6 +349,7 @@ public class Utils {
         return str;
     }
 
-
-
 }
+
+
+
