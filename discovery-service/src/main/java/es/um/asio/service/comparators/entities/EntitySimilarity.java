@@ -14,6 +14,7 @@ import java.util.*;
 @Setter
 public class EntitySimilarity {
 
+    private EntitySimilarity() {}
 
     public static EntitySimilarityObj compare(TripleObject to, Map<String, AttributeStats> attributeStatsMap, Object obj1, Object obj2) {
         Gson gson = new Gson();
@@ -38,14 +39,14 @@ public class EntitySimilarity {
                 }
                 weightAggregate += weight;
                 float sim = compareAtt(to,attributeStatsMap, key, o1.get(key),o2.get(key));
-                eso.similarities.put(key,new SimilarityValue(sim,weight));
+                eso.getSimilarities().put(key,new SimilarityValue(sim,weight));
                 similarityMetrics.add(weight*sim);
             } else {
                 similarityMetrics.add(0f);
             }
 
         }
-        float similarityResult = ((float) similarityMetrics.stream().mapToDouble(a->a).sum()) / weightAggregate;
+        float similarityResult = ((float) similarityMetrics.stream().mapToDouble(a->a).sum()) / (weightAggregate==0?1:weightAggregate);
         eso.setSimilarity(similarityResult);
         return eso;
     }
@@ -53,11 +54,10 @@ public class EntitySimilarity {
     public static float compareAtt(TripleObject to,Map<String, AttributeStats> attributeStatsMap,String key, Object a1, Object a2) {
         if (isNumber(a1) && isNumber(a2)) {
             return compareNumberAtt(((key!=null)?attributeStatsMap.get(key).getRelativeImportanceRatio():0.5f), Float.valueOf(a1.toString()), Float.valueOf(a2.toString()));
-        } else if(isBoolean(a1) && isBoolean(a1)) {
+        } else if(isBoolean(a1) && isBoolean(a2)) {
             return compareNumberAtt(Boolean.valueOf(a1.toString()), Boolean.valueOf(a2.toString()));
         } else if (isArrayList(a1) && isArrayList(a2)){
             List<Float> fs = compareLists(to,attributeStatsMap,(List) a1,(List) a2 );
-            float r = ((float) fs.stream().mapToDouble(a->a).sum()) / ((float) fs.size());
             return ((float) fs.stream().mapToDouble(a->a).sum()) / ((float) fs.size());
         } else if (isObject(a1) && isObject(a2)){
             return  EntitySimilarity.compare(to,attributeStatsMap,a1,a2).getSimilarity();
@@ -72,10 +72,10 @@ public class EntitySimilarity {
         if (variability > 0.95) {
             return 0;
         }
-        float max = Float.valueOf(Math.max(a1,a2));
-        float min = Float.valueOf(Math.min(a1,a2));
-        float nMax = (max==0)?0:Float.valueOf((float) Math.floor((Double.valueOf(max)/max)*10));
-        float nMin = (max==0)?0:Float.valueOf((float) Math.floor((Double.valueOf(min)/max)*10));
+        float max = Math.max(a1,a2);
+        float min = Math.min(a1,a2);
+        float nMax = (max==0)?0:(float) Math.floor((Double.valueOf(max)/max)*10);
+        float nMin = (max==0)?0:(float) Math.floor((Double.valueOf(min)/max)*10);
         return (float) Math.pow((0.5f),(nMax-nMin));
     }
 
@@ -87,7 +87,7 @@ public class EntitySimilarity {
     }
 
     public static float compareNumberAtt(String a1, String a2) {
-        if (a1.trim().toLowerCase().equals(a2.trim().toLowerCase()))
+        if (a1.trim().equalsIgnoreCase(a2.trim()))
             return 1.0f;
         else
             return AccordSimilarity.calculateAccordSimilarity(String.valueOf(a1),String.valueOf(a2));
@@ -113,7 +113,7 @@ public class EntitySimilarity {
         List l1 = (ls1.size() >= ls2.size())?ls1:ls2;
         List l2 = (ls1.size() >= ls2.size())?ls2:ls1;
         List<Float> returns = new ArrayList<>();
-        if (l2.size() == 0) { // Si la 2 lista esta vacia he terminado
+        if (l2.isEmpty()) { // Si la 2 lista esta vacia he terminado
             for (int i = 0 ; i<l1.size() ; i++) {
                 returns.add(0f);
             }
@@ -138,7 +138,7 @@ public class EntitySimilarity {
             l1.remove(indexMaxSimilarityL1);
             l2.remove(indexMaxSimilarityL2);
             returns.add(maxSimilarity);
-            if (l1.size()>0)
+            if (!l1.isEmpty())
                 returns.addAll(compareLists(to,attributeStatsMap,l1,l2));
         }
         return returns;

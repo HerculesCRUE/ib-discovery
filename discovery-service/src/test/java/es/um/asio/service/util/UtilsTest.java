@@ -1,5 +1,6 @@
 package es.um.asio.service.util;
 
+import com.google.gson.JsonObject;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +42,7 @@ class UtilsTest {
 
     @Test
     void getAttributeType() {
+        Assert.assertTrue(true);
     }
 
     @Test
@@ -77,5 +79,27 @@ class UtilsTest {
     @Test
     void generateValidFormatDates() {
         Utils.generateValidFormatDates();
+        Assert.assertTrue(true);
+    }
+
+    @Test
+    void checkIfComposeStringIsSame() {
+        String str1 = "GrupoInvestigacion";
+        String str2 = "Grupo-Investigacion";
+        String str3 = "Grupo-investigacion";
+        Assert.assertTrue(Utils.checkIfComposeStringIsSame(str1,str2));
+        Assert.assertTrue(Utils.checkIfComposeStringIsSame(str1,str3));
+    }
+
+    @Test
+    void extractSubstringByRegex() {
+        String regex = "j\\.[0-9]+";
+        String s  = "j.0:Persona/6c8349cc-7260-3e62-a3b1-396831a8398f";
+        JsonObject jContext = new JsonObject();
+        jContext.addProperty("j.0","http://hercules.org/um/es-ES/rec/");
+        jContext.addProperty("j.1","http://hercules.org/um/es-ES/rec/NO");
+        jContext.addProperty("j.2","http://hercules.org/um/es-ES/rec/TAMPOCO");
+        String replaced = Utils.replaceSubstringByRegex(s,":",jContext,regex);
+        Assert.assertTrue(replaced.equals("http://hercules.org/um/es-ES/rec/Persona/6c8349cc-7260-3e62-a3b1-396831a8398f"));
     }
 }

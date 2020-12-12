@@ -46,7 +46,6 @@ public class KafkaProducerConfig {
         try {
             return new KafkaTemplate<>(producerFactory());
         } catch (Exception e) {
-            System.out.println();
             return null;
         }
     }

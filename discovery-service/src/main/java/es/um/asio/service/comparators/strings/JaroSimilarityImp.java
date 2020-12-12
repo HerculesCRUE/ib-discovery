@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import static org.simmetrics.builders.StringMetricBuilder.with;
 
-public class JaroSimilarityImp extends Similarity {
+public class JaroSimilarityImp implements Similarity {
 
     /*
      * El algoritmo se basa en aplicar penalizaciones cuando no exista coincidencia siendo mayor la penalización en los 4 primeros. El vector se forma con el conteo de las palabras en las dos cadenas

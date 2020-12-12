@@ -58,7 +58,7 @@ public class DataSourcesConfiguration {
 
         public TripleStore getTripleStoreByType(String type) {
             for (TripleStore to: tripleStores) {
-                if (to.type.trim().toLowerCase().equals(type.trim().toLowerCase())) {
+                if (to.type.trim().equalsIgnoreCase(type.trim())) {
                     return to;
                 }
             }

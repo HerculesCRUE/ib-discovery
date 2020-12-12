@@ -52,15 +52,6 @@ public class ElasticRegistry {
         this.lastUpdate = new Date();
     }
 
-/*    public ElasticRegistry(DiscoveryApplication discoveryApplication, TripleObjectES toES) {
-        this.discoveryApplication = discoveryApplication;
-        this.node = toES.getTripleStore().getNode().getNode();
-        this.tripleStore = toES.getTripleStore().getTripleStore();
-        this.className = toES.getClassName();
-        this.entityId = toES.getEntityId();
-        this.lastUpdate = new Date();
-    }*/
-
     /**
      * Column name constants.
      */

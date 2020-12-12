@@ -77,7 +77,7 @@ public class DataHandlerImp implements DataHandler {
 
 
     @PostConstruct
-    private void initialize() throws Exception {
+    private void initialize() {
         logger.info("Initializing DataHandlerImp");
         handlers = new ArrayList<>();
         DiscoveryApplication discoveryApplication = applicationState.getApplication();
@@ -95,7 +95,6 @@ public class DataHandlerImp implements DataHandler {
         logger.info("Populate data in DataHandlerImp");
         // 1º Load data in cache from redis if cache is empty or app is uninitialized
         if (!cache.isPopulatedCache() || applicationState.getAppState() == ApplicationState.AppState.UNINITIALIZED) {
-            // loadStatsFromRedisToCache();
             loadDataFromRedisToCache();
             cache.updateStats();
             // Update State of Application
@@ -106,7 +105,7 @@ public class DataHandlerImp implements DataHandler {
             updateState(DataType.CACHE,cache.getTriplesMap());
         }
         // Update data from triple store (add deltas)
-        updateCachedData(); // TODO: quit comment
+        updateCachedData(); //  quit comment
         // Update elasticSearch
         logger.info("Writing Triple Objects in Elasticsearch");
         updateElasticData();
@@ -117,20 +116,18 @@ public class DataHandlerImp implements DataHandler {
     @Override
     public CompletableFuture<Boolean> actualizeData(String nodeName, String tripleStore, String className,String entityURL, BasicAction basicAction) throws ParseException, IOException, URISyntaxException {
         DataSourcesConfiguration.Node node = dataSourcesConfiguration.getNodeByName(nodeName);
-        if (applicationState.getAppState() == ApplicationState.AppState.INITIALIZED) {
-            if (node != null) {
-                DataSourcesConfiguration.Node.TripleStore ts = node.getTripleStoreByType(tripleStore);
-                if (ts != null) {
-                    TripleStoreHandler handler = TripleStoreHandler.getHandler(ts.getType(), node.getNodeName(), ts.getBaseURL(), ts.getUser(), ts.getPassword());
-                    if (handler != null) {
-                        boolean isCompleted = handler.updateTripleObject(cache, nodeName, tripleStore, className, entityURL, basicAction);
-                        if (isCompleted) {
-                            cache.saveTriplesMapInCache(nodeName,tripleStore,className);
-                            logger.info(String.format("Entity with URL: %s was be updated in cache",entityURL));
-                            updateElasticData();
-                            logger.info(String.format("Entity with URL: %s was be updated in Elasticsearch",entityURL));
-                            return CompletableFuture.completedFuture(true);
-                        }
+        if (applicationState.getAppState() == ApplicationState.AppState.INITIALIZED && node != null) {
+            DataSourcesConfiguration.Node.TripleStore ts = node.getTripleStoreByType(tripleStore);
+            if (ts != null) {
+                TripleStoreHandler handler = TripleStoreHandler.getHandler(ts.getType(), node.getNodeName(), ts.getBaseURL(), ts.getUser(), ts.getPassword());
+                if (handler != null) {
+                    boolean isCompleted = handler.updateTripleObject(cache, nodeName, tripleStore, className, entityURL, basicAction);
+                    if (isCompleted) {
+                        cache.saveTriplesMapInCache(nodeName,tripleStore,className);
+                        logger.info("Entity with URL: {} was be updated in cache",entityURL);
+                        updateElasticData();
+                        logger.info("Entity with URL: {} was be updated in Elasticsearch",entityURL);
+                        return CompletableFuture.completedFuture(true);
                     }
                 }
             }
@@ -160,14 +157,13 @@ public class DataHandlerImp implements DataHandler {
                         toSave.add(toEntry.getValue());
                     }
                     Map<String, Map<String, String>> saveResult = elasticsearchService.saveTripleObjectsES(toSave);
-                    logger.info("Saved in Elasticsearch className:" + classEntry.getKey() + ", elements: " + toSave.size() + ", inserted: " + saveResult.get("INSERTED").size() + " fails: " + saveResult.get("FAILED").size());
+                    logger.info("Saved in Elasticsearch className:{}, elements: {}, inserted: {} fails: {}",classEntry.getKey(), toSave.size(), saveResult.get("INSERTED").size(), saveResult.get("FAILED").size());
                 }
             }
         }
         applicationState.setDataState(DataType.ELASTICSEARCH, State.UPLOAD_DATA);
         updateState(DataType.ELASTICSEARCH,cache.getTriplesMap());
 
-        // List<TripleObjectES> tosESAfter = elasticsearchService.getAll();
 
     }
 
@@ -191,12 +187,11 @@ public class DataHandlerImp implements DataHandler {
 
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Fail on load data from firebase file: " + e.getMessage());
+            logger.error("Fail on load data from firebase file: {}", e.getMessage());
         }
     }
 
-    private void loadStatsFromRedisToCache() {
+    /*private void loadStatsFromRedisToCache() {
         try {
             // Load data from cache
             cache.setStatsHandler(redisService.getEntityStats());
@@ -216,17 +211,16 @@ public class DataHandlerImp implements DataHandler {
 
             }
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("Fail on load data from firebase file: " + e.getMessage());
         }
-    }
+    }*/
 
     private void updateCachedData() throws ParseException, IOException, URISyntaxException {
         boolean isChanged = false;
         for (DataSourcesConfiguration.Node node : dataSourcesConfiguration.getNodes()) {
             for (DataSourcesConfiguration.Node.TripleStore ts : node.getTripleStores()) {
                 TripleStoreHandler handler = TripleStoreHandler.getHandler(ts.getType(), node.getNodeName(), ts.getBaseURL(), ts.getUser(), ts.getPassword());
-                isChanged = isChanged |  handler.updateData(cache);
+                isChanged = isChanged ||  handler.updateData(cache);
             }
         }
         if(isChanged) {
@@ -252,6 +246,5 @@ public class DataHandlerImp implements DataHandler {
                 }
             }
         }
-        System.out.println();
     }
 }

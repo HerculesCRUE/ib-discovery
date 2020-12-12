@@ -16,20 +16,20 @@ public abstract class AuditableDto {
 	/**
 	 * Principal that created the entity.
 	 */
-	private String createdBy;
+	//private String createdBy;
 
 	/**
 	 * Date the entity was created.
 	 */
-	private Date createdDate;
+	//private Date createdDate;
 
 	/**
 	 * Principal that recently modified the entity.
 	 */
-	private String lastModifiedBy;
+	//private String lastModifiedBy;
 
 	/**
 	 * Date the entity was recently modified.
 	 */
-	private Date lastModifiedDate;
+	//private Date lastModifiedDate;
 }

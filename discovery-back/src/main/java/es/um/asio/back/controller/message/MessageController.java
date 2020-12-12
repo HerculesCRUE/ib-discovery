@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(MessageController.Mappings.BASE)
 public class MessageController {
 
+    private MessageController() {}
 
 
     /**
@@ -23,11 +24,6 @@ public class MessageController {
      * @throws TripleStoreException
      *             in case of error
      */
-    // @Secured(Role.ADMINISTRATOR_ROLE)
-//    @PostMapping
-//    public void save(@RequestBody @Validated(Create.class) final String message) throws TripleStoreException {
-//        this.proxy.save(message);
-//    }
 
     /**
      * Mappgins.

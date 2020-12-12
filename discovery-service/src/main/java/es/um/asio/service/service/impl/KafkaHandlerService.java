@@ -42,13 +42,14 @@ public class KafkaHandlerService {
                 jMessage.add("linkedTo", jLink);
             }
             String msgStr = jMessage.toString();
+            logger.info("Sending message: {}, by node: {}, tripleStore: {}, className: {}",msgStr,node,tripleStore,className);
             kafkaTemplate.send(topic,jMessage.toString());
         }
     }
 
     @KafkaListener(topics = "${data.kafka.topicEntityChange.topic}", groupId = "${data.kafka.topicEntityChange.group_id}")
     public void onEntityChange(String message) {
-        System.out.println();
+        logger.info("On entity Change message: {}", message);
     }
 
 }

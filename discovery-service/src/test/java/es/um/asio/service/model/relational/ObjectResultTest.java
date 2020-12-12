@@ -286,7 +286,7 @@ class ObjectResultTest {
     void setMergeAction() {
         for (ObjectResult or : objectResults) {
             or.setMergeAction(MergeAction.UPDATE);
-            Assert.assertEquals(or.getMergeAction(),MergeAction.UPDATE);
+            Assert.assertEquals(MergeAction.UPDATE,or.getMergeAction());
         }
     }
 
@@ -492,7 +492,7 @@ class ObjectResultTest {
     void getMergeAction() {
         for (ObjectResult or : objectResults) {
             or.setMergeAction(MergeAction.UPDATE);
-            Assert.assertEquals(or.getMergeAction(),MergeAction.UPDATE);
+            Assert.assertEquals(MergeAction.UPDATE,or.getMergeAction());
         }
     }
 

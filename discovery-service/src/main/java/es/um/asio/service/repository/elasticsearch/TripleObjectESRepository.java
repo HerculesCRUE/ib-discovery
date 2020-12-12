@@ -9,9 +9,4 @@ public interface TripleObjectESRepository extends ElasticsearchRepository<Triple
 
     List<TripleObjectES> findByEntityIdAndClassName(String id, String className);
 
-/*    @Query("{\"bool\": " +
-            "{\"must\": [" +
-                "{\"query\": \"?0\"}}}"
-    )
-    List<TripleObjectES> findByClassNameAndAtt(String className);*/
 }

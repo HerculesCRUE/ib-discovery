@@ -40,10 +40,8 @@ public class DiscoveryApplication {
     }
 
     @Bean
-    InitializingBean populateInitData() throws ParseException, IOException, URISyntaxException {
-        return () -> {
-            dataHandler.populateData();
-        };
+    InitializingBean populateInitData() {
+        return () -> dataHandler.populateData();
     }
 
 }

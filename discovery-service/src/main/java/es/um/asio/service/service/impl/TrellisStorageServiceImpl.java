@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
  * Triples service implmentation for Trellis.
  */
 @Service
-//TODO @ConditionalOnProperty()
 public class TrellisStorageServiceImpl implements TriplesStorageService {
 
 }

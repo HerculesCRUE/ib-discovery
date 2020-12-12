@@ -7,9 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SimilarityValue {
-    public float similarity;
-    public float weight;
-    public float weightedSimilarity;
+    private float similarity;
+    private float weight;
+    private float weightedSimilarity;
 
     public SimilarityValue(float similarity, float weight) {
         this.similarity = similarity;

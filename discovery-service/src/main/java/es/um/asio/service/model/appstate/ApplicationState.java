@@ -32,7 +32,7 @@ public class ApplicationState {
         application = new DiscoveryApplication("DISCOVERY LIBRARY");
         appState = AppState.UNINITIALIZED;
         stateCode = 503;
-        states = new EnumMap<DataType, DataState>(DataType.class);
+        states = new EnumMap(DataType.class);
         lastFilterDate = new HashMap<>();
         states.put(DataType.CACHE, new DataState());
         states.put(DataType.ELASTICSEARCH, new DataState());
@@ -51,12 +51,12 @@ public class ApplicationState {
         return states.get(dataType);
     }
 
-    public void setDataState(DataType dataType,State state, Date lastUpdate) {
+
+    public void setDataState(DataType dataType,State state) {
         if (!states.containsKey(dataType) || state.compareTo(states.get(dataType).getState())>=0) {// Si no existía o el estado es mas actual
             states.put(dataType, new DataState(state));
             propagueEvents(dataType,state);
         }
-
     }
 
     private void propagueEvents(DataType dataType,State state) {
@@ -75,12 +75,6 @@ public class ApplicationState {
         }
     }
 
-    public void setDataState(DataType dataType,State state) {
-        if (!states.containsKey(dataType) || state.compareTo(states.get(dataType).getState())>=0) {// Si no existía o el estado es mas actual
-            states.put(dataType, new DataState(state));
-            propagueEvents(dataType,state);
-        }
-    }
 
     public Date getLastFilterDate(String className) {
         return this.lastFilterDate.containsKey(className)?this.lastFilterDate.get(className):new Date(0L);

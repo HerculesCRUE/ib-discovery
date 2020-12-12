@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import static org.simmetrics.builders.StringMetricBuilder.with;
 
-public class NeedlemanWunchSimilarityImp extends Similarity {
+public class NeedlemanWunchSimilarityImp implements Similarity {
 
     /*
      * El algoritmo intenta aliar dos cadenas y concede penalizaciones

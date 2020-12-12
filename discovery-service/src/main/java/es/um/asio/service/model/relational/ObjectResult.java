@@ -150,11 +150,11 @@ public class ObjectResult {
     }
 
     public TripleObject toTripleObject(JobRegistry jr) {
-        JobRegistry jobRegistry = getRecursiveJobRegistry();
-        if (jobRegistry == null)
-            jobRegistry = jr;
+        JobRegistry jobRegistryInner = getRecursiveJobRegistry();
+        if (jobRegistryInner == null)
+            jobRegistryInner = jr;
         LinkedTreeMap<String,Object> attrs = getAttributesAsMap(attributes, new LinkedTreeMap<String,Object>() );
-        TripleObject to = new TripleObject(getNode(), getTripleStore(),jobRegistry.getClassName(),attrs);
+        TripleObject to = new TripleObject(getNode(), getTripleStore(),jobRegistryInner.getClassName(),attrs);
         to.setLocalURI(getLocalURI());
         to.setId(this.entityId);
         return to;
@@ -163,7 +163,7 @@ public class ObjectResult {
     public LinkedTreeMap<String,Object> getAttributesAsMap(Set<Attribute> attributesSet,LinkedTreeMap<String,Object> attrs) {
         for (Attribute attribute :attributesSet) {
             String key = attribute.getKey();
-            List<Value> values = new ArrayList<Value>(attribute.getValues());
+            List<Value> values = new ArrayList<>(attribute.getValues());
             if (values.size() == 1) { // Si no es una lista
                 DataType type = values.get(0).getDataType();
                 if (type != DataType.OBJECT) {
@@ -206,6 +206,8 @@ public class ObjectResult {
         jResponse.addProperty("tripleStore",getTripleStore());
         jResponse.addProperty("entityId",getEntityId());
         jResponse.addProperty("localUri",getLocalURI());
+        if (getSimilarity()!=0)
+            jResponse.addProperty("similarity",getSimilarity());
 
         LinkedTreeMap<String,Object> attrsMap = getAttributesAsMap(attributes, new LinkedTreeMap<String,Object>());
         jResponse.add("attributes",new Gson().toJsonTree(attrsMap).getAsJsonObject());

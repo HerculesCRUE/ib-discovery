@@ -7,6 +7,10 @@ import es.um.asio.service.util.Utils;
 import java.util.*;
 
 public class AttributeSimilarity {
+    /*
+     * Default constructor
+     */
+    private AttributeSimilarity() {}
 
     public static SimilarityValue compareInteger(int a1, int a2, float weight) {
         float similarity = 0;
@@ -15,10 +19,10 @@ public class AttributeSimilarity {
         } else if (weight>0.95) {
             similarity = 0;
         } else {
-            float max = Float.valueOf(Math.max(a1, a2));
-            float min = Float.valueOf(Math.min(a1, a2));
-            float nMax = (max == 0) ? 0 : Float.valueOf((float) Math.floor((Double.valueOf(max) / max) * 10));
-            float nMin = (max == 0) ? 0 : Float.valueOf((float) Math.floor((Double.valueOf(min) / max) * 10));
+            double max = (double) Math.max(a1, a2);
+            double min = (double) Math.min(a1, a2);
+            float nMax = (max == 0) ? 0 : (float) Math.floor(1f * 10f);
+            float nMin = (max == 0) ? 0 : (float) Math.floor((min / max) * 10f);
             similarity = (float) Math.pow((0.5f), (nMax - nMin));
         }
         return new SimilarityValue(similarity,weight);
@@ -31,10 +35,10 @@ public class AttributeSimilarity {
         } else if (weight>0.95) {
             similarity = 0;
         } else {
-            float max = Float.valueOf(Math.max(a1, a2));
-            float min = Float.valueOf(Math.min(a1, a2));
-            float nMax = (max == 0) ? 0 : Float.valueOf((float) Math.floor((Double.valueOf(max) / max) * 10));
-            float nMin = (max == 0) ? 0 : Float.valueOf((float) Math.floor((Double.valueOf(min) / max) * 10));
+            double max = (double) (Math.max(a1, a2));
+            double min = (double)  (Math.min(a1, a2));
+            float nMax = (max == 0) ? 0 : (float) Math.floor(1f * 10f);
+            float nMin = (max == 0) ? 0 : (float) Math.floor((min / max) * 10f);
             similarity = (float) Math.pow((0.5f), (nMax - nMin));
         }
         return new SimilarityValue(similarity,weight);
@@ -65,8 +69,8 @@ public class AttributeSimilarity {
         } else if (weight>0.95) {
             similarity = 0;
         } else {
-            float max = Float.valueOf((float) Math.max(a1, a2));
-            float min = Float.valueOf((float) Math.min(a1, a2));
+            float max = (float) Math.max(a1, a2);
+            float min = (float) Math.min(a1, a2);
             float nMax = (max == 0) ? 0 : Float.valueOf((float) Math.floor((Double.valueOf(max) / max) * 10));
             float nMin = (max == 0) ? 0 : Float.valueOf((float) Math.floor((Double.valueOf(min) / max) * 10));
             similarity = (float) Math.pow((0.5f), (nMax - nMin));
@@ -81,10 +85,10 @@ public class AttributeSimilarity {
         } else if (weight>0.95) {
             similarity = 0;
         } else {
-            float max = Float.valueOf(Math.max(a1, a2));
-            float min = Float.valueOf(Math.min(a1, a2));
-            float nMax = (max == 0) ? 0 : Float.valueOf((float) Math.floor((Double.valueOf(max) / max) * 10));
-            float nMin = (max == 0) ? 0 : Float.valueOf((float) Math.floor((Double.valueOf(min) / max) * 10));
+            float max = (Math.max(a1, a2));
+            float min = (Math.min(a1, a2));
+            float nMax = (max == 0) ? 0 : (float) ((float) Math.floor((Double.valueOf(max) / max) * 10));
+            float nMin = (max == 0) ? 0 : (float) ((float) Math.floor((Double.valueOf(min) / max) * 10));
             similarity = (float) Math.pow((0.5f), (nMax - nMin));
         }
         return new SimilarityValue(similarity,weight);
@@ -108,10 +112,11 @@ public class AttributeSimilarity {
     }
 
     public static SimilarityValue compareList(List<Object> a1, List<Object> a2, float weight) {
-        List<Object> l1,l2;
+        List<Object> l1;
+        List<Object> l2;
         Set<Integer> usedIndex = new HashSet<>();
         List<SimilarityValue> similarities = new ArrayList<>();
-        if (a1.size() == 0 && a2.size() == 0) { // Si ambos tienen las listas vacías, la similaridad es 1
+        if (a1.isEmpty() && a2.isEmpty()) { // Si ambos tienen las listas vacías, la similaridad es 1
             similarities.add(new SimilarityValue(1f,weight));
         } else { // Si no estan vacias
             if (a1.size()>=a2.size()) { // Pongo primero la lista mayor
@@ -145,16 +150,16 @@ public class AttributeSimilarity {
             }
         }
         // Agrego las similitudes
-        float sumSimilarities = similarities.stream().map(s->s.getWeightedSimilarity()).reduce(0f, Float::sum);
+        float sumSimilarities = similarities.stream().map(SimilarityValue::getWeightedSimilarity).reduce(0f, Float::sum);
         return new SimilarityValue(0,weight,sumSimilarities/similarities.size());
     }
 
     public static SimilarityValue compare(List<Object> o1,List<Object> o2, float weight) {
-        Object a1,a2;
+        Object a1;
+        Object a2;
         if (o1 == null && o2 == null) {
             return new SimilarityValue(1,weight);
-        }
-        if ((o1 == null && o2 != null)||(o1 != null && o2 == null)) {
+        } else if ((o1 == null ) || (o2 == null)) {
             return new SimilarityValue(0,weight);
         }
         if (o1.size() == 1 && o2.size() == 1) {

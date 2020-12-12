@@ -97,6 +97,8 @@ public abstract class Auditable {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     static final class Columns {
 
+        private Columns(){}
+
         /**
          * Created By column.
          */
@@ -124,6 +126,7 @@ public abstract class Auditable {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class Properties {
 
+        private Properties(){}
         /**
          * Created By field name.
          */

@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 import static org.simmetrics.builders.StringMetricBuilder.with;
 
-public class DiceDistanceSimilarityImp extends Similarity {
+public class DiceDistanceSimilarityImp implements Similarity {
 
 
     /*

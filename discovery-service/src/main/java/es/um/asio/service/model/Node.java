@@ -22,7 +22,6 @@ public class Node {
      * The Node.
      */
     @Id
-/*    @Column(name = "node",columnDefinition = "VARCHAR(100)")*/
     @EqualsAndHashCode.Include
     @Expose(serialize = true, deserialize = true)
     @Field(type = FieldType.Keyword)

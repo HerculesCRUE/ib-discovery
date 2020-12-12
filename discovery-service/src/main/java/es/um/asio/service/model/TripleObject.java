@@ -70,7 +70,7 @@ public class TripleObject {
         buildFlattenAttributes();
     }
 
-    public TripleObject(String node, String tripleStore, String className, JSONObject jData ) throws Exception {
+    public TripleObject(String node, String tripleStore, String className, JSONObject jData ) {
         this.setTripleStore(new TripleStore(tripleStore,node));
         this.className = className;
         this.attributes = new Gson().fromJson(jData.toString(), LinkedTreeMap.class);
@@ -96,7 +96,7 @@ public class TripleObject {
         } catch (Exception e) {
             attributes = new LinkedTreeMap<>();
             lastModification = new Date().getTime();
-            logger.error("ParseDateException",e.getMessage());
+            logger.error("ParseDateException: {}",e.getMessage());
         }
         this.flattenAttributes = new HashMap<>();
     }
@@ -144,7 +144,7 @@ public class TripleObject {
 
         for (Map.Entry<String, AttributeStats> entry : entityStats.getAttValues().entrySet()) {
             if (entry.getValue() instanceof AttributeStats) {
-                attributesMap.put(entry.getKey(), (AttributeStats) entry.getValue());
+                attributesMap.put(entry.getKey(), entry.getValue());
             }
         }
 
@@ -157,39 +157,13 @@ public class TripleObject {
         allAttrs.addAll(other.getAttributes().keySet());
         int equals = 0;
         for (String att : allAttrs) {
-            if (this.getAttributes().containsKey(att) && other.getAttributes().containsKey(att) && this.getAttributes().get(att).toString().trim().toLowerCase().equals(other.getAttributes().get(att).toString().trim().toLowerCase())) {
+            if (this.getAttributes().containsKey(att) && other.getAttributes().containsKey(att) && this.getAttributes().get(att).toString().trim().equalsIgnoreCase(other.getAttributes().get(att).toString().trim())) {
                 equals++;
             }
         }
         return ((float)equals)/((float) allAttrs.size());
     }
 
-/*    public TripleObject merge(TripleObject other) {
-        boolean isNewer = new Date(this.lastModification).after(new Date(other.lastModification));
-        TripleObject to;
-        Set<String> atts = getAttributes().keySet();
-        atts.addAll(other.getAttributes().keySet());
-        if (isNewer) {
-            to = this;
-            for (String att: atts) {
-                if (!to.getAttributes().containsKey(att)) { // Si solo esta en el segundo
-                    to.getAttributes().put(att,other.getAttributes().get(att));
-                } else if (!Utils.isValidString(String.valueOf(to.getAttributes().get(att))) && Utils.isValidString(String.valueOf(other.getAttributes().get(att)))) {
-                    to.getAttributes().put(att,other.getAttributes().get(att));
-                }
-            }
-        } else {
-            to = other;
-            for (String att: atts) {
-                if (!to.getAttributes().containsKey(att)) { // Si solo esta en el segundo
-                    to.getAttributes().put(att,this.getAttributes().get(att));
-                } else if (!Utils.isValidString(String.valueOf(to.getAttributes().get(att))) && Utils.isValidString(String.valueOf(this.getAttributes().get(att)))) {
-                    to.getAttributes().put(att,other.getAttributes().get(att));
-                }
-            }
-        }
-        return to;
-    }*/
 
     public boolean hasAttribute(String att,LinkedTreeMap map) {
         try {
@@ -216,7 +190,7 @@ public class TripleObject {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
             return false;
         }
     }
@@ -258,7 +232,7 @@ public class TripleObject {
             this.flattenAttributes = new HashMap<>();
             handleFlattenAttributes(null,getAttributes(),this.flattenAttributes);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
 
@@ -281,7 +255,7 @@ public class TripleObject {
                             handleFlattenAttributes(Utils.isValidString(p) ? p + "." + attAux.getKey() : attAux.getKey(), attAux.getValue(), flattens); // LLamo recursivamente por cada atributo
                         }
                     } catch (Exception e) {
-                        System.out.println();
+                        logger.error(e.getMessage());
                     }
                 }
             }

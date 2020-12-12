@@ -1,6 +1,5 @@
 package es.um.asio.back.controller.discovery;
 
-//import es.um.asio.service.model.Role;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -22,6 +21,8 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ExampleProperty;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-//import org.springframework.security.access.annotation.Secured;
 
 /**
  * Message controller.
@@ -65,6 +65,8 @@ public class DiscoveryController {
 
     @Autowired
     DataHandlerImp dataHandler;
+
+    private final Logger logger = LoggerFactory.getLogger(DiscoveryController.class);
 
     /**
      * Status.
@@ -143,8 +145,7 @@ public class DiscoveryController {
         } else {
             jResponse.addProperty("message","Application is not ready, please retry late");
         }
-        Map res = new Gson().fromJson(jResponse,Map.class);
-        return res;
+        return new Gson().fromJson(jResponse,Map.class);
     }
 
     /**
@@ -202,7 +203,6 @@ public class DiscoveryController {
     ) {
         JSONObject jsonData = new JSONObject((LinkedHashMap) object);
         String jBodyStr = jsonData.toString();
-        TripleObject tripleObject;
         if (!doSynchronous && ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
             throw new CustomDiscoveryException("The request must be synchronous or web hook or/and propague in kafka must be valid" );
         }
@@ -230,31 +230,10 @@ public class DiscoveryController {
             } else {
                 jResponse.addProperty("message","Application is not ready, please retry late");
             }
-            Map res = new Gson().fromJson(jResponse,Map.class);
-            return res;
+            return new Gson().fromJson(jResponse,Map.class);
         } catch (Exception e) {
             throw new CustomDiscoveryException("Object data parse error");
         }
-
-
-        /*TripleObject tripleObject = null;
-        try {
-            tripleObject = new TripleObject(node,tripleStore,className,jsonData);
-        } catch (Exception e) {
-            return new ResponseEntity<String>("Object data parse error",HttpStatus.NOT_ACCEPTABLE);
-        }
-        if (applicationState.getDataState(DataType.CACHE).getState() != State.NOT_INITIALIZED) {
-            SimilarityResult similarity = entitiesHandlerService.findEntitiesLinksByNodeAndTripleStoreAndTripleObject(tripleObject);
-            Map<String, Object> stats = new HashMap<>();
-            stats.put("status", applicationState.getAppState());
-            stats.put("similarity", similarity);
-            return new ResponseEntity<Map<String, Object>>(stats,HttpStatus.FOUND);
-        } else {
-            Map<String, Object> stats = new HashMap<>();
-            stats.put("status", applicationState);
-            stats.put("similarity", null);
-            return new ResponseEntity<Map<String, Object>>(stats,HttpStatus.SERVICE_UNAVAILABLE);
-        }*/
     }
 
     /**
@@ -306,11 +285,11 @@ public class DiscoveryController {
                 return new ResponseEntity<>("IN PROCESS",HttpStatus.OK);
             }
         } catch (ParseException e) {
-            e.printStackTrace();
+            logger.error("ParseException: {}",e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("IOException: {}",e.getMessage());
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            logger.error("URISyntaxException: {}",e.getMessage());
         }
         return new ResponseEntity<>("FAIL",HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -318,8 +297,10 @@ public class DiscoveryController {
     /**
      * Mappgins.
      */
-    @NoArgsConstructor(access = AccessLevel.PUBLIC)
     static final class Mappings {
+
+        private Mappings(){};
+
         /**
          * Controller request mapping.
          */

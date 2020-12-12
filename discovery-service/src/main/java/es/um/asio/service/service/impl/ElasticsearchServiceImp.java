@@ -43,19 +43,21 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     @Autowired
     ApplicationState applicationState;
 
+    private static final String INSERTED = "inserted";
+    private static final String FAIL = "fail";
+
     @Override
     public String saveTripleObjectES(TripleObjectES toES) {
         try {
-            TripleObjectES res = repository.save(toES);
-            return "inserted";
-            //return repository.save(toES);
+            repository.save(toES);
+            return INSERTED;
         } catch (ElasticsearchException e) {
             Map<String, String> fails = e.getFailedDocuments();
             logger.error(e.getMessage());
-            return fails.containsKey(toES.getId())?fails.get(toES.getId()):"fail";
+            return fails.containsKey(toES.getId())?fails.get(toES.getId()):FAIL;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return "fail";
+            return FAIL;
         }
     }
 
@@ -70,7 +72,6 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
             Iterable<TripleObjectES> res = repository.saveAll(tosES);
             for (TripleObjectES toES : res) {
                 inserted.put(toES.getEntityId(),"inserted");
-                //insertedRegistry.add(new ElasticRegistry(applicationState.getApplication(),toES));
                 if (!insertedCounter.containsKey(toES.getTripleStore().getNode().getNode()))
                     insertedCounter.put(toES.getTripleStore().getNode().getNode(), new HashMap<>());
                 if (!insertedCounter.get(toES.getTripleStore().getNode().getNode()).containsKey(toES.getTripleStore().getTripleStore()))
@@ -79,8 +80,6 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
                     insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).put(toES.getClassName(),0);
                 insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).put(toES.getClassName(),insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).get(toES.getClassName())+1);
             }
-            // insertedRegistry.add(new ElasticRegistry(applicationState.getApplication(),toES));
-            /// (DiscoveryApplication discoveryApplication, String node, String tripleStore, String className,int inserted)
             for (Map.Entry<String, Map<String, Map<String, Integer>>> nodeEntry : insertedCounter.entrySet()) {
                 for (Map.Entry<String, Map<String, Integer>> tsEntry :  nodeEntry.getValue().entrySet()) {
                     for (Map.Entry<String, Integer> classEntry : tsEntry.getValue().entrySet()) {
@@ -128,7 +127,7 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     @Override
     public String saveTripleObject(TripleObject to) {
         try {
-            TripleObjectES toES = repository.save(new TripleObjectES(to));
+            repository.save(new TripleObjectES(to));
             return "inserted";
         } catch (ElasticsearchException e) {
             Map<String, String> fails = e.getFailedDocuments();
@@ -236,7 +235,6 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     @Override
     public TripleObjectES getTripleObjectESById(String id) {
         Optional<TripleObjectES> response = repository.findById(id);
-        response.orElse(null);
         return response.orElse(null);
     }
 
@@ -289,15 +287,12 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
 
     @Override
     public List<TripleObjectES> getSimilarTripleObjectsES(TripleObject tripleObject) {
-        List<TripleObjectES> tripleObjectsES = new ArrayList<>();
-        StatsHandler stats = cache.getStatsHandler();
-        return tripleObjectsES;
+        return new ArrayList<>();
     }
 
     @Override
     public List<TripleObject> getSimilarTripleObjects(TripleObject tripleObject) {
-        List<TripleObject> tripleObjects = new ArrayList<>();
-        return tripleObjects;
+        return new ArrayList<>();
     }
 
     @Override

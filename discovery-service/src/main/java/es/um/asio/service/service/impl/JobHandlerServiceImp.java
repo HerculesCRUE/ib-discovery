@@ -76,14 +76,17 @@ public class JobHandlerServiceImp {
         isWorking = false;
         isAppReady = false;
         applicationState.addAppListener(new AppEvents() {
+            /*
+            * This method not is user
+            */
             @Override
             public void onCachedDataIsReady() {
-
+                logger.info("onCachedDataIsReady");
             }
 
             @Override
             public void onRealDataIsReady() {
-
+                logger.info("onRealDataIsReady");
             }
 
             @Override
@@ -181,7 +184,7 @@ public class JobHandlerServiceImp {
             String webHook,
             boolean propagueInKafka,
             boolean searchLinks
-            ) throws CustomDiscoveryException {
+            ) {
         if (!jrEntityMap.containsKey(node))
             jrEntityMap.put(node,new LinkedHashMap<>());
         if (!jrEntityMap.get(node).containsKey(tripleStore))
@@ -276,7 +279,7 @@ public class JobHandlerServiceImp {
                 // Merges
                 if (objectResult.getNode().equals(objResAuto.getNode())
                         && objectResult.getTripleStore().equals(objResAuto.getTripleStore())) { // Si es el mismo nodo y triple store ACCIÓN = UPDATE o DELETE
-                    ObjectResult toUpdateAux = new ObjectResult(null, toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry)), eso.similarity);
+                    ObjectResult toUpdateAux = new ObjectResult(null, toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry)), eso.getSimilarity());
                     if (!toUpdateAux.getEntityId().equals(toUpdate.getEntityId())) {
                         toDelete.remove(toUpdateAux);
                         toDelete.add(toUpdate);
@@ -294,7 +297,7 @@ public class JobHandlerServiceImp {
             }
 
             // Merges control
-            if (objectResult.getAutomatic().size()>0) {
+            if (!objectResult.getAutomatic().isEmpty()) {
                 if (toUpdate!=null) {
                     ActionResult actionResult = new ActionResult(Action.UPDATE,objectResult);
                     actionResult.addObjectResult(toUpdate);
@@ -304,10 +307,11 @@ public class JobHandlerServiceImp {
                 if (toDelete!=null && !toDelete.isEmpty()) {
                     ActionResult actionResult = new ActionResult(Action.DELETE,objectResult);
                     for (ObjectResult orDelete : toDelete) {
-                        actionResult.addObjectResult(orDelete);
-                        orDelete.setActionResultParent(actionResult);
+                        if (Utils.isValidString(orDelete.getLocalURI())) {
+                            actionResult.addObjectResult(orDelete);
+                            orDelete.setActionResultParent(actionResult);
+                        }
                     }
-                    // actionResultRepository.save(actionResult);
                     objectResult.getActionResults().add(actionResult);
                 }
 
@@ -317,12 +321,10 @@ public class JobHandlerServiceImp {
                         actionResult.addObjectResult(orLink);
                         orLink.setActionResultParent(actionResult);
                     }
-                    // actionResultRepository.save(actionResult);
                     objectResult.getActionResults().add(actionResult);
                 }
             }
 
-            //objectResultRepository.save(objectResult);
             jobRegistry.getObjectResults().add(objectResult);
             objectResultRepository.save(objectResult);
 
@@ -331,9 +333,7 @@ public class JobHandlerServiceImp {
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
             jobRegistryRepository.save(jobRegistry);
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Fail on findSimilaritiesByClass: "+e.getMessage());
-            e.printStackTrace();
+            logger.error("Fail on findSimilaritiesByClass: {}",e.getMessage());
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
@@ -365,7 +365,7 @@ public class JobHandlerServiceImp {
                     // Merges
                     if (objectResult.getNode().equals(objResAuto.getNode())
                             && objectResult.getTripleStore().equals(objResAuto.getTripleStore())) { // Si es el mismo nodo y triple store ACCIÓN = UPDATE o DELETE
-                        ObjectResult toUpdateAux = new ObjectResult(null,toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry)),eso.similarity);
+                        ObjectResult toUpdateAux = new ObjectResult(null,toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry)),eso.getSimilarity());
                         if (!toUpdateAux.getEntityId().equals(toUpdate.getEntityId())) {
                             toDelete.remove(toUpdateAux);
                             toDelete.add(toUpdate);
@@ -384,7 +384,7 @@ public class JobHandlerServiceImp {
                 }
 
                 // Merges control
-                if (objectResult.getAutomatic().size()>0) {
+                if (!objectResult.getAutomatic().isEmpty()) {
                     if (toUpdate!=null) {
                         ActionResult actionResult = new ActionResult(Action.UPDATE,objectResult);
                         actionResult.addObjectResult(toUpdate);
@@ -398,8 +398,8 @@ public class JobHandlerServiceImp {
                             actionResult.addObjectResult(orDelete);
                             orDelete.setActionResultParent(actionResult);
                         }
-                        // actionResultRepository.save(actionResult);
-                        objectResult.getActionResults().add(actionResult);
+                        if (!actionResult.getObjectResults().isEmpty())
+                            objectResult.getActionResults().add(actionResult);
                     }
 
                     if (toLink!=null && !toLink.isEmpty()) {
@@ -408,12 +408,10 @@ public class JobHandlerServiceImp {
                             actionResult.addObjectResult(orLink);
                             orLink.setActionResultParent(actionResult);
                         }
-                        // actionResultRepository.save(actionResult);
                         objectResult.getActionResults().add(actionResult);
                     }
                 }
 
-                //objectResultRepository.save(objectResult);
                 jobRegistry.getObjectResults().add(objectResult);
                 objectResultRepository.save(objectResult);
             }
@@ -422,9 +420,7 @@ public class JobHandlerServiceImp {
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
             jobRegistryRepository.save(jobRegistry);
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Fail on findSimilaritiesByClass: "+e.getMessage());
-            e.printStackTrace();
+            logger.error("Fail on findSimilaritiesByClass: {}", e.getMessage());
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
@@ -461,13 +457,12 @@ public class JobHandlerServiceImp {
                     .header("content-type","application/json")
                     .build();
             try {
-                logger.info("Send POST Callback at URL: "+webHook);
+                logger.info("Send POST Callback at URL: {}",webHook);
                 HttpResponse<String> response = client.send(request,
                         HttpResponse.BodyHandlers.ofString());
-                logger.info("Response Callback: "+ response.body());
+                logger.info("Response Callback: {}",response.body());
             } catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Error in callback at URL: "+webHook);
+                logger.error("Error in callback at URL: {}",webHook);
             }
         }
     }

@@ -27,7 +27,7 @@ public class StringRedisRepository {
 
     public Set<String> getAllValuesBy(String patterKey) {
         final Set<String> keys = getKeys(patterKey);
-        final Set<String> values = new HashSet<String>(keys.size());
+        final Set<String> values = new HashSet<>(keys.size());
 
         for (String key : keys) {
             values.add(getBy(key));

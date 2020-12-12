@@ -32,8 +32,8 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
     DataSourcesConfiguration dataSourcesConfiguration;
 
     private final Logger logger = LoggerFactory.getLogger(EntitiesHandlerServiceImp.class);
-    private final static String MANUAL_KEY="MANUAL";
-    private final static String AUTOMATIC_KEY="AUTOMATIC";
+    private static final String MANUAL_KEY="MANUAL";
+    private static final String AUTOMATIC_KEY="AUTOMATIC";
 
     @Override
     public Set<SimilarityResult> findEntitiesLinksByNodeAndTripleStoreAndClass(String node, String tripleStore, String className, boolean searchInOtherNodes, Date deltaDate) {
@@ -59,26 +59,24 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
                 ++counter;
                 continue;
             }
-            // TODO : Hacer que pueda buscar similitudes o no en otro nodo
             List<TripleObject> matches = getSimilarEntitiesFromElasticsearch(to1, stats, searchInOtherNodes);
-            logger.info(String.format("For [Node: %s, TripleStore: %s, ClassName: %s], founds %d similarities in Elasticsearch for id: %s", to1.getTripleStore().getNode().getNode(), to1.getTripleStore().getTripleStore(), to1.getClassName(), matches.size(), to1.getId()));
+            logger.info("For [Node: {}, TripleStore: {}, ClassName: {}], founds {} similarities in Elasticsearch for id: {}", to1.getTripleStore().getNode().getNode(), to1.getTripleStore().getTripleStore(), to1.getClassName(), matches.size(), to1.getId());
             if (matches.size()>1) {
                 Map<String, List<EntitySimilarityObj>> similarity = calculateSimilarities(to1, stats, matches);
-                logger.info(String.format("Completed (%d/%d) --> For [Node: %s, TripleStore: %s, ClassName: %s], founds %d automatic similarities and %d manuals similarities in Elasticsearch for id: %s\n", ++counter, tripleObjects.values().size(), to1.getTripleStore().getNode().getNode(), to1.getTripleStore().getTripleStore(), to1.getClassName(), similarity.get(AUTOMATIC_KEY).size(), similarity.get(MANUAL_KEY).size(), to1.getId()));
-                if (similarity.get(MANUAL_KEY).size()>0 || similarity.get(AUTOMATIC_KEY).size()>0) {
+                logger.info("Completed ({}/{}) --> For [Node: {}, TripleStore: {}, ClassName: {}], founds {} automatic similarities and {} manuals similarities in Elasticsearch for id: {}%n", ++counter, tripleObjects.values().size(), to1.getTripleStore().getNode().getNode(), to1.getTripleStore().getTripleStore(), to1.getClassName(), similarity.get(AUTOMATIC_KEY).size(), similarity.get(MANUAL_KEY).size(), to1.getId());
+                if (!similarity.get(MANUAL_KEY).isEmpty() || !similarity.get(AUTOMATIC_KEY).isEmpty()) {
                     SimilarityResult sr = new SimilarityResult(to1);
                     sr.addAutomatics(similarity.get(AUTOMATIC_KEY));
                     sr.addManuals(similarity.get(MANUAL_KEY));
                     similarities.add(sr);
-                    if (sr.getAutomatic().size()>0) {
+                    if (!sr.getAutomatic().isEmpty()) {
                         for (EntitySimilarityObj entitySimilarityObj: sr.getAutomatic()) {
                             foundsSimilarities.add(entitySimilarityObj.getTripleObject().getId());
                         }
-                        System.out.println();
                     }
                 }
             } else {
-                logger.info(String.format("Completed (%d/%d) --> For [Node: %s, TripleStore: %s, ClassName: %s], founds %d automatic similarities and %d manuals similarities in Elasticsearch for id: %s\n", ++counter, tripleObjects.values().size(), to1.getTripleStore().getNode().getNode(), to1.getTripleStore().getTripleStore(), to1.getClassName(), 0, 0, to1.getId()));
+                logger.info("Completed ({}/{}) --> For [Node: {}, TripleStore: {}, ClassName: {}], founds {} automatic similarities and {} manuals similarities in Elasticsearch for id: {}%n", ++counter, tripleObjects.values().size(), to1.getTripleStore().getNode().getNode(), to1.getTripleStore().getTripleStore(), to1.getClassName(), 0, 0, to1.getId());
             }
         }
         return similarities;
@@ -93,32 +91,50 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
 
         Map<String, Float> stats = statsHandler.generateMoreRelevantAttributesMap(to.getTripleStore().getNode().getNode(),to.getTripleStore().getTripleStore(),to.getClassName());
         List<TripleObject> matches = getSimilarEntitiesFromElasticsearch(to, stats, searchInOtherNodes);
-        logger.info(String.format("For [Node: %s, TripleStore: %s, ClassName: %s], founds %d similarities in Elasticsearch for id: %s", to.getTripleStore().getNode().getNode(), to.getTripleStore().getTripleStore(), to.getClassName(), matches.size(), to.getId()));
-        if (matches.size()>=1) {
+        logger.info("For [Node: {}, TripleStore: {}, ClassName: {}], founds {} similarities in Elasticsearch for id: {}", to.getTripleStore().getNode().getNode(), to.getTripleStore().getTripleStore(), to.getClassName(), matches.size(), to.getId());
+        if (!matches.isEmpty()) {
             Map<String, List<EntitySimilarityObj>> similarity = calculateSimilarities(to, stats, matches);
-            logger.info(String.format("Completed --> For [Node: %s, TripleStore: %s, ClassName: %s], founds %d automatic similarities and %d manuals similarities in Elasticsearch for id: %s ",  to.getTripleStore().getNode().getNode(), to.getTripleStore().getTripleStore(), to.getClassName(), similarity.get(AUTOMATIC_KEY).size(), similarity.get(MANUAL_KEY).size(), to.getId()));
-            if (similarity.get(MANUAL_KEY).size()>0 || similarity.get(AUTOMATIC_KEY).size()>0) {
+            logger.info("Completed --> For [Node: {}, TripleStore: {}, ClassName: {}], founds {} automatic similarities and {} manuals similarities in Elasticsearch for id: {} ",  to.getTripleStore().getNode().getNode(), to.getTripleStore().getTripleStore(), to.getClassName(), similarity.get(AUTOMATIC_KEY).size(), similarity.get(MANUAL_KEY).size(), to.getId());
+            if (!similarity.get(MANUAL_KEY).isEmpty() || !similarity.get(AUTOMATIC_KEY).isEmpty()) {
                 SimilarityResult sr = new SimilarityResult(to);
                 sr.addAutomatics(similarity.get(AUTOMATIC_KEY));
                 sr.addManuals(similarity.get(MANUAL_KEY));
                 return sr;
+            } else {
+                SimilarityResult sr = new SimilarityResult(to);
+                sr.addAutomatics(new ArrayList<>());
+                sr.addManuals(new ArrayList<>());
+                return sr;
             }
         } else {
-            logger.info(String.format("Completed --> For [Node: %s, TripleStore: %s, ClassName: %s], founds %d automatic similarities and %d manuals similarities in Elasticsearch for id: %s ", to.getTripleStore().getNode().getNode(), to.getTripleStore().getTripleStore(), to.getClassName(), 0, 0, to.getId()));
+            logger.info("Completed --> For [Node: {}, TripleStore: {}, ClassName: {}], founds {} automatic similarities and {} manuals similarities in Elasticsearch for id: {} ", to.getTripleStore().getNode().getNode(), to.getTripleStore().getTripleStore(), to.getClassName(), 0, 0, to.getId());
+            SimilarityResult sr = new SimilarityResult(to);
+            sr.addAutomatics(new ArrayList<>());
+            sr.addManuals(new ArrayList<>());
+            return sr;
+
         }
-        return null;
     }
 
     private Map<String, List<EntitySimilarityObj>>  calculateSimilarities(TripleObject to, Map<String, Float> stats, List<TripleObject> matches) {
         Map<String, List<EntitySimilarityObj>> similarities = new HashMap<>();
         similarities.put(MANUAL_KEY,new ArrayList<>());
         similarities.put(AUTOMATIC_KEY,new ArrayList<>());
-        EntitySimilarityObj maxSimilarityObj;
+        Map<String,Float> statsAux = new TreeMap<>();
         for (TripleObject other: matches) {
-            EntitySimilarityObj eso = EntityComparator.compare(to,other,stats);
-            if (eso.similarity >= dataSourcesConfiguration.getThresholds().getAutomaticThreshold()) {
+            if (stats.size()>1 && other.getAttributes().containsKey("id") && !to.getAttributes().containsKey("id")) {
+                for (Map.Entry<String, Float> statsEntry: stats.entrySet()) {
+                    if (!statsEntry.getKey().equalsIgnoreCase("id"))
+                        statsAux.put(statsEntry.getKey(),statsEntry.getValue());
+                }
+            } else {
+                statsAux = stats;
+            }
+
+            EntitySimilarityObj eso = EntityComparator.compare(to,other,statsAux);
+            if (eso.getSimilarity() >= dataSourcesConfiguration.getThresholds().getAutomaticThreshold()) {
                 similarities.get(AUTOMATIC_KEY).add(eso);
-            } else if (eso.similarity >= dataSourcesConfiguration.getThresholds().getManualThreshold()) {
+            } else if (eso.getSimilarity() >= dataSourcesConfiguration.getThresholds().getManualThreshold()) {
                 similarities.get(MANUAL_KEY).add(eso);
             }
         }
@@ -160,13 +176,11 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
         for (Map.Entry<String, Float> stat : stats.entrySet()) {
             if (to.hasAttribute(stat.getKey(),to.getAttributes())) {
                 sumStats += stat.getValue();
-                statsAux.put(stat.getKey(),stat.getValue());
+                statsAux.put(String.valueOf(stat.getKey()),stat.getValue());
             }
         }
 
         statsAux = Utils.sortByValues(statsAux);
-        float sumStatsOther = stats.values().stream().reduce(0f, Float::sum);
-        float sumStatsAux = statsAux.values().stream().reduce(0f, Float::sum);
 
         float aggregateValue = 0f;
         int counter = 0;

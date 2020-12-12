@@ -17,9 +17,9 @@ import java.util.Map;
 @Component
 public class EntitySimilarityHandler {
 
-    private final static Logger logger = LoggerFactory.getLogger(EntitySimilarityHandler.class);
-    private final static String MANUAL_KEY="MANUAL";
-    private final static String AUTOMATIC_KEY="AUTOMATIC";
+    private static final Logger logger = LoggerFactory.getLogger(EntitySimilarityHandler.class);
+    private static final String MANUAL_KEY="MANUAL";
+    private static final String AUTOMATIC_KEY="AUTOMATIC";
 
     @Autowired
     CacheServiceImp cache;
@@ -39,7 +39,6 @@ public class EntitySimilarityHandler {
         similarities.put(AUTOMATIC_KEY,new ArrayList<>());
         int counter = 0;
         float maxSimilarity = Float.MIN_VALUE;
-        EntitySimilarityObj maxSimilarityObj;
         for (TripleObject other : tripleObjects) {
             counter++;
             EntitySimilarityObj entitySimilarityObj = tripleObject.compare(cache,other);
@@ -49,7 +48,6 @@ public class EntitySimilarityHandler {
                 similarities.get(MANUAL_KEY).add(entitySimilarityObj);
             if (entitySimilarityObj.getSimilarity() > maxSimilarity) {
                 maxSimilarity = entitySimilarityObj.getSimilarity();
-                maxSimilarityObj = entitySimilarityObj;
             }
             if ((counter%100) == 0) {
                 logger.info("Processed {} of {}, found {} automatics, {} manual similarities, MaxSimilarity: {}", counter, tripleObjects.size(), similarities.get("automatic").size(), similarities.get("manual").size(), maxSimilarity);

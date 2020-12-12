@@ -9,13 +9,15 @@ import java.util.Map;
 
 public class EntityComparator {
 
+    private EntityComparator(){}
+
     public static EntitySimilarityObj compare(TripleObject o1, TripleObject o2, Map<String, Float> stats) {
         stats = cleanStat(o1,o2,stats);
         EntitySimilarityObj eso = new EntitySimilarityObj(o2);
         for (Map.Entry<String, Float> eStat : stats.entrySet()) {
             List<Object> vo1 =o1.getValueFromFlattenAttributes(eStat.getKey());
             List<Object> vo2 =o2.getValueFromFlattenAttributes(eStat.getKey());
-            SimilarityValue simVal = AttributeSimilarity.compare(vo1,vo2,eStat.getValue());
+            SimilarityValue simVal = AttributeSimilarity.compare(vo1, vo2, eStat.getValue());
             eso.addSimilarity(eStat.getKey(),simVal);
         }
         return eso;

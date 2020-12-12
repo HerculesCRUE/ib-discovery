@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 import static org.simmetrics.builders.StringMetricBuilder.with;
 
-public class OverlapCoefficientSimilarityImp extends Similarity {
+public class OverlapCoefficientSimilarityImp implements Similarity {
 
     /*
      * Mide el grado en el cual existen substring del conjunto A que aparecen en el conjunto B

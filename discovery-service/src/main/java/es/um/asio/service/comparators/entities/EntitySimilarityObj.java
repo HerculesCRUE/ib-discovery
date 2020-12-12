@@ -15,9 +15,9 @@ import java.util.Objects;
 @AllArgsConstructor
 public class EntitySimilarityObj {
 
-    public TripleObject tripleObject;
-    public float similarity;
-    public Map<String, SimilarityValue> similarities; // Att -> Value
+    private TripleObject tripleObject;
+    private float similarity;
+    private Map<String, SimilarityValue> similarities; // Att -> Value
 
     public EntitySimilarityObj(TripleObject to) {
         this.tripleObject = to;
@@ -26,7 +26,7 @@ public class EntitySimilarityObj {
 
     public float getSimilarity() {
         if (similarity==0) {
-            similarity = new ArrayList<SimilarityValue>(similarities.values()).stream().map(att -> att.weightedSimilarity).reduce(0f,Float::sum);
+            similarity = new ArrayList<SimilarityValue>(similarities.values()).stream().map(att -> att.getWeightedSimilarity()).reduce(0f,Float::sum);
         }
         return similarity;
     }

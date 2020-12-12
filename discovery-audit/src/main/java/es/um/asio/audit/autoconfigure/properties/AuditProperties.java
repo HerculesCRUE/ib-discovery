@@ -18,5 +18,5 @@ public class AuditProperties {
     /**
      * Flag to set if audit is enabled.
      */
-    private boolean enabled;
+    // private boolean enabled;
 }

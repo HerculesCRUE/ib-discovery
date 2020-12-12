@@ -44,9 +44,13 @@ public class AttributeStats extends ObjectStat{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-            AttributeStats that = (AttributeStats) o;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AttributeStats that = (AttributeStats) o;
         return Objects.equals(getName(), that.getName());
     }
 

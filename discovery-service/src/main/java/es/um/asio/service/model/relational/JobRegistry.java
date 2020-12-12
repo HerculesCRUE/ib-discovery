@@ -45,7 +45,7 @@ public class JobRegistry {
     @Column(name = Columns.CLASS_NAME, nullable = false,columnDefinition = "VARCHAR(200)",length = 200)
     private String className;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "jobRegistry", cascade = CascadeType.ALL, orphanRemoval = true/*{CascadeType.PERSIST ,CascadeType.REMOVE}*/)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "jobRegistry", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<RequestRegistry> requestRegistries;
 
     @Column(name = Columns.COMPLETION_DATE, nullable = true,columnDefinition = "DATETIME")
@@ -97,7 +97,7 @@ public class JobRegistry {
     }
 
     public Date getMaxRequestDate() {
-        if (requestRegistries == null || requestRegistries.size() == 0)
+        if (requestRegistries == null || requestRegistries.isEmpty())
             return new Date(Long.MIN_VALUE);
         else {
             Date max = new Date(Long.MIN_VALUE);

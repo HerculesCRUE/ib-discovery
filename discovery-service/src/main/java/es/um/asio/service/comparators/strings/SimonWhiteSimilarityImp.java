@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import static org.simmetrics.builders.StringMetricBuilder.with;
 
-public class SimonWhiteSimilarityImp extends Similarity {
+public class SimonWhiteSimilarityImp implements Similarity {
 
     /*
      * El algoritmo se basa en medir el coseno entre la distancia de las cadenas A a la cadena B. El vector se forma con el conteo de las palabras en las dos cadenas

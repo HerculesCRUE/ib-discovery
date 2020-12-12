@@ -15,6 +15,6 @@ public enum State {
     }
 
     private int compare(State other) {
-        return this.getOrder()- other.getOrder();
+        return this.getOrder() - other.getOrder();
     }
 }

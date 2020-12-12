@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import static org.simmetrics.builders.StringMetricBuilder.with;
 
-public class LevenshteinSimilarityImp extends Similarity {
+public class LevenshteinSimilarityImp implements Similarity {
 
     /*
      * El algoritmo se basa en el conteo de la cantidad de cambios necesarios para pasar de la cadena A a la cadena B

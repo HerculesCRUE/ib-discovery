@@ -43,7 +43,7 @@ public class DataState {
                 dataStats.get(node).put(tripleStore, new HashMap<>());
             dataStats.get(node).get(tripleStore).put(className, number);
         } catch (Exception e) {
-            logger.error("Error in create data stats: " + e.getMessage());
+            logger.error("Error in create data stats: {}",e.getMessage());
         }
     }
 

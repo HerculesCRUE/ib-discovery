@@ -2,20 +2,31 @@ package es.um.asio.service.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import es.um.asio.service.model.AttributeType;
+import es.um.asio.service.repository.triplestore.TrellisHandler;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Utils {
 
+    private Utils(){}
+
     static List<String> dateFormats = generateValidFormatDates();
     static List<Locale> locales = generateLocales();
+
+    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
     public static List<String> generateValidFormatDates() {
         List<String> dateFormats = new ArrayList<>();
@@ -168,14 +179,13 @@ public class Utils {
     }
 
     public static Date getDate(String s) {
-        Map<Locale,List<String>> formats = getStringFormat();
         for (Locale l : locales) {
             for (String f: dateFormats) {
                 DateFormat sdf = new SimpleDateFormat(f,l);
                 try {
-                    Date d = sdf.parse(s);
-                    return d;
+                    return sdf.parse(s);
                 } catch (Exception e) {
+                    logger.error(e.getMessage());
                 }
             }
         }
@@ -185,10 +195,12 @@ public class Utils {
     public static boolean isObject(String s) {
         try {
             JsonElement je = new Gson().fromJson(s, JsonElement.class);
+            boolean isObject;
             if (je.isJsonArray() || je.isJsonObject())
-                return true;
+                isObject = true;
             else
-                return false;
+                isObject = false;
+            return isObject;
         } catch (Exception e) {
             return false;
         }
@@ -252,7 +264,7 @@ public class Utils {
                     }
                 };
         Map<K, V> sortedByValues =
-                new TreeMap<K, V>(valueComparator);
+                new TreeMap(valueComparator);
         sortedByValues.putAll(map);
         return sortedByValues;
     }
@@ -260,7 +272,6 @@ public class Utils {
     public static boolean checkIfFloat(String s) {
         try {
             String regex = "^([+-]?\\d*\\.\\d+(e\\d+)?)$";
-            double f = Float.parseFloat(s);
             double d = Double.parseDouble(s);
             return s.matches(regex) && d >= Float.MIN_VALUE && d <= Float.MAX_VALUE;
         } catch (Exception e) {
@@ -310,12 +321,40 @@ public class Utils {
     public static boolean checkIfString(Object o) {
         try {
             String.valueOf(o);
+            boolean isString = false;
             if (o instanceof String)
-                return true;
-            return false;
+                isString = true;
+            return isString;
         } catch (Exception e) {
             return false;
         }
     }
+
+    public static boolean checkIfComposeStringIsSame(String str1, String str2) {
+        List<String> str1List = Arrays.asList(str1.split("(?=\\p{Upper})"));
+        List<String> str2List = Arrays.asList(str2.split("(?=\\p{Upper})"));
+        str1List = str1List.stream().map(String::toLowerCase).collect(Collectors.toList());
+        str2List = str2List.stream().map(String::toLowerCase).collect(Collectors.toList());
+        for (String token : str1List) {
+            if (!str2List.contains(token))
+                return false;
+        }
+        return true;
+    }
+
+    public static String replaceSubstringByRegex(String str,String replace, JsonObject jContext, String regex) {
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(str);
+        if (matcher.find())
+        {
+            String key = matcher.group(0);
+            if (jContext.has(key)) {
+                return str.replace(key+replace,jContext.get(key).getAsString());
+            }
+        }
+        return str;
+    }
+
+
 
 }

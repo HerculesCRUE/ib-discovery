@@ -76,7 +76,7 @@ public class TripleObjectES implements Comparable<TripleObjectES>{
     }
 
     private int generateComposedId() {
-        return Objects.hash(entityId,tripleStore.getNode().getNode(),tripleStore.getTripleStore());
+        return Objects.hash(entityId,className,tripleStore.getNode().getNode(),tripleStore.getTripleStore());
     }
 
 

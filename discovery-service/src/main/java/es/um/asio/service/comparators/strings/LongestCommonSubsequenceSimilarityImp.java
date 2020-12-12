@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import static org.simmetrics.builders.StringMetricBuilder.with;
 
-public class LongestCommonSubsequenceSimilarityImp extends Similarity {
+public class LongestCommonSubsequenceSimilarityImp implements Similarity {
 
     /*
      * Mide el grado de la longitud de caracteres que coinciden en cualquier posición de la palabra

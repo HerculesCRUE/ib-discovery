@@ -46,8 +46,6 @@ public class StatsHandler {
             return null;
     }
 
-    // TODO: Adaptar a mapa de longitud variable
-
 
     public boolean isEmpty() {
         return stats.isEmpty();

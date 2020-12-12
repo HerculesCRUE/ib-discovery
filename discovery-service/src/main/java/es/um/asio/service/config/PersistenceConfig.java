@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-// import es.um.asio.service.repository.UserRepository;
 
 /**
  * Persistence configuration.

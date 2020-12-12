@@ -14,7 +14,7 @@ public abstract class TripleStoreHandler {
     public abstract boolean updateTripleObject(CacheServiceImp cacheService,String node, String tripleStore, String className,String localURI, BasicAction basicAction) throws IOException, URISyntaxException, ParseException;
 
     public static TripleStoreHandler getHandler(String type, String node, String baseURL, String user, String password) {
-        if (type.trim().toLowerCase().equals("trellis"))
+        if (type.trim().equalsIgnoreCase("trellis"))
             return new TrellisHandler(node,baseURL,user,password);
         else
             throw new IllegalArgumentException("Not exist correct handler for type: "+ type);

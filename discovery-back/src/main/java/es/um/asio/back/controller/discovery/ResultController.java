@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
-//import org.springframework.security.access.annotation.Secured;
 
 /**
  * Message controller.
@@ -37,8 +36,9 @@ public class ResultController {
     /**
      * Mappgins.
      */
-    @NoArgsConstructor(access = AccessLevel.PUBLIC)
     static final class Mappings {
+
+        private Mappings() {}
         /**
          * Controller request mapping.
          */

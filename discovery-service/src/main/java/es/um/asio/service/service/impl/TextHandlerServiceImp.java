@@ -1,16 +1,10 @@
 package es.um.asio.service.service.impl;
 
 import es.um.asio.service.service.TextHandlerService;
-import es.um.asio.service.util.Utils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -22,19 +16,11 @@ public class TextHandlerServiceImp implements TextHandlerService {
     Set<String> stopWords;
 
     @PostConstruct
-    public void init() throws IOException {
+    public void init() {
         stopWords = new HashSet<>();
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        URL url = loader.getResource("stopWords");
-        String path = url.getPath();
-        File[] dir = new File(path).listFiles();
-        for (File f : dir) {
-            List<String> lines = Files.readAllLines(Paths.get(f.getPath()),Charset.defaultCharset());
-            for (String l : lines) {
-                if (Utils.isValidString(l.trim()))
-                    stopWords.add(l.toLowerCase().strip());
-            }
-        }
+        InputStream in = getClass().getResourceAsStream("/stop-words.txt");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        reader.lines().forEach(l -> stopWords.add(l.replaceAll(",","").toLowerCase().strip()));
     }
 
     @Override

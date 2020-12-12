@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import es.um.asio.service.util.Utils;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -13,6 +15,8 @@ public class EntityStats extends ObjectStat{
 
     Map<String,AttributeStats> attValues;
     Map<String,EntityStats> objValues;
+
+    private final Logger logger = LoggerFactory.getLogger(EntityStats.class);
 
     public EntityStats(String name) {
         setName(name);
@@ -62,7 +66,7 @@ public class EntityStats extends ObjectStat{
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
 
@@ -110,7 +114,6 @@ public class EntityStats extends ObjectStat{
             }
         }
 
-        float entityRatio = 0f;
         if (!objValues.isEmpty()) {
             stats.put("entities", new HashMap<>());
             for (EntityStats entityStats : objValues.values()) {
