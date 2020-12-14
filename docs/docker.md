@@ -1,6 +1,16 @@
+![](./img/logos_feder.png)
+
+| Fecha         | 25/05/2020                                                   |
+| ------------- | ------------------------------------------------------------ |
+| Proyecto      | [ASIO](https://www.um.es/web/hercules/proyectos/asio) (Arquitectura Semántica e Infraestructura Ontológica) en el marco de la iniciativa [Hércules](https://www.um.es/web/hercules/) para la Semántica de Datos de Investigación de Universidades que forma parte de [CRUE-TIC](http://www.crue.org/SitePages/ProyectoHercules.aspx) |
+| Módulo        | Arquitectura Semántica                                       |
+| Tipo          | Documentación                                                |
+| Objetivo      | El presente documento describe el proceso de generación y ejecución de una imagen docker a partir de el código del proyecto |
+| Documentación | [Librería de descubrimiento](https://github.com/HerculesCRUE/ib-asio-docs-/blob/master/24-Librer%C3%ADa_de_descubrimiento/ASIO_Libreria_de_descubrimiento.md)<br/>[Manual de usuario](./manual_de_usuario.md) (documentación de alto nivel)<br />[Documentación técnica](./documentacion-tecnica.md) (documentación de bajo nivel)<br/>[Documentación API REST de la librería de descubrimiento](./documentacion_api_rest_de_la_libreria_de_descubrimiento.md) (documentación de bajo nivel)<br/>[README](../README.md)<br/>[docker](./docker.md)./docker.md) |
+
 # Generación de imagen Docker
 
-Los artefactos bootables están diseñados para poder ser distribuidos como imagen Docker. Se indicarán a continuación las intrucciones.
+Los artefactos bootables están diseñados para poder ser distribuidos como imagen Docker. Se indicarán a continuación las instrucciones.
 
 ## Compilación
 
@@ -19,7 +29,7 @@ Sustituyendo `{artifact-name}` y `{tag}` por el nombre del artefacto y la versi�
 En caso que se desee distribuir la imagen a través de un Registry de Docker, se deberá hacer un `pull` mediante la ejecución el comando:
 
 ```bash
-docker push {artifact-name}:{tag}
+docker pull {artifact-name}:{tag}
 ```
 
-Es posible que algunos Registries requieran de autenticación previa, debiendo para ello ejecutar previamente un `docker login`.
+Es posible que algunos Registros requieran de autenticación previa, debiendo para ello ejecutar previamente un `docker login`.
