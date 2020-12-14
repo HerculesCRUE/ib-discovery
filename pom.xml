@@ -17,6 +17,7 @@
 	<packaging>pom</packaging>
 	<name>UM - ASIO - discovery</name>
 	<description>UM - ASIO - discovery</description>
+	<url>https://www.um.es/web/hercules/</url>
 
 	<scm>
 		<url>scm:git:https://github.com/HerculesCRUE/ib-discovery.git</url>
