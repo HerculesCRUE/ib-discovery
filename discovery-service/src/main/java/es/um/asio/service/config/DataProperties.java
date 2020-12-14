@@ -44,6 +44,7 @@ public class DataProperties {
         private int port;
         private String password;
 
+
     }
 
     @AllArgsConstructor

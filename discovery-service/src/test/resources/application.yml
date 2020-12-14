@@ -36,6 +36,7 @@ app:
     enabled: true
 
 data:
+  readCacheFromFirebase: false
   elasticsearch:
     host: localhost
     port: 9200
@@ -48,10 +49,10 @@ data:
     port: 9092
     topicEntityChange:
       topic: entity_change
-      group_id: entity_change_3
+      group_id: entity_change_1
     topicDiscoveryAction:
       topic: discovery_action
-      group_id: discovery_action_3
+      group_id: discovery_action_1
 
 data-sources:
   useCachedData: true
@@ -73,6 +74,13 @@ data-sources:
           baseURL: http://herc-iz-front-desa.atica.um.es/
           user: admin
           password: admin
+
+#    - nodeName: um2
+#      tripleStores:
+#        - type: trellis
+#          baseURL: http://localhost:80/
+#          user: admin
+#          password: admin
 
 ## Actuator
 management:

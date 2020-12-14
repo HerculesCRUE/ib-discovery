@@ -327,8 +327,8 @@ public class Utils {
         public static boolean checkIfComposeStringIsSame(String str1, String str2) {
         List<String> str1List = Arrays.asList(str1.split("(?=\\p{Upper})|-"));
         List<String> str2List = Arrays.asList(str2.split("(?=\\p{Upper})|-"));
-        str1List = str1List.stream().filter(s -> Utils.isValidString(s)).map(String::toLowerCase).collect(Collectors.toList());
-        str2List = str2List.stream().filter(s -> Utils.isValidString(s)).map(String::toLowerCase).collect(Collectors.toList());
+        str1List = str1List.stream().filter(s -> Utils.isValidString(s)).filter(s->!s.matches("j\\.[0-9]+:")).map(String::toLowerCase).collect(Collectors.toList());
+        str2List = str2List.stream().filter(s -> Utils.isValidString(s)).filter(s->!s.matches("j\\.[0-9]+:")).map(String::toLowerCase).collect(Collectors.toList());
         for (String token : str1List) {
             if (!str2List.contains(token))
                 return false;

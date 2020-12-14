@@ -206,7 +206,7 @@ public class ObjectResult {
         jResponse.addProperty("tripleStore",getTripleStore());
         jResponse.addProperty("entityId",getEntityId());
         jResponse.addProperty("localUri",getLocalURI());
-        if (getSimilarity()!=0)
+        if (getSimilarity()!=null)
             jResponse.addProperty("similarity",getSimilarity());
 
         LinkedTreeMap<String,Object> attrsMap = getAttributesAsMap(attributes, new LinkedTreeMap<String,Object>());

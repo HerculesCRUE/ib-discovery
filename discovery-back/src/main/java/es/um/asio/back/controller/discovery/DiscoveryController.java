@@ -232,7 +232,7 @@ public class DiscoveryController {
             }
             return new Gson().fromJson(jResponse,Map.class);
         } catch (Exception e) {
-            throw new CustomDiscoveryException("Object data parse error");
+            throw new CustomDiscoveryException(e.getMessage());
         }
     }
 

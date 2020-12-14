@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.Objects;
 
 @Entity
-@Table(name = RequestRegistry.TABLE, uniqueConstraints = {@UniqueConstraint(columnNames = {RequestRegistry.Columns.USER_ID,RequestRegistry.Columns.REQUEST_CODE})})
+@Table(name = RequestRegistry.TABLE, uniqueConstraints = {@UniqueConstraint(columnNames = {RequestRegistry.Columns.USER_ID,RequestRegistry.Columns.REQUEST_CODE,RequestRegistry.Columns.REQUEST_TYPE})})
 @Getter
 @Setter
 @AllArgsConstructor
@@ -31,6 +31,7 @@ public class RequestRegistry {
     private String requestCode;
 
     @Column(name = Columns.REQUEST_TYPE, nullable = false,columnDefinition = "VARCHAR(40)",length = 40)
+    @EqualsAndHashCode.Include
     @Enumerated(value = EnumType.STRING)
     private RequestType requestType;
 

@@ -229,7 +229,7 @@ public class JobHandlerServiceImp {
         requestRegistry.setJobRegistry(jobRegistry);
         if (Utils.isValidString(jobRegistry.getId())) {
             requestRegistry.setJobRegistry(jobRegistry);
-            requestRegistryProxy.save(requestRegistry);
+            // requestRegistryProxy.save(requestRegistry);
         }
 
         jobRegistry.addRequestRegistry(requestRegistry);

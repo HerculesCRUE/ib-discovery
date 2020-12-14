@@ -25,6 +25,7 @@ public class DataSourcesConfiguration {
 
     public Node getNodeByName(String nodeName) {
         for (Node node: nodes) {
+            String n = node.getNodeName();
             if (node.getNodeName().equalsIgnoreCase(nodeName))
                 return node;
         }
