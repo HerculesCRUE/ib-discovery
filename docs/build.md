@@ -1,4 +1,4 @@
-![](./images/logos_feder.png)
+![](./img/logos_feder.png)
 
 | Fecha         | 25/05/2020                                                   |
 | ------------- | ------------------------------------------------------------ |
@@ -49,52 +49,24 @@ Para ello daremos dos opciones:
 
 Para ello tenemos que seguir los siguientes pasos:
 
-1. Descarga de binarios de la ultima release en el [repositorio de la librería](https://github.com/HerculesCRUE/ib-uris-generator/releases).
+1. Descarga de binarios de la ultima release en el [repositorio de la librería](https://github.com/HerculesCRUE/ib-discovery/releases/tag/v1.2.0).
 
    
 
-   ![jar](./images/jar.png)
+   ![jar](./img/jar.png)
 
 
 
-2. Configurar variables de entorno (si no queremos aplicar los valores por defecto) tal como se indica en [README.md](https://github.com/HerculesCRUE/ib-uris-generator/blob/master/README.md#variables-de-entorno)
+2. Configurar variables de entorno (si no queremos aplicar los valores por defecto) tal como se indica en [README.md](../README.md)
 3. Ejecutar librería desde el fichero .jar descargado mediante el siguiente comando siguiente comando (desde el directorio donde se encuentra el .jar)
 
 ```bash
-java -jar uris-generator-back-1.0.0.jar
+java -jar discovery-back-1.2.0.jar
 ```
 
 3. Una vez ejecutado el jar tendremos desplegados (SERVER_PORT por defecto esta configurado a 9327):
-   - Aplicación URIS Factory: http://localhost:{SERVER_PORT}
-   - Swagger URIS Factory: http://localhost:{SERVER_PORT}/swagger-ui.html
-
-##### Ejecución sobre contenedor Docker
-
-###### Requisitos
-
-* Docker (disponible [aquí](https://docs.docker.com/get-docker/))
-
-###### Despliegue y ejecución
-
-Para ello tenemos que seguir los siguientes pasos:
-
-1. Descargar imagen Docker desde su repositorio en Docker Hub ([imagen en docker hub](https://hub.docker.com/r/herculescrue/uris-generator)) con el siguiente comando
-
-   ```bash
-   docker pull herculescrue/uris-generator:latest
-   ```
-
-2. Configurar variables de entorno (si no queremos aplicar los valores por defecto) tal como se indica en [README.md](https://github.com/HerculesCRUE/ib-uris-generator/blob/master/README.md#variables-de-entorno)
-
-3. Ejecutar imagen descargada con el siguiente comando
-
-   ```bash
-   docker run -e APP_PERSISTENCE_DATASOURCE_DRIVER-CLASS-NAME=org.mariadb.jdbc.Driver -e APP_PERSISTENCE_DATASOURCE_USERNAME={usuario_en_ddbb} -e APP_PERSISTENCE_DATASOURCE_PASSWORD=sqlpass -e APP_PERSISTENCE_DATASOURCE_URL=jdbc:mariadb://127.0.0.1:3307/app?ssl=false -p 9326:9326 herculescrue/uris-generator:latest
-   ```
-
-   - -d: Indica que se ejecute en segundo plano
-   - -p: establece el mapeo de puertos entre el puerto externo y el puerto interno
-   - -t: Tag que se aplacará a el contenedor.
+   - Aplicación discovery: http://localhost:{SERVER_PORT}
+   - Swagger discovery: http://localhost:{SERVER_PORT}/swagger-ui.html
 
 #### Desarrolladores
 
@@ -113,7 +85,7 @@ Para ello tenemos que seguir los siguientes pasos:
 1. Descarga de el código fuente en el repositorio del proyecto
 
    ```bash
-   git clone https://github.com/HerculesCRUE/ib-uris-generator.git
+   git clone https://github.com/HerculesCRUE/ib-discovery.git
    ```
 
 2. Compilación del proyecto con el comando 
@@ -132,20 +104,20 @@ Para ello tenemos que seguir los siguientes pasos:
 
 ###### Ejecución
 
-1. Buscar y acceder modulo **uris-generator-back** y copiar el ejecutable **uris-generator-back-1.0.0.jar** a el directorio deseado para su ejecución.
+1. Buscar y acceder modulo **discovery-back** y copiar el ejecutable **discovery-back-1.0.0.jar** a el directorio deseado para su ejecución.
 
-2. Configurar variables de entorno (si no queremos aplicar los valores por defecto) tal como se indica en [README.md](https://github.com/HerculesCRUE/ib-uris-generator/blob/master/README.md#variables-de-entorno)
+2. Configurar variables de entorno (si no queremos aplicar los valores por defecto) tal como se indica en [README.md](../README.md#variables-de-entorno)
 
 3. Ejecutar el comando
 
    ```bash
-   java -jar uris-generator-back-1.0.0.jar
+   java -jar discovery-back-1.2.0.jar
    ```
 
 4. Una vez ejecutado el jar tendremos desplegados (SERVER_PORT por defecto esta configurado a 9326):
 
-   - Aplicación URIS Factory: http://localhost:{SERVER_PORT}
-   - Swagger URIS Factory: http://localhost:{SERVER_PORT}/swagger-ui.html
+   - Aplicación discovery: http://localhost:{SERVER_PORT}
+   - Swagger discovery: http://localhost:{SERVER_PORT}/swagger-ui.html
 
 ##### Ejecución sobre contenedor Docker
 
@@ -177,37 +149,37 @@ Para ello tenemos que seguir los siguientes pasos:
 
 5. Una vez ejecutado el jar tendremos desplegados (SERVER_PORT por defecto esta configurado a 9326):
 
-   - Aplicación URIS Factory: http://localhost:{SERVER_PORT}
-   - Swagger URIS Factory: http://localhost:{SERVER_PORT}/swagger-ui.html
+   - Aplicación discovery: http://localhost:{SERVER_PORT}
+   - Swagger discovery: http://localhost:{SERVER_PORT}/swagger-ui.html
 
 ### Modulos
 
 #### Back
 
-Los artefactos se encuentran dentro de uris-generator-back/target
+Los artefactos se encuentran dentro de discovery-back/target
 
-* Artefacto: uris-generator-back-{version}.jar
+* Artefacto: discovery-back-{version}.jar
 
 #### Service
 
-Los artefactos se encuentran dentro de uris-generator-service/target
+Los artefactos se encuentran dentro de discovery-service/target
 
-* Artefacto: uris-generator-service-{version}.jar
+* Artefacto: discovery-service-{version}.jar
 
 #### Service Abstractions
 
-Los artefactos se encuentran dentro de triples-storage-adapter-service-abstractions/target
+Los artefactos se encuentran dentro de discovery-service-abstractions/target
 
-* Artefacto: triples-storage-adapter-service-abstractions-{version}.jar
+* Artefacto: discovery-service-abstractions-{version}.jar
 
 #### JPA Abstractions
 
-Los artefactos se encuentran dentro de triples-storage-adapter-jpa-abstractions/target
+Los artefactos se encuentran dentro de discovery-jpa-abstractions/target
 
-* Artefacto: triples-storage-adapter-jpa-abstractions-{version}.jar
+* Artefacto:discoveryr-jpa-abstractions-{version}.jar
 
 #### Swagger
 
-Los artefactos se encuentran dentro de triples-storage-adapter-swagger/target
+Los artefactos se encuentran dentro dediscovery-swagger/target
 
-* Artefacto: triples-storage-adapter-swagger-{version}.jar
+* Artefacto: discovery-swagger-{version}.jar

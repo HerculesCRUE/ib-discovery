@@ -5,10 +5,10 @@
 | Proyecto      | [ASIO](https://www.um.es/web/hercules/proyectos/asio) (Arquitectura Semántica e Infraestructura Ontológica) en el marco de la iniciativa [Hércules](https://www.um.es/web/hercules/) para la Semántica de Datos de Investigación de Universidades que forma parte de [CRUE-TIC](http://www.crue.org/SitePages/ProyectoHercules.aspx) |
 | Módulo        | Arquitectura Semántica                                       |
 | Tipo          | Documentación                                                |
-| Objetivo      | El presente documento describe los EndPoint expuestos por la librería Factoría de URIs |
-| Documentación | [Librería de descubrimiento](https://github.com/HerculesCRUE/ib-asio-docs-/blob/master/24-Librer%C3%ADa_de_descubrimiento/ASIO_Libreria_de_descubrimiento.md)<br/>[Manual de usuario](./manual_de_usuario.md) (documentación de alto nivel)<br />[Documentación técnica](./documentacion-tecnica.md) (documentación de bajo nivel)<br/>[Documentación API REST de la librería de descubrimiento](./documentacion_api_rest_de_la_libreria_de_descubrimiento.md) (documentación de bajo nivel)<br/>[README](../README.md)<br/>[docker](./docker.md)./docker.md)./build.md) |
+| Objetivo      | El presente documento describe los EndPoint expuestos por la librería de descubrimiento |
+| Documentación | [Librería de descubrimiento](https://github.com/HerculesCRUE/ib-asio-docs-/blob/master/24-Librer%C3%ADa_de_descubrimiento/ASIO_Libreria_de_descubrimiento.md)<br/>[Manual de usuario](./manual_de_usuario.md) (documentación de alto nivel)<br />[Documentación técnica](./documentacion-tecnica.md) (documentación de bajo nivel)<br/>[Documentación API REST de la librería de descubrimiento](./documentacion_api_rest_de_la_libreria_de_descubrimiento.md) (documentación de bajo nivel)<br/>[README](../README.md)<br/>[docker](./docker.md) |
 
-# API REST de Factoría de URIS
+# API REST de librería de descubrimiento
 
 La documentación de esta sección hará referencia a cada uno de los EndPoints desplegados por la librería de descubrimiento, apoyándose en la documentación proporcionada por Swagger, por lo tanto los enlaces que se facilitan para los EndPoint descritos en Swagger, solo estarán disponibles si se ha realizado el despliegue, y dicho despliegue se ha realizado en la misma máquina donde se encuentra la presente documentación. En otro caso es necesario cambiar el host y el puerto por aquellos donde la librería de URIs ha sido desplegada.
 
@@ -155,7 +155,7 @@ Permite realizar una búsqueda de similitudes entre la entidad enviada en el Bod
 
 Para entidades almacenadas en otros Backend o Triplestores (si lo indica el parámetro linkEntities), se generaran links, entre la entidad de el propio Backend SGI, y las entidades externas de otros Backend SGIs.
 
-Es especialmente útil para evitar insertar duplicados, si estos ya existen en el Triple Store, por ejemplo en el caso de la Factoría de Uris, que se integra con la librería de descubrimiento de modo que , mediante una llamada a este metod, puede saber si la entidad ya existe, y en caso afirmativo, retorna la URI del objeto equivalente encontrado, en vez de generar una nueva, y por lo tanto, evitar asi generar un duplicado.
+Es especialmente útil para evitar insertar duplicados, si estos ya existen en el Triple Store, por ejemplo en el caso de la Factoría de Uris, que se integra con la librería de descubrimiento de modo que , mediante una llamada a este método, puede saber si la entidad ya existe, y en caso afirmativo, retorna la URI del objeto equivalente encontrado, en vez de generar una nueva, y por lo tanto, evitar asi generar un duplicado.
 
 **Parámetros**
 
