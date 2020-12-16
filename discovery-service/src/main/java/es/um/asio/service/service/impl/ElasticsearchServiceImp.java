@@ -54,7 +54,7 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
         } catch (ElasticsearchException e) {
             Map<String, String> fails = e.getFailedDocuments();
             logger.error(e.getMessage());
-            return fails.containsKey(toES.getId())?fails.get(toES.getId()):FAIL;
+            return fails.containsKey(String.valueOf(toES.getId()))?fails.get(String.valueOf(toES.getId())):FAIL;
         } catch (Exception e) {
             logger.error(e.getMessage());
             return FAIL;
@@ -91,8 +91,8 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
         } catch (ElasticsearchException e) {
             Map<String, String> failsResult = e.getFailedDocuments();
             for (TripleObjectES toES : tosES) {
-                if (failsResult.containsKey(toES.getId()))
-                    fails.put(toES.getEntityId(),failsResult.get(toES.getId()));
+                if (failsResult.containsKey(String.valueOf(toES.getId())))
+                    fails.put(String.valueOf(toES.getId()),failsResult.get(String.valueOf(toES.getId())));
                 else {
                     inserted.put(toES.getEntityId(), "failed");
                     if (!insertedCounter.containsKey(toES.getTripleStore().getNode().getNode()))
@@ -156,8 +156,8 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
         } catch (ElasticsearchException e) {
             Map<String, String> failsResult = e.getFailedDocuments();
             for (TripleObjectES toES : tripleObjectES) {
-                if (failsResult.containsKey(toES.getId()))
-                    fails.put(toES.getEntityId(),failsResult.get(toES.getId()));
+                if (failsResult.containsKey(String.valueOf(toES.getId())))
+                    fails.put(toES.getEntityId(),failsResult.get(String.valueOf(toES.getId())));
                 else
                     inserted.put(toES.getEntityId(),"inserted");
             }

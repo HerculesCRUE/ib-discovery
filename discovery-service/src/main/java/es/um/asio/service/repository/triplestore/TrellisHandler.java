@@ -335,6 +335,7 @@ public class TrellisHandler extends TripleStoreHandler {
                 Thread.sleep(10000);
             } catch (InterruptedException interruptedException) {
                 logger.error(String.format("Error in request: %s",interruptedException.getMessage()));
+                Thread.currentThread().interrupt();
             }
             return null;
         }

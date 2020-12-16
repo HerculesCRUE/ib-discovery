@@ -149,7 +149,7 @@ public class Utils {
     }
 
     public static boolean isBoolean(String s) {
-        String regex = "^(true|false|yes|no|si|no|s|n)$";
+        String regex = "^(true|false|yes|no|si|s|n)$";
         return s.trim().toLowerCase().matches(regex);
     }
 
