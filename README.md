@@ -18,6 +18,7 @@
 |     | Master |
 | --- | ------ |
 | Quality Gate | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=HerculesCRUE_ib-discovery&metric=alert_status)](https://sonarcloud.io/dashboard?id=HerculesCRUE_ib-discovery) |
+| Coverage | [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=HerculesCRUE_ib-discovery&metric=coverage)](https://sonarcloud.io/dashboard?id=HerculesCRUE_ib-discovery) |
 
 Librería de descubrimiento para el proyecto Backend SGI (ASIO).
 
@@ -136,7 +137,7 @@ No es necesario especificar la clase de inicio de la aplicación, ya que el fich
 Se incluyen los resultados del testing y cobertura en los siguientes enlaces:
 
 * [Testing](http://herc-iz-front-desa.atica.um.es:8070/discovery/surefire/surefire-report.html)
-* [Cobertura](http://herc-iz-front-desa.atica.um.es:8070/discovery/jacoco/)
+* [Cobertura](https://sonarcloud.io/component_measures?id=HerculesCRUE_ib-discovery&metric=coverage&view=list)
 
 ##  Documentación adicional
 

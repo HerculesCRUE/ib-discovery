@@ -39,6 +39,7 @@
 		<!-- sonar -->
 		<sonar.sources>pom.xml,src/main</sonar.sources>
 		<sonar.tests></sonar.tests>
+		<sonar.coverage.exclusions>*-audit/**,*-jpa-abstractions/**,*-service-abstractions/**,*-swagger/**,*-test/**</sonar.coverage.exclusions>
 
 		<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
 		<maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
