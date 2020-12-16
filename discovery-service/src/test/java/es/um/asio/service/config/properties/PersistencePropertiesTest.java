@@ -4,10 +4,6 @@ import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.sql.DataSource;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 class PersistencePropertiesTest {
 
     PersistenceProperties pp;

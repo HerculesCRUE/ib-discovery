@@ -169,20 +169,20 @@ public class AttributeSimilarity {
             a1 = o1;
             a2 = o2;
         }
-        Class c = getClassOffAttributes(a1,a2);
-        if (c == int.class) {
+        String c = getClassOffAttributes(a1,a2);
+        if (c.equalsIgnoreCase("int")) {
             return compareInteger(Integer.parseInt(a1.toString()),Integer.parseInt(a2.toString()),weight);
-        } else if (c == long.class) {
+        } else if (c.equalsIgnoreCase("long")) {
             return compareLong(Long.parseLong(a1.toString()),Long.parseLong(a2.toString()),weight);
-        } else if (c == float.class) {
+        } else if (c.equalsIgnoreCase("float")) {
             return compareFloat(Float.parseFloat(a1.toString()),Float.parseFloat(a2.toString()),weight);
-        } else if (c == double.class) {
+        } else if (c.equalsIgnoreCase("double")) {
             return compareDouble(Double.parseDouble(a1.toString()),Double.parseDouble(a2.toString()),weight);
-        }  else if (c == boolean.class) {
+        }  else if (c.equalsIgnoreCase("boolean")) {
             return compareBoolean(Utils.getBoolean(a1.toString()),Utils.getBoolean(a2.toString()),weight);
-        } else if (c == Date.class) {
+        } else if (c.equalsIgnoreCase("Date")) {
             return compareDate( getDate(a1),getDate(a2),weight);
-        } else if (c == List.class) {
+        } else if (c.equalsIgnoreCase("List")) {
             return compareList((List<Object>) a1,(List<Object>) a2,weight);
         } else {
             return compareString((String) a1,(String) a2,weight);
@@ -206,26 +206,26 @@ public class AttributeSimilarity {
         return Utils.getDate(o.toString());
     }
 
-    public static Class getClassOffAttributes(Object a1, Object a2) {
+    public static String getClassOffAttributes(Object a1, Object a2) {
         if (isNumber(a1) && isNumber(a2)) {
             if (Utils.checkIfInt(a1.toString()) && Utils.checkIfInt(a2.toString()))
-                return int.class;
+                return "int";
             else if (Utils.checkIfLong(a1.toString()) && Utils.checkIfLong(a2.toString()))
-                return long.class;
+                return "long";
             else if (Utils.checkIfFloat(a1.toString()) && Utils.checkIfFloat(a2.toString()))
-                return float.class;
+                return "float";
             else if (Utils.checkIfDouble(a1.toString()) && Utils.checkIfDouble(a2.toString()))
-                return double.class;
+                return "double";
             else
-                return double.class;
+                return "double";
         } else if (isBoolean(a1) && isBoolean(a2)) {
-            return boolean.class;
+            return "boolean";
         } else if (isDate(a1) && isDate(a2)) {
-            return Date.class;
+            return "Date";
         } else if (a1 instanceof List && a2 instanceof List) {
-            return List.class;
+            return "List";
         } else {
-            return String.class;
+            return "String";
         }
     }
 }
@@ -235,7 +235,7 @@ class SpecialComparator implements Comparator<Object> {
     public int compare(Object o1, Object o2) {
         if (o1 == null && o2 != null) return -1;
         else if (o1 != null && o2 == null) return 1;
-        else if (o1 == null && o2 == null) return 0;
+        else if (o1 == null) return 0;
 
         else {
             Class<?> c1 = o1.getClass();

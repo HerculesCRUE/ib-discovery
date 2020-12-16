@@ -1,9 +1,5 @@
 package es.um.asio.back.controller.discovery;
 
-//import es.um.asio.service.model.Role;
-
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

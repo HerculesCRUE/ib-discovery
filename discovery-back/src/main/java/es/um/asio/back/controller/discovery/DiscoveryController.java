@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import es.um.asio.service.config.DataSourcesConfiguration;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.model.BasicAction;
-import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.relational.JobRegistry;
 import es.um.asio.service.service.EntitiesHandlerService;
@@ -19,8 +18,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ExampleProperty;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +63,7 @@ public class DiscoveryController {
     @Autowired
     DataHandlerImp dataHandler;
 
-    private final Logger logger = LoggerFactory.getLogger(DiscoveryController.class);
+    private static final Logger logger = LoggerFactory.getLogger(DiscoveryController.class);
 
     /**
      * Status.
@@ -108,7 +105,7 @@ public class DiscoveryController {
      */
     @PostMapping(Mappings.ENTITY_LINK)
     //@Secured(Role.ANONYMOUS_ROLE)
-    public Map findEntityLinkByNodeTripleStoreAndClass(
+    public Map<String,Object> findEntityLinkByNodeTripleStoreAndClass(
             @ApiParam(name = "userId", value = "1", defaultValue = "1", required = true)
             @RequestParam(required = true, defaultValue = "1") @Validated(Create.class) final String userId,
             @ApiParam(name = "requestCode", value = "12345", defaultValue = "12345", required = true)
@@ -178,7 +175,7 @@ public class DiscoveryController {
                             }))
     })
     @ResponseBody
-    public Map findEntityLinkByEntityAndNodeTripleStoreAndClass(
+    public Map<String,Object> findEntityLinkByEntityAndNodeTripleStoreAndClass(
             @ApiParam(name = "userId", value = "1", defaultValue = "1", required = true)
             @RequestParam(required = true, defaultValue = "1") @Validated(Create.class) final String userId,
             @ApiParam(name = "requestCode", value = "12345", defaultValue = "12345", required = true)
@@ -299,7 +296,7 @@ public class DiscoveryController {
      */
     static final class Mappings {
 
-        private Mappings(){};
+        private Mappings(){}
 
         /**
          * Controller request mapping.

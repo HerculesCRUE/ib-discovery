@@ -21,7 +21,7 @@ public class JaccardSimilarityImp implements Similarity {
     @Override
     public float calculateSimilarity(String str1, String str2) {
         StringMetric metric =
-                with(new Jaccard<String>())
+                with(new Jaccard<>())
                         .simplify(Simplifiers.toLowerCase())
                         .simplify(Simplifiers.replaceNonWord())
                         .tokenize(Tokenizers.whitespace())

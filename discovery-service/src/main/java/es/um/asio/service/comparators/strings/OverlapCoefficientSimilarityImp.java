@@ -20,7 +20,7 @@ public class OverlapCoefficientSimilarityImp implements Similarity {
     @Override
     public float calculateSimilarity(String str1, String str2) {
         StringMetric metric =
-                with(new OverlapCoefficient<String>())
+                with(new OverlapCoefficient<>())
                         .simplify(Simplifiers.toLowerCase())
                         .simplify(Simplifiers.removeDiacritics())
                         .tokenize(Tokenizers.whitespace())

@@ -1,18 +1,14 @@
 package es.um.asio.back.config.properties;
 
 import es.um.asio.service.util.Utils;
-import jdk.jshell.execution.Util;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class CorsPropertiesTest {
 

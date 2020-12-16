@@ -21,7 +21,7 @@ public class CosineSimilarityImp implements Similarity {
     @Override
     public float calculateSimilarity(String str1, String str2) {
         StringMetric metric =
-                with(new CosineSimilarity<String>())
+                with(new CosineSimilarity<>())
                         .simplify(Simplifiers.toLowerCase())
                         .simplify(Simplifiers.replaceNonWord())
                         .tokenize(Tokenizers.whitespace())

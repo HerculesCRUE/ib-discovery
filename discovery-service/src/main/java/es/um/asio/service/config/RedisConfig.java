@@ -17,11 +17,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 @EntityScan(basePackages = "es.um.asio.service.model.redis")
 public class RedisConfig {
 
-    @Autowired
-    DataProperties dataProperties;
+/*    @Autowired
+    DataProperties dataProperties;*/
 
     @Bean
-    JedisConnectionFactory connectionFactory() {
+    JedisConnectionFactory connectionFactory(DataProperties dataProperties) {
         JedisConnectionFactory jedisConFactory
             = new JedisConnectionFactory();
         jedisConFactory.setHostName(dataProperties.getRedis().getHost());

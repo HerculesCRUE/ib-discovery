@@ -13,8 +13,6 @@ import es.um.asio.service.model.appstate.DataType;
 import es.um.asio.service.model.appstate.State;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.model.relational.DiscoveryApplication;
-import es.um.asio.service.model.stats.EntityStats;
-import es.um.asio.service.model.stats.StatsHandler;
 import es.um.asio.service.repository.relational.CacheRegistryRepository;
 import es.um.asio.service.repository.relational.DiscoveryApplicationRepository;
 import es.um.asio.service.repository.relational.JobRegistryRepository;

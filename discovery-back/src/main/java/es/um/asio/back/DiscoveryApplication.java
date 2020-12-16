@@ -14,9 +14,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.text.ParseException;
 
 @SpringBootApplication(exclude = { UserDetailsServiceAutoConfiguration.class })
 @EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class })

@@ -26,7 +26,7 @@ public class EntitySimilarityObj {
 
     public float getSimilarity() {
         if (similarity==0) {
-            similarity = new ArrayList<SimilarityValue>(similarities.values()).stream().map(att -> att.getWeightedSimilarity()).reduce(0f,Float::sum);
+            similarity = new ArrayList<SimilarityValue>(similarities.values()).stream().map(SimilarityValue::getWeightedSimilarity).reduce(0f,Float::sum);
         }
         return similarity;
     }

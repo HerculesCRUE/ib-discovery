@@ -4,7 +4,6 @@ import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.model.relational.ElasticRegistry;
-import es.um.asio.service.model.stats.StatsHandler;
 import es.um.asio.service.repository.elasticsearch.TripleObjectESCustomRepository;
 import es.um.asio.service.repository.elasticsearch.TripleObjectESRepository;
 import es.um.asio.service.repository.relational.ElasticRegistryRepository;

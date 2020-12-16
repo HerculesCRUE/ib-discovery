@@ -1,6 +1,5 @@
 package es.um.asio.service.config;
 
-import es.um.asio.service.model.TripleStore;
 import es.um.asio.service.util.Utils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
@@ -8,11 +7,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class DataSourcesConfigurationTest {
 

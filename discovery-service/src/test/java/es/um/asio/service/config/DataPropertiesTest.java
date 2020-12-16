@@ -1,8 +1,5 @@
 package es.um.asio.service.config;
 
-import es.um.asio.service.config.properties.DatasourceProperties;
-import es.um.asio.service.config.properties.JpaProperties;
-import es.um.asio.service.config.properties.PersistenceProperties;
 import es.um.asio.service.util.Utils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
@@ -10,8 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class DataPropertiesTest {
 

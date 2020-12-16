@@ -147,6 +147,6 @@ class AttributeSimilarityTest {
 
     @Test
     void getClassOffAttributes() {
-        Assert.assertTrue(AttributeSimilarity.getClassOffAttributes(new Random().nextInt(),new Random().nextInt()) == int.class);
+        Assert.assertTrue(AttributeSimilarity.getClassOffAttributes(new Random().nextInt(),new Random().nextInt()).equals("int"));
     }
 }

@@ -20,8 +20,8 @@ public class EntitySimilarity {
         Gson gson = new Gson();
         EntitySimilarityObj eso  = new EntitySimilarityObj(to);
         Set<String> allKeys = new HashSet<>();
-        LinkedHashMap o1 = gson.fromJson(gson.toJson(obj1),LinkedHashMap.class);
-        LinkedHashMap o2 = gson.fromJson(gson.toJson(obj2),LinkedHashMap.class);
+        LinkedHashMap<String,Object> o1 = gson.fromJson(gson.toJson(obj1),LinkedHashMap.class);
+        LinkedHashMap<String,Object>  o2 = gson.fromJson(gson.toJson(obj2),LinkedHashMap.class);
         allKeys.addAll(o1.keySet());
         for (String key : new ArrayList<String>(o2.keySet())) {
             if (!allKeys.contains(key))
@@ -109,9 +109,9 @@ public class EntitySimilarity {
         return o instanceof List;
     }
 
-    public static List<Float> compareLists(TripleObject to,Map<String, AttributeStats> attributeStatsMap,List ls1, List ls2) {
-        List l1 = (ls1.size() >= ls2.size())?ls1:ls2;
-        List l2 = (ls1.size() >= ls2.size())?ls2:ls1;
+    public static List<Float> compareLists(TripleObject to,Map<String, AttributeStats> attributeStatsMap,List<Object> ls1, List<Object> ls2) {
+        List<Object> l1 = (ls1.size() >= ls2.size())?ls1:ls2;
+        List<Object> l2 = (ls1.size() >= ls2.size())?ls2:ls1;
         List<Float> returns = new ArrayList<>();
         if (l2.isEmpty()) { // Si la 2 lista esta vacia he terminado
             for (int i = 0 ; i<l1.size() ; i++) {

@@ -9,7 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.*;
+import java.util.Date;
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.Map;
 
 @RunWith(SpringRunner.class)
 class ApplicationStateTest {
