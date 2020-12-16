@@ -45,7 +45,7 @@ public class Utils {
                 "h",buildListInt(1,2),
                 "m",buildListInt(1,2,3,5),
                 "s",buildListInt(2,4),
-                "v",buildListInt(0,3),
+                "S",buildListInt(0,3),
                 buildListStr(":"))
         );
 
@@ -54,7 +54,7 @@ public class Utils {
                 "H",buildListInt(1,2),
                 "m",buildListInt(1,2,3,5),
                 "s",buildListInt(2,4),
-                "v",buildListInt(0,3),
+                "S",buildListInt(0,3),
                 buildListStr(":"))
         );
 
@@ -190,7 +190,6 @@ public class Utils {
     }
 
     public static Date getDate(String s) {
-        Map<Locale,List<String>> formats = getStringFormat();
         for (Locale l : locales) {
             for (String f: dateFormats) {
                 DateFormat sdf = new SimpleDateFormat(f,l);
