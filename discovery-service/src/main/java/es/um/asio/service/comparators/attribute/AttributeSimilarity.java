@@ -7,6 +7,16 @@ import es.um.asio.service.util.Utils;
 import java.util.*;
 
 public class AttributeSimilarity {
+
+    private static final String INTEGER = "int";
+    private static final String LONG = "long";
+    private static final String FLOAT = "float";
+    private static final String DOUBLE = "double";
+    private static final String BOOLEAN = "boolean";
+    private static final String DATE = "Date";
+    private static final String LIST = "List";
+    private static final String STRING = "String";
+
     /*
      * Default constructor
      */
@@ -170,19 +180,19 @@ public class AttributeSimilarity {
             a2 = o2;
         }
         String c = getClassOffAttributes(a1,a2);
-        if (c.equalsIgnoreCase("int")) {
+        if (c.equalsIgnoreCase(INTEGER)) {
             return compareInteger(Integer.parseInt(a1.toString()),Integer.parseInt(a2.toString()),weight);
-        } else if (c.equalsIgnoreCase("long")) {
+        } else if (c.equalsIgnoreCase(LONG)) {
             return compareLong(Long.parseLong(a1.toString()),Long.parseLong(a2.toString()),weight);
-        } else if (c.equalsIgnoreCase("float")) {
+        } else if (c.equalsIgnoreCase(FLOAT)) {
             return compareFloat(Float.parseFloat(a1.toString()),Float.parseFloat(a2.toString()),weight);
-        } else if (c.equalsIgnoreCase("double")) {
+        } else if (c.equalsIgnoreCase(DOUBLE)) {
             return compareDouble(Double.parseDouble(a1.toString()),Double.parseDouble(a2.toString()),weight);
-        }  else if (c.equalsIgnoreCase("boolean")) {
+        }  else if (c.equalsIgnoreCase(BOOLEAN)) {
             return compareBoolean(Utils.getBoolean(a1.toString()),Utils.getBoolean(a2.toString()),weight);
-        } else if (c.equalsIgnoreCase("Date")) {
+        } else if (c.equalsIgnoreCase(DATE)) {
             return compareDate( getDate(a1),getDate(a2),weight);
-        } else if (c.equalsIgnoreCase("List")) {
+        } else if (c.equalsIgnoreCase(LIST)) {
             return compareList((List<Object>) a1,(List<Object>) a2,weight);
         } else {
             return compareString((String) a1,(String) a2,weight);
@@ -209,23 +219,23 @@ public class AttributeSimilarity {
     public static String getClassOffAttributes(Object a1, Object a2) {
         if (isNumber(a1) && isNumber(a2)) {
             if (Utils.checkIfInt(a1.toString()) && Utils.checkIfInt(a2.toString()))
-                return "int";
+                return INTEGER;
             else if (Utils.checkIfLong(a1.toString()) && Utils.checkIfLong(a2.toString()))
-                return "long";
+                return LONG;
             else if (Utils.checkIfFloat(a1.toString()) && Utils.checkIfFloat(a2.toString()))
-                return "float";
+                return FLOAT;
             else if (Utils.checkIfDouble(a1.toString()) && Utils.checkIfDouble(a2.toString()))
-                return "double";
+                return DOUBLE;
             else
-                return "double";
+                return DOUBLE;
         } else if (isBoolean(a1) && isBoolean(a2)) {
-            return "boolean";
+            return BOOLEAN;
         } else if (isDate(a1) && isDate(a2)) {
-            return "Date";
+            return DATE;
         } else if (a1 instanceof List && a2 instanceof List) {
-            return "List";
+            return LIST;
         } else {
-            return "String";
+            return STRING;
         }
     }
 }

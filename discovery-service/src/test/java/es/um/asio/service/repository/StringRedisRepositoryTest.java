@@ -14,10 +14,10 @@ class StringRedisRepositoryTest {
     @Test
     public void addTest(){
         String key = "test_key_1";
-        String value = "test_value_1";
-        stringRedisRepository.add(key,value);
+        String val = "test_value_1";
+        stringRedisRepository.add(key,val);
         String storedValue = stringRedisRepository.getBy(key);
-        Assert.assertTrue(storedValue.equals(value));
+        Assert.assertTrue(storedValue.equals(val));
         stringRedisRepository.delete(key);
     }
 
@@ -25,10 +25,10 @@ class StringRedisRepositoryTest {
     @Test
     void getBy() {
         String key = "test_key_2";
-        String value = "test_value_2";
-        stringRedisRepository.add(key,value);
+        String val = "test_value_2";
+        stringRedisRepository.add(key,val);
         String storedValue = stringRedisRepository.getBy(key);
-        Assert.assertTrue(storedValue.equals(value));
+        Assert.assertTrue(storedValue.equals(val));
         stringRedisRepository.delete(key);
     }
 
@@ -37,8 +37,8 @@ class StringRedisRepositoryTest {
         Set<String> keysSet = new HashSet<>();
         for (int i = 0 ; i<10 ; i++) {
             String key = String.format("test_key_%s",i);
-            String value = String.format("test_value_%s",i);
-            stringRedisRepository.add(key,value);
+            String val = String.format("test_value_%s",i);
+            stringRedisRepository.add(key,val);
             keysSet.add(key);
         }
         for (String key : stringRedisRepository.getKeys("test_key_*")) {
@@ -53,9 +53,9 @@ class StringRedisRepositoryTest {
         Set<String> valuesSet = new HashSet<>();
         for (int i = 0 ; i<10 ; i++) {
             String key = String.format("test_key_%s",i);
-            String value = String.format("test_value_%s",i);
-            stringRedisRepository.add(key,value);
-            valuesSet.add(value);
+            String val = String.format("test_value_%s",i);
+            stringRedisRepository.add(key,val);
+            valuesSet.add(val);
         }
         for (String key : stringRedisRepository.getAllValuesBy("test_key_*")) {
             valuesSet.remove(key);
@@ -67,8 +67,8 @@ class StringRedisRepositoryTest {
     @Test
     void delete() {
         String key = "test_key_1";
-        String value = "test_value_1";
-        stringRedisRepository.add(key,value);
+        String val = "test_value_1";
+        stringRedisRepository.add(key,val);
         Assert.assertNotNull(stringRedisRepository.getBy(key));
         stringRedisRepository.delete(key);
         Assert.assertNull(stringRedisRepository.getBy(key));

@@ -18,7 +18,7 @@ public class KafkaTopicConfig {
     DataProperties dataProperties;
 
     @Bean
-    public KafkaAdmin kafkaAdmin() {
+    public KafkaAdmin kafkaAdmin(DataProperties dataProperties) {
         Map<String,Object> configs = new HashMap<>();
         configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, dataProperties.getKafka().getBootStrapAddress());
         return new KafkaAdmin(configs);

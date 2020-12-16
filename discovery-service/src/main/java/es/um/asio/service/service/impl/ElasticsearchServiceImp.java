@@ -24,6 +24,8 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
 
     private final Logger logger = LoggerFactory.getLogger(ElasticsearchServiceImp.class);
 
+    private static final String INSERTED = "inserted";
+
     @Autowired
     TripleObjectESRepository repository;
 
@@ -42,7 +44,6 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     @Autowired
     ApplicationState applicationState;
 
-    private static final String INSERTED = "inserted";
     private static final String FAIL = "fail";
 
     @Override
@@ -70,14 +71,14 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
         try {
             Iterable<TripleObjectES> res = repository.saveAll(tosES);
             for (TripleObjectES toES : res) {
-                inserted.put(toES.getEntityId(),"inserted");
-                if (!insertedCounter.containsKey(toES.getTripleStore().getNode().getNode()))
-                    insertedCounter.put(toES.getTripleStore().getNode().getNode(), new HashMap<>());
-                if (!insertedCounter.get(toES.getTripleStore().getNode().getNode()).containsKey(toES.getTripleStore().getTripleStore()))
-                    insertedCounter.get(toES.getTripleStore().getNode().getNode()).put(toES.getTripleStore().getTripleStore(), new HashMap<>());
-                if (!insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).containsKey(toES.getClassName()))
-                    insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).put(toES.getClassName(),0);
-                insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).put(toES.getClassName(),insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).get(toES.getClassName())+1);
+                inserted.put(toES.getEntityId(),INSERTED);
+                if (!insertedCounter.containsKey(toES.getTripleStore().getNode().getNodeName()))
+                    insertedCounter.put(toES.getTripleStore().getNode().getNodeName(), new HashMap<>());
+                if (!insertedCounter.get(toES.getTripleStore().getNode().getNodeName()).containsKey(toES.getTripleStore().getName()))
+                    insertedCounter.get(toES.getTripleStore().getNode().getNodeName()).put(toES.getTripleStore().getName(), new HashMap<>());
+                if (!insertedCounter.get(toES.getTripleStore().getNode().getNodeName()).get(toES.getTripleStore().getName()).containsKey(toES.getClassName()))
+                    insertedCounter.get(toES.getTripleStore().getNode().getNodeName()).get(toES.getTripleStore().getName()).put(toES.getClassName(),0);
+                insertedCounter.get(toES.getTripleStore().getNode().getNodeName()).get(toES.getTripleStore().getName()).put(toES.getClassName(),insertedCounter.get(toES.getTripleStore().getNode().getNodeName()).get(toES.getTripleStore().getName()).get(toES.getClassName())+1);
             }
             for (Map.Entry<String, Map<String, Map<String, Integer>>> nodeEntry : insertedCounter.entrySet()) {
                 for (Map.Entry<String, Map<String, Integer>> tsEntry :  nodeEntry.getValue().entrySet()) {
@@ -94,13 +95,13 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
                     fails.put(String.valueOf(toES.getId()),failsResult.get(String.valueOf(toES.getId())));
                 else {
                     inserted.put(toES.getEntityId(), "failed");
-                    if (!insertedCounter.containsKey(toES.getTripleStore().getNode().getNode()))
-                        insertedCounter.put(toES.getTripleStore().getNode().getNode(), new HashMap<>());
-                    if (!insertedCounter.get(toES.getTripleStore().getNode().getNode()).containsKey(toES.getTripleStore().getTripleStore()))
-                        insertedCounter.get(toES.getTripleStore().getNode().getNode()).put(toES.getTripleStore().getTripleStore(), new HashMap<>());
-                    if (!insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).containsKey(toES.getClassName()))
-                        insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).put(toES.getClassName(),0);
-                    insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).put(toES.getClassName(),insertedCounter.get(toES.getTripleStore().getNode().getNode()).get(toES.getTripleStore().getTripleStore()).get(toES.getClassName())+1);
+                    if (!insertedCounter.containsKey(toES.getTripleStore().getNode().getNodeName()))
+                        insertedCounter.put(toES.getTripleStore().getNode().getNodeName(), new HashMap<>());
+                    if (!insertedCounter.get(toES.getTripleStore().getNode().getNodeName()).containsKey(toES.getTripleStore().getName()))
+                        insertedCounter.get(toES.getTripleStore().getNode().getNodeName()).put(toES.getTripleStore().getName(), new HashMap<>());
+                    if (!insertedCounter.get(toES.getTripleStore().getNode().getNodeName()).get(toES.getTripleStore().getName()).containsKey(toES.getClassName()))
+                        insertedCounter.get(toES.getTripleStore().getNode().getNodeName()).get(toES.getTripleStore().getName()).put(toES.getClassName(),0);
+                    insertedCounter.get(toES.getTripleStore().getNode().getNodeName()).get(toES.getTripleStore().getName()).put(toES.getClassName(),insertedCounter.get(toES.getTripleStore().getNode().getNodeName()).get(toES.getTripleStore().getName()).get(toES.getClassName())+1);
 
 
                 }
@@ -127,7 +128,7 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     public String saveTripleObject(TripleObject to) {
         try {
             repository.save(new TripleObjectES(to));
-            return "inserted";
+            return INSERTED;
         } catch (ElasticsearchException e) {
             Map<String, String> fails = e.getFailedDocuments();
             logger.error(e.getMessage());
@@ -150,7 +151,7 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
             }
             Iterable<TripleObjectES> res = repository.saveAll(tripleObjectES);
             for (TripleObjectES toES : res) {
-                inserted.put(toES.getEntityId(),"inserted");
+                inserted.put(toES.getEntityId(),INSERTED);
             }
         } catch (ElasticsearchException e) {
             Map<String, String> failsResult = e.getFailedDocuments();
@@ -158,7 +159,7 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
                 if (failsResult.containsKey(String.valueOf(toES.getId())))
                     fails.put(toES.getEntityId(),failsResult.get(String.valueOf(toES.getId())));
                 else
-                    inserted.put(toES.getEntityId(),"inserted");
+                    inserted.put(toES.getEntityId(),INSERTED);
             }
         } catch (Exception e) {
             logger.error(e.getMessage());

@@ -16,7 +16,7 @@ public class AccordSimilarity {
     public static float calculateAccordSimilarity(String str1, String str2) {
         str1 = Utils.normalize(str1);
         str2 = Utils.normalize(str2);
-        Map<String,Float> metrics = new HashMap<String,Float>();
+        Map<String,Float> metrics = new HashMap<>();
         for (Map.Entry<String, Similarity> e : getAlgorithms().entrySet()) {
             metrics.put(e.getKey(), e.getValue().calculateSimilarity(str1,str2));
         }

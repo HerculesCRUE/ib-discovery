@@ -189,30 +189,6 @@ public class DataHandlerImp implements DataHandler {
         }
     }
 
-    /*private void loadStatsFromRedisToCache() {
-        try {
-            // Load data from cache
-            cache.setStatsHandler(redisService.getEntityStats());
-            if (cache.getStatsHandler().getStats().size() == 0) { // Get cache from file in firebase if is empty
-                Gson gson = new GsonBuilder()
-                        .setPrettyPrinting()
-                        .excludeFieldsWithoutExposeAnnotation()
-                        .create();
-                String content = firebaseStorageStrategy.readFileFromStorage("jEntityStats.json");
-                Type type = new TypeToken<Map<String ,Map<String, Map<String, EntityStats>>>>() {
-                }.getType();
-                Map<String ,Map<String, Map<String,EntityStats>>> map = gson.fromJson(content, type);
-                StatsHandler sh = new StatsHandler();
-                sh.setStats(map);
-                redisService.setEntityStats(sh);
-                cache.setStatsHandler(sh);
-
-            }
-        } catch (Exception e) {
-            logger.error("Fail on load data from firebase file: " + e.getMessage());
-        }
-    }*/
-
     private void updateCachedData() throws ParseException, IOException, URISyntaxException {
         boolean isChanged = false;
         for (DataSourcesConfiguration.Node node : dataSourcesConfiguration.getNodes()) {

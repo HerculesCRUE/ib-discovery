@@ -7,7 +7,6 @@ import es.um.asio.service.model.AttributeType;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
-
 import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
@@ -17,42 +16,46 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Utils {
-        static List<String> dateFormats = generateValidFormatDates();
+
+    private Utils(){}
+
+    static List<String> dateFormats = generateValidFormatDates();
     static List<Locale> locales = generateLocales();
 
     public static List<String> generateValidFormatDates() {
         List<String> dateFormats = new ArrayList<>();
         dateFormats.addAll(
                 generateCombinations(
-                "d",Arrays.asList(new Integer[]{1,2}),
-                "M",Arrays.asList(new Integer[]{1,2,3,5}),
-                "y",Arrays.asList(new Integer[]{2,4}),
-                Arrays.asList(new String[]{".","/","-"}))
+                "d",buildListInt(1,2),
+                "M",buildListInt(1,2,3,5),
+                "y",buildListInt(2,4),
+                        buildListStr(".","/","-"))
         );
         dateFormats.addAll(
                 generateCombinations(
-                "y",Arrays.asList(new Integer[]{2,4}),
-                "M",Arrays.asList(new Integer[]{1,2,3,5}),
-                "d",Arrays.asList(new Integer[]{1,2}),
-                Arrays.asList(new String[]{".","/","-"}))
+                "y",buildListInt(2,4),
+                "M",buildListInt(1,2,3,5),
+                "d",buildListInt(1,2),
+                buildListStr(".","/","-"))
         );
 
         List<String> timeFormats = new ArrayList<>();
         timeFormats.addAll(
                 generateCombinationsTime(
-                        "h",Arrays.asList(new Integer[]{1,2}),
-                        "m",Arrays.asList(new Integer[]{1,2,3,5}),
-                        "s",Arrays.asList(new Integer[]{2,4}),
-                        "S",Arrays.asList(new Integer[]{0,3}),
-                        Arrays.asList(new String[]{":"}))
+                "h",buildListInt(1,2),
+                "m",buildListInt(1,2,3,5),
+                "s",buildListInt(2,4),
+                "v",buildListInt(0,3),
+                buildListStr(":"))
         );
+
         timeFormats.addAll(
                 generateCombinationsTime(
-                        "H",Arrays.asList(new Integer[]{1,2}),
-                        "m",Arrays.asList(new Integer[]{1,2,3,5}),
-                        "s",Arrays.asList(new Integer[]{2,4}),
-                        "S",Arrays.asList(new Integer[]{0,3}),
-                        Arrays.asList(new String[]{":"}))
+                "H",buildListInt(1,2),
+                "m",buildListInt(1,2,3,5),
+                "s",buildListInt(2,4),
+                "v",buildListInt(0,3),
+                buildListStr(":"))
         );
 
         List<String> formats = new ArrayList<>();
@@ -65,6 +68,22 @@ public class Utils {
         formats.add("EEEEE MMMMM yyyy HH:mm:ss.SSSZ");
         formats.add("yyyy-MM-dd'T'HH:mm:ss. SSSZ");
         return formats;
+    }
+
+    private static List<Integer> buildListInt(int ... args) {
+        List<Integer> ints = new ArrayList<>();
+        for (int arg : args) {
+            ints.add(arg);
+        }
+        return ints;
+    }
+
+    private static List<String> buildListStr(String ... args) {
+        List<String> l = new ArrayList<>();
+        for (String arg : args) {
+            l.add(arg);
+        }
+        return l;
     }
 
     public static List<String> generateCombinations(String c1, List<Integer> rep1, String c2, List<Integer> rep2, String c3, List<Integer> rep3, List<String> separators) {
@@ -111,13 +130,13 @@ public class Utils {
 
     public static Map<Locale,List<String>> getStringFormat() {
         Map<Locale,List<String>> formats = new HashMap<>();
-        formats.put(Locale.ROOT,new ArrayList<String>(Arrays.asList(new String[] {"MM/DD/YY","DD/MM/YY","YY/MM/DD","MMM D, YY","M/D/YY","D/M/YY","YY/M/D","M/bD/YY",
+        formats.put(Locale.ROOT,new ArrayList<>(Arrays.asList(new String[] {"MM/DD/YY","DD/MM/YY","YY/MM/DD","MMM D, YY","M/D/YY","D/M/YY","YY/M/D","M/bD/YY",
                 "bD/M/YY","YY/M/bD","MMDDYY","DDMMYY","YYMMDD","MonDDYY","DDMonYY","YYMonDD","day/YY","YY/day","D MMM, YY","YY, MMM D","Mon-DD-YYYY","DD-Mon-YYYY",
                 "YYYYY-Mon-DD","Mon DD, YYYY","DD Mon, YYYY","YYYY, Mon DD","yyyyMMddZ","yyyyMMdd","yyyy-MM-dd G","yyyy-MM-ddXXX","yyyy-MM-dd'T'HH:mm:ss.SSS'['VV']'","yyyy-MM-dd'T'HH:mm:ss.SSS",
                 "yyyy-MM-dd'T'HH:mm:ss","yyyy-MM-dd'T'HH:mm:ss.SSS'Z'","yyyy-MM-dd'T'HH:mm:ss.SSSXXX","yyyy-MM-dd'T'HH:mm:ssXXX","yyyy-DDDXXX",
                 "YYYY'W'wc","YYYY-'W'w-c","yyyy-MM-dd'T'HH:mm:ss.SSSXXX'['VV']'","yyyy-MM-dd'T'HH:mm:ssXXX'['VV']'"})));
         formats.put(new Locale ( "es" , "ES" ),new ArrayList<String>(Arrays.asList(new String[] {"d/MM/yy","d/MM/yy H:mm","d.M.yy H:mm"})));
-        formats.put(Locale.US,new ArrayList<String>(Arrays.asList(new String[] {"M/d/yy","M/d/yy","MM/dd/yy","MM-dd-yy","M-d-yy","MMM d, yyyy","MMMM d, yyyy","EEEE, MMMM d, yyyy","MMM d yyyy",
+        formats.put(Locale.US,new ArrayList<>(Arrays.asList(new String[] {"M/d/yy","M/d/yy","MM/dd/yy","MM-dd-yy","M-d-yy","MMM d, yyyy","MMMM d, yyyy","EEEE, MMMM d, yyyy","MMM d yyyy",
                 "MMMM d yyyy","MM-dd-yyyy","M-d-yyyy","yyyy-MM-ddXXX","dd/MM/yyyy","d/M/yyyy","MM/dd/yyyy","M/d/yyyy","yyyy/M/d","M/d/yy h:mm a",
                 "MM/dd/yy h:mm a","MM-dd-yy h:mm a","M-d-yy h:mm a","MMM d, yyyy h:mm:ss a","EEEE, MMMM d, yyyy h:mm:ss a z","EEE MMM dd HH:mm:ss z yyyy",
                 "EEE, d MMM yyyy HH:mm:ss Z","d MMM yyyy HH:mm:ss Z","MM-dd-yyyy h:mm:ss a","M-d-yyyy h:mm:ss a","yyyy-MM-dd h:mm:ss a","yyyy-M-d h:mm:ss a",
@@ -125,7 +144,7 @@ public class Utils {
                 "MM/dd/yy H:mm:ss","M/d/yy H:mm:ss","dd/MM/yyyy h:mm a","d/M/yyyy h:mm a","MM/dd/yyyy h:mm a","M/d/yyyy h:mm a",
                 "MM-dd-yy h:mm:ss a","M-d-yy h:mm:ss a","MM-dd-yyyy h:mm a","M-d-yyyy h:mm a","yyyy-MM-dd h:mm a","yyyy-M-d h:mm a","MMM.dd.yyyy",
                 "d/MMM/yyyy H:mm:ss Z","dd/MMM/yy h:mm a"})));
-        formats.put(Locale.UK,new ArrayList<String>(Arrays.asList(new String[] {"dd MMMM yyyy","EEEE, d MMMM yyyy","dd-MMM-yyyy","dd MMMM yyyy HH:mm:ss z","EEEE, d MMMM yyyy HH:mm:ss 'o''clock' z",
+        formats.put(Locale.UK,new ArrayList<>(Arrays.asList(new String[] {"dd MMMM yyyy","EEEE, d MMMM yyyy","dd-MMM-yyyy","dd MMMM yyyy HH:mm:ss z","EEEE, d MMMM yyyy HH:mm:ss 'o''clock' z",
                 "dd-MMM-yyyy HH:mm:ss","dd-MMM-yyyy HH:mm:ss","dd-MMM-yy hh.mm.ss.nnnnnnnnn a"})));
         return formats;
     }
@@ -176,8 +195,7 @@ public class Utils {
             for (String f: dateFormats) {
                 DateFormat sdf = new SimpleDateFormat(f,l);
                 try {
-                    Date d = sdf.parse(s);
-                    return d;
+                    return sdf.parse(s);
                 } catch (Exception e) {
                 }
             }
@@ -255,7 +273,7 @@ public class Utils {
                     }
                 };
         Map<K, V> sortedByValues =
-                new TreeMap<K, V>(valueComparator);
+                new TreeMap<>(valueComparator);
         sortedByValues.putAll(map);
         return sortedByValues;
     }
@@ -263,7 +281,6 @@ public class Utils {
     public static boolean checkIfFloat(String s) {
         try {
             String regex = "^([+-]?\\d*\\.\\d+(e\\d+)?)$";
-            double f = Float.parseFloat(s);
             double d = Double.parseDouble(s);
             return s.matches(regex) && d >= Float.MIN_VALUE && d <= Float.MAX_VALUE;
         } catch (Exception e) {
@@ -312,10 +329,11 @@ public class Utils {
 
     public static boolean checkIfString(Object o) {
         try {
+            boolean isString = false;
             String.valueOf(o);
             if (o instanceof String)
-                return true;
-            return false;
+                isString = true;
+            return isString;
         } catch (Exception e) {
             return false;
         }
@@ -324,8 +342,8 @@ public class Utils {
         public static boolean checkIfComposeStringIsSame(String str1, String str2) {
         List<String> str1List = Arrays.asList(str1.split("(?=\\p{Upper})|-"));
         List<String> str2List = Arrays.asList(str2.split("(?=\\p{Upper})|-"));
-        str1List = str1List.stream().filter(s -> Utils.isValidString(s)).filter(s->!s.matches("j\\.[0-9]+:")).map(String::toLowerCase).collect(Collectors.toList());
-        str2List = str2List.stream().filter(s -> Utils.isValidString(s)).filter(s->!s.matches("j\\.[0-9]+:")).map(String::toLowerCase).collect(Collectors.toList());
+        str1List = str1List.stream().filter(Utils::isValidString).filter(s->!s.matches("j\\.[0-9]+:")).map(String::toLowerCase).collect(Collectors.toList());
+        str2List = str2List.stream().filter(Utils::isValidString).filter(s->!s.matches("j\\.[0-9]+:")).map(String::toLowerCase).collect(Collectors.toList());
         for (String token : str1List) {
             if (!str2List.contains(token))
                 return false;

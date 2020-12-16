@@ -139,7 +139,7 @@ public class TripleObject {
             eso.setSimilarity(0f);
             return eso;
         }
-        EntityStats entityStats = cacheService.getStatsHandler().getAttributesMap(this.getTripleStore().getNode().getNode(), this.tripleStore.getTripleStore(), this.getClassName());
+        EntityStats entityStats = cacheService.getStatsHandler().getAttributesMap(this.getTripleStore().getNode().getNodeName(), this.tripleStore.getName(), this.getClassName());
         Map<String,AttributeStats> attributesMap = new HashMap<>();
 
         for (Map.Entry<String, AttributeStats> entry : entityStats.getAttValues().entrySet()) {
@@ -165,7 +165,7 @@ public class TripleObject {
     }
 
 
-    public boolean hasAttribute(String att,LinkedTreeMap map) {
+    public boolean hasAttribute(String att,LinkedTreeMap<String,Object> map) {
         try {
             if (!Utils.isValidString(att))
                 return false;
@@ -180,12 +180,12 @@ public class TripleObject {
                 if (map.get(key) instanceof List) {
                     boolean hasAttrs = false;
                     for (Object item : (List) map.get(key)) {
-                        LinkedTreeMap val = (LinkedTreeMap) item;
+                        LinkedTreeMap<String,Object> val = (LinkedTreeMap) item;
                         hasAttrs = hasAttrs || ((val != null) && hasAttribute(attAux, val));
                     }
                     return hasAttrs;
                 } else {
-                    LinkedTreeMap val = (LinkedTreeMap) map.get(key);
+                    LinkedTreeMap<String,Object> val = (LinkedTreeMap) map.get(key);
                     return (val != null) && hasAttribute(attAux, val);
                 }
             }
@@ -195,13 +195,13 @@ public class TripleObject {
         }
     }
 
-    public List<Object> getAttributeValue(String att,LinkedTreeMap map) {
+    public List<Object> getAttributeValue(String att,LinkedTreeMap<String,Object> map) {
         if (!Utils.isValidString(att))
-            return null;
+            return new ArrayList<>();
         String[] attrs = att.split("\\.");
         String key = attrs[0];
         if (map == null || map.get(key)==null)
-            return null;
+            return new ArrayList<>();
         else if (Utils.isPrimitive(map.get(key)))
             return Arrays.asList(map.get(key));
         else {
@@ -209,13 +209,13 @@ public class TripleObject {
             if (map.get(key) instanceof List) {
                 List<Object> values = new ArrayList<>();
                 for (Object item : (List) map.get(key)) {
-                    LinkedTreeMap val = (LinkedTreeMap) item;
+                    LinkedTreeMap<String,Object> val = (LinkedTreeMap) item;
                     if (hasAttribute(attAux,val))
                         values.addAll(getAttributeValue(attAux, val));
                 }
                 return values;
             } else {
-                LinkedTreeMap val = (LinkedTreeMap) map.get(key);
+                LinkedTreeMap<String,Object> val = (LinkedTreeMap) map.get(key);
                 return getAttributeValue(attAux, val);
             }
         }
@@ -298,7 +298,7 @@ public class TripleObject {
                         main.put(key,mergeAttributes((LinkedTreeMap) main.get(key),(LinkedTreeMap) other.get(key)));
                     }
                 } else if (main.get(key) instanceof List) { // Si es una lista,
-                    // TODO: De momento la lista principal e queda como esta, en el futuro es posible que convenga revisar
+                    // De momento la lista principal e queda como esta, en el futuro es posible que convenga revisar
                 }
             }
         }

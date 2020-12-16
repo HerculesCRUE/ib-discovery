@@ -5,13 +5,11 @@ import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.model.stats.StatsHandler;
-import es.um.asio.service.repository.relational.CacheRegistryRepository;
 import es.um.asio.service.service.CacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.PostConstruct;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -31,9 +29,6 @@ public class CacheServiceImp implements CacheService {
 
     @Autowired
     RedisServiceImp redisServiceImp;
-
-    @Autowired
-    CacheRegistryRepository cacheRegistryRepository;
 
     @PostConstruct
     public void initialize() {
@@ -382,7 +377,7 @@ public class CacheServiceImp implements CacheService {
                     for (Map.Entry<String, TripleObject> tipleObjectEntry: classEntry.getValue().entrySet()) { // TO
                         try {
                             TripleStore ts = tipleObjectEntry.getValue().getTripleStore();
-                            statsHandler.addAttributes(ts.getNode().getNode(), ts.getTripleStore(), tipleObjectEntry.getValue());
+                            statsHandler.addAttributes(ts.getNode().getNodeName(), ts.getName(), tipleObjectEntry.getValue());
                         } catch (Exception e) {
                             logger.error("Update Stats Error: {}",e.getMessage());
                         }

@@ -141,14 +141,14 @@ class DataPropertiesTest {
     }
 
     @Test
-    void setKafkaTopicEntityChangeGroup_id() {
+    void setKafkaTopicEntityChangeGroupId() {
         DataProperties.Kafka k = new DataProperties.Kafka();
         DataProperties.Kafka.TopicEntityChange tec = new DataProperties.Kafka.TopicEntityChange();
         String rnd = RandomStringUtils.randomAlphabetic(10);
-        tec.setGroup_id(rnd);
+        tec.setGroupId(rnd);
         k.setTopicEntityChange(tec);
         dp.setKafka(k);
-        Assert.assertEquals(rnd,dp.getKafka().getTopicEntityChange().getGroup_id());
+        Assert.assertEquals(rnd,dp.getKafka().getTopicEntityChange().getGroupId());
     }
 
     @Test
@@ -172,14 +172,14 @@ class DataPropertiesTest {
     }
 
     @Test
-    void setKafkaTopicDiscoveryActionGroup_id() {
+    void setKafkaTopicDiscoveryActionGroupId() {
         DataProperties.Kafka k = new DataProperties.Kafka();
         DataProperties.Kafka.TopicDiscoveryAction tda = new DataProperties.Kafka.TopicDiscoveryAction();
         String rnd = RandomStringUtils.randomAlphabetic(10);
-        tda.setGroup_id(rnd);
+        tda.setGroupId(rnd);
         k.setTopicDiscoveryAction(tda);
         dp.setKafka(k);
-        Assert.assertEquals(rnd,dp.getKafka().getTopicDiscoveryAction().getGroup_id());
+        Assert.assertEquals(rnd,dp.getKafka().getTopicDiscoveryAction().getGroupId());
     }
 
 

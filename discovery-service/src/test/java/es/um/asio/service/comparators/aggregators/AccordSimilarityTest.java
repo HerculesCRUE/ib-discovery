@@ -57,7 +57,7 @@ class AccordSimilarityTest {
 
     @Test
     void calculateSimilarityOnChangedCharactersTest(){
-        // Shuffled String: The compare value must be greater than 0.3 and less than 1.0
+        // Shuffled String: The compare val must be greater than 0.3 and less than 1.0
         stats = evaluateSimilarityAccord(changedCharacters);
         logger.info(name + "(Changed Characters): " + stats.toString());
         Assert.assertTrue( stats.getRatioForRange(0.55f) >= 0.60f);
@@ -65,7 +65,7 @@ class AccordSimilarityTest {
 
     @Test
     void calculateSimilarityOnTruncatedCharactersTest(){
-        // Shuffled String: The compare value must be greater than 0.3 and less than 1.0
+        // Shuffled String: The compare val must be greater than 0.3 and less than 1.0
         stats = evaluateSimilarityAccord(truncatedCharacter);
         logger.info(name + "(All Changes): " + stats.toString());
         Assert.assertTrue( stats.getRatioForRange(0.8f) >= 0.95f);
@@ -73,7 +73,7 @@ class AccordSimilarityTest {
 
     @Test
     void calculateSimilarityOnAllChangesTest(){
-        // Shuffled String: The compare value must be greater than 0.3 and less than 1.0
+        // Shuffled String: The compare val must be greater than 0.3 and less than 1.0
         stats = evaluateSimilarityAccord(allChanges);
         logger.info(name + "(All Changes): " + stats.toString());
         Assert.assertTrue( stats.getRatioForRange(0.65f) >= 0.8f);
@@ -81,7 +81,7 @@ class AccordSimilarityTest {
 
     @Test
     void calculateSimilarityOnDistinctTest(){
-        // Shuffled String: The compare value must be greater than 0.3 and less than 1.0
+        // Shuffled String: The compare val must be greater than 0.3 and less than 1.0
         stats = evaluateSimilarityAccord(different);
         logger.info(name + "(Distinct): " + stats.toString());
         Assert.assertTrue( stats.getRatioForRange(0.65f) < .05f);

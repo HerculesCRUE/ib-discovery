@@ -39,7 +39,7 @@ public class TrellisHandler extends TripleStoreHandler {
     private static final String CONTEXT = "@context";
     private static final String J_REGEX = "j\\.[0-9]+:";
     private static final String ID = "@id";
-    private static final String VALUE = "@value";
+    private static final String VALUE = "@val";
 
     public TrellisHandler(String nodeName, String baseURL, String user, String password) {
         this.nodeName = nodeName;
@@ -54,7 +54,7 @@ public class TrellisHandler extends TripleStoreHandler {
 
     @Override
     public boolean updateData(CacheServiceImp cacheService) throws IOException, URISyntaxException, ParseException {
-        Set<TripleObject> triplesMapCached = cacheService.getAllTripleObjects(this.nodeName,this.tripleStore.getTripleStore());
+        Set<TripleObject> triplesMapCached = cacheService.getAllTripleObjects(this.nodeName,this.tripleStore.getName());
         int instancesCounter = 0;
         int changes = 0;
         // Do request to Base URL
@@ -73,7 +73,7 @@ public class TrellisHandler extends TripleStoreHandler {
                 String className = classURL.replace(this.baseURL,"").replaceAll("/", "");
                 int classChanges = 0;
 
-                logger.info("	Processing Class {} ({}/{})", className,++classesCounter,totalClasses);
+                logger.info("\tProcessing Class {} ({}/{})", className,++classesCounter,totalClasses);
                 // Request to Class URL
                 Response rClass = doRequest(classURL); // Request
                 if (rClass == null)
@@ -126,7 +126,7 @@ public class TrellisHandler extends TripleStoreHandler {
                                     try {
                                         to.setTripleStore(this.tripleStore);
                                         String nText = ((isNew)?"(New) ":" ");
-                                        logger.info("		Processing Node {} Instances: {} ({}/{}): {}	,class ({}/{}):{}	,id: {}	,data:{}",nText, ++instancesCounter, ++instancesInClass,totalInClass, nodeName, classesCounter,totalClasses,className, instanceId, to);
+                                        logger.info("\t\tProcessing Node {} Instances: {} ({}/{}): {}	,class ({}/{}):{}	,id: {}	,data:{}",nText, ++instancesCounter, ++instancesInClass,totalInClass, nodeName, classesCounter,totalClasses,className, instanceId, to);
                                         cacheService.addTripleObject(nodeName,TRIPLE_STORE, to);
                                     } catch (Exception e) {
                                         logger.error("Error processing Node {}: {}",nodeName,e.getMessage());
@@ -146,7 +146,7 @@ public class TrellisHandler extends TripleStoreHandler {
         if (changes > 0 || triplesMapCached.isEmpty()) {
             if (triplesMapCached.isEmpty()) {
                 for (TripleObject to : triplesMapCached) {
-                    cacheService.removeTripleObject(this.nodeName, this.tripleStore.getTripleStore(), to);
+                    cacheService.removeTripleObject(this.nodeName, this.tripleStore.getName(), to);
                 }
             }
             logger.info("Found {} changes in Trellis and {} instances will be deleted. Saving in Cache and Redis. The cache is updated", changes,triplesMapCached.size());
@@ -275,7 +275,7 @@ public class TrellisHandler extends TripleStoreHandler {
                 jeAtt.setValue(jInners);
             } else if(jeAtt.getValue().isJsonObject()) {
                 JsonObject jData = jeAtt.getValue().getAsJsonObject();
-                // Elimino objetos de tipo @Language, @value
+                // Elimino objetos de tipo @Language, @val
                 if (jData.size()==2 && jData.has("@language") && jData.has(VALUE)) {
                     if (!jData.get(VALUE).getAsString().strip().trim().equals(""))
                         jeAtt.setValue(jData.get(VALUE));

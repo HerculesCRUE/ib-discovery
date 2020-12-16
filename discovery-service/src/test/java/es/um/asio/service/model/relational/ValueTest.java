@@ -78,8 +78,8 @@ class ValueTest {
     void setValue() {
         for (Value v :values) {
             String rnd = RandomStringUtils.randomAlphabetic(10);
-            v.setValue(rnd);
-            Assert.assertEquals(v.getValue(),rnd);
+            v.setVal(rnd);
+            Assert.assertEquals(v.getVal(),rnd);
         }
     }
 
@@ -124,8 +124,8 @@ class ValueTest {
     void getValue() {
         for (Value v :values) {
             String rnd = RandomStringUtils.randomAlphabetic(10);
-            v.setValue(rnd);
-            Assert.assertEquals(v.getValue(),rnd);
+            v.setVal(rnd);
+            Assert.assertEquals(v.getVal(),rnd);
         }
     }
 

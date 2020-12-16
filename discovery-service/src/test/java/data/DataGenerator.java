@@ -27,7 +27,7 @@ public final class DataGenerator {
         JSONObject jData = new JSONObject();
         for (int i = 1; i <= 5; i++) {
             for (int j = 1; j <= 5; j++) {
-                jData.put(String.format("att-%s", j), String.format("value-%s", j));
+                jData.put(String.format("att-%s", j), String.format("val-%s", j));
             }
             TripleObject to = new TripleObject("um","trellis","class1",jData);
             Node node = new Node(String.format("node-%s",i));
@@ -40,13 +40,13 @@ public final class DataGenerator {
         }
 
         for (TripleObject to : tripleObjects) {
-            if (!triplesMap.containsKey(to.getTripleStore().getNode().getNode()))
-                triplesMap.put(to.getTripleStore().getNode().getNode(), new HashMap<>());
-            if (!triplesMap.get(to.getTripleStore().getNode().getNode()).containsKey(to.getTripleStore().getTripleStore()))
-                triplesMap.get(to.getTripleStore().getNode().getNode()).put(to.getTripleStore().getTripleStore(), new HashMap<>());
-            if (!triplesMap.get(to.getTripleStore().getNode().getNode()).get(to.getTripleStore().getTripleStore()).containsKey(to.getClassName()))
-                triplesMap.get(to.getTripleStore().getNode().getNode()).get(to.getTripleStore().getTripleStore()).put(to.getClassName(), new HashMap<>());
-            triplesMap.get(to.getTripleStore().getNode().getNode()).get(to.getTripleStore().getTripleStore()).get(to.getClassName()).put(to.getId(),to);
+            if (!triplesMap.containsKey(to.getTripleStore().getNode().getNodeName()))
+                triplesMap.put(to.getTripleStore().getNode().getNodeName(), new HashMap<>());
+            if (!triplesMap.get(to.getTripleStore().getNode().getNodeName()).containsKey(to.getTripleStore().getName()))
+                triplesMap.get(to.getTripleStore().getNode().getNodeName()).put(to.getTripleStore().getName(), new HashMap<>());
+            if (!triplesMap.get(to.getTripleStore().getNode().getNodeName()).get(to.getTripleStore().getName()).containsKey(to.getClassName()))
+                triplesMap.get(to.getTripleStore().getNode().getNodeName()).get(to.getTripleStore().getName()).put(to.getClassName(), new HashMap<>());
+            triplesMap.get(to.getTripleStore().getNode().getNodeName()).get(to.getTripleStore().getName()).get(to.getClassName()).put(to.getId(),to);
         }
 
         // Job registry

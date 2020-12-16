@@ -43,7 +43,7 @@ class BlockDistanceSimilarityImpTest {
 
     @Test
     void calculateSimilarityOnShuffledTest(){
-        // Shuffled String: The compare value must be greater than 0.3 and less than 1.0
+        // Shuffled String: The compare val must be greater than 0.3 and less than 1.0
         stats = evaluateSimilarityAlgorithm(shuffled,new BlockDistanceSimilarityImp());
         logger.info(name + "(Shuffled): " + stats.toString());
         Assert.assertTrue( stats.getMean() >= 1.);
@@ -51,7 +51,7 @@ class BlockDistanceSimilarityImpTest {
 
     @Test
     void calculateSimilarityOnChangedCharactersTest(){
-        // Shuffled String: The compare value must be greater than 0.3 and less than 1.0
+        // Shuffled String: The compare val must be greater than 0.3 and less than 1.0
         stats = evaluateSimilarityAlgorithm(changedCharacters,new BlockDistanceSimilarityImp());
         logger.info(name + "(Changed Characters): " + stats.toString());
         Assert.assertTrue( stats.getMean() >= .0);
@@ -59,7 +59,7 @@ class BlockDistanceSimilarityImpTest {
 
     @Test
     void calculateSimilarityOnTruncatedCharactersTest(){
-        // Shuffled String: The compare value must be greater than 0.3 and less than 1.0
+        // Shuffled String: The compare val must be greater than 0.3 and less than 1.0
         stats = evaluateSimilarityAlgorithm(truncatedCharacter,new BlockDistanceSimilarityImp());
         logger.info(name + "(Truncated Characters): " + stats.toString());
         Assert.assertTrue( stats.getMean() >= .2 );
@@ -67,7 +67,7 @@ class BlockDistanceSimilarityImpTest {
 
     @Test
     void calculateSimilarityOnAllChangesTest(){
-        // Shuffled String: The compare value must be greater than 0.3 and less than 1.0
+        // Shuffled String: The compare val must be greater than 0.3 and less than 1.0
         stats = evaluateSimilarityAlgorithm(allChanges,new BlockDistanceSimilarityImp());
         logger.info(name + "(All Changes): " + stats.toString());
         Assert.assertTrue( stats.getMean() >= .0 );
@@ -75,7 +75,7 @@ class BlockDistanceSimilarityImpTest {
 
     @Test
     void calculateSimilarityOnDistinctTest(){
-        // Shuffled String: The compare value must be greater than 0.3 and less than 1.0
+        // Shuffled String: The compare val must be greater than 0.3 and less than 1.0
         stats = evaluateSimilarityAlgorithm(different,new BlockDistanceSimilarityImp());
         logger.info(name + "(Distinct): " + stats.toString());
         Assert.assertTrue( stats.getMean() >= .0 );

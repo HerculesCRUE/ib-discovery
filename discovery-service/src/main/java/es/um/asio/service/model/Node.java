@@ -25,10 +25,10 @@ public class Node {
     @EqualsAndHashCode.Include
     @Expose(serialize = true, deserialize = true)
     @Field(type = FieldType.Keyword)
-    private String node;
+    private String nodeName;
 
     public Node(String node) {
-        this.node = node;
+        this.nodeName = node;
     }
 
     public Node() {

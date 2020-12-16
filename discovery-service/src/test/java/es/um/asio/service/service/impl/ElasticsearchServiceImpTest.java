@@ -23,7 +23,7 @@ class ElasticsearchServiceImpTest {
             to.setTripleStore(new TripleStore("trellis","um","http://herc-iz-front-desa.atica.um.es/","admin","admin"));
             LinkedTreeMap<String,Object> attrs = new LinkedTreeMap<>();
             for (int j = 1 ; j <= 5 ; j++){
-                attrs.put(String.format("@key%s",j),String.format("@value%s_%s",i,j));
+                attrs.put(String.format("@key%s",j),String.format("@val%s_%s",i,j));
             }
             to.setAttributes(attrs);
             tripleObjectsES.add(to);
@@ -224,19 +224,19 @@ class ElasticsearchServiceImpTest {
         JsonObject jData = new JsonObject();
         jData.add("proyecto.cerrado",new JsonObject());
         jData.get("proyecto.cerrado").getAsJsonObject().addProperty("@language","es");
-        jData.get("proyecto.cerrado").getAsJsonObject().addProperty("@value","2011/12/31 00:00:00");
+        jData.get("proyecto.cerrado").getAsJsonObject().addProperty("@val","2011/12/31 00:00:00");
         jData.add("proyecto.descripcion",new JsonObject());
         jData.get("proyecto.descripcion").getAsJsonObject().addProperty("@language","es");
-        jData.get("proyecto.descripcion").getAsJsonObject().addProperty("@value","PEPLAN RECURSOS FITOGENÉTICOS S5-E005-12 LIBRO ROJO DE LA FLORA NO VASCULAR AMENAZADA");
+        jData.get("proyecto.descripcion").getAsJsonObject().addProperty("@val","PEPLAN RECURSOS FITOGENÉTICOS S5-E005-12 LIBRO ROJO DE LA FLORA NO VASCULAR AMENAZADA");
         jData.add("proyecto.id",new JsonObject());
         jData.get("proyecto.id").getAsJsonObject().addProperty("@language","es");
-        jData.get("proyecto.id").getAsJsonObject().addProperty("@value","12140");
+        jData.get("proyecto.id").getAsJsonObject().addProperty("@val","12140");
         jData.add("proyecto.nombre",new JsonObject());
         jData.get("proyecto.nombre").getAsJsonObject().addProperty("@language","es");
-        jData.get("proyecto.nombre").getAsJsonObject().addProperty("@value","PEPLAN: RECURSOS FITOGENÉTICOS: S5-E005-12: LIBRO ROJO DE LA FLORA NO VASCULAR AMENAZADA.");
+        jData.get("proyecto.nombre").getAsJsonObject().addProperty("@val","PEPLAN: RECURSOS FITOGENÉTICOS: S5-E005-12: LIBRO ROJO DE LA FLORA NO VASCULAR AMENAZADA.");
         jData.add("proyecto.tipo",new JsonObject());
         jData.get("proyecto.tipo").getAsJsonObject().addProperty("@language","es");
-        jData.get("proyecto.tipo").getAsJsonObject().addProperty("@value","AYUDA");
+        jData.get("proyecto.tipo").getAsJsonObject().addProperty("@val","AYUDA");
         TripleObject to = new TripleObject(ts, jData, "Proyecto","http:_hercules.org_um_es-ES_rec_Proyecto_12140","http:_hercules.org_um_es-ES_rec_Proyecto_12140", "Fri, 15 May 2020 13:34:23 GMT");
         TripleObjectES toES = new TripleObjectES(to);
         String res = esService.saveTripleObjectES(new TripleObjectES(to));

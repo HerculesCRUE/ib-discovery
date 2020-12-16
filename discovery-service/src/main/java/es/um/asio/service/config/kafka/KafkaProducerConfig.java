@@ -16,11 +16,8 @@ import java.util.Map;
 @Configuration
 public class KafkaProducerConfig {
 
-    @Autowired
-    DataProperties dataProperties;
-
     @Bean
-    public Map<String, Object> producerConfigs() {
+    public Map<String, Object> producerConfigs(DataProperties dataProperties) {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -37,14 +34,14 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public ProducerFactory<String, String> producerFactory() {
-        return new DefaultKafkaProducerFactory(producerConfigs());
+    public ProducerFactory<String, String> producerFactory(DataProperties dataProperties) {
+        return new DefaultKafkaProducerFactory(producerConfigs(dataProperties));
     }
 
     @Bean
-    public KafkaTemplate<String, String> kafkaTemplate() {
+    public KafkaTemplate<String, String> kafkaTemplate(DataProperties dataProperties) {
         try {
-            return new KafkaTemplate<>(producerFactory());
+            return new KafkaTemplate<>(producerFactory(dataProperties));
         } catch (Exception e) {
             return null;
         }

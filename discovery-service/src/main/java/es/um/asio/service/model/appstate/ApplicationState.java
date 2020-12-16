@@ -32,7 +32,7 @@ public class ApplicationState {
         application = new DiscoveryApplication("DISCOVERY LIBRARY");
         appState = AppState.UNINITIALIZED;
         stateCode = 503;
-        states = new EnumMap(DataType.class);
+        states = new EnumMap<>(DataType.class);
         lastFilterDate = new HashMap<>();
         states.put(DataType.CACHE, new DataState());
         states.put(DataType.ELASTICSEARCH, new DataState());

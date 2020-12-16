@@ -34,6 +34,7 @@ public class TripleObjectESCustomRepository{
 
     private static final String TRIPLE_OBJECT = "triple-object";
     private static final String CLASSES = "classes";
+    private static final String ATTRIBUTES_REGEX = "attributes.%s";
 
     public List<TripleObjectES> findByClassNameAndAttributesWithPartialMatch(String indexName, List<Triplet<String,String,String>> musts, List<Pair<String,Object>> attrs){
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -47,21 +48,21 @@ public class TripleObjectESCustomRepository{
         if (!attrs.isEmpty()) {
             for (Pair<String,Object> att : attrs) {
                 if (att.getValue(1) instanceof String) {
-                    boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format("attributes.%s", att.getValue(0)), textHandler.removeStopWords((String) att.getValue(1))));
+                    boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format(ATTRIBUTES_REGEX, att.getValue(0)), textHandler.removeStopWords((String) att.getValue(1))));
                 } else {
                     if (att.getValue(1) instanceof List) {
                         for (Object val : (List)att.getValue(1)) {
                             if (val instanceof String) {
                                 if (!Utils.isDate((String) val))
-                                    boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format("attributes.%s", att.getValue(0)), textHandler.removeStopWords((String) val)));
+                                    boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format(ATTRIBUTES_REGEX, att.getValue(0)), textHandler.removeStopWords((String) val)));
                                 else
-                                    boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format("attributes.%s", att.getValue(0)), String.valueOf(val)));
+                                    boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format(ATTRIBUTES_REGEX, att.getValue(0)), String.valueOf(val)));
                             } else {
-                                boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.termQuery(String.format("attributes.%s", att.getValue(0)), val));
+                                boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.termQuery(String.format(ATTRIBUTES_REGEX, att.getValue(0)), val));
                             }
                         }
                     } else {
-                        boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.termQuery(String.format("attributes.%s", att.getValue(0)), att.getValue(1)));
+                        boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.termQuery(String.format(ATTRIBUTES_REGEX, att.getValue(0)), att.getValue(1)));
                     }
                 }
             }

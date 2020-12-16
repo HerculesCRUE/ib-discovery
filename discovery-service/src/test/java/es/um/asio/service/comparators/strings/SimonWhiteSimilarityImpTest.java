@@ -44,7 +44,7 @@ class SimonWhiteSimilarityImpTest {
 
     @Test
     void calculateSimilarityOnShuffledTest(){
-        // Shuffled String: The compare value must be greater than 0.3 and less than 1.0
+        // Shuffled String: The compare val must be greater than 0.3 and less than 1.0
         stats = evaluateSimilarityAlgorithm(shuffled,similarityImp);
         logger.info(name + "(Shuffled): " + stats.toString());
         Assert.assertTrue( stats.getMean() >= 1.);
@@ -52,7 +52,7 @@ class SimonWhiteSimilarityImpTest {
 
     @Test
     void calculateSimilarityOnChangedCharactersTest(){
-        // Shuffled String: The compare value must be greater than 0.3 and less than 1.0
+        // Shuffled String: The compare val must be greater than 0.3 and less than 1.0
         stats = evaluateSimilarityAlgorithm(changedCharacters,similarityImp);
         logger.info(name + "(Changed Characters): " + stats.toString());
         Assert.assertTrue( stats.getMean() >= .0);
@@ -60,7 +60,7 @@ class SimonWhiteSimilarityImpTest {
 
     @Test
     void calculateSimilarityOnTruncatedCharactersTest(){
-        // Shuffled String: The compare value must be greater than 0.3 and less than 1.0
+        // Shuffled String: The compare val must be greater than 0.3 and less than 1.0
         stats = evaluateSimilarityAlgorithm(truncatedCharacter,similarityImp);
         logger.info(name + "(Truncated Characters): " + stats.toString());
         Assert.assertTrue( stats.getMean() >= .2 );
@@ -68,7 +68,7 @@ class SimonWhiteSimilarityImpTest {
 
     @Test
     void calculateSimilarityOnAllChangesTest(){
-        // Shuffled String: The compare value must be greater than 0.3 and less than 1.0
+        // Shuffled String: The compare val must be greater than 0.3 and less than 1.0
         stats = evaluateSimilarityAlgorithm(allChanges,similarityImp);
         logger.info(name + "(All Changes): " + stats.toString());
         Assert.assertTrue( stats.getMean() >= .0 );
@@ -76,7 +76,7 @@ class SimonWhiteSimilarityImpTest {
 
     @Test
     void calculateSimilarityOnDistinctTest(){
-        // Shuffled String: The compare value must be greater than 0.3 and less than 1.0
+        // Shuffled String: The compare val must be greater than 0.3 and less than 1.0
         stats = evaluateSimilarityAlgorithm(different,similarityImp);
         logger.info(name + "(Distinct): " + stats.toString());
         Assert.assertTrue( stats.getMean() >= .0 );

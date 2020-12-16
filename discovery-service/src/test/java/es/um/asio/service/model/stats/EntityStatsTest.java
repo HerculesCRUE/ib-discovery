@@ -27,8 +27,8 @@ class EntityStatsTest {
         entityStats = new HashSet<>();
         statsHandler = new StatsHandler();
         for (TripleObject to : tos) {
-            statsHandler.addAttributes(to.getTripleStore().getNode().getNode(),to.getTripleStore().getTripleStore(),to);
-            statsHandler.buildStats(to.getTripleStore().getNode().getNode(),to.getTripleStore().getTripleStore(),to.getClassName());
+            statsHandler.addAttributes(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to);
+            statsHandler.buildStats(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to.getClassName());
         }
         Map<String ,Map<String, Map<String,EntityStats>>> stats = statsHandler.getStats();
         for (Map.Entry<String, Map<String, Map<String, EntityStats>>> nEntry : stats.entrySet()) {

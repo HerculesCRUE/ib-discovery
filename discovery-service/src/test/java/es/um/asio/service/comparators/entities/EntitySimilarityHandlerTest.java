@@ -28,7 +28,7 @@ class EntitySimilarityHandlerTest {
         cache = dg.getCacheServiceImp();
         cache.initialize();
         for (TripleObject to : tos) {
-            cache.addTripleObject(to.getTripleStore().getNode().getNode(), to.getTripleStore().getTripleStore(), to);
+            cache.addTripleObject(to.getTripleStore().getNode().getNodeName(), to.getTripleStore().getName(), to);
         }
         cache.generateEntityStats();
     }
@@ -36,7 +36,7 @@ class EntitySimilarityHandlerTest {
     @Test
     void calculateSimilarityInEntities() {
         for (TripleObject to : tos) {
-            Map<String, AttributeStats> attributeStatsMap = cache.getStatsHandler().getAttributesMap(to.getTripleStore().getNode().getNode(),to.getTripleStore().getTripleStore(),to.getClassName()).getAttValues();
+            Map<String, AttributeStats> attributeStatsMap = cache.getStatsHandler().getAttributesMap(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to.getClassName()).getAttValues();
             Map<String, List<EntitySimilarityObj>> esos = EntitySimilarityHandler.calculateSimilarityInEntities(
                     cache,
                     to,

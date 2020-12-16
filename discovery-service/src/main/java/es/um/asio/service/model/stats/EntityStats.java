@@ -124,7 +124,14 @@ public class EntityStats extends ObjectStat{
     }
 
     public Map<String,Float> generateMoreRelevantAttributesMap(String prefix){
-        String p = Utils.isValidString(prefix)?((prefix.charAt(prefix.length()-1)=='.')?prefix:prefix+"."):"";
+        String p;
+        if (Utils.isValidString(prefix)) {
+            if ((prefix.charAt(prefix.length()-1)=='.'))
+                p = prefix;
+            else
+                p = prefix+".";
+        } else
+            p = "";
         Map<String,Float> attrs = new TreeMap<>();
         for (Map.Entry<String, AttributeStats> att : attValues.entrySet()) { // Para cada atributo
             attrs.put(p + att.getKey(),att.getValue().getRelativeImportanceRatio());

@@ -1,6 +1,5 @@
 package es.um.asio.back.controller.discovery;
 
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import es.um.asio.service.config.DataSourcesConfiguration;

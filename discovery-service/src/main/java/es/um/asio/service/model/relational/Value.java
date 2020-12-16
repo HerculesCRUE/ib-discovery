@@ -19,7 +19,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class Value {
 
-    public static final String TABLE = "value";
+    public static final String TABLE = "val";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -40,44 +40,44 @@ public class Value {
 
     @Column(name = Columns.VALUE, nullable = true,columnDefinition = "TEXT")
     @EqualsAndHashCode.Include
-    private String value;
+    private String val;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentValue", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     private Set<Attribute> attributes;
 
-    public Value(Attribute attribute, Object value) {
+    public Value(Attribute attribute, Object val) {
         this.attribute = attribute;
-        this.dataType = getDataType(value);
+        this.dataType = getDataType(val);
         this.attributes = new HashSet<>();
         if (dataType == DataType.OBJECT) {
-            LinkedTreeMap<String,Object> attrs = (LinkedTreeMap<String,Object>) value;
+            LinkedTreeMap<String,Object> attrs = (LinkedTreeMap<String,Object>) val;
             for (Map.Entry<String,Object> vEntry: attrs.entrySet()) {
                 Attribute at = new Attribute(vEntry.getKey(),vEntry.getValue(),null);
                 at.setParentValue(this);
                 this.attributes.add(at);
             }
         } else {
-            this.value = String.valueOf(value);
+            this.val = String.valueOf(val);
         }
 
     }
 
     public Object getValueParsedToType() {
         if (dataType == DataType.FLOAT) {
-            return Float.valueOf(value);
+            return Float.valueOf(val);
         } else if (dataType == DataType.DOUBLE) {
-            return Double.valueOf(value);
+            return Double.valueOf(val);
         } else if (dataType == DataType.INTEGER) {
-            return Integer.valueOf(value);
+            return Integer.valueOf(val);
         } else if (dataType == DataType.LONG) {
-            return Long.valueOf(value);
+            return Long.valueOf(val);
         } else if (dataType == DataType.BOOLEAN) {
-            return Boolean.valueOf(value);
+            return Boolean.valueOf(val);
         } else if (dataType == DataType.DATE) {
-            return Utils.getDate(value);
+            return Utils.getDate(val);
         } else if (dataType == DataType.STRING) {
-            return String.valueOf(value);
+            return String.valueOf(val);
         } else {
             return attributes;
         }
@@ -128,6 +128,6 @@ public class Value {
         /**
          * TYPE column.
          */
-        protected static final String VALUE = "value";
+        protected static final String VALUE = "val";
     }
 }

@@ -239,9 +239,9 @@ public class SwaggerAutoConfiguration {
     /**
      * Value property name.
      */
-    private static final String VALUE = "value";
+    private static final String VALUE = "val";
     /**
-     * Default value property name.
+     * Default val property name.
      */
     private static final String DEFAULT_VALUE = "defaultValue";
     /**

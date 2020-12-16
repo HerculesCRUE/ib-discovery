@@ -40,7 +40,7 @@ public class TripleStore {
     @EqualsAndHashCode.Include
     @Expose(serialize = true, deserialize = true)
     @Field(type = FieldType.Keyword)
-    private String tripleStore;
+    private String name;
 
     /**
      * Node.
@@ -76,7 +76,7 @@ public class TripleStore {
     private String password;
 
     public TripleStore(String tripleStore, String node, String baseURL, String user, String password) {
-        this.tripleStore = tripleStore;
+        this.name = tripleStore;
         this.node = new Node(node);
         this.baseURL = baseURL;
         this.user = user;
@@ -84,7 +84,7 @@ public class TripleStore {
     }
 
     public TripleStore(String tripleStore, String node) {
-        this.tripleStore = tripleStore;
+        this.name = tripleStore;
         this.node = new Node(node);
     }
 

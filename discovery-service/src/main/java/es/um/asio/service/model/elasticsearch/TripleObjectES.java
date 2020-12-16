@@ -38,11 +38,11 @@ public class TripleObjectES implements Comparable<TripleObjectES>{
     private float score;
 
     public TripleObjectES() {
-        attributes = new LinkedTreeMap();
+        attributes = new LinkedTreeMap<>();
     }
 
     public TripleObjectES(String id, String node, String tripleStore, String className, Date lastName) {
-        attributes = new LinkedTreeMap();
+        attributes = new LinkedTreeMap<>();
         this.entityId = id;
         this.tripleStore = new TripleStore(tripleStore,node);
         this.id = generateComposedId();
@@ -76,7 +76,7 @@ public class TripleObjectES implements Comparable<TripleObjectES>{
     }
 
     private int generateComposedId() {
-        return Objects.hash(entityId,className,tripleStore.getNode().getNode(),tripleStore.getTripleStore());
+        return Objects.hash(entityId,className,tripleStore.getNode().getNodeName(),tripleStore.getName());
     }
 
 

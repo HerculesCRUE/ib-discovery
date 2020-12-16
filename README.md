@@ -99,9 +99,9 @@ Será preciso configurar las siguientes variables de entorno cuando se instale e
 | `DATA_KAFKA_HOST`                       | Host de conexión a broker Kafka                              | localhost          |
 | `DATA_KAFKA_PORT`                       | Puerto de conexión a broker Kafka                            | 9092               |
 | `DATA_KAFKA_TOPICENTITYCHANGE_TOPIC`    | Topic para que la librería de descubrimiento sea notificada en cambios de entidades almacenadas en el Triple Store | entity_change      |
-| `DATA_KAFKA_TOPICENTITYCHANGE_GROUP_ID` | Grupo para que los clientes de la librería de descubrimiento se subscriban a las notificaciones de cambios de entidades almacenadas en el Triple Store | entity_change_1    |
+| `DATA_KAFKA_TOPICENTITYCHANGE_GROUPID` | Grupo para que los clientes de la librería de descubrimiento se subscriban a las notificaciones de cambios de entidades almacenadas en el Triple Store | entity_change_1    |
 | `DATA_KAFKA_TOPICDISCOVERYACTION_TOPIC` | Topic para donde la librería de descubrimiento sea publicara las acciones necesarias en las entidades relativas la eliminación de duplicados, tras encontrar similitudes | discovery_action   |
-| `DATA_KAFKA_TOPICDISCOVERYACTION_TOPIC` | Grupo para que los clientes de la librería de descubrimiento se subscriban a las notificaciones de acciones | discovery_action_1 |
+| `DATA_KAFKA_TOPICDISCOVERYACTION_GROUPID` | Grupo para que los clientes de la librería de descubrimiento se subscriban a las notificaciones de acciones | discovery_action_1 |
 
 * Relativas a la configuración de la aplicación
 

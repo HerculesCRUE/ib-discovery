@@ -47,7 +47,7 @@ public class KafkaHandlerService {
         }
     }
 
-    @KafkaListener(topics = "${data.kafka.topicEntityChange.topic}", groupId = "${data.kafka.topicEntityChange.group_id}")
+    @KafkaListener(topics = "${data.kafka.topicEntityChange.topic}", groupId = "${data.kafka.topicEntityChange.groupId}")
     public void onEntityChange(String message) {
         logger.info("On entity Change message: {}", message);
     }

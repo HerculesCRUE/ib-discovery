@@ -36,8 +36,8 @@ class EntitySimilarityTest {
         JSONObject jData2 = new JSONObject("{\"attrs\":{\"k1\":\"vn1\",\"k2\":\"vn2\",\"k3\":\"vn3\"}}");
         to1 = new TripleObject("n1","ts1","test",jData1);
         to2 = new TripleObject("n1","ts1","test",jData2);
-        cache.addTripleObject(to1.getTripleStore().getNode().getNode(), to1.getTripleStore().getTripleStore(), to1);
-        cache.addTripleObject(to2.getTripleStore().getNode().getNode(), to2.getTripleStore().getTripleStore(), to2);
+        cache.addTripleObject(to1.getTripleStore().getNode().getNodeName(), to1.getTripleStore().getName(), to1);
+        cache.addTripleObject(to2.getTripleStore().getNode().getNodeName(), to2.getTripleStore().getName(), to2);
         cache.generateEntityStats();
         stats = cache.getStatsHandler().generateMoreRelevantAttributesMap("n1","ts1","test");
         attributeStatsMap = cache.getStatsHandler().getAttributesMap("n1","ts1","test").getAttValues();
@@ -163,8 +163,8 @@ class EntitySimilarityTest {
         TripleObject to1 = new TripleObject("n1","ts1","test2",jData1);
         TripleObject to2 = new TripleObject("n1","ts1","test2",jData2);
 
-        cache.addTripleObject(to1.getTripleStore().getNode().getNode(), to1.getTripleStore().getTripleStore(), to1);
-        cache.addTripleObject(to2.getTripleStore().getNode().getNode(), to2.getTripleStore().getTripleStore(), to2);
+        cache.addTripleObject(to1.getTripleStore().getNode().getNodeName(), to1.getTripleStore().getName(), to1);
+        cache.addTripleObject(to2.getTripleStore().getNode().getNodeName(), to2.getTripleStore().getName(), to2);
         cache.generateEntityStats();
 
         Map<String,Float> stats = cache.getStatsHandler().generateMoreRelevantAttributesMap("n1","ts1","test");

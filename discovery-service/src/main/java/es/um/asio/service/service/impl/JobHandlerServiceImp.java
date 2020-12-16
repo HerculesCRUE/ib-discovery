@@ -35,8 +35,8 @@ public class JobHandlerServiceImp {
 
     private final Logger logger = LoggerFactory.getLogger(JobHandlerServiceImp.class);
 
-    Map<String, Map<String,Map<String,Map<String,JobRegistry>>>> jrClassMap;
-    Map<String, Map<String,Map<String,Map<String,JobRegistry>>>> jrEntityMap;
+    Map<String, Map<String, Map<String, Map<String, JobRegistry>>>> jrClassMap;
+    Map<String, Map<String, Map<String, Map<String, JobRegistry>>>> jrEntityMap;
     Queue<JobRegistry> qClasses;
     Queue<JobRegistry> qInstances;
     boolean isWorking;
@@ -77,8 +77,8 @@ public class JobHandlerServiceImp {
         isAppReady = false;
         applicationState.addAppListener(new AppEvents() {
             /*
-            * This method not is user
-            */
+             * This method not is user
+             */
             @Override
             public void onCachedDataIsReady() {
                 logger.info("onCachedDataIsReady");
@@ -112,33 +112,33 @@ public class JobHandlerServiceImp {
             boolean applyDelta
     ) {
         if (!jrClassMap.containsKey(node))
-            jrClassMap.put(node,new LinkedHashMap<>());
+            jrClassMap.put(node, new LinkedHashMap<>());
         if (!jrClassMap.get(node).containsKey(tripleStore))
-            jrClassMap.get(node).put(tripleStore,new LinkedHashMap<>());
+            jrClassMap.get(node).put(tripleStore, new LinkedHashMap<>());
         if (!jrClassMap.get(node).get(tripleStore).containsKey(className))
-            jrClassMap.get(node).get(tripleStore).put(className,new LinkedHashMap<>());
+            jrClassMap.get(node).get(tripleStore).put(className, new LinkedHashMap<>());
 
         // Busco si existe un JobRegistry anterior
         JobRegistry jobRegistry = null;
         boolean isNewJob = false;
-        for (Map.Entry<String, JobRegistry> jrClassEntry: jrClassMap.get(node).get(tripleStore).get(className).entrySet()) {
-            if (!jrClassEntry.getValue().isCompleted() && (jobRegistry==null || (jrClassEntry.getValue().getMaxRequestDate().after(jobRegistry.getMaxRequestDate()) && jrClassEntry.getValue().isSearchLinks() == jobRegistry.isSearchLinks()))) {
+        for (Map.Entry<String, JobRegistry> jrClassEntry : jrClassMap.get(node).get(tripleStore).get(className).entrySet()) {
+            if (!jrClassEntry.getValue().isCompleted() && (jobRegistry == null || (jrClassEntry.getValue().getMaxRequestDate().after(jobRegistry.getMaxRequestDate()) && jrClassEntry.getValue().isSearchLinks() == jobRegistry.isSearchLinks()))) {
                 jobRegistry = jrClassEntry.getValue();
             }
         }
-        if (jobRegistry==null) { // Si no existe lo creo
-            jobRegistry = new JobRegistry(application,node,tripleStore,className,searchLinks);
+        if (jobRegistry == null) { // Si no existe lo creo
+            jobRegistry = new JobRegistry(application, node, tripleStore, className, searchLinks);
             isNewJob = true;
         }
         jobRegistry.setDoSync(doSync);
         if (applyDelta) {
-            Date deltaDate = jobRegistryRepository.getLastDateFromNodeAndTripleStoreAndClassName(node,tripleStore,className,RequestType.ENTITY_LINK_CLASS.toString());
+            Date deltaDate = jobRegistryRepository.getLastDateFromNodeAndTripleStoreAndClassName(node, tripleStore, className, RequestType.ENTITY_LINK_CLASS.toString());
             jobRegistry.setSearchFromDelta(deltaDate);
         }
         RequestRegistry requestRegistry;
-        Optional<RequestRegistry> requestRegistryOpt = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode, RequestType.ENTITY_LINK_CLASS);
+        Optional<RequestRegistry> requestRegistryOpt = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, RequestType.ENTITY_LINK_CLASS);
         if (requestRegistryOpt.isEmpty()) {
-            requestRegistry = new RequestRegistry(userId,requestCode, RequestType.ENTITY_LINK_CLASS,new Date());
+            requestRegistry = new RequestRegistry(userId, requestCode, RequestType.ENTITY_LINK_CLASS, new Date());
         } else {
             requestRegistry = requestRegistryOpt.get();
         }
@@ -150,10 +150,10 @@ public class JobHandlerServiceImp {
         }
 
         jobRegistry.addRequestRegistry(requestRegistry);
-        jrClassMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()),jobRegistry);
+        jrClassMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()), jobRegistry);
 
         jobRegistryRepository.save(jobRegistry);
-        for (RequestRegistry rr :jobRegistry.getRequestRegistries()) {
+        for (RequestRegistry rr : jobRegistry.getRequestRegistries()) {
             requestRegistryProxy.save(rr);
         }
         if (doSync) {
@@ -171,7 +171,7 @@ public class JobHandlerServiceImp {
     }
 
 
-    public JobRegistry addJobRegistryForInstance (
+    public JobRegistry addJobRegistryForInstance(
             DiscoveryApplication application,
             String userId,
             String requestCode,
@@ -184,20 +184,20 @@ public class JobHandlerServiceImp {
             String webHook,
             boolean propagueInKafka,
             boolean searchLinks
-            ) {
+    ) {
         if (!jrEntityMap.containsKey(node))
-            jrEntityMap.put(node,new LinkedHashMap<>());
+            jrEntityMap.put(node, new LinkedHashMap<>());
         if (!jrEntityMap.get(node).containsKey(tripleStore))
-            jrEntityMap.get(node).put(tripleStore,new LinkedHashMap<>());
+            jrEntityMap.get(node).put(tripleStore, new LinkedHashMap<>());
         if (!jrEntityMap.get(node).get(tripleStore).containsKey(className))
-            jrEntityMap.get(node).get(tripleStore).put(className,new LinkedHashMap<>());
+            jrEntityMap.get(node).get(tripleStore).put(className, new LinkedHashMap<>());
 
         // Busco si existe un JobRegistry anterior
 
         TripleObject tripleObject;
         try {
             JSONObject jData = new JSONObject(jBodyStr);
-            tripleObject = new TripleObject(node,tripleStore,className,jData);
+            tripleObject = new TripleObject(node, tripleStore, className, jData);
             tripleObject.setId(entityId);
         } catch (Exception e) {
             throw new CustomDiscoveryException("Object data parse error");
@@ -205,22 +205,22 @@ public class JobHandlerServiceImp {
         JobRegistry jobRegistry = null;
         boolean isNewJob = false;
         // Recupero los jobEntry si hubiese
-        for (Map.Entry<String, JobRegistry> jrClassEntry: jrEntityMap.get(node).get(tripleStore).get(className).entrySet()) {
-            if (!jrClassEntry.getValue().isCompleted() && (jobRegistry==null ||  (jrClassEntry.getValue().getMaxRequestDate().after(jobRegistry.getMaxRequestDate()) && jrClassEntry.getValue().isSearchLinks() == jobRegistry.isSearchLinks()) )) {
+        for (Map.Entry<String, JobRegistry> jrClassEntry : jrEntityMap.get(node).get(tripleStore).get(className).entrySet()) {
+            if (!jrClassEntry.getValue().isCompleted() && (jobRegistry == null || (jrClassEntry.getValue().getMaxRequestDate().after(jobRegistry.getMaxRequestDate()) && jrClassEntry.getValue().isSearchLinks() == jobRegistry.isSearchLinks()))) {
                 jobRegistry = jrClassEntry.getValue();
             }
         }
-        if (jobRegistry==null) { // Si no existe lo creo
-            jobRegistry = new JobRegistry(application,node,tripleStore,className,searchLinks);
+        if (jobRegistry == null) { // Si no existe lo creo
+            jobRegistry = new JobRegistry(application, node, tripleStore, className, searchLinks);
             isNewJob = true;
         }
         jobRegistry.setDoSync(doSync);
         jobRegistry.setBodyRequest(jBodyStr);
         jobRegistry.setTripleObject(tripleObject);
         RequestRegistry requestRegistry;
-        Optional<RequestRegistry> requestRegistryOpt = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode, RequestType.ENTITY_LINK_INSTANCE);
+        Optional<RequestRegistry> requestRegistryOpt = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, RequestType.ENTITY_LINK_INSTANCE);
         if (requestRegistryOpt.isEmpty()) {
-            requestRegistry = new RequestRegistry(userId,requestCode, RequestType.ENTITY_LINK_INSTANCE,new Date());
+            requestRegistry = new RequestRegistry(userId, requestCode, RequestType.ENTITY_LINK_INSTANCE, new Date());
         } else {
             requestRegistry = requestRegistryOpt.get();
         }
@@ -233,10 +233,10 @@ public class JobHandlerServiceImp {
         }
 
         jobRegistry.addRequestRegistry(requestRegistry);
-        jrEntityMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()),jobRegistry);
+        jrEntityMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()), jobRegistry);
 
         jobRegistryRepository.save(jobRegistry);
-        for (RequestRegistry rr :jobRegistry.getRequestRegistries()) {
+        for (RequestRegistry rr : jobRegistry.getRequestRegistries()) {
             requestRegistryProxy.save(rr);
         }
         if (doSync) {
@@ -256,7 +256,7 @@ public class JobHandlerServiceImp {
     // Gestiona la petición pesada de búsqueda de similaridades en una misma clase
     public JobRegistry findSimilaritiesByInstance(JobRegistry jobRegistry) {
         TripleObject to = jobRegistry.getTripleObject();
-        if (to==null) {
+        if (to == null) {
             logger.error("Triple Object can´t be null");
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
@@ -267,7 +267,7 @@ public class JobHandlerServiceImp {
         jobRegistry.setStartedDate(new Date());
         isWorking = true;
         try {
-            SimilarityResult similarityResult = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndTripleObject(to,jobRegistry.isSearchLinks());
+            SimilarityResult similarityResult = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndTripleObject(to, jobRegistry.isSearchLinks());
 
             ObjectResult objectResult = new ObjectResult(jobRegistry, similarityResult.getTripleObject(), null);
             ObjectResult toUpdate = objectResult;
@@ -298,14 +298,14 @@ public class JobHandlerServiceImp {
 
             // Merges control
             if (!objectResult.getAutomatic().isEmpty()) {
-                if (toUpdate!=null) {
-                    ActionResult actionResult = new ActionResult(Action.UPDATE,objectResult);
+                if (toUpdate != null) {
+                    ActionResult actionResult = new ActionResult(Action.UPDATE, objectResult);
                     actionResult.addObjectResult(toUpdate);
                     objectResult.getActionResults().add(actionResult);
                     toUpdate.setActionResultParent(actionResult);
                 }
-                if (toDelete!=null && !toDelete.isEmpty()) {
-                    ActionResult actionResult = new ActionResult(Action.DELETE,objectResult);
+                if (toDelete != null && !toDelete.isEmpty()) {
+                    ActionResult actionResult = new ActionResult(Action.DELETE, objectResult);
                     for (ObjectResult orDelete : toDelete) {
                         if (Utils.isValidString(orDelete.getLocalURI())) {
                             actionResult.addObjectResult(orDelete);
@@ -315,8 +315,8 @@ public class JobHandlerServiceImp {
                     objectResult.getActionResults().add(actionResult);
                 }
 
-                if (toLink!=null && !toLink.isEmpty()) {
-                    ActionResult actionResult = new ActionResult(Action.LINK,objectResult);
+                if (toLink != null && !toLink.isEmpty()) {
+                    ActionResult actionResult = new ActionResult(Action.LINK, objectResult);
                     for (ObjectResult orLink : toLink) {
                         actionResult.addObjectResult(orLink);
                         orLink.setActionResultParent(actionResult);
@@ -333,7 +333,7 @@ public class JobHandlerServiceImp {
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
             jobRegistryRepository.save(jobRegistry);
         } catch (Exception e) {
-            logger.error("Fail on findSimilaritiesByClass: {}",e.getMessage());
+            logger.error("Fail on findSimilaritiesByClass: {}", e.getMessage());
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
@@ -353,7 +353,7 @@ public class JobHandlerServiceImp {
         jobRegistry.setStartedDate(new Date());
         isWorking = true;
         try {
-            Set<SimilarityResult> similarities = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndClass(jobRegistry.getNode(), jobRegistry.getTripleStore(), jobRegistry.getClassName(),jobRegistry.isSearchLinks(), jobRegistry.getSearchFromDelta());
+            Set<SimilarityResult> similarities = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndClass(jobRegistry.getNode(), jobRegistry.getTripleStore(), jobRegistry.getClassName(), jobRegistry.isSearchLinks(), jobRegistry.getSearchFromDelta());
             for (SimilarityResult similarityResult : similarities) { // Por cada similitud encontrada
                 ObjectResult objectResult = new ObjectResult(jobRegistry, similarityResult.getTripleObject(), null);
                 ObjectResult toUpdate = objectResult;
@@ -365,7 +365,7 @@ public class JobHandlerServiceImp {
                     // Merges
                     if (objectResult.getNode().equals(objResAuto.getNode())
                             && objectResult.getTripleStore().equals(objResAuto.getTripleStore())) { // Si es el mismo nodo y triple store ACCIÓN = UPDATE o DELETE
-                        ObjectResult toUpdateAux = new ObjectResult(null,toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry)),eso.getSimilarity());
+                        ObjectResult toUpdateAux = new ObjectResult(null, toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry)), eso.getSimilarity());
                         if (!toUpdateAux.getEntityId().equals(toUpdate.getEntityId())) {
                             toDelete.remove(toUpdateAux);
                             toDelete.add(toUpdate);
@@ -385,15 +385,15 @@ public class JobHandlerServiceImp {
 
                 // Merges control
                 if (!objectResult.getAutomatic().isEmpty()) {
-                    if (toUpdate!=null) {
-                        ActionResult actionResult = new ActionResult(Action.UPDATE,objectResult);
+                    if (toUpdate != null) {
+                        ActionResult actionResult = new ActionResult(Action.UPDATE, objectResult);
                         actionResult.addObjectResult(toUpdate);
                         objectResult.getActionResults().add(actionResult);
                         toUpdate.setActionResultParent(actionResult);
                     }
 
-                    if (toDelete!=null && !toDelete.isEmpty()) {
-                        ActionResult actionResult = new ActionResult(Action.DELETE,objectResult);
+                    if (toDelete != null && !toDelete.isEmpty()) {
+                        ActionResult actionResult = new ActionResult(Action.DELETE, objectResult);
                         for (ObjectResult orDelete : toDelete) {
                             actionResult.addObjectResult(orDelete);
                             orDelete.setActionResultParent(actionResult);
@@ -402,8 +402,8 @@ public class JobHandlerServiceImp {
                             objectResult.getActionResults().add(actionResult);
                     }
 
-                    if (toLink!=null && !toLink.isEmpty()) {
-                        ActionResult actionResult = new ActionResult(Action.LINK,objectResult);
+                    if (toLink != null && !toLink.isEmpty()) {
+                        ActionResult actionResult = new ActionResult(Action.LINK, objectResult);
                         for (ObjectResult orLink : toLink) {
                             actionResult.addObjectResult(orLink);
                             orLink.setActionResultParent(actionResult);
@@ -438,9 +438,9 @@ public class JobHandlerServiceImp {
         isWorking = false;
         if (isAppReady) {
             if (!qClasses.isEmpty()) {
-                return CompletableFuture.supplyAsync(()->findSimilaritiesByClass(qClasses.poll()));
+                return CompletableFuture.supplyAsync(() -> findSimilaritiesByClass(qClasses.poll()));
             } else if (!qInstances.isEmpty()) {
-                return CompletableFuture.supplyAsync(()->findSimilaritiesByClass(qInstances.poll()));
+                return CompletableFuture.supplyAsync(() -> findSimilaritiesByClass(qInstances.poll()));
             }
         }
         return CompletableFuture.completedFuture(null);
@@ -454,15 +454,15 @@ public class JobHandlerServiceImp {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(webHook))
                     .POST(HttpRequest.BodyPublishers.ofString(jResponse.toString()))
-                    .header("content-type","application/json")
+                    .header("content-type", "application/json")
                     .build();
             try {
-                logger.info("Send POST Callback at URL: {}",webHook);
+                logger.info("Send POST Callback at URL: {}", webHook);
                 HttpResponse<String> response = client.send(request,
                         HttpResponse.BodyHandlers.ofString());
-                logger.info("Response Callback: {}",response.body());
+                logger.info("Response Callback: {}", response.body());
             } catch (Exception e) {
-                logger.error("Error in callback at URL: {}",webHook);
+                logger.error("Error in callback at URL: {}", webHook);
             }
         }
     }
@@ -470,7 +470,7 @@ public class JobHandlerServiceImp {
     private void propagueKafkaActions(JobRegistry jobRegistry) {
         for (ObjectResult or : jobRegistry.getObjectResults()) { // Por todas las acciones
             for (ActionResult ar : or.getActionResults()) { // Por todos las Acciones
-                kafkaHandlerService.sendMessageAction(ar, or.getRecursiveJobRegistry().getNode(),or.getRecursiveJobRegistry().getTripleStore(),or.getClassName() );
+                kafkaHandlerService.sendMessageAction(ar, or.getRecursiveJobRegistry().getNode(), or.getRecursiveJobRegistry().getTripleStore(), or.getClassName());
             }
         }
     }

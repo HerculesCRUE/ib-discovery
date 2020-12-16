@@ -49,10 +49,10 @@ data:
     port: 9092
     topicEntityChange:
       topic: entity_change
-      group_id: entity_change_1
+      groupId: entity_change_1
     topicDiscoveryAction:
       topic: discovery_action
-      group_id: discovery_action_1
+      groupId: discovery_action_1
 
 data-sources:
   useCachedData: true

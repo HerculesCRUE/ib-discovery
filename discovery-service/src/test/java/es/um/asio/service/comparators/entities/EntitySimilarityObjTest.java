@@ -30,7 +30,7 @@ class EntitySimilarityObjTest {
         esos = new HashSet<>();
         tos = dataGenerator.getTripleObjects();
         for (TripleObject to : tos) {
-            cache.addTripleObject(to.getTripleStore().getNode().getNode(), to.getTripleStore().getTripleStore(), to);
+            cache.addTripleObject(to.getTripleStore().getNode().getNodeName(), to.getTripleStore().getName(), to);
         }
         cache.generateEntityStats();
 

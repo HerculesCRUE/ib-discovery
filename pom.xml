@@ -137,12 +137,6 @@
 				<version>${org.mapstruct.version}</version>
 			</dependency>
 
-<!--			<dependency>
-				<groupId>org.springframework.security.oauth</groupId>
-				<artifactId>spring-security-oauth2</artifactId>
-				<version>${org.springframework.security.oauth.version}</version>
-			</dependency>-->
-
 		</dependencies>
 	</dependencyManagement>
 
@@ -151,7 +145,6 @@
 		<module>discovery-service</module>
 		<module>discovery-jpa-abstractions</module>
 		<module>discovery-service-abstractions</module>
-<!--		<module>discovery-audit</module>-->
 		<module>discovery-swagger</module>
 		<module>discovery-test</module>
 	</modules>
@@ -315,7 +308,7 @@
 				<configuration>
 					<!-- Sets the VM argument line used when unit tests are run. -->
 					<argLine>${surefireArgLine}</argLine>
-					<!-- Skips unit tests if the value of skip.unit.tests property is true -->
+					<!-- Skips unit tests if the val of skip.unit.tests property is true -->
 					<skipTests>${skip.unit.tests}</skipTests>
 					<!-- Excludes integration tests when unit tests are run. -->
 					<excludes>
@@ -338,7 +331,7 @@
 						<configuration>
 							<!-- Sets the VM argument line used when integration tests are run. -->
 							<argLine>${failsafeArgLine}</argLine>
-							<!-- Skips integration tests if the value of skip.integration.tests 
+							<!-- Skips integration tests if the val of skip.integration.tests
 								property is true -->
 							<skipTests>${skip.integration.tests}</skipTests>
 						</configuration>

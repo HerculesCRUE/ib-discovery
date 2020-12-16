@@ -22,23 +22,23 @@ class StatsHandlerTest {
         tos = dg.getTripleObjects();
         statsHandler = new StatsHandler();
         for (TripleObject to : tos) {
-            statsHandler.addAttributes(to.getTripleStore().getNode().getNode(),to.getTripleStore().getTripleStore(),to);
-            statsHandler.buildStats(to.getTripleStore().getNode().getNode(),to.getTripleStore().getTripleStore(),to.getClassName());
+            statsHandler.addAttributes(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to);
+            statsHandler.buildStats(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to.getClassName());
         }
     }
 
     @Test
     void addAttributes() {
         for (TripleObject to : tos) {
-            statsHandler.addAttributes(to.getTripleStore().getNode().getNode(),to.getTripleStore().getTripleStore(),to);
-            Assert.assertTrue(statsHandler.getStats().get(to.getTripleStore().getNode().getNode()).get(to.getTripleStore().getTripleStore()).get(to.getClassName()).getAttValues().size() == to.getAttributes().size());
+            statsHandler.addAttributes(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to);
+            Assert.assertTrue(statsHandler.getStats().get(to.getTripleStore().getNode().getNodeName()).get(to.getTripleStore().getName()).get(to.getClassName()).getAttValues().size() == to.getAttributes().size());
         }
     }
 
     @Test
     void getAttributesMap() {
         for (TripleObject to : tos) {
-            Assert.assertNotNull(statsHandler.getAttributesMap(to.getTripleStore().getNode().getNode(),to.getTripleStore().getTripleStore(),to.getClassName()));
+            Assert.assertNotNull(statsHandler.getAttributesMap(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to.getClassName()));
         }
     }
 
@@ -57,14 +57,14 @@ class StatsHandlerTest {
     @Test
     void buildStats() {
         for (TripleObject to : tos) {
-            Assert.assertNotNull(statsHandler.buildStats(to.getTripleStore().getNode().getNode(),to.getTripleStore().getTripleStore(),to.getClassName()));
+            Assert.assertNotNull(statsHandler.buildStats(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to.getClassName()));
         }
     }
 
     @Test
     void generateMoreRelevantAttributesMap() {
         for (TripleObject to : tos) {
-            Assert.assertNotNull(statsHandler.generateMoreRelevantAttributesMap(to.getTripleStore().getNode().getNode(),to.getTripleStore().getTripleStore(),to.getClassName()));
+            Assert.assertNotNull(statsHandler.generateMoreRelevantAttributesMap(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to.getClassName()));
         }
     }
 

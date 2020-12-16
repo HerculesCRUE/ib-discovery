@@ -21,11 +21,8 @@ import java.util.Map;
 @Configuration
 public class KafkaConsumerConfig {
 
-    @Autowired
-    DataProperties dataProperties;
-
     @Bean
-    public Map<String, Object> consumerConfigs() {
+    public Map<String, Object> consumerConfigs(DataProperties dataProperties) {
 
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -38,15 +35,15 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConsumerFactory<String,String> consumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(consumerConfigs());
+    public ConsumerFactory<String,String> consumerFactory(DataProperties dataProperties) {
+        return new DefaultKafkaConsumerFactory<>(consumerConfigs(dataProperties));
     }
 
     @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String,String>> kafkaListenerContainerFactory() {
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String,String>> kafkaListenerContainerFactory(DataProperties dataProperties) {
         ConcurrentKafkaListenerContainerFactory<String,String> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
+        factory.setConsumerFactory(consumerFactory(dataProperties));
         return factory;
     }
 

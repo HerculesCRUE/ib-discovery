@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisPassword;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
@@ -17,16 +19,16 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 @EntityScan(basePackages = "es.um.asio.service.model.redis")
 public class RedisConfig {
 
-/*    @Autowired
-    DataProperties dataProperties;*/
-
     @Bean
     JedisConnectionFactory connectionFactory(DataProperties dataProperties) {
+
+        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
+        redisStandaloneConfiguration.setHostName(dataProperties.getRedis().getHost());
+        redisStandaloneConfiguration.setPort(dataProperties.getRedis().getPort());
+        redisStandaloneConfiguration.setPassword(RedisPassword.of(dataProperties.getRedis().getPassword()));
+
         JedisConnectionFactory jedisConFactory
-            = new JedisConnectionFactory();
-        jedisConFactory.setHostName(dataProperties.getRedis().getHost());
-        jedisConFactory.setPort(dataProperties.getRedis().getPort());
-        jedisConFactory.setPassword(dataProperties.getRedis().getPassword());
+            = new JedisConnectionFactory(redisStandaloneConfiguration);
         return jedisConFactory;
     }
 

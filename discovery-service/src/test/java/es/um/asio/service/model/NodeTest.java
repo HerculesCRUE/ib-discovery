@@ -24,7 +24,7 @@ class NodeTest {
     @Test
     void getNode() {
         for (Node node : nodes) {
-            Assert.assertTrue(Utils.isValidString(node.getNode()));
+            Assert.assertTrue(Utils.isValidString(node.getNodeName()));
         }
     }
 
@@ -32,7 +32,7 @@ class NodeTest {
     void testEquals() {
         for (Node node : nodes) {
             for (Node nodeInner : nodes) {
-                if (node.getNode().equals(nodeInner.getNode()))
+                if (node.getNodeName().equals(nodeInner.getNodeName()))
                     Assert.assertTrue(node.equals(nodeInner));
                 else
                     Assert.assertFalse(node.equals(nodeInner));
@@ -53,7 +53,7 @@ class NodeTest {
     void testHashCode() {
         for (Node node : nodes) {
             for (Node nodeInner : nodes) {
-                if (node.getNode().equals(nodeInner.getNode()))
+                if (node.getNodeName().equals(nodeInner.getNodeName()))
                     Assert.assertTrue(node.hashCode() == nodeInner.hashCode());
                 else
                     Assert.assertFalse(node.hashCode() == nodeInner.hashCode());

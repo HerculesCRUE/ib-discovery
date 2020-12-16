@@ -77,7 +77,7 @@ public class DataProperties {
         @Setter
         public static class TopicEntityChange {
             private String topic;
-            private String group_id;
+            private String groupId;
         }
 
         @AllArgsConstructor
@@ -86,7 +86,7 @@ public class DataProperties {
         @Setter
         public static class TopicDiscoveryAction {
             private String topic;
-            private String group_id;
+            private String groupId;
         }
     }
 

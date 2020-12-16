@@ -23,6 +23,8 @@ public class ObjectResult {
 
     public static final String TABLE = "object_result";
 
+    public static final String SIMILARITY = "similarity";
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = Columns.ID)
@@ -117,8 +119,8 @@ public class ObjectResult {
 
     public ObjectResult(JobRegistry jobRegistry, TripleObject to, Float similarity) {
         this.className = to.getClassName();
-        this.node = to.getTripleStore().getNode().getNode();
-        this.tripleStore = to.getTripleStore().getTripleStore();
+        this.node = to.getTripleStore().getNode().getNodeName();
+        this.tripleStore = to.getTripleStore().getName();
         this.localURI = to.getLocalURI();
         this.jobRegistry = jobRegistry;
         this.lastModification = new Date(to.getLastModification());
@@ -153,7 +155,7 @@ public class ObjectResult {
         JobRegistry jobRegistryInner = getRecursiveJobRegistry();
         if (jobRegistryInner == null)
             jobRegistryInner = jr;
-        LinkedTreeMap<String,Object> attrs = getAttributesAsMap(attributes, new LinkedTreeMap<String,Object>() );
+        LinkedTreeMap<String,Object> attrs = getAttributesAsMap(attributes, new LinkedTreeMap<>() );
         TripleObject to = new TripleObject(getNode(), getTripleStore(),jobRegistryInner.getClassName(),attrs);
         to.setLocalURI(getLocalURI());
         to.setId(this.entityId);
@@ -207,9 +209,9 @@ public class ObjectResult {
         jResponse.addProperty("entityId",getEntityId());
         jResponse.addProperty("localUri",getLocalURI());
         if (getSimilarity()!=null)
-            jResponse.addProperty("similarity",getSimilarity());
+            jResponse.addProperty(SIMILARITY,getSimilarity());
 
-        LinkedTreeMap<String,Object> attrsMap = getAttributesAsMap(attributes, new LinkedTreeMap<String,Object>());
+        LinkedTreeMap<String,Object> attrsMap = getAttributesAsMap(attributes, new LinkedTreeMap<>());
         jResponse.add("attributes",new Gson().toJsonTree(attrsMap).getAsJsonObject());
         if (getAutomatic()!=null && expands) {
             JsonArray jAutomatics = new JsonArray();

@@ -23,7 +23,7 @@ class TripleStoreTest {
 
     @Test
     void getTripleStore() {
-        Assert.assertTrue(tripleStore.getTripleStore().equals("trellis"));
+        Assert.assertTrue(tripleStore.getName().equals("trellis"));
     }
 
     @Test
