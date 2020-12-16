@@ -4,7 +4,7 @@
 
 | Entregable     | Documentación de la librería de descubrimiento               |
 | -------------- | ------------------------------------------------------------ |
-| Fecha          | 25/05/2020                                                   |
+| Fecha          | 17/12/2020                                                   |
 | Proyecto       | [ASIO](https://www.um.es/web/hercules/proyectos/asio) (Arquitectura Semántica e Infraestructura Ontológica) en el marco de la iniciativa [Hércules](https://www.um.es/web/hercules/) para la Semántica de Datos de Investigación de Universidades que forma parte de [CRUE-TIC](http://www.crue.org/SitePages/ProyectoHercules.aspx) |
 | Módulo         | Arquitectura Semántica                                       |
 | Tipo           | Documento                                                    |
@@ -202,7 +202,7 @@ Estas estructuras de almacenan en distintas keys, hasta el nivel de Clase:
 
 `Nodo --> TripleStore --> ClassName`
 
-Como se ha comentado el único componente que interactúa con la cache es el **CacheService**, por lo que esto estransparente para el usuario.
+Como se ha comentado el único componente que interactúa con la cache es el **CacheService**, por lo que esto es transparente para el usuario.
 
 #### Estructuras de datos del modelo Relacional
 
@@ -214,7 +214,7 @@ Se usa un modelo de datos Relacional para modelar:
 
   * Gestión de peticiones de búsqueda de similitudes, entre otras cosas:
     * Que petición se ha realizado
-    * Que tipo de respuesta se ha solicitado (Webhook, Kakfa, Síncrona, Asincrona...)
+    * Que tipo de respuesta se ha solicitado (Webhook, Kakfa, Síncrona, Asíncrona...)
     * Metadatos de auditoria:
       * Fecha de petición
       * Fecha de conclusión

@@ -2,14 +2,14 @@
 
 | Entregable     | Documentación de la librería de descubrimiento               |
 | -------------- | ------------------------------------------------------------ |
-| Fecha          | 24/09/2020                                                   |
+| Fecha          | 17/12/2020                                                   |
 | Proyecto       | [ASIO](https://www.um.es/web/hercules/proyectos/asio) (Arquitectura Semántica e Infraestructura Ontológica) en el marco de la iniciativa [Hércules](https://www.um.es/web/hercules/) para la Semántica de Datos de Investigación de Universidades que forma parte de [CRUE-TIC](https://tic.crue.org/hercules/) |
 | Módulo         | Discovery                                                    |
 | Tipo           | Documentación                                                |
 | Objetivo       | Librería de descubrimiento para el proyecto Backend SGI (ASIO) |
 | Estado         | Completada                                                   |
 | Próximos pasos | Implementación                                               |
-| Documentación  | [Implementación de librería de descubrimiento](https://github.com/HerculesCRUE/ib-discovery) |
+| Documentación  | [Implementación de librería de descubrimiento](https://github.com/HerculesCRUE/ib-discovery/tree/master/docs) |
 
 # Librería de descubrimiento
 
@@ -52,11 +52,11 @@ El problema de reconciliación de entidades (record linkage) ha sido profundamen
 
 #### Objetivo en el proyecto ASIO
 
-Este modulo, pretende evitar o detectar la creación de distintas URIs para un mismo recurso.
+Este modulo, pretende principalmente evitar o detectar la creación de distintas URIs para un mismo recurso.
 
 Existen distintos contextos, donde la resolución de este problema, puede ser de especial utilidad, por un lado al insertar una nueva entidad, dentro del sistema, es necesario determinar si esta entidad existe, y en ese caso proceder a la actualización de la entidad existente, en vez de la creación de una entidad nueva. En el contexto de las entidades presentes ya en el triple store, es conveniente realizar también un proceso periódico que evalué si existen duplicados, y en este caso realizar las acciones de fusión entre dichas entidades que puedan ser oportunas. Es deseable un alto grado de automatización en el proceso, pero sin embargo es un proceso sensible, y que podría generar errores. Este aspecto se describirá ampliamente en el apartado [Automatización en la reconciliación de entidades](#automatización-en-la-reconciliación-de-entidades).
 
-Podemos entender que dos entidades son en realidad la misma entidad, cuando existe un alto grado de similitud entre los atributos de dicha entidad, por lo tanto, para establecer la similitud entre entidades, es  necesario, establecer previamente la similitud entre atributos.
+Podemos entender que dos entidades son en realidad la misma entidad, cuando existe un alto grado de similitud entre los atributos de dicha entidad, por lo tanto, para establecer la similitud entre entidades, es  necesario, establecer definir previamente la algoritmia para evaluar la similitud entre atributos, ampliamente descrito en el apartado [métricas_de_similitud_para_atributos](#Métricas-de-similitud-para-atributos).
 
 #### Justificación de la solución elegida
 
@@ -78,7 +78,7 @@ Esto deriva en distintas implementaciones para el calculo de similitud, en funci
 
 Estos son el tipo de atributo más común, ya que cualquier otro atributo, puede convertirse en una cadena de texto, por ejemplo el numero 23, puede representarse también como la cadena de texto "23", o cualquier objeto, puede ser representado también como una cadena de texto, por ejemplo en formato JSON o XML.
 
-Esto sin embargo no es recomendable, ya que esta conversión de tipos hace que se pierda la semántica del propio dato, es decir la diferencia entre las cadenas de texto "23" y "73", desde el punto de vista de cadenas de texto es mínima, ya que se ambas contienen el mismo juego de caracteres, (ya que en este caso solo cambia el orden de dichos caracteres), de forma que algoritmos que no sean sensibles al orden, podrían determinar que tienen un alto grado de similitud. Si embargo desde un punto de vista numérico, son valores muy diferentes.
+Esto sin embargo no es recomendable, ya que esta conversión de tipos hace que se pierda la semántica del propio dato, es decir la diferencia entre las cadenas de texto "23" y "32", desde el punto de vista de cadenas de texto es mínima, ya que se ambas contienen el mismo juego de caracteres, (ya que en este caso solo cambia el orden de dichos caracteres), de forma que algoritmos que no sean sensibles al orden, podrían determinar que tienen un alto grado de similitud. Si embargo desde un punto de vista numérico, son valores muy diferentes.
 
 También es probablemente la comparativa mas difícil de implementar, ya que podemos encontrar múltiples variaciones comunes para un mismo texto.
 
@@ -156,11 +156,11 @@ Esto hace conveniente la estrategia de evaluar cada cadena de texto con múltipl
 
 La implementación utiliza una lista ordenada, que ordenara las similitudes de mayor a menor en caso de que mayoritariamente (n/2 + 1) se detecte algún tipo de similitud (>= 0. 5), y de menor a mayor en caso contrario.
 
-Para los valores ordenados en la lista, se aplicara siempre un peso de 1/3 del los pesos restantes por aplicar. En la primera iteración (0), el restante es 1, por lo que se aplicara un peso de 1x1/3 al primer elemento de la lista, y se actualizara el resto a 2/3 del resto anterior, es decir 1x2/3. El mismo algoritmo se repetirá hasta los 2 últimos elementos, donde se repartirá el peso sobrante de forma igual entre ambos.
+Para los valores ordenados en la lista, se aplicara siempre un peso de 1/3 del los pesos restantes por aplicar. En la primera iteración (0), el restante es 1, por lo que se aplicara un peso de 1x1/3 al primer elemento de la lista, y se actualizara el resto a 2/3 del resto anterior, es decir 2/3x1/3 por lo que el peso a aplicar será 2/9. El mismo algoritmo se repetirá hasta los 2 últimos elementos, donde se repartirá el peso sobrante de forma igual entre ambos.
 
 De esta forma peso sumado para todos los elementos siempre sumara 1, por lo que el rango de la métrica ponderada resultante será la misma, es decir [0,1].
 
-Una vez calculado el peso apara cada elemento se aplicara una media ponderada, sobre los elementos de la lista, aplicando dicho peso.
+Una vez calculado el peso para cada elemento se aplicara una media ponderada, sobre los elementos de la lista, aplicando el peso antes calculado.
 
 Básicamente una vez ordenada la lista, cada nueva métrica se ponderara de forma decreciente, es decir, tendrá menos peso que la métrica anterior. Esto tiende a acentuar las diferencias, cuando las cadenas de texto son diferentes    
 
@@ -192,13 +192,13 @@ En la grafica se puede apreciar que los mayores valores de la similitud, se prod
 
 También interesa relativizar las diferencias, es decir no es lo mismo una diferencia de 1 unidad en una comparativa entre valores bajos (por ejemplo entre 5 y 6), que la misma diferencia (1 unidad) entre números altos, por ejemplo entre 1.000.000 y 1.000.001, ya en el segundo caso, la diferencia relativa es menor. Para ello se aplicara la normalización numérica, que básicamente consiste en dividir ambos números, por el mayor de ellos en valor absoluto.
 
-Además es interesante discretizar las similitudes, ya que una similitudes del 0.99999, aunque numéricamente esta cercana a 1, el uno indica que ambos números son iguales y sin embargo el valor 0.99999,  indica que existe cierta diferencia por cercana que esta sea.
+Además es interesante discretizar las similitudes, ya que una similitudes del 0.99999, aunque numéricamente esta cercana a 1, el uno indica que ambos números son iguales y sin embargo el valor 0.99999,  indica que existe cierta diferencia por cercana que esta sea. por lo que se discretizara redondeando el numero normalizado a si valor inferior mas cercano con un solo decimal, es decir, se aproximara a 0.9
 
 En temimos generales para calcular la similitud entre dos números se aplica la siguiente formula:
 $$
 similitud = ({1\over 2})^{nMax-nMin}
 $$
-Donde nMax es el máximo normalizado, es decir el redondeo floor(max/max), es decir 1 y nMin es el mínimo normalizado según la formula floor(min/max), que podrá tomar los siguientes valores discretos [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 y 1]. Para valores iguales, la similitud sera siempre 1, en otro caso la similitud oscilara en el rango [0,0.5].
+Donde nMax es el máximo normalizado, es decir el redondeo floor(max/max), es decir 1 y nMin es el mínimo normalizado según la formula floor(min/max), que podrá tomar los siguientes valores discretos [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 y 1]. Para valores iguales, la similitud será siempre 1, en otro caso la similitud oscilara en el rango [0,0.5].
 
 ###### Atributos de tipo Booleano
 
@@ -242,7 +242,7 @@ Para ello se seguirá el siguiente algoritmo:
 
 1. Se generara una lista de atributos únicos presentes en la entidad A o en la entidad B
 2. Para cada atributo, se obtendrá el tipo, y se calculara la métrica dependiente del tipo, descrita en el punto anterior  ([Métricas de similitud para atributos](#métricas-de-similitud-para-atributos)). 
-   1. En caso de no coincidir los tipos, se realizara siempre la comparación en forma de String, ya que este es el tipo mas general posible.
+   1. En caso de no coincidir los tipos, se realizara siempre la comparación en forma de cadena de texto, ya que este es el tipo mas general posible.
    2. En caso de ser un objeto, se aplicara el algoritmo para la comparación de entidades aquí descrito recursivamente.
 3. Se ponderara y normalizara la métrica obtenida (según lo descrito en el apartado [Variabilidad de atributos para una entidad](#variabilidad-de-atributos-para-una-entidad), de forma que el resultado de similitud, siempre estará en el rango [0,1]
 
@@ -271,19 +271,55 @@ Este modulo, tiene dos módulos principales:
 
 ##### Descubrimiento de enlaces entre entidades de distintos Backend SGI
 
-En este caso, los distintos Backend SGI, comparten ontología, y por lo tanto, las entidades disponibles entre distintos backend SGI, son comparables en los términos definidos por el módulo de [Reconciliación de entidades](#reconciliación-de-entidades), descrito en el punto anterior, y por lo tanto, tanto la algoritmia, como el diseño de la solución deberá de ser el mismo, siendo necesaria únicamente a priori, la modificación del componente [**Data Fetcher**](#integración-del-proceso-dentro-de-la-arquitectura-general-de-la-aplicación), que en este caso tiene que tener además la capacidad de obtener datos de todas los backend SGI, que estén involucrados. Por otro lado el componente [**Merge event Processor**](#integración-del-proceso-dentro-de-la-arquitectura-general-de-la-aplicación), deberá en este caso de añadir las tripletas necesarias (en ambos componentes), para indicar el enlace entre entidades.
+En este caso, los distintos Backend SGI, comparten ontología, y por lo tanto, las entidades disponibles entre distintos backend SGI, son comparables en los términos definidos por el módulo de [Reconciliación de entidades](#reconciliación-de-entidades), descrito en el punto anterior.
+
+De esta forma tanto la algoritmia, como el diseño de la solución será exactamente el mismo, siendo necesaria únicamente a priori, la modificación del conector de datos ([**Data Fetcher**](#integración-del-proceso-dentro-de-la-arquitectura-general-de-la-aplicación)), que en este caso tiene que tener además de la capacidad de obtener datos de su propio Backend SGI,  la capacidad de obtener datos de todos aquellos backend SGI que estén definidos e incluso la de obtener instancias dentro del mismo Backend SGI, almacenadas en distintos Triple Stores. La labor de descubrimiento de los distintos Backend SGI, se centralizara un Service Discovery, de forma que este sea consciente de todos los posibles Backend SGI, que pudiesen estar disponibles.
+
+Sera necesario programar con cierta periodicidad, la labor de descubrimiento de enlaces. 
+
+En la primera iteración será necesario evaluar todas las entidades del nodo y sus instancias que pudiesen estar relacionadas con las mismas entidades de otros nodos. Esto indudablemente tendrá un coste computacional elevado en la primera iteración (que en ningún caso interferirá con cualquier otra actividad que pudiese realizar la plataforma). 
+
+En cualquier caso se han introducido mecanismos de optimización de búsqueda, tales como cacheado de datos (Redis), evaluación perezosa (se aborta la evaluación cuando esta no puede llegar al umbral mínimo), evaluación en memoria, reducción de espacio de búsqueda (por medio de Elasticsearch) para garantizar que la operación a pesar de ser costosa, se realiza con la máxima optimización posible.
+
+Sin embargo en sucesivas iteraciones se evaluaran solo las similitudes que pudiesen existir a partir de los deltas, es decir, las entidades que hubiesen sufrido algún tipo de cambio desde la ultima evaluación, lo que supondrá una optimización suficiente, para que de esta forma la labor pueda ser operativa en escenarios de elevado un crecimiento horizontal del numero de nodos, sin un coste computacional demasiado elevado (siempre dependiendo de la volumetría de cambios). La librería de descubrimiento almacena asimismo los metadatos necesarios para poder realizar esta función de la forma mas eficiente posible, mediante: uso de caches, metadatos de estado por nodo, triple store y tipo de entidad ....
+
+Por otro lado el componente [**Merge event Processor**](#integración-del-proceso-dentro-de-la-arquitectura-general-de-la-aplicación), deberá en este caso de añadir las tripletas necesarias (en ambas instancias), para indicar el enlace entre instancias de distintos Backend SGI o dentro del mismo Backend SGI, almacenadas en distintos Triple Stores.
+
+Asi mismo la propiedad que indicara una relación de equivalencia entre entidades de distintos nodos será la propiedad **owl:sameAs**, formándose asi tripletas (en ambas instancias) del tipo:
+
+`URI_Instancia_X_nodo_A  owl:sameAs URI_Instancia_Y_nodo_B`
+
+Donde el sujeto será siempre la instancia local, y el objeto la instancia alojada en otro nodo que referencia la misma instancia relacionada con la instancia local.
+
+Estas tripletas de equivalencia serán de especial interés para la solución propuesta para la [federación de consultas](https://github.com/HerculesCRUE/ib-asio-docs-/blob/master/00-Arquitectura/arquitectura_semantica/federaci%C3%B3n/ASIO_Izertis_Federaci%C3%B3n_BORRADOR.md), especialmente en lo relativo a la agregación de resultados, ya que permitirá al motor de agregación, no duplicar en la respuesta las instancias equivalentes retornadas por los distintos Backend SGI, y presentar en su lugar una única instancia, con todas las relaciones con otras instancias equivalentes distribuidas en otros Backend SGI. Por otra parte, dado que la relación de similitud, estará siempre pre-calculada, esto no deberá de suponer un sobrecoste al proceso de agregación. 
 
 ##### Descubrimiento de enlaces entre entidades en la nube LOD
 
 En este caso es necesario trabajar sobre el conjunto de datasets disponibles en la nube LOD, que puedan ser relevantes  para el proyecto, por lo tanto, el primer paso, previo a la implementación, es la identificación de dichos datasets.
 
-En el momento actual, se esta trabajando en dicha selección por lo que no es conveniente profundizar en los pasos posteriores, aunque podemos determinar que será necesario:
+En primera instancia se proponen los datasets de
 
-* Relacionar nuestra ontología con la ontología de los dataset seleccionados
-* Establecer un modelo de datos común.
-* Aplicar la [Reconciliación de entidades](#reconciliación-de-entidades), descrita en el punto anterior
+* [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page): Dataset generalista, donde podrían relacionarse investigadores, universidades, Proyectos....
+* [OKRG](): Dataset orientado a los artículos de investigación.
+* [VIVO](https://duraspace.org/vivo/): Dataset orientado a la actividad académica.
+* [CERIF](https://www.eurocris.org/eurocris_archive/cerifsupport.org/index_688.html): Dataset que modela el ecosistema de investigación. 
+
+Para ello es necesario tener en cuenta las siguientes consideraciones:
+
+* Sera necesario crear conectores para todos los datasets enumerados, que obtengan información de cada uno de los datasets externos enumerados, y lo conviertan en el modelo de datos genérico, usado por la librería de descubrimiento.
+* Sera necesario admitir y procesar ficheros de configuración, donde se pueda mapear el modelo de datos propio de cada dataset, con el modelo de datos genérico, donde debe de estar descrito al menos:
+  * Entidad relacionada del Backend SGI
+  * Entidad relacionada con el dataset externo
+  * Meta-información relativa al método de obtención de datos desde el dataset externo para cada entidad, y modo de extracción. 
+  * Propiedades a mapear que relacionen propiedades del Backend SGI con Dataset externo.
+* Para este caso concreto, y en base al mapeo descrito en el punto anterior y a la estadística generada por la librería de descubrimiento sobre las propiedades asociadas a una determinada entidad, se creara el sub conjunto de propiedades coincidentes de modo que puedan ser comparadas, y se generaran nuevas estadísticas para usar en la comparación en función de dichas propiedades. 
+* Una vez que los datos externos, siguen el modelo de datos genérico, usado por la librería de descubrimiento y generadas las estadísticas, se aplicara la [Reconciliación de entidades](#reconciliación-de-entidades), descrita en el punto anterior, usando las estadísticas especificas de la unión de ambos modelos.
 
 ### Detección de equivalencias
 
-Este punto esta en estudio.
+Este punto esta en estudio. 
+
+
+
+
 
