@@ -1,7 +1,6 @@
 package es.um.asio.service.config;
 
 import es.um.asio.service.repository.redis.StringRedisRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -26,10 +25,7 @@ public class RedisConfig {
         redisStandaloneConfiguration.setHostName(dataProperties.getRedis().getHost());
         redisStandaloneConfiguration.setPort(dataProperties.getRedis().getPort());
         redisStandaloneConfiguration.setPassword(RedisPassword.of(dataProperties.getRedis().getPassword()));
-
-        JedisConnectionFactory jedisConFactory
-            = new JedisConnectionFactory(redisStandaloneConfiguration);
-        return jedisConFactory;
+        return new JedisConnectionFactory(redisStandaloneConfiguration);
     }
 
     @Bean

@@ -229,7 +229,6 @@ public class JobHandlerServiceImp {
         requestRegistry.setJobRegistry(jobRegistry);
         if (Utils.isValidString(jobRegistry.getId())) {
             requestRegistry.setJobRegistry(jobRegistry);
-            // requestRegistryProxy.save(requestRegistry);
         }
 
         jobRegistry.addRequestRegistry(requestRegistry);
@@ -460,7 +459,8 @@ public class JobHandlerServiceImp {
                 logger.info("Send POST Callback at URL: {}", webHook);
                 HttpResponse<String> response = client.send(request,
                         HttpResponse.BodyHandlers.ofString());
-                logger.info("Response Callback: {}", response.body());
+                String body = response.body();
+                logger.info("Response Callback: {}", body);
             } catch (Exception e) {
                 logger.error("Error in callback at URL: {}", webHook);
             }

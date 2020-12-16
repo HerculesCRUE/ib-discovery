@@ -126,7 +126,7 @@ public class TrellisHandler extends TripleStoreHandler {
                                     try {
                                         to.setTripleStore(this.tripleStore);
                                         String nText = ((isNew)?"(New) ":" ");
-                                        logger.info("\t\tProcessing Node {} Instances: {} ({}/{}): {}	,class ({}/{}):{}	,id: {}	,data:{}",nText, ++instancesCounter, ++instancesInClass,totalInClass, nodeName, classesCounter,totalClasses,className, instanceId, to);
+                                        logger.info("\t\tProcessing Node {} Instances: {} ({}/{}): {}\t,class ({}/{}):{}\t,id: {}	,data:{}",nText, ++instancesCounter, ++instancesInClass,totalInClass, nodeName, classesCounter,totalClasses,className, instanceId, to);
                                         cacheService.addTripleObject(nodeName,TRIPLE_STORE, to);
                                     } catch (Exception e) {
                                         logger.error("Error processing Node {}: {}",nodeName,e.getMessage());

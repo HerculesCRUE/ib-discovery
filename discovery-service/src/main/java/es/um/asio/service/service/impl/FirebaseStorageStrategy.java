@@ -2,7 +2,6 @@ package es.um.asio.service.service.impl;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import org.mariadb.jdbc.internal.logging.Logger;

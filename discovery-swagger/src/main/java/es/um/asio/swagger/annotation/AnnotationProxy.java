@@ -47,7 +47,7 @@ public class AnnotationProxy implements Annotation, InvocationHandler {
     @SuppressWarnings("unchecked")
     public static <A extends Annotation> A of(final Class<A> annotation, final Map<String, Object> values) {
         return (A) Proxy.newProxyInstance(annotation.getClassLoader(), new Class[] { annotation },
-                new AnnotationProxy(annotation, new HashMap<String, Object>(values)));
+                new AnnotationProxy(annotation, new HashMap<>(values)));
     }
 
     /**

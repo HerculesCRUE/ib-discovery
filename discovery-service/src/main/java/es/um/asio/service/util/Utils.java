@@ -79,11 +79,7 @@ public class Utils {
     }
 
     private static List<String> buildListStr(String ... args) {
-        List<String> l = new ArrayList<>();
-        for (String arg : args) {
-            l.add(arg);
-        }
-        return l;
+        return Arrays.asList(args);
     }
 
     public static List<String> generateCombinations(String c1, List<Integer> rep1, String c2, List<Integer> rep2, String c3, List<Integer> rep3, List<String> separators) {
@@ -130,22 +126,22 @@ public class Utils {
 
     public static Map<Locale,List<String>> getStringFormat() {
         Map<Locale,List<String>> formats = new HashMap<>();
-        formats.put(Locale.ROOT,new ArrayList<>(Arrays.asList(new String[] {"MM/DD/YY","DD/MM/YY","YY/MM/DD","MMM D, YY","M/D/YY","D/M/YY","YY/M/D","M/bD/YY",
+        formats.put(Locale.ROOT,new ArrayList<>(buildListStr("MM/DD/YY","DD/MM/YY","YY/MM/DD","MMM D, YY","M/D/YY","D/M/YY","YY/M/D","M/bD/YY",
                 "bD/M/YY","YY/M/bD","MMDDYY","DDMMYY","YYMMDD","MonDDYY","DDMonYY","YYMonDD","day/YY","YY/day","D MMM, YY","YY, MMM D","Mon-DD-YYYY","DD-Mon-YYYY",
                 "YYYYY-Mon-DD","Mon DD, YYYY","DD Mon, YYYY","YYYY, Mon DD","yyyyMMddZ","yyyyMMdd","yyyy-MM-dd G","yyyy-MM-ddXXX","yyyy-MM-dd'T'HH:mm:ss.SSS'['VV']'","yyyy-MM-dd'T'HH:mm:ss.SSS",
                 "yyyy-MM-dd'T'HH:mm:ss","yyyy-MM-dd'T'HH:mm:ss.SSS'Z'","yyyy-MM-dd'T'HH:mm:ss.SSSXXX","yyyy-MM-dd'T'HH:mm:ssXXX","yyyy-DDDXXX",
-                "YYYY'W'wc","YYYY-'W'w-c","yyyy-MM-dd'T'HH:mm:ss.SSSXXX'['VV']'","yyyy-MM-dd'T'HH:mm:ssXXX'['VV']'"})));
-        formats.put(new Locale ( "es" , "ES" ),new ArrayList<String>(Arrays.asList(new String[] {"d/MM/yy","d/MM/yy H:mm","d.M.yy H:mm"})));
-        formats.put(Locale.US,new ArrayList<>(Arrays.asList(new String[] {"M/d/yy","M/d/yy","MM/dd/yy","MM-dd-yy","M-d-yy","MMM d, yyyy","MMMM d, yyyy","EEEE, MMMM d, yyyy","MMM d yyyy",
+                "YYYY'W'wc","YYYY-'W'w-c","yyyy-MM-dd'T'HH:mm:ss.SSSXXX'['VV']'","yyyy-MM-dd'T'HH:mm:ssXXX'['VV']'")));
+        formats.put(new Locale ( "es" , "ES" ),new ArrayList<>(Arrays.asList(new String[] {"d/MM/yy","d/MM/yy H:mm","d.M.yy H:mm"})));
+        formats.put(Locale.US,new ArrayList<>(buildListStr("M/d/yy","M/d/yy","MM/dd/yy","MM-dd-yy","M-d-yy","MMM d, yyyy","MMMM d, yyyy","EEEE, MMMM d, yyyy","MMM d yyyy",
                 "MMMM d yyyy","MM-dd-yyyy","M-d-yyyy","yyyy-MM-ddXXX","dd/MM/yyyy","d/M/yyyy","MM/dd/yyyy","M/d/yyyy","yyyy/M/d","M/d/yy h:mm a",
                 "MM/dd/yy h:mm a","MM-dd-yy h:mm a","M-d-yy h:mm a","MMM d, yyyy h:mm:ss a","EEEE, MMMM d, yyyy h:mm:ss a z","EEE MMM dd HH:mm:ss z yyyy",
                 "EEE, d MMM yyyy HH:mm:ss Z","d MMM yyyy HH:mm:ss Z","MM-dd-yyyy h:mm:ss a","M-d-yyyy h:mm:ss a","yyyy-MM-dd h:mm:ss a","yyyy-M-d h:mm:ss a",
                 "yyyy-MM-dd HH:mm:ss.S","dd/MM/yyyy h:mm:ss a","d/M/yyyy h:mm:ss a","MM/dd/yyyy h:mm:ss a","M/d/yyyy h:mm:ss a","MM/dd/yy h:mm:ss a",
                 "MM/dd/yy H:mm:ss","M/d/yy H:mm:ss","dd/MM/yyyy h:mm a","d/M/yyyy h:mm a","MM/dd/yyyy h:mm a","M/d/yyyy h:mm a",
                 "MM-dd-yy h:mm:ss a","M-d-yy h:mm:ss a","MM-dd-yyyy h:mm a","M-d-yyyy h:mm a","yyyy-MM-dd h:mm a","yyyy-M-d h:mm a","MMM.dd.yyyy",
-                "d/MMM/yyyy H:mm:ss Z","dd/MMM/yy h:mm a"})));
-        formats.put(Locale.UK,new ArrayList<>(Arrays.asList(new String[] {"dd MMMM yyyy","EEEE, d MMMM yyyy","dd-MMM-yyyy","dd MMMM yyyy HH:mm:ss z","EEEE, d MMMM yyyy HH:mm:ss 'o''clock' z",
-                "dd-MMM-yyyy HH:mm:ss","dd-MMM-yyyy HH:mm:ss","dd-MMM-yy hh.mm.ss.nnnnnnnnn a"})));
+                "d/MMM/yyyy H:mm:ss Z","dd/MMM/yy h:mm a")));
+        formats.put(Locale.UK,new ArrayList<>(buildListStr("dd MMMM yyyy","EEEE, d MMMM yyyy","dd-MMM-yyyy","dd MMMM yyyy HH:mm:ss z","EEEE, d MMMM yyyy HH:mm:ss 'o''clock' z",
+                "dd-MMM-yyyy HH:mm:ss","dd-MMM-yyyy HH:mm:ss","dd-MMM-yy hh.mm.ss.nnnnnnnnn a")));
         return formats;
     }
 
@@ -196,6 +192,7 @@ public class Utils {
                 try {
                     return sdf.parse(s);
                 } catch (Exception e) {
+                    continue;
                 }
             }
         }
@@ -205,10 +202,10 @@ public class Utils {
     public static boolean isObject(String s) {
         try {
             JsonElement je = new Gson().fromJson(s, JsonElement.class);
+            boolean isObject = false;
             if (je.isJsonArray() || je.isJsonObject())
-                return true;
-            else
-                return false;
+                isObject = true;
+            return isObject;
         } catch (Exception e) {
             return false;
         }

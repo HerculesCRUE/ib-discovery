@@ -308,20 +308,6 @@ public class CacheServiceImp implements CacheService {
                                         } catch (Exception e) {
                                             logger.error(e.getMessage());
                                         }
-                                        if (toInner.getLastModification() != 0) {
-                                            Calendar cal = Calendar.getInstance();
-                                            cal.setTime(new Date(toInner.getLastModification()));
-                                            int year = cal.get(Calendar.YEAR);
-                                            int month = cal.get(Calendar.MONTH);
-                                            if (!triplesMapByDate.get(node.getKey()).get(tripleStore.getKey()).get(className.getKey()).containsKey(year)) {
-                                                triplesMapByDate.get(node.getKey()).get(tripleStore.getKey()).get(className.getKey()).put(year, new HashMap<>());
-                                            }
-                                            if (!triplesMapByDate.get(node.getKey()).get(tripleStore.getKey()).get(className.getKey()).get(year).containsKey(month)) {
-                                                triplesMapByDate.get(node.getKey()).get(tripleStore.getKey()).get(className.getKey()).get(year).put(month, new HashMap<>());
-                                            }
-                                            triplesMapByDate.get(node.getKey()).get(tripleStore.getKey()).get(className.getKey()).get(year).get(month).put(toInner.getId(), toInner);
-
-                                        }
                                     }
                                 }
                             }

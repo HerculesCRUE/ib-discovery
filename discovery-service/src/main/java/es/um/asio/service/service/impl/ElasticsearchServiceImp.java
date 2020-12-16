@@ -33,9 +33,6 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
     TripleObjectESCustomRepository customRepository;
 
     @Autowired
-    ElasticsearchTemplate elasticsearchTemplate;
-
-    @Autowired
     CacheServiceImp cache;
 
     @Autowired
