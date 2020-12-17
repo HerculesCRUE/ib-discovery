@@ -3,7 +3,7 @@
 | Entregable     | Librería de descubrimiento                                   |
 | -------------- | ------------------------------------------------------------ |
 | Fecha          | 17/12/2020                                                   |
-| Proyecto       | [ASIO](https://www.um.es/web/hercules/proyectos/asio) (Arquitectura Semántica e Infraestructura Ontológica) en el marco de la iniciativa [Hércules](https://www.um.es/web/hercules/) para la Semántica de Datos de Investigación de Universidades que forma parte de [CRUE-TIC](http://www.crue.org/SitePages/ProyectoHercules.aspx) |
+| Proyecto       | [ASIO](https://www.um.es/web/hercules/proyectos/asio) (Arquitectura Semántica e Infraestructura Ontológica) en el marco de la iniciativa [Hércules](https://www.um.es/web/hercules/) para la Semántica de Datos de Investigación de Universidades que forma parte de [CRUE-TIC](https://www.crue.org/proyecto/hercules/) |
 | Módulo         | Arquitectura Semántica                                       |
 | Tipo           | Documentación                                                |
 | Objetivo       | El presente documento pretende ser la documentación técnica relativa a el entregable librería de descubrimiento. Para ello, se documentaran exhaustivamente tanto los aspectos relativos a su despliegue, como todos los End Point que esta ofrece a otros procesos o usuarios, para interactuar con la misma. |
