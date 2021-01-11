@@ -22,12 +22,14 @@ data-sources:
   nodes:
     -
       nodeName: um
+      serviceName: sparql-proxy
       tripleStores:
         -
-          type: trellis
-          baseURL: http://herc-iz-front-desa.atica.um.es/
-          user: admin
-          password: admin
+          type: sparql
+          baseURL: http://localhost:9328/
+          name: sparql
+          user:
+          password:
 
 #    - nodeName: um2
 #      tripleStores:

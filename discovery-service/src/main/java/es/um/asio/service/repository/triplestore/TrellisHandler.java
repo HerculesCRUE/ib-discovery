@@ -143,8 +143,8 @@ public class TrellisHandler extends TripleStoreHandler {
             } // End of class
         }
 
-        if (changes > 0 || triplesMapCached.isEmpty()) {
-            if (triplesMapCached.isEmpty()) {
+        if (changes > 0 || !triplesMapCached.isEmpty()) {
+            if (!triplesMapCached.isEmpty()) {
                 for (TripleObject to : triplesMapCached) {
                     cacheService.removeTripleObject(this.nodeName, this.tripleStore.getName(), to);
                 }

@@ -19,7 +19,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class })
 @Import({ ServiceConfig.class })
 
-@ComponentScan(basePackages="es.um.asio.back.controller")
+
 @EnableAsync
 public class DiscoveryApplication {
 

@@ -65,22 +65,25 @@ data-sources:
     elasticSearchCutOffAccordPercentile: 0.5
     manualThreshold: 0.7
     automaticThreshold: 0.95
+  urisFactoryHost: http://localhost:9326/
   nodes:
     -
       nodeName: um
+      serviceName: sparql-proxy
       tripleStores:
         -
-          type: trellis
-          baseURL: http://herc-iz-front-desa.atica.um.es/
+          type: sparql
+          baseURL: http://localhost:9328/
+          name: sparql
+          user:
+          password:
+
+    - nodeName: um
+      tripleStores:
+        - type: trellis
+          baseURL: http://localhost:80/
           user: admin
           password: admin
-
-#    - nodeName: um2
-#      tripleStores:
-#        - type: trellis
-#          baseURL: http://localhost:80/
-#          user: admin
-#          password: admin
 
 ## Actuator
 management:

@@ -22,6 +22,7 @@ public class DataSourcesConfiguration {
     private boolean useCachedData;
     private Thresholds thresholds;
     private List<Node> nodes = new ArrayList<>();
+    private String urisFactoryHost;
 
     public Node getNodeByName(String nodeName) {
         for (Node node: nodes) {
@@ -53,6 +54,7 @@ public class DataSourcesConfiguration {
     @Setter
     public static class Node {
         private String nodeName;
+        private String serviceName;
         private List<TripleStore> tripleStores = new ArrayList<>();
 
 
@@ -76,6 +78,7 @@ public class DataSourcesConfiguration {
         public static class TripleStore {
             private String type;
             private String baseURL;
+            private String name;
             private String user;
             private String password;
 

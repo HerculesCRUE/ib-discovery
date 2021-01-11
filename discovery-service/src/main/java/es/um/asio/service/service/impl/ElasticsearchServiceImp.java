@@ -249,9 +249,9 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
         List<TripleObjectES> tripleObjectsES = new ArrayList<>();
         List<Triplet<String,String,String>> filters = new ArrayList<>();
         if (node!=null)
-            filters.add(new Triplet<>("tripleStore.node.node",node,"TERM"));
+            filters.add(new Triplet<>("tripleStore.node.nodeName",node,"TERM"));
         if (tripleStore!=null)
-            filters.add(new Triplet<>("tripleStore.tripleStore",tripleStore,"TERM"));
+            filters.add(new Triplet<>("tripleStore.name",tripleStore,"TERM"));
         filters.add(new Triplet<>("className",className,"MATCH"));
         try {
             tripleObjectsES = customRepository.findByClassNameAndAttributesWithPartialMatch(indexName,filters,params);
@@ -266,9 +266,9 @@ public class ElasticsearchServiceImp implements ElasticsearchService {
         List<TripleObject> tripleObjects = new ArrayList<>();
         List<Triplet<String,String,String>> filters = new ArrayList<>();
         if (node!=null)
-            filters.add(new Triplet<>("tripleStore.node.node",node,"TERM"));
+            filters.add(new Triplet<>("tripleStore.node.nodeName",node,"TERM"));
         if (tripleStore!=null)
-            filters.add(new Triplet<>("tripleStore.tripleStore",tripleStore,"TERM"));
+            filters.add(new Triplet<>("tripleStore.name",tripleStore,"TERM"));
         filters.add(new Triplet<>("className",className,"MATCH"));
         try {
 

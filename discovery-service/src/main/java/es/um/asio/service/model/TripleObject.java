@@ -70,6 +70,22 @@ public class TripleObject {
         buildFlattenAttributes();
     }
 
+    public TripleObject(JsonObject jTripleObject) {
+        if (jTripleObject.has("id"))
+            this.id = jTripleObject.get("id").getAsString();
+        if (jTripleObject.has("localURI"))
+            this.localURI = jTripleObject.get("localURI").getAsString();
+        if (jTripleObject.has("className"))
+            this.className = jTripleObject.get("className").getAsString();
+        if (jTripleObject.has("node") && jTripleObject.has("tripleStore"))
+            this.tripleStore = new TripleStore(jTripleObject.get("tripleStore").getAsString(),jTripleObject.get("node").getAsString());
+        if (jTripleObject.has("lastModification"))
+            this.lastModification = jTripleObject.get("lastModification").getAsLong();
+        if (jTripleObject.has("attributes"))
+            this.attributes = new Gson().fromJson(jTripleObject.get("attributes").getAsJsonObject().toString(), LinkedTreeMap.class);
+        buildFlattenAttributes();
+    }
+
     public TripleObject(String node, String tripleStore, String className, JSONObject jData ) {
         this.setTripleStore(new TripleStore(tripleStore,node));
         this.className = className;
@@ -125,12 +141,38 @@ public class TripleObject {
                 Objects.equals(className, that.className) &&
                 Objects.equals(lastModification, that.lastModification) &&
                 Objects.equals(tripleStore, that.tripleStore) &&
-                Objects.equals(attributes, that.attributes);
+                equalAttributes(that.attributes);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    private boolean equalAttributes(LinkedTreeMap<String,Object> other) {
+        try {
+            Set<String> allKeys = this.attributes.keySet();
+            for (String oKey : other.keySet()) {
+                if (!allKeys.contains(oKey))
+                    allKeys.add(oKey);
+            }
+            for (String key : allKeys) {
+                Object thisAtt = this.attributes.containsKey(key) ? this.attributes.get(key) : null;
+                Object otherAtt = other.containsKey(key) ? other.get(key) : null;
+                if ((thisAtt == null && otherAtt == null))
+                    return true;
+                else if (thisAtt == null && otherAtt != null)
+                    return false;
+                else if (thisAtt != null && otherAtt == null)
+                    return false;
+                else if (!thisAtt.equals(otherAtt))
+                    return false;
+
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public EntitySimilarityObj compare(CacheServiceImp cacheService, TripleObject other) {

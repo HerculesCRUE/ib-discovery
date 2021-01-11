@@ -18,6 +18,7 @@ import es.um.asio.service.repository.relational.DiscoveryApplicationRepository;
 import es.um.asio.service.repository.relational.JobRegistryRepository;
 import es.um.asio.service.repository.triplestore.TripleStoreHandler;
 import es.um.asio.service.service.DataHandler;
+import es.um.asio.service.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +74,10 @@ public class DataHandlerImp implements DataHandler {
     @Autowired
     CacheRegistryRepository cacheRegistryRepository;
 
+    @Autowired
+    SchemaService schemaService;
+
+
 
     @PostConstruct
     private void initialize() {
@@ -117,7 +122,7 @@ public class DataHandlerImp implements DataHandler {
         if (applicationState.getAppState() == ApplicationState.AppState.INITIALIZED && node != null) {
             DataSourcesConfiguration.Node.TripleStore ts = node.getTripleStoreByType(tripleStore);
             if (ts != null) {
-                TripleStoreHandler handler = TripleStoreHandler.getHandler(ts.getType(), node.getNodeName(), ts.getBaseURL(), ts.getUser(), ts.getPassword());
+                TripleStoreHandler handler = TripleStoreHandler.getHandler(schemaService, dataSourcesConfiguration,node,ts);
                 if (handler != null) {
                     boolean isCompleted = handler.updateTripleObject(cache, nodeName, tripleStore, className, entityURL, basicAction);
                     if (isCompleted) {
@@ -193,7 +198,7 @@ public class DataHandlerImp implements DataHandler {
         boolean isChanged = false;
         for (DataSourcesConfiguration.Node node : dataSourcesConfiguration.getNodes()) {
             for (DataSourcesConfiguration.Node.TripleStore ts : node.getTripleStores()) {
-                TripleStoreHandler handler = TripleStoreHandler.getHandler(ts.getType(), node.getNodeName(), ts.getBaseURL(), ts.getUser(), ts.getPassword());
+                TripleStoreHandler handler = TripleStoreHandler.getHandler(schemaService, dataSourcesConfiguration, node,ts);
                 isChanged = isChanged ||  handler.updateData(cache);
             }
         }
