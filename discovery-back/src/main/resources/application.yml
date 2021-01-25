@@ -125,7 +125,10 @@ spring:
     elasticsearch:
       cluster-name: es-asio-cluster
       cluster-nodes: localhost:9300
-
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: myGroup
 security:
   basic:
     enabled: false
