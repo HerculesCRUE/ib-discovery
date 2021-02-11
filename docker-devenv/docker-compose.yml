@@ -88,6 +88,7 @@ services:
     restart: unless-stopped
     ports:
       - '9092:9092'
+    hostname: kafka
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_LISTENERS=PLAINTEXT://:9092
@@ -96,6 +97,11 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
     depends_on:
       - zookeeper
+  trellis:
+    image: trellisldp/trellis:0.10.3
+    ports:
+      - 80:8080
+      - 81:8081
 volumes:
   mysql-data2:
   redis-data:

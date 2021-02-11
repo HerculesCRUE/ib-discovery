@@ -1,16 +1,21 @@
 package es.um.asio.service.model;
 
+import es.um.asio.service.util.Utils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.lang.Character.isUpperCase;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class URIComponent {
 
@@ -20,6 +25,15 @@ public class URIComponent {
     private String type;
     private String concept;
     private String reference;
+
+    public URIComponent(String domain, String subDomain, String language, String type, String concept, String reference) {
+        this.domain = domain;
+        this.subDomain = subDomain;
+        this.language = language;
+        this.type = type;
+        this.concept = concept;
+        this.reference = reference;
+    }
 
     public URIComponent(String schema, String uri) {
         String regex = "^(http[s]?://www\\.|http[s]?://|www\\.)";
@@ -49,5 +63,48 @@ public class URIComponent {
         if (referenceIndex >= 0 && cleanURI.length > referenceIndex) {
             this.reference = cleanURI[referenceIndex];
         }
+    }
+
+    public String buildURIFromComponents(String schema) {
+        String protocol = schema.substring(0,schema.indexOf("://")+3);
+        List<String> parts = new ArrayList<>();
+        for (String part : schema.split("/")) {
+            if (part.startsWith("$") && part.endsWith("$")) {
+                parts.add(getUriPart(part));
+            }
+
+        }
+        return protocol+ String.join("/",parts);
+    }
+
+    // http://$domain$/$sub-domain$/$language$/$type$/$reference$/$concept$
+    private String getUriPart(String pattern) {
+        switch (pattern) {
+            case "$domain$":
+                return this.domain;
+            case "$sub-domain$":
+                return this.subDomain;
+            case "$language$":
+                return this.language;
+            case "$type$":
+                return this.type;
+            case "$reference$":
+                return this.reference;
+            case "$concept$":
+                return this.concept;
+            default:
+                return null;
+        }
+    }
+
+    public String getDenormalizedConcept() {
+        StringBuilder conceptAux = new StringBuilder(concept);
+        while (conceptAux.indexOf("-")>=0) {
+            int index = concept.indexOf("-");
+            if (index==conceptAux.length()-1 || isUpperCase(conceptAux.charAt(index+1))) { // Si no es el ultimo caracter
+                conceptAux.deleteCharAt(index);
+            }
+        }
+        return conceptAux.toString();
     }
 }

@@ -22,11 +22,12 @@ class ActionTest {
     @Test
     void values() {
         List<Action> values = Arrays.asList(Action.values());
-        Assert.assertTrue(values.size() == 4);
+        Assert.assertTrue(values.size() == 5);
         Assert.assertTrue(values.contains(Action.INSERT));
         Assert.assertTrue(values.contains(Action.UPDATE));
         Assert.assertTrue(values.contains(Action.DELETE));
         Assert.assertTrue(values.contains(Action.LINK));
+        Assert.assertTrue(values.contains(Action.LOD_LINK));
     }
 
     @Test

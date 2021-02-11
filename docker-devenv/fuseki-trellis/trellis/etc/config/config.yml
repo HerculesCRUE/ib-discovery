@@ -1,0 +1,96 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+    - type: h2c
+      port: 8445
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: /opt/trellis/log/access.log
+        archive: true
+        archivedLogFilenamePattern: /opt/trellis/log/access-%i.log
+        archivedFileCount: 5
+        maxFileSize: 2m
+
+logging:
+  level: WARN
+  appenders:
+    - type: console
+    - type: file
+      currentLogFilename: /opt/trellis/log/trellis.log
+      archive: true
+      archivedLogFilenamePattern: /opt/trellis/log/trellis-%i.log
+      archivedFileCount: 5
+      maxFileSize: 2m
+  loggers:
+    org.trellisldp: DEBUG
+    io.dropwizard: DEBUG
+
+binaries: /mnt/binaries
+
+resources: http://fuseki-sandbox:3030/trellis/
+
+# FILESYSTEM
+#resources: /var/lib/trellis/resources
+
+# JETTY LOCALHOST
+#resources: http://dockerhost:8900/fuseki/trellis
+
+mementos: /var/lib/trellis/mementos
+
+#baseUrl: https://localhost:8445/
+
+namespaces: /opt/trellis/etc/namespaces.json
+
+#auth:
+#    webac:
+#        enabled: true
+#    anon:
+#        enabled: true
+#    jwt:
+#        enabled: true
+#        base64Encoded: false
+#        key: secret
+#    basic:
+#        enabled: false
+#        usersFile: /opt/trellis/etc/users.auth
+
+auth:
+    adminUsers: []
+    webac:
+        enabled: false
+    jwt:
+        enabled: false
+        key: 09e0069ecfc66970aaedac31d85f26d89281e529
+    basic:
+        enabled: false
+        usersFile: /opt/trellis/etc/users.auth
+
+cors:
+    enabled: true
+    allowOrigin:
+        - "*"
+    maxAge: 180
+
+notifications:
+    max.request.size: 5000000
+    enabled: true
+    type: kafka
+    topicName: "trellis"
+    connectionString: "kafka:9094"
+
+# JSON-LD configuration
+jsonld:
+    cacheSize: 10
+    cacheExpireHours: 24
+    contextWhitelist: []
+    contextDomainWhitelist: []
+
+assets:
+    template: org/trellisldp/rdfa/resource-table.mustache
+    js:
+        - "https://unpkg.com/vanilla-datatables@latest/dist/vanilla-dataTables.min.js"
+        - "http://localhost:8080/table.js"
+    css:
+        - "http://localhost:8080/trellis.css"

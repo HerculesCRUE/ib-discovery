@@ -16,6 +16,7 @@ import java.util.Objects;
 public class EntitySimilarityObj {
 
     private TripleObject tripleObject;
+    private String dataSource;
     private float similarity;
     private Map<String, SimilarityValue> similarities; // Att -> Value
 

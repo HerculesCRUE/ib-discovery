@@ -8,6 +8,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.comparators.entities.EntitySimilarity;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
+import es.um.asio.service.model.rdf.TripleObjectLink;
 import es.um.asio.service.model.stats.AttributeStats;
 import es.um.asio.service.model.stats.EntityStats;
 import es.um.asio.service.service.impl.CacheServiceImp;
@@ -23,6 +24,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import javax.persistence.Id;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -59,6 +61,8 @@ public class TripleObject {
     private LinkedTreeMap<String,Object> attributes;
     @JsonIgnore
     private Map<String,List<Object>> flattenAttributes;
+    @JsonIgnore
+    private TripleObjectLink tripleObjectLink;
 
     public TripleObject(TripleObjectES toES) {
         this.id = toES.getEntityId();
@@ -71,19 +75,32 @@ public class TripleObject {
     }
 
     public TripleObject(JsonObject jTripleObject) {
-        if (jTripleObject.has("id"))
-            this.id = jTripleObject.get("id").getAsString();
-        if (jTripleObject.has("localURI"))
-            this.localURI = jTripleObject.get("localURI").getAsString();
-        if (jTripleObject.has("className"))
-            this.className = jTripleObject.get("className").getAsString();
-        if (jTripleObject.has("node") && jTripleObject.has("tripleStore"))
-            this.tripleStore = new TripleStore(jTripleObject.get("tripleStore").getAsString(),jTripleObject.get("node").getAsString());
-        if (jTripleObject.has("lastModification"))
-            this.lastModification = jTripleObject.get("lastModification").getAsLong();
-        if (jTripleObject.has("attributes"))
-            this.attributes = new Gson().fromJson(jTripleObject.get("attributes").getAsJsonObject().toString(), LinkedTreeMap.class);
-        buildFlattenAttributes();
+        try {
+            if (jTripleObject.has("id") && !jTripleObject.get("id").isJsonNull())
+                this.id = jTripleObject.get("id").getAsString();
+            if (jTripleObject.has("localURI") && !jTripleObject.get("localURI").isJsonNull())
+                this.localURI = jTripleObject.get("localURI").getAsString();
+            if (jTripleObject.has("className") && !jTripleObject.get("className").isJsonNull())
+                this.className = jTripleObject.get("className").getAsString();
+            if (jTripleObject.has("node") && jTripleObject.has("tripleStore"))
+                this.tripleStore = new TripleStore(jTripleObject.get("tripleStore").getAsString(), jTripleObject.get("node").getAsString());
+            if (jTripleObject.has("lastModification") && !jTripleObject.get("lastModification").isJsonNull())
+                this.lastModification = jTripleObject.get("lastModification").getAsLong();
+            if (jTripleObject.has("attributes") && !jTripleObject.get("attributes").isJsonNull())
+                this.attributes = new Gson().fromJson(jTripleObject.get("attributes").getAsJsonObject().toString(), LinkedTreeMap.class);
+            buildFlattenAttributes();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public TripleObject(TripleObjectLink tol) {
+        this.id = tol.getId();
+        this.className = tol.getLocalClassName();
+        this.tripleStore = new TripleStore(tol.getDatasetName(), tol.getRemoteName()) ;
+        this.lastModification = new java.util.Date().getTime();
+        this.attributes = tol.getAttributes();
+        this.tripleObjectLink = tol;
     }
 
     public TripleObject(String node, String tripleStore, String className, JSONObject jData ) {
@@ -181,6 +198,19 @@ public class TripleObject {
             eso.setSimilarity(0f);
             return eso;
         }
+        EntityStats entityStats = cacheService.getStatsHandler().getAttributesMap(this.getTripleStore().getNode().getNodeName(), this.tripleStore.getName(), this.getClassName());
+        Map<String,AttributeStats> attributesMap = new HashMap<>();
+
+        for (Map.Entry<String, AttributeStats> entry : entityStats.getAttValues().entrySet()) {
+            if (entry.getValue() instanceof AttributeStats) {
+                attributesMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return EntitySimilarity.compare(other, attributesMap,this.getAttributes(),other.getAttributes());
+    }
+
+    public EntitySimilarityObj compareLazzy(CacheServiceImp cacheService, TripleObject other) {
         EntityStats entityStats = cacheService.getStatsHandler().getAttributesMap(this.getTripleStore().getNode().getNodeName(), this.tripleStore.getName(), this.getClassName());
         Map<String,AttributeStats> attributesMap = new HashMap<>();
 
@@ -313,6 +343,32 @@ public class TripleObject {
         return this.flattenAttributes.get(key);
     }
 
+    public LinkedTreeMap<String,Object> getAttributesChangedByMapper(Map<String,String> mapper, LinkedTreeMap<String,Object> attributesMap) {
+        LinkedTreeMap <String,Object> attributesAux = new LinkedTreeMap<>();
+        attributesAux.putAll(attributesMap);
+        for (Map.Entry<String, Object> attEntry : attributesMap.entrySet()) {
+            if (mapper.containsKey(attEntry.getKey())) { // Si el atributo esta en el mapper
+                Object value = attributesMap.get(attEntry.getKey());
+                attributesAux.remove(attEntry.getKey());
+                attributesAux.put(mapper.get(attEntry.getKey()), value);
+            }
+            if (!Utils.isPrimitive(attEntry.getValue())) { // Si el valor es un objeto
+                if (attEntry.getValue() instanceof Map) {
+                    LinkedTreeMap<String,Object> value = getAttributesChangedByMapper(mapper, (LinkedTreeMap<String, Object>) attEntry.getValue());
+                    attributesAux.put(attEntry.getKey(),value);
+                } else if (attEntry.getValue() instanceof List) {
+                    for (Object obj : (List) attEntry.getValue()) {
+                        if (obj instanceof Map) {
+                            LinkedTreeMap<String,Object> value = getAttributesChangedByMapper(mapper, (LinkedTreeMap<String, Object>) obj);
+                            obj = value;
+                        }
+                    }
+                }
+            }
+        }
+        return attributesAux;
+    }
+
 
     public TripleObject merge(TripleObject other) {
         TripleObject mergedTO;
@@ -357,6 +413,16 @@ public class TripleObject {
             }
         }
         return isSimple;
+    }
+
+    public JsonObject toJson() {
+        JsonObject jTo = new JsonObject();
+        jTo.addProperty("localURI",this.localURI);
+        jTo.addProperty("className",this.className);
+        jTo.addProperty("lastModification",this.lastModification);
+        jTo.add("tripleStore",getTripleStore().toJson());
+        jTo.add("attributes", new Gson().toJsonTree(getAttributes()).getAsJsonObject());
+        return jTo;
     }
 }
 

@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import es.um.asio.service.config.DataProperties;
 import es.um.asio.service.config.DataSourcesConfiguration;
+import es.um.asio.service.config.LodConfiguration;
 import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.appstate.ApplicationState;
@@ -76,6 +77,9 @@ public class DataHandlerImp implements DataHandler {
 
     @Autowired
     SchemaService schemaService;
+
+    @Autowired
+    LodConfiguration lodConfiguration;
 
 
 
@@ -199,7 +203,7 @@ public class DataHandlerImp implements DataHandler {
         for (DataSourcesConfiguration.Node node : dataSourcesConfiguration.getNodes()) {
             for (DataSourcesConfiguration.Node.TripleStore ts : node.getTripleStores()) {
                 TripleStoreHandler handler = TripleStoreHandler.getHandler(schemaService, dataSourcesConfiguration, node,ts);
-                isChanged = isChanged ||  handler.updateData(cache);
+                isChanged = isChanged | handler.updateData(cache);
             }
         }
         if(isChanged) {

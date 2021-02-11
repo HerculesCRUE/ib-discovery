@@ -17,10 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.builders.AlternateTypeBuilder;
-import springfox.documentation.builders.AlternateTypePropertyBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.builders.*;
 import springfox.documentation.schema.AlternateTypeRule;
 import springfox.documentation.schema.AlternateTypeRuleConvention;
 import springfox.documentation.schema.AlternateTypeRules;
@@ -48,11 +45,25 @@ import java.util.Map;
 @AutoConfigureAfter(WebMvcAutoConfiguration.class)
 public class SwaggerAutoConfiguration {
 
+    ApiInfo apiInfo() {
+        return new ApiInfoBuilder()
+                .title("Discovery API")
+                .description("Documentation of endpoints in DiscoveryAPI")
+                .license("Apache 2.0")
+                .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
+                .termsOfServiceUrl("")
+                .version("1.0.0")
+                .contact(new Contact("", "", "druiz@izertis.com"))
+                .build();
+    }
+
     /**
      * Configuration properties.
      */
     @Autowired
     private SwaggerProperties properties;
+
+
 
     /**
      * Swagger API.
@@ -60,14 +71,19 @@ public class SwaggerAutoConfiguration {
      * @return the Swagger API.
      */
     @Bean
-    public Docket api(@Autowired final TypeResolver typeResolver) {
+    public Docket api(final TypeResolver typeResolver) {
         // @formatter:off
 
         final Docket docket = new Docket(DocumentationType.SWAGGER_2)
+                .tags(
+                        new Tag("search","Search endpoints"),
+                        new Tag("control","Control endpoints")
+                )
                 .select()
                 .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
                 .paths(PathSelectors.any())
-                .build();
+                .build()
+                .apiInfo(apiInfo());
 
         // @formatter:on
 

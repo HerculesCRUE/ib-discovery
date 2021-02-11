@@ -14,9 +14,10 @@ class RequestTypeTest {
     @Test
     void values() {
         List<RequestType> values = Arrays.asList(RequestType.values());
-        Assert.assertTrue(values.size() == 2);
+        Assert.assertTrue(values.size() == 3);
         Assert.assertTrue(values.contains(RequestType.ENTITY_LINK_CLASS));
         Assert.assertTrue(values.contains(RequestType.ENTITY_LINK_INSTANCE));
+        Assert.assertTrue(values.contains(RequestType.LOD_SEARCH));
     }
 
     @Test

@@ -80,23 +80,27 @@ public class SparqlProxyHandler extends TripleStoreHandler {
                 int classChanges = 0;
                 if (className!=null) {
                     queryParams.put("className",className);
-                    JsonElement jeInstancesResponse = doRequest(new URL(this.baseURL + "/data-fetcher/instances"), Connection.Method.GET, headers,null,queryParams); // Request Instances by class
-                    if (jeInstancesResponse!=null && jeInstancesResponse.isJsonArray()) {
-                        int instancesInClass = 0;
-                        JsonArray jInstancesResponse = jeInstancesResponse.getAsJsonArray();
-                        for (JsonElement jInstance : jInstancesResponse) {
-                            TripleObject to = new TripleObject(jInstance.getAsJsonObject());
-                            TripleObject toStored = cacheService.getTripleObject(nodeName,TRIPLE_STORE,className,to.getId());
-                            if (!to.equals(toStored)) { // Si hay cambios lo actualizo
-                                changes++;
-                                classChanges++;
-                                cacheService.addTripleObject(nodeName,TRIPLE_STORE, to);
-                                String nText = ((toStored==null)?"(New) ":" ");
-                                logger.info("		Processing Node {} Instances: {} ({}/{}): {}	,class ({}/{}):{}	,id: {}	,data:{}",nText, ++instancesCounter, ++instancesInClass,jInstancesResponse.size(), nodeName, classesCounter,jResponse.size(),className, to.getId(), to);
-                            } else { // Si no hay cambios lo elimino
-                                triplesMapCached.remove(toStored);
+                    try {
+                        JsonElement jeInstancesResponse = doRequest(new URL(this.baseURL + "/data-fetcher/instances"), Connection.Method.GET, headers, null, queryParams); // Request Instances by class
+                        if (jeInstancesResponse != null && jeInstancesResponse.isJsonArray()) {
+                            int instancesInClass = 0;
+                            JsonArray jInstancesResponse = jeInstancesResponse.getAsJsonArray();
+                            for (JsonElement jInstance : jInstancesResponse) {
+                                TripleObject to = new TripleObject(jInstance.getAsJsonObject());
+                                TripleObject toStored = cacheService.getTripleObject(nodeName, TRIPLE_STORE, className, to.getId());
+                                if (!to.equals(toStored)) { // Si hay cambios lo actualizo
+                                    changes++;
+                                    classChanges++;
+                                    cacheService.addTripleObject(nodeName, TRIPLE_STORE, to);
+                                    String nText = ((toStored == null) ? "(New) " : " ");
+                                    logger.info("		Processing Node {} Instances: {} ({}/{}): {}	,class ({}/{}):{}	,id: {}	,data:{}", nText, ++instancesCounter, ++instancesInClass, jInstancesResponse.size(), nodeName, classesCounter, jResponse.size(), className, to.getId(), to);
+                                } else { // Si no hay cambios lo elimino
+                                    triplesMapCached.remove(toStored);
+                                }
                             }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
                 if (classChanges>0) // Si hay cambios en la clase, actualizo la cache
@@ -127,7 +131,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
             cacheService.removeTripleObject(node, tripleStore, to);
         } else { // en otro caso, se actualiza la cache
             Map<String,String> qParams = ImmutableMap.of("localURI",localURI);
-            JsonElement jeResponse = doRequest(new URL(dataSourcesConfiguration.getUrisFactoryHost() + "/uri-factory/local"), Connection.Method.GET,headers,null,qParams);
+            JsonElement jeResponse = doRequest(new URL(dataSourcesConfiguration.getUrisFactoryHost() + "uri-factory/local"), Connection.Method.GET,headers,null,qParams);
             if (jeResponse!=null && jeResponse.isJsonArray() && jeResponse.getAsJsonArray().size()>0) {
                 String canonicalLocalURI = jeResponse.getAsJsonArray().get(0).getAsJsonObject().get("fullURI").getAsString();
                 if (canonicalLocalURI!=null) {

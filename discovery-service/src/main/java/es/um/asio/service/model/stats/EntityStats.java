@@ -106,6 +106,7 @@ public class EntityStats extends ObjectStat{
         stats.put("maxEntitiesRelativeRatio",getEntRelativeImportanceRatio());
         stats.put("attributesSize",attValues.size());
         stats.put("entitiesSize",objValues.size());
+        stats.put("instances",getCounter());
         stats.put("isEmpty",(attValues.size()+objValues.size())==0);
         if (!attValues.isEmpty()) {
             stats.put("attributes", new HashMap<>());

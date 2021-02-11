@@ -1,0 +1,97 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  requestLog:
+    appenders:
+      - type: console
+        target: stdout
+        threshold: INFO
+
+logging:
+  level: WARN
+  appenders:
+    - type: console
+      target: stdout
+      threshold: INFO
+  loggers:
+    org.trellisldp: INFO
+    io.dropwizard: INFO
+
+# This may refer to a remote Triplestore, e.g. https://example.org/sparql
+#resources: /opt/trellis/data/rdf
+resources: http://fuseki-sandbox:3030/trellis/
+
+binaries: /opt/trellis/data/binaries
+
+mementos: /opt/trellis/data/mementos
+
+namespaces: /opt/trellis/data/namespaces.json
+
+# This may refer to a static base URL for resources. If left empty, the
+# base URL will reflect the Host header in the request.
+baseUrl:
+
+# This configuration will enable a WebSub "hub" header.
+hubUrl:
+
+auth:
+    adminUsers: []
+    webac:
+        enabled: false
+    jwt:
+        enabled: false
+        jwks: http://localhost:8080/auth/realms/asio/protocol/openid-connect/certs
+#        key: TUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFtendsdHJjZFpTT3ZMbmxmc2NOZWZJaHF5bzN5OUJYRjd6SGh4VFd3U0Q3em53emQvcWx5MzV6SjlldXZrNEpYWjdVYndicU51S3gyVysxMldrQ2U4cldpOEYwQ0lZSnRKd29XTzAxVUROT044YSsxR2tZSjNhWnllSnlsSnh3T3lLMG5VNEFpcXZHV3BRNS9HUjBheUJ5VnVZSjc1SWZpb0U3UUF3TnRGUXIyVzlGdHdiVTVFbTJxQzd1OVdOakFiay9DRmlGVEV1Uyt2VWFwcldUT2VUOENuSU1lb3pVU0crU1lBSHhKYTl5N0QzaVN3Rm1sUWsxNmdJYkxTWU5QS3E5eEdsdUZpVVVaZmhrQTNXaWMzUkxkTUxkNk5wMmFtQkYxRTNYUEhYaE5NbnlBaHk3ZDJ6WXVIbmVOSExraC92TUZwTGNTUHRsVVN1eUVuZ2cyendJREFRQUI=
+    basic:
+        enabled: false
+        usersFile: /opt/trellis/etc/users.auth
+        
+#auth:
+#    scope: "openid"
+#    adminUsers:
+#        - zoyd
+#        - wheeler
+#    webac:
+#        enabled: true
+#        cacheSize: 200
+#        cacheExpireSeconds: 15
+#    basic:
+#        enabled: true
+#        usersFile: users.auth
+#    jwt:
+#        enabled: true
+#        jwks: http://localhost:8080/auth/realms/SpringBootKeycloak/protocol/openid-connect/certs
+#        key: Mz4DGzFLQysSGC98ESAnSafMLbxa71ls/zzUFOdCIJw9L0J8Q0Gt7+yCM+Ag73Tm5OTwpBemFOqPFiZ5BeBo4Q==
+#        keyStore: /tmp/trellisData/keystore.jks
+#        keyStorePassword: password
+#        keyIds:
+#            - trellis
+#            - baz
+#            - bar
+
+cors:
+    enabled: true
+    allowOrigin:
+        - "*"
+    maxAge: 180
+
+cache:
+    maxAge: 86400
+    mustRevalidate: true
+
+notifications:
+    enabled: false
+    type: JMS
+    topicName: "trellis"
+    connectionString: "tcp://localhost:61616"
+
+# JSON-LD configuration
+jsonld:
+    cacheSize: 10
+    cacheExpireHours: 24
+    contextWhitelist: []
+    contextDomainWhitelist: []
+
+
+# http://localhost:8080/auth/realms/SpringBootKeycloak/protocol/openid-connect/certs

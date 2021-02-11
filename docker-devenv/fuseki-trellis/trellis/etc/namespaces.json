@@ -1,0 +1,19 @@
+{
+  "schema" : "http://schema.org/",
+  "dctypes" : "http://purl.org/dc/dcmitype/",
+  "owl" : "http://www.w3.org/2002/07/owl#",
+  "xsd" : "http://www.w3.org/2001/XMLSchema#",
+  "skos" : "http://www.w3.org/2004/02/skos/core#",
+  "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+  "acl" : "http://www.w3.org/ns/auth/acl#",
+  "geo" : "http://www.w3.org/2003/01/geo/wgs84_pos#",
+  "dc11" : "http://purl.org/dc/elements/1.1/",
+  "as" : "http://www.w3.org/ns/activitystreams#",
+  "oa" : "http://www.w3.org/ns/oa#",
+  "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+  "ldp" : "http://www.w3.org/ns/ldp#",
+  "iana" : "http://www.iana.org/assignments/relation/",
+  "prov" : "http://www.w3.org/ns/prov#",
+  "foaf" : "http://xmlns.com/foaf/0.1/",
+  "dc" : "http://purl.org/dc/terms/"
+}

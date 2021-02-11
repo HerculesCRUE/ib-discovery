@@ -36,13 +36,13 @@ public class KafkaHandlerService {
             JsonObject jObjectResult = or.toSimplifiedJson(false);
             JsonObject jMessage = new JsonObject();
             jMessage.addProperty("action",actionResult.getAction().toString());
-            jMessage.add("object",jObjectResult);
+            jMessage.add("linkedTo",jObjectResult);
             if (actionResult.getAction() == Action.LINK) {
                 JsonObject jLink = actionResult.getObjectResultParent().toSimplifiedJson(false);
-                jMessage.add("linkedTo", jLink);
+                jMessage.add("object", jLink);
             }
             String msgStr = jMessage.toString();
-            logger.info("Sending message: {}, by node: {}, tripleStore: {}, className: {}",msgStr,node,tripleStore,className);
+            logger.info("Sending kafka message: {}, by node: {}, tripleStore: {}, className: {}",msgStr,node,tripleStore,className);
             kafkaTemplate.send(topic,jMessage.toString());
         }
     }

@@ -81,9 +81,9 @@ public class RedisServiceImp implements RedisService {
             }
         }
 
-        for (String nodePrefix : nodesPrefixes) {
-            keys = keys.stream().filter(k -> k.contains(nodePrefix)).collect(Collectors.toList());
-        }
+/*        for (String nodePrefix : nodesPrefixes) {
+            keys = keys.stream().filter(k -> (!(k.contains(nodePrefix)))).collect(Collectors.toList());
+        }*/
 
         List<CompletableFuture<Pair<String,Map<String, TripleObject>>>> futures = new ArrayList<>();
         if (keys!=null && !keys.isEmpty()) {

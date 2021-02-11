@@ -1,5 +1,10 @@
 ---
 app:
+  domain: hercules.org
+  subdomain: um
+  language: en-EN
+  defaultSchema: http://$domain$/$sub-domain$/$language$/$type$/$reference$/$concept$
+
   persistence:
     datasource:
       driver-class-name: org.mariadb.jdbc.Driver
@@ -34,6 +39,15 @@ app:
   # Swagger
   swagger:
     enabled: true
+
+  # Trellis
+  trellis:
+    enabled: true
+    endpoint: http://localhost:80
+    authentication:
+      enabled: false
+      username: admin
+      password: admin
 
 data:
   readCacheFromFirebase: false
@@ -78,12 +92,24 @@ data-sources:
           user:
           password:
 
-    - nodeName: um
+    -
+      nodeName: um2
+      serviceName: sparql-proxy
       tripleStores:
-        - type: trellis
-          baseURL: http://localhost:80/
-          user: admin
-          password: admin
+        -
+          type: sparql
+          baseURL: http://localhost:9328/
+          name: sparql
+          user:
+          password:
+
+# LOD
+lod:
+  host: http://localhost
+  port: 9328
+  endpoint: /lod/search
+  lodDatasets:
+    - SCOPUS
 
 ## Actuator
 management:

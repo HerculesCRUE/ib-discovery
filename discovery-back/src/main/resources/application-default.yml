@@ -17,26 +17,7 @@ management:
 
 server:
     port: 9327
-## Data sources      
-data-sources:
-  nodes:
-    -
-      nodeName: um
-      serviceName: sparql-proxy
-      tripleStores:
-        -
-          type: sparql
-          baseURL: http://localhost:9328/
-          name: sparql
-          user:
-          password:
 
-#    - nodeName: um2
-#      tripleStores:
-#        - type: trellis
-#          baseURL: http://localhost:80/
-#          user: admin
-#          password: admin
 data:
   kafka:
     host: localhost

@@ -13,10 +13,7 @@ import es.um.asio.service.service.impl.DataHandlerImp;
 import es.um.asio.service.service.impl.JobHandlerServiceImp;
 import es.um.asio.service.util.Utils;
 import es.um.asio.service.validation.group.Create;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ExampleProperty;
+import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +59,7 @@ public class DiscoveryController {
     @Autowired
     DataHandlerImp dataHandler;
 
+
     private static final Logger logger = LoggerFactory.getLogger(DiscoveryController.class);
 
     /**
@@ -70,7 +68,7 @@ public class DiscoveryController {
      * @return Get the App status
      */
     @GetMapping()
-    //@Secured(Role.ANONYMOUS_ROLE)
+    @ApiOperation(value = "Get status of the Application", tags = "control")
     public ApplicationState status() {
         return applicationState;
     }
@@ -83,11 +81,12 @@ public class DiscoveryController {
      */
     @GetMapping(Mappings.ENTITY_STATS)
     //@Secured(Role.ANONYMOUS_ROLE)
+    @ApiOperation(value = "Get Entity Stats", tags = "control")
     public Map<String, Object> getEntityStats(
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = false)
             @RequestParam(required = false, defaultValue = "um") @Validated(Create.class) final String node,
-            @ApiParam(name = "tripleStore", value = "trellis", defaultValue = "trellis", required = false)
-            @RequestParam(required = false, defaultValue = "trellis") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "sparql", required = false)
+            @RequestParam(required = true, defaultValue = "sparql") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "className", value = "Class Name", required = false)
             @RequestParam(required = true) @Validated(Create.class) final String className
     ) {
@@ -102,8 +101,9 @@ public class DiscoveryController {
      *
      * @return Get the Entty Stats
      */
+
     @PostMapping(Mappings.ENTITY_LINK)
-    //@Secured(Role.ANONYMOUS_ROLE)
+    @ApiOperation(value = "Find Similarities between entities by class", tags = "search")
     public Map<String,Object> findEntityLinkByNodeTripleStoreAndClass(
             @ApiParam(name = "userId", value = "1", defaultValue = "1", required = true)
             @RequestParam(required = true, defaultValue = "1") @Validated(Create.class) final String userId,
@@ -111,8 +111,8 @@ public class DiscoveryController {
             @RequestParam(required = true, defaultValue = "12345") @Validated(Create.class) final String requestCode,
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = false)
             @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
-            @ApiParam(name = "tripleStore", value = "trellis", defaultValue = "trellis", required = false)
-            @RequestParam(required = true, defaultValue = "trellis") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "sparql", required = false)
+            @RequestParam(required = true, defaultValue = "sparql") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "className", value = "Class Name", required = false)
             @RequestParam(required = true) @Validated(Create.class) final String className,
             @ApiParam(name = "doSynchronous", value = "Handle request as synchronous request", defaultValue = "false", required = false)
@@ -123,7 +123,7 @@ public class DiscoveryController {
             @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka,
             @ApiParam(name = "linkEntities", value = "Search also in other Nodes and Triple Stores for link", defaultValue = "false", required = true)
             @RequestParam(required = true) @Validated(Create.class) final boolean linkEntities,
-            @ApiParam(name = "applyDelta", value = "Search only from last date in similar request", defaultValue = "true",required = true)
+            @ApiParam(name = "applyDelta", value = "SearchindEntityLinkByEntityAndNodeTripleStoreAndClass only from last date in similar request", defaultValue = "true",required = true)
             @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta
     ) {
 
@@ -150,7 +150,7 @@ public class DiscoveryController {
      * @return Get the Entty Stats
      */
     @PostMapping(Mappings.ENTITY_LINK_ENTITY)
-    //@Secured(Role.ANONYMOUS_ROLE)
+    @ApiOperation(value = "Find Similarities between entities by instance in body", tags = "search")
     @ApiImplicitParams({
             @ApiImplicitParam(
                     name = "object",
@@ -181,8 +181,8 @@ public class DiscoveryController {
             @RequestParam(required = true, defaultValue = "12345") @Validated(Create.class) final String requestCode,
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = false)
             @RequestParam(required = false, defaultValue = "um") @Validated(Create.class) final String node,
-            @ApiParam(name = "tripleStore", value = "trellis", defaultValue = "trellis", required = false)
-            @RequestParam(required = false, defaultValue = "trellis") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "sparql", required = false)
+            @RequestParam(required = true, defaultValue = "sparql") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "className", value = "Class Name", required = true)
             @RequestParam(required = true) @Validated(Create.class) final String className,
             @ApiParam(name = "entityId", value = "12345", required = true)
@@ -233,17 +233,62 @@ public class DiscoveryController {
     }
 
     /**
+     * Find similarities by Class Name.
+     *
+     * @return Get the Entty Stats
+     */
+    @PostMapping(Mappings.LOD_SEARCH)
+    @ApiOperation(value = "Find Similarities between entities in cloud LOD", tags = "search")
+    public Map<String,Object> findFindLinkInLODByNodeTripleStoreAndClass(
+            @ApiParam(name = "userId", value = "1", defaultValue = "1", required = true)
+            @RequestParam(required = true, defaultValue = "1") @Validated(Create.class) final String userId,
+            @ApiParam(name = "requestCode", value = "12345", defaultValue = "12345", required = true)
+            @RequestParam(required = true, defaultValue = "12345") @Validated(Create.class) final String requestCode,
+            @ApiParam(name = "node", value = "um", defaultValue = "um", required = false)
+            @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
+            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "sparql", required = false)
+            @RequestParam(required = true, defaultValue = "sparql") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "className", value = "Class Name", required = false)
+            @RequestParam(required = true) @Validated(Create.class) final String className,
+            @ApiParam(name = "doSynchronous", value = "Handle request as synchronous request", defaultValue = "false", required = false)
+            @RequestParam(required = false, defaultValue = "false") @Validated(Create.class) final boolean doSynchronous,
+            @ApiParam(name = "webHook", value = "Web Hook, URL Callback with response", required = false)
+            @RequestParam(required = false) @Validated(Create.class) final String webHook,
+            @ApiParam(name = "propague_in_kafka", value = "Propague result in Kafka", defaultValue = "true", required = false)
+            @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka,
+            @ApiParam(name = "applyDelta", value = "SearchindEntityLinkByEntityAndNodeTripleStoreAndClass only from last date in similar request", defaultValue = "true",required = true)
+            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta
+    ) {
+
+        if (!doSynchronous && ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
+            throw new CustomDiscoveryException("The request must be synchronous or web hook or/and propague in kafka must be valid" );
+        }
+        JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForLOD(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka,applyDelta);
+        JsonObject jResponse = new JsonObject();
+        jResponse.add("state",applicationState.toSimplifiedJson());
+        if (jobRegistry!=null) {
+            JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
+            jJobRegistry.addProperty("userId", userId);
+            jJobRegistry.addProperty("requestCode", requestCode);
+            jResponse.add("response", jJobRegistry);
+        } else {
+            jResponse.addProperty("message","Application is not ready, please retry late");
+        }
+        return new Gson().fromJson(jResponse,Map.class);
+    }
+
+    /**
      * Get Entity Stats.
      *
      * @return Get the Entty Stats
      */
     @PostMapping(Mappings.ENTITY_CHANGE)
-    //@Secured(Role.ANONYMOUS_ROLE)
+    @ApiOperation(value = "Notifications on changes over instances", tags = "control")
     public ResponseEntity<String> entityChange(
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = true)
             @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
-            @ApiParam(name = "tripleStore", value = "trellis", defaultValue = "trellis", required = true)
-            @RequestParam(required = true, defaultValue = "trellis") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "sparql", required = false)
+            @RequestParam(required = true, defaultValue = "sparql") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "className", value = "Class Name", required = true)
             @RequestParam(required = true) @Validated(Create.class) final String className,
             @ApiParam(name = "entityLocalURI", required = true)
@@ -272,6 +317,7 @@ public class DiscoveryController {
     }
 
     @PostMapping(Mappings.RELOAD_CACHE)
+    @ApiOperation(value = "Force reload cache from Triple Store Data", tags = "control")
     public ResponseEntity<String> doForceReloadCache() {
         try {
             if (applicationState.getAppState().getOrder() >= ApplicationState.AppState.INITIALIZED.getOrder()) {
@@ -313,6 +359,8 @@ public class DiscoveryController {
         protected static final String ENTITY_LINK_ENTITY = "/entity-link/instance";
 
         protected static final String ENTITY_CHANGE = "/entity/change";
+
+        protected static final String LOD_SEARCH = "/lod/search";
 
 
     }

@@ -1,5 +1,7 @@
 package es.um.asio.service.model;
 
+import com.google.api.client.json.Json;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -32,6 +34,12 @@ public class Node {
     }
 
     public Node() {
+    }
+
+    public JsonObject toJson() {
+        JsonObject jNode = new JsonObject();
+        jNode.addProperty("nodeName", getNodeName());
+        return jNode;
     }
 
 }

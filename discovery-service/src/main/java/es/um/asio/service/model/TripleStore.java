@@ -1,5 +1,6 @@
 package es.um.asio.service.model;
 
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -89,5 +90,16 @@ public class TripleStore {
     }
 
     public TripleStore() {
+    }
+
+    public JsonObject toJson() {
+        JsonObject jTs = new JsonObject();
+        jTs.addProperty("id",getId());
+        jTs.addProperty("name",getName());
+        jTs.addProperty("baseURL",getBaseURL());
+        jTs.addProperty("user",getUser());
+        jTs.addProperty("password",getPassword());
+        jTs.add("tripleStore",getNode().toJson());
+        return jTs;
     }
 }
