@@ -79,7 +79,7 @@ public interface TrellisOperations {
      *
      * @param path: isFullURI if false compose the URI from  baseURI and Path else path is the full URI
      * @param path: path for resurce
-     * @param  tripleObjectLink the triple object to link
+     * @param  List<tripleObjectLink></tripleObjectLink> the triple object to link
      */
     String addPropertyToEntity(String path, TripleObjectLink tripleObjectLink, List<Pair<String,String>> properties, boolean isFullURI);
 

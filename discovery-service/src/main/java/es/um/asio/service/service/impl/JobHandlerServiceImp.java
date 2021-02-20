@@ -530,8 +530,14 @@ public class JobHandlerServiceImp {
 
                 ObjectResult objectResult = new ObjectResult(jobRegistry, similarityResult.getTripleObject(), null);
                 for (EntitySimilarityObj eso : similarityResult.getAutomatic()) { // Para todos las similitudes automáticas
-                    ObjectResult objResAuto = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity());
-                    objectResult.addAutomatic(objResAuto);
+                    try {
+                        ObjectResult objResAuto = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity());
+                        objectResult.addAutomatic(objResAuto);
+
+                    } catch (Exception e) {
+                        System.out.println();
+                    }
+
 
                 }
                 for (EntitySimilarityObj eso : similarityResult.getManual()) { // Para todos las similitudes automáticas
@@ -570,12 +576,14 @@ public class JobHandlerServiceImp {
 
                     List<Pair<String,String>> properties = new ArrayList<>();
                     properties.add(new MutablePair<>("skos:closeMatch",similarityResult.getTripleObject().getLocalURI()));
-                    String locationTripleObjectAutomatic = trellisOperations.addPropertyToEntity(pathContainer,tripleObjectAutomatic.getTripleObjectLink(),properties,false);
-                    if (locationTripleObjectAutomatic!=null) {
-                        // objectResult.setLocalURI(locationTripleObjectAutomatic);
-                        tripleObjectAutomatic.setLocalURI(locationTripleObjectAutomatic);
-                        ObjectResult objectResultLink = new ObjectResult(jobRegistry, tripleObjectAutomatic, null);
-                        toLink.add(objectResultLink);
+                    for (TripleObjectLink tripleObjectLink : tripleObjectAutomatic.getTripleObjectLink()) { // AQUI
+                        String locationTripleObjectAutomatic = trellisOperations.addPropertyToEntity(pathContainer, tripleObjectLink, properties, false);
+                        if (locationTripleObjectAutomatic != null) {
+                            // objectResult.setLocalURI(locationTripleObjectAutomatic);
+                            tripleObjectAutomatic.setLocalURI(locationTripleObjectAutomatic);
+                            ObjectResult objectResultLink = new ObjectResult(jobRegistry, tripleObjectAutomatic, null);
+                            toLink.add(objectResultLink);
+                        }
                     }
                 }
 

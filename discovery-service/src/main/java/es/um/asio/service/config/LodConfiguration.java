@@ -26,4 +26,11 @@ public class LodConfiguration {
     public String buildCompleteURI() {
         return String.format("%s:%d%s",host,port,endpoint);
     }
+
+    public String getDatasetsComaSeparated() {
+        if (lodDatasets == null)
+            return "";
+        else
+            return String.join(",",lodDatasets);
+    }
 }

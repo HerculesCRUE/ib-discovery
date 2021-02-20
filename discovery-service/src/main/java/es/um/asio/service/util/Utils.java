@@ -249,6 +249,8 @@ public class Utils {
     }
 
     public static boolean isValidURL(String url) {
+        if (url.endsWith("$"))
+            return false;
         return new UrlValidator().isValid(url);
     }
 

@@ -330,7 +330,7 @@ public class TrellisOperationsImpl implements TrellisOperations {
             else
                 url = buildURI(trellisUrlEndPoint, Arrays.asList(new String[] {path}));
 
-            Model entityModel = getEntry(path,tripleObjectLink.getId(),isFullURI);
+            Model entityModel = getEntry(path,tripleObjectLink.getURLEndedID(),isFullURI);
             String operation = "INSERT";
             if (entityModel!=null) {
                 operation = "UPDATE";
@@ -342,9 +342,9 @@ public class TrellisOperationsImpl implements TrellisOperations {
                 url = url;
             } else {
                 if (url.endsWith("/")) {
-                    url = url + tripleObjectLink.getId();
+                    url = url + tripleObjectLink.getURLEndedID(); // AQUI
                 } else {
-                    url = url + "/" + tripleObjectLink.getId();
+                    url = url + "/" + tripleObjectLink.getURLEndedID();
                 }
             }
             response = trellisCommonOperations.createRequestSpecification()

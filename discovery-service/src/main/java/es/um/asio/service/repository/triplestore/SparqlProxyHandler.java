@@ -59,6 +59,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
 
     @Override
     public boolean updateData(CacheServiceImp cacheService) throws IOException, URISyntaxException, ParseException {
+        logger.info("Start Update data from SPARQL");
         Set<TripleObject> triplesMapCached = cacheService.getAllTripleObjects(this.nodeName,this.tripleStore.getName());
         int instancesCounter = 0;
         int changes = 0;
@@ -77,6 +78,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
                 ++classesCounter;
                 URIComponent uriComponent = schemaService.getURIComponentFromCanonicalLocalURI(jClass.getAsString());
                 String className = uriComponent.getConcept();
+                logger.info("Searching instances by {} class in Node {}",className,nodeName);
                 int classChanges = 0;
                 if (className!=null) {
                     queryParams.put("className",className);

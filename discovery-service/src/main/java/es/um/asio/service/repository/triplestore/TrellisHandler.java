@@ -54,6 +54,7 @@ public class TrellisHandler extends TripleStoreHandler {
 
     @Override
     public boolean updateData(CacheServiceImp cacheService) throws IOException, URISyntaxException, ParseException {
+        logger.info("Start Update data from SPARQL");
         Set<TripleObject> triplesMapCached = cacheService.getAllTripleObjects(this.nodeName,this.tripleStore.getName());
         int instancesCounter = 0;
         int changes = 0;

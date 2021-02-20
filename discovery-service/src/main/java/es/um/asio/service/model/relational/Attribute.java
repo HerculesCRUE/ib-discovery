@@ -50,7 +50,7 @@ public class Attribute {
             for (Object v : (List) value){
                 this.values.add(new Value(this,v));
             }
-        } else { // Es una lista
+        } else { // No Es una lista
             this.values.add(new Value(this,value));
         }
     }

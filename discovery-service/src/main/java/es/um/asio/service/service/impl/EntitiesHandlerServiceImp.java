@@ -203,10 +203,47 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
     private Map<TripleObject,List<TripleObjectLink>> handleRequestLodSearch(Map<String, TripleObject> tripleObjects) {
         Map<TripleObject,List<TripleObjectLink>> links = new HashMap<>();
 
-        Map<TripleObject,CompletableFuture<Response>> futures = new HashMap<>();
-        List<TripleObject> triplesSplit = new ArrayList<>();
+
+        Map<Integer,List<TripleObject>> triplesSplits = new HashMap<>();
+        // Split in sets
+        int counter = 0;
         for (Map.Entry<String, TripleObject> toEntry : tripleObjects.entrySet()) {
-            if (triplesSplit.size()< 10) {
+            int splitSet = Integer.valueOf(counter/10);
+            if (!triplesSplits.containsKey(splitSet))
+                triplesSplits.put(splitSet,new ArrayList<>());
+            triplesSplits.get(splitSet).add(toEntry.getValue());
+            counter++;
+        }
+
+        for (List<TripleObject> split : triplesSplits.values()) { // Por cada conjunto de datos
+            Map<TripleObject,CompletableFuture<Response>> futures = new HashMap<>(); // Futures in split
+
+            for (TripleObject to : split) { // Por cada Triple Object
+                futures.put(to, doRequestInLod(to));
+            }
+
+            for (Map.Entry<TripleObject, CompletableFuture<Response>> future : futures.entrySet()) { // Por cada future
+                Response response = future.getValue().join();
+                if (response.getStatusCode() == 200) {
+                    String body = response.getResponseBody();
+                    List<TripleObjectLink> toLinks = new ArrayList<>();
+                    JsonArray jTripleObjectLink = new JsonParser().parse(response.getResponseBody()).getAsJsonArray();
+                    for (JsonElement jeTripleObjectLink : jTripleObjectLink) {
+                        TripleObjectLink tol = new TripleObjectLink(jeTripleObjectLink.getAsJsonObject());
+                        tol.setOrigin(future.getKey());
+                        toLinks.add(tol);
+                    }
+                    if (toLinks.size()>0)  // Si encontre algun link lo añado
+                        links.put(future.getKey(),toLinks);
+                }
+                response.getResponseBody();
+            }
+        }
+
+
+/*        List<TripleObject> triplesSplit = new ArrayList<>();
+        for (Map.Entry<String, TripleObject> toEntry : tripleObjects.entrySet()) {
+            if (triplesSplit.size()< 10 || counter == tripleObjects.size()) {
                 triplesSplit.add(toEntry.getValue());
             } else {
                 for (TripleObject to : triplesSplit) {
@@ -229,17 +266,19 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
                     }
                     response.getResponseBody();
                 }
+                futures = new HashMap<>();
                 triplesSplit = new ArrayList<>();
 
             }
-        }
+            counter++;
+        }*/
         return links;
     }
 
     private CompletableFuture<Response> doRequestInLod(TripleObject tripleObject) {
         AsyncHttpClient asyncHttpClient = Dsl.asyncHttpClient();
         DefaultAsyncHttpClientConfig.Builder clientBuilder = Dsl.config();
-        String queryParams = "?dataSets=SCOPUS";//+ String.join(","+lodConfiguration.getLodDatasets());
+        String queryParams = "?dataSets="+ lodConfiguration.getDatasetsComaSeparated();//SCOPUS";//+ String.join(","+lodConfiguration.getLodDatasets());
         BoundRequestBuilder postRequest = asyncHttpClient.preparePost(lodConfiguration.buildCompleteURI()+queryParams)
                 .addHeader("Content-Type","application/json")
                 .setBody(tripleObject.toJson().toString());

@@ -133,7 +133,11 @@ public class ObjectResult {
         if (similarity!=null)
             this.similarity = similarity;
         for (Map.Entry<String, Object> attEntry : to.getAttributes().entrySet()) {
-            this.attributes.add(new Attribute(attEntry.getKey(),attEntry.getValue(),this));
+            try {
+                this.attributes.add(new Attribute(attEntry.getKey(), attEntry.getValue(), this));
+            } catch (Exception e) {
+                System.out.println();
+            }
         }
     }
 

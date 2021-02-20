@@ -109,7 +109,7 @@ lod:
   port: 9328
   endpoint: /lod/search
   lodDatasets:
-    - SCOPUS
+    - CROSSREF,SCOPUS,WIKIDATA
 
 ## Actuator
 management:

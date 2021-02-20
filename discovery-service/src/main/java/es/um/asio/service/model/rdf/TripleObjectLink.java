@@ -20,6 +20,8 @@ import org.apache.jena.vocabulary.VCARD4;
 import org.springframework.beans.factory.annotation.Value;
 import org.yaml.snakeyaml.scanner.Constant;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,6 +65,10 @@ public class TripleObjectLink {
         this.links = new ArrayList<>();
         this.attributes = new LinkedTreeMap<>();
         this.prefixes = new HashMap<>();
+    }
+
+    public String getURLEndedID(){
+        return URLEncoder.encode(this.id, StandardCharsets.UTF_8);
     }
 
     public TripleObjectLink(JsonObject jTol) {
@@ -137,6 +143,10 @@ public class TripleObjectLink {
         String rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
         String rdfs = "http://www.w3.org/2000/01/rdf-schema#";
         String ldp = "http://www.w3.org/ns/ldp#";
+        prefixes.put("skos",skos);
+        prefixes.put("rdf",rdf);
+        prefixes.put("rdfs",rdfs);
+        prefixes.put("ldp",ldp);
         Model m = ModelFactory.createDefaultModel();
         Resource r;
         URIComponent uriComponent = new URIComponent(schemaService.domain, schemaService.subDomain, schemaService.language, "kos", this.localClassName, this.id);
@@ -148,7 +158,7 @@ public class TripleObjectLink {
         } catch (Exception e) {
             resourceURI = uriComponent.buildURIFromComponents(schemaService.getCanonicalLocalSchema());
         }
-        if (Utils.isValidString(resourceURI)) {
+        if (Utils.isValidString(resourceURI) && Utils.isValidURL(resourceURI)) {
             r = m.createResource(resourceURI);
         } else {
             r = m.createResource();
@@ -173,7 +183,11 @@ public class TripleObjectLink {
         // attributes
         r = expandAttributes(m, r, attributes);
 
-        m.write(System.out,"RDF/XML");
+        try {
+            m.write(System.out,"RDF/XML");
+        } catch (Exception e) {
+            System.out.println();
+        }
 
         return m;
     }
@@ -186,8 +200,10 @@ public class TripleObjectLink {
 
             String propertyURI = expandAttributeURIFRomPrefixes(attEntry.getKey());
             if(Utils.isPrimitive(attEntry.getValue())) { // Si no es objeto
-                String value = String.valueOf(attEntry.getValue());
-                resource.addProperty(new PropertyImpl(propertyURI),value);
+                if (Utils.isValidURL(propertyURI)) {
+                    String value = String.valueOf(attEntry.getValue());
+                    resource.addProperty(new PropertyImpl(propertyURI), value);
+                }
             } else { // Si es objeto
                 Resource innerResource = model.createResource(resource.getURI()+"/"+attEntry.getKey());
                 Object o = attributes.get(attEntry.getKey());

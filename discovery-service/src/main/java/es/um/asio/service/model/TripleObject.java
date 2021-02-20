@@ -62,7 +62,7 @@ public class TripleObject {
     @JsonIgnore
     private Map<String,List<Object>> flattenAttributes;
     @JsonIgnore
-    private TripleObjectLink tripleObjectLink;
+    private Set<TripleObjectLink> tripleObjectLink;
 
     public TripleObject(TripleObjectES toES) {
         this.id = toES.getEntityId();
@@ -95,12 +95,15 @@ public class TripleObject {
     }
 
     public TripleObject(TripleObjectLink tol) {
-        this.id = tol.getId();
-        this.className = tol.getLocalClassName();
-        this.tripleStore = new TripleStore(tol.getDatasetName(), tol.getRemoteName()) ;
-        this.lastModification = new java.util.Date().getTime();
-        this.attributes = tol.getAttributes();
-        this.tripleObjectLink = tol;
+        if (this.tripleObjectLink == null) {
+            this.id = tol.getId();
+            this.className = tol.getLocalClassName();
+            this.tripleStore = new TripleStore(tol.getDatasetName(), tol.getRemoteName()) ;
+            this.lastModification = new java.util.Date().getTime();
+            this.attributes = tol.getAttributes();
+            this.tripleObjectLink = new HashSet<>();
+        }
+        this.tripleObjectLink.add(tol);
     }
 
     public TripleObject(String node, String tripleStore, String className, JSONObject jData ) {
