@@ -36,4 +36,4 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
           SONAR_ORGANIZATION: herculescrue
-        run: mvn -B sonar:sonar -Djava.io.tmpdir=/tmp -Dsonar.host.url=${ SONAR_HOST_URL } -Dsonar.organization=${ SONAR_ORGANIZATION } -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+        run: mvn -B sonar:sonar -Djava.io.tmpdir=/tmp -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.organization=${SONAR_ORGANIZATION} -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
