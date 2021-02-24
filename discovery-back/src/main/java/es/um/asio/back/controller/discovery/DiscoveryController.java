@@ -85,8 +85,8 @@ public class DiscoveryController {
     public Map<String, Object> getEntityStats(
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = false)
             @RequestParam(required = false, defaultValue = "um") @Validated(Create.class) final String node,
-            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "sparql", required = false)
-            @RequestParam(required = true, defaultValue = "sparql") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "fuseki", required = false)
+            @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "className", value = "Class Name", required = false)
             @RequestParam(required = true) @Validated(Create.class) final String className
     ) {
@@ -111,8 +111,8 @@ public class DiscoveryController {
             @RequestParam(required = true, defaultValue = "12345") @Validated(Create.class) final String requestCode,
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = false)
             @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
-            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "sparql", required = false)
-            @RequestParam(required = true, defaultValue = "sparql") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "fuseki", required = false)
+            @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "className", value = "Class Name", required = false)
             @RequestParam(required = true) @Validated(Create.class) final String className,
             @ApiParam(name = "doSynchronous", value = "Handle request as synchronous request", defaultValue = "false", required = false)
@@ -181,8 +181,8 @@ public class DiscoveryController {
             @RequestParam(required = true, defaultValue = "12345") @Validated(Create.class) final String requestCode,
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = false)
             @RequestParam(required = false, defaultValue = "um") @Validated(Create.class) final String node,
-            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "sparql", required = false)
-            @RequestParam(required = true, defaultValue = "sparql") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "fuseki", required = false)
+            @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "className", value = "Class Name", required = true)
             @RequestParam(required = true) @Validated(Create.class) final String className,
             @ApiParam(name = "entityId", value = "12345", required = true)
@@ -244,10 +244,12 @@ public class DiscoveryController {
             @RequestParam(required = true, defaultValue = "1") @Validated(Create.class) final String userId,
             @ApiParam(name = "requestCode", value = "12345", defaultValue = "12345", required = true)
             @RequestParam(required = true, defaultValue = "12345") @Validated(Create.class) final String requestCode,
+            @ApiParam(name = "dataSource", value = "Datasources to search. * is wildcard. Then search in all data sources", defaultValue = "*", required = false)
+            @RequestParam(required = false, defaultValue = "*") @Validated(Create.class) final String dataSource,
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = false)
             @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
-            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "sparql", required = false)
-            @RequestParam(required = true, defaultValue = "sparql") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "fuseki", required = false)
+            @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "className", value = "Class Name", required = false)
             @RequestParam(required = true) @Validated(Create.class) final String className,
             @ApiParam(name = "doSynchronous", value = "Handle request as synchronous request", defaultValue = "false", required = false)
@@ -263,7 +265,7 @@ public class DiscoveryController {
         if (!doSynchronous && ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
             throw new CustomDiscoveryException("The request must be synchronous or web hook or/and propague in kafka must be valid" );
         }
-        JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForLOD(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka,applyDelta);
+        JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForLOD(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka,applyDelta, dataSource);
         JsonObject jResponse = new JsonObject();
         jResponse.add("state",applicationState.toSimplifiedJson());
         if (jobRegistry!=null) {
@@ -287,8 +289,8 @@ public class DiscoveryController {
     public ResponseEntity<String> entityChange(
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = true)
             @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
-            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "sparql", required = false)
-            @RequestParam(required = true, defaultValue = "sparql") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "fuseki", required = false)
+            @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "className", value = "Class Name", required = true)
             @RequestParam(required = true) @Validated(Create.class) final String className,
             @ApiParam(name = "entityLocalURI", required = true)

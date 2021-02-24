@@ -23,7 +23,7 @@ class DataSourcesConfigurationTest {
             n.setNodeName(String.format("node%s",i));
             List<DataSourcesConfiguration.Node.TripleStore> tripleStores = new ArrayList<>();
             for (int j = 1 ; j <=2; j++) {
-                DataSourcesConfiguration.Node.TripleStore ts = new DataSourcesConfiguration.Node.TripleStore(String.format("type_%s",j),String.format("baseURL_%s",j),String.format("name_%s",j),String.format("user_%s",j),String.format("password_%s",j));
+                DataSourcesConfiguration.Node.TripleStore ts = new DataSourcesConfiguration.Node.TripleStore(String.format("type_%s",j),String.format("baseURL_%s",j),String.format("name_%s",j),String.format("user_%s",j),String.format("password_%s",j),"");
                 tripleStores.add(ts);
             }
             n.setTripleStores(tripleStores);

@@ -22,6 +22,7 @@ import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -43,6 +44,9 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
 
     @Autowired
     LodConfiguration lodConfiguration;
+
+    @Value("${app.threadsInLod}")
+    public Integer threadsInLod;
 
     private final Logger logger = LoggerFactory.getLogger(EntitiesHandlerServiceImp.class);
     private static final String MANUAL_KEY="MANUAL";
@@ -130,7 +134,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
     }
 
     @Override
-    public Set<SimilarityResult> findEntitiesLinksByNodeAndTripleStoreAndClassInLOD(String node, String tripleStore, String className, Date deltaDate) {
+    public Set<SimilarityResult> findEntitiesLinksByNodeAndTripleStoreAndClassInLOD(String dataSource,String node, String tripleStore, String className, Date deltaDate) {
         Set<SimilarityResult> similarities = new HashSet<>();
         Map<String, TripleObject> tripleObjects = cache.getTripleObjects(node,tripleStore,className);
         if (deltaDate!=null) { // Filtrar por delta
@@ -143,7 +147,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
                 throw new CustomDiscoveryException(String.format("Not found for [ Node: %s, TripleStore: %s, ClassName: %s]", node, tripleStore, className));
 
         }
-        Map<TripleObject,List<TripleObjectLink>> links = handleRequestLodSearch(tripleObjects);
+        Map<TripleObject,List<TripleObjectLink>> links = handleRequestLodSearch(dataSource,tripleObjects);
         for (Map.Entry<TripleObject, List<TripleObjectLink>> linkEntry : links.entrySet()) { // TripleObject --> List<TripleObjectLink>
             Map<String, List<EntitySimilarityObj>> similarity = new HashMap<>();
             similarity.put(MANUAL_KEY,new ArrayList<>());
@@ -200,7 +204,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
         }
      */
 
-    private Map<TripleObject,List<TripleObjectLink>> handleRequestLodSearch(Map<String, TripleObject> tripleObjects) {
+    private Map<TripleObject,List<TripleObjectLink>> handleRequestLodSearch(String datasource,Map<String, TripleObject> tripleObjects) {
         Map<TripleObject,List<TripleObjectLink>> links = new HashMap<>();
 
 
@@ -208,35 +212,48 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
         // Split in sets
         int counter = 0;
         for (Map.Entry<String, TripleObject> toEntry : tripleObjects.entrySet()) {
-            int splitSet = Integer.valueOf(counter/10);
+            int splitSet = Integer.valueOf(counter/((threadsInLod!=null)?threadsInLod:4));
             if (!triplesSplits.containsKey(splitSet))
                 triplesSplits.put(splitSet,new ArrayList<>());
             triplesSplits.get(splitSet).add(toEntry.getValue());
             counter++;
         }
 
+        int splitCounter = 0;
+        int requestCounter = 0;
         for (List<TripleObject> split : triplesSplits.values()) { // Por cada conjunto de datos
+            logger.info("Request LOD split group {} of {}",++splitCounter,triplesSplits.size());
             Map<TripleObject,CompletableFuture<Response>> futures = new HashMap<>(); // Futures in split
 
             for (TripleObject to : split) { // Por cada Triple Object
-                futures.put(to, doRequestInLod(to));
+                futures.put(to, doRequestInLod((datasource == null || datasource.trim().equals("*"))?lodConfiguration.getDatasetsComaSeparated():datasource.replaceAll(" ",""),to));
             }
 
             for (Map.Entry<TripleObject, CompletableFuture<Response>> future : futures.entrySet()) { // Por cada future
-                Response response = future.getValue().join();
-                if (response.getStatusCode() == 200) {
-                    String body = response.getResponseBody();
-                    List<TripleObjectLink> toLinks = new ArrayList<>();
-                    JsonArray jTripleObjectLink = new JsonParser().parse(response.getResponseBody()).getAsJsonArray();
-                    for (JsonElement jeTripleObjectLink : jTripleObjectLink) {
-                        TripleObjectLink tol = new TripleObjectLink(jeTripleObjectLink.getAsJsonObject());
-                        tol.setOrigin(future.getKey());
-                        toLinks.add(tol);
+                try {
+                    if (future.getValue()!=null) {
+                        Response response = future.getValue().join();
+                        logger.info("Request LOD {} of {} wit status {}", ++requestCounter, tripleObjects.size(), response.getStatusCode());
+                        future.getValue().cancel(false);
+                        if (response.getStatusCode() == 200) {
+                            String body = response.getResponseBody();
+                            List<TripleObjectLink> toLinks = new ArrayList<>();
+                            JsonArray jTripleObjectLink = new JsonParser().parse(response.getResponseBody()).getAsJsonArray();
+                            for (JsonElement jeTripleObjectLink : jTripleObjectLink) {
+                                TripleObjectLink tol = new TripleObjectLink(jeTripleObjectLink.getAsJsonObject());
+                                tol.setOrigin(future.getKey());
+                                toLinks.add(tol);
+                            }
+                            if (toLinks.size() > 0)  // Si encontre algun link lo añado
+                                links.put(future.getKey(), toLinks);
+                        }
+                        response.getResponseBody();
+                    } else {
+                        logger.error("error in request LOD");
                     }
-                    if (toLinks.size()>0)  // Si encontre algun link lo añado
-                        links.put(future.getKey(),toLinks);
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
                 }
-                response.getResponseBody();
             }
         }
 
@@ -275,15 +292,42 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
         return links;
     }
 
-    private CompletableFuture<Response> doRequestInLod(TripleObject tripleObject) {
-        AsyncHttpClient asyncHttpClient = Dsl.asyncHttpClient();
-        DefaultAsyncHttpClientConfig.Builder clientBuilder = Dsl.config();
-        String queryParams = "?dataSets="+ lodConfiguration.getDatasetsComaSeparated();//SCOPUS";//+ String.join(","+lodConfiguration.getLodDatasets());
-        BoundRequestBuilder postRequest = asyncHttpClient.preparePost(lodConfiguration.buildCompleteURI()+queryParams)
-                .addHeader("Content-Type","application/json")
-                .setBody(tripleObject.toJson().toString());
-        ListenableFuture<Response> responseFuture = postRequest.execute();
-        return responseFuture.toCompletableFuture();
+    private CompletableFuture<Response> doRequestInLod(String datasources,TripleObject tripleObject) {
+        final AsyncHttpClient asyncHttpClient = Dsl.asyncHttpClient();
+        final CompletableFuture<Response> promise = new CompletableFuture<>();
+        try {
+
+            String queryParams = "?dataSets=" + datasources;
+            asyncHttpClient
+                    .preparePost(lodConfiguration.buildCompleteURI() + queryParams)
+                    .addHeader("Content-Type", "application/json")
+                    .setBody(tripleObject.toJson().toString())
+                    .execute(new AsyncCompletionHandler<Response>() {
+                        @Override
+                        public Response onCompleted(Response resp) throws Exception {
+                            promise.complete(resp);
+                            asyncHttpClient.close(); // ??? Is this correct ????
+                            return resp;
+                        }
+                    });
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return null;
+        }
+        return promise;
+/*        try {
+            AsyncHttpClient asyncHttpClient = Dsl.asyncHttpClient();
+            DefaultAsyncHttpClientConfig.Builder clientBuilder = Dsl.config();
+            String queryParams = "?dataSets="+ lodConfiguration.getDatasetsComaSeparated();//SCOPUS";//+ String.join(","+lodConfiguration.getLodDatasets());
+            BoundRequestBuilder postRequest = asyncHttpClient.preparePost(lodConfiguration.buildCompleteURI()+queryParams)
+                    .addHeader("Content-Type","application/json")
+                    .setBody(tripleObject.toJson().toString());
+            ListenableFuture<Response> responseFuture = postRequest.execute();
+            return responseFuture.toCompletableFuture();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        return null;*/
     }
 
     private Map<String, List<EntitySimilarityObj>>  calculateSimilarities(TripleObject to, Map<String, Float> stats, List<TripleObject> matches) {
@@ -292,9 +336,9 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
         similarities.put(AUTOMATIC_KEY,new ArrayList<>());
         Map<String,Float> statsAux = new TreeMap<>();
         for (TripleObject other: matches) {
-            if (stats.size()>1 && other.getAttributes().containsKey("id") && !to.getAttributes().containsKey("id")) {
+            if (stats.size()>1 && other.getAttributes().containsKey("localId") && !to.getAttributes().containsKey("localId")) {
                 for (Map.Entry<String, Float> statsEntry: stats.entrySet()) {
-                    if (!statsEntry.getKey().equalsIgnoreCase("id"))
+                    if (!statsEntry.getKey().equalsIgnoreCase("localId"))
                         statsAux.put(statsEntry.getKey(),statsEntry.getValue());
                 }
             } else {
@@ -302,9 +346,9 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
             }
 
             EntitySimilarityObj eso = EntityComparator.compare(to,other,statsAux);
-            if (eso.getSimilarity() >= dataSourcesConfiguration.getThresholds().getAutomaticThreshold()) {
+            if (eso.getSimilarity() >= dataSourcesConfiguration.getThresholds().getAutomaticThreshold() || eso.getSimilarityWithoutId() >= dataSourcesConfiguration.getThresholds().getAutomaticThresholdWithOutId()) {
                 similarities.get(AUTOMATIC_KEY).add(eso);
-            } else if (eso.getSimilarity() >= dataSourcesConfiguration.getThresholds().getManualThreshold()) {
+            } else if (eso.getSimilarity() >= dataSourcesConfiguration.getThresholds().getManualThreshold() || eso.getSimilarityWithoutId() >= dataSourcesConfiguration.getThresholds().getManualThresholdWithOutId()) {
                 similarities.get(MANUAL_KEY).add(eso);
             }
         }

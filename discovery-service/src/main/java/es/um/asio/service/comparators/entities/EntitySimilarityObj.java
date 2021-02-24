@@ -1,6 +1,7 @@
 package es.um.asio.service.comparators.entities;
 
 import es.um.asio.service.model.TripleObject;
+import es.um.asio.service.util.Utils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,6 +45,18 @@ public class EntitySimilarityObj {
 
     public Map<String, SimilarityValue> getSimilarities() {
         return similarities;
+    }
+
+    public float getSimilarityWithoutId() {
+        float sumSimilarities = 0f;
+        float sumWeight = 0f;
+        for (Map.Entry<String, SimilarityValue> svEntry :similarities.entrySet()) {
+            if (!Utils.isIdFormat(svEntry.getKey()) ) {
+                sumSimilarities += svEntry.getValue().getWeightedSimilarity();
+                sumWeight += svEntry.getValue().getWeight();
+            }
+        }
+        return (sumWeight!=0)?sumSimilarities/sumWeight:similarity;
     }
 
     @Override

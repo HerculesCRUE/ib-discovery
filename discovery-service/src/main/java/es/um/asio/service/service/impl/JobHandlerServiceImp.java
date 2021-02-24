@@ -97,11 +97,13 @@ public class JobHandlerServiceImp {
              */
             @Override
             public void onCachedDataIsReady() {
+                isAppReady = true;
                 logger.info("onCachedDataIsReady");
             }
 
             @Override
             public void onRealDataIsReady() {
+                isAppReady = true;
                 logger.info("onRealDataIsReady");
             }
 
@@ -277,7 +279,8 @@ public class JobHandlerServiceImp {
             boolean doSync,
             String webHook,
             boolean propagueInKafka,
-            boolean applyDelta
+            boolean applyDelta,
+            String dataSource
     ) {
         if (!jrLODMap.containsKey(node))
             jrLODMap.put(node, new LinkedHashMap<>());
@@ -319,7 +322,7 @@ public class JobHandlerServiceImp {
 
         jobRegistry.addRequestRegistry(requestRegistry);
         jrLODMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()), jobRegistry);
-
+        jobRegistry.setDataSource(dataSource);
         jobRegistryRepository.save(jobRegistry);
         for (RequestRegistry rr : jobRegistry.getRequestRegistries()) {
             requestRegistryProxy.save(rr);
@@ -354,17 +357,17 @@ public class JobHandlerServiceImp {
         try {
             SimilarityResult similarityResult = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndTripleObject(to, jobRegistry.isSearchLinks());
 
-            ObjectResult objectResult = new ObjectResult(jobRegistry, similarityResult.getTripleObject(), null);
+            ObjectResult objectResult = new ObjectResult(jobRegistry, similarityResult.getTripleObject(), null,null);
             ObjectResult toUpdate = objectResult;
             Set<ObjectResult> toDelete = new HashSet<>();
             Set<ObjectResult> toLink = new HashSet<>();
             for (EntitySimilarityObj eso : similarityResult.getAutomatic()) { // Para todos las similitudes automáticas
-                ObjectResult objResAuto = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity());
+                ObjectResult objResAuto = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId());
                 objectResult.addAutomatic(objResAuto);
                 // Merges
                 if (objectResult.getNode().equals(objResAuto.getNode())
                         && objectResult.getTripleStore().equals(objResAuto.getTripleStore())) { // Si es el mismo nodo y triple store ACCIÓN = UPDATE o DELETE
-                    ObjectResult toUpdateAux = new ObjectResult(null, toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry)), eso.getSimilarity());
+                    ObjectResult toUpdateAux = new ObjectResult(null, toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry)), eso.getSimilarity(), eso.getSimilarityWithoutId());
                     if (!toUpdateAux.getEntityId().equals(toUpdate.getEntityId())) {
                         toDelete.remove(toUpdateAux);
                         toDelete.add(toUpdate);
@@ -377,7 +380,7 @@ public class JobHandlerServiceImp {
                 }
             }
             for (EntitySimilarityObj eso : similarityResult.getManual()) { // Para todos las similitudes automáticas
-                ObjectResult objResManual = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity());
+                ObjectResult objResManual = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId());
                 objectResult.addManual(objResManual);
             }
 
@@ -440,17 +443,17 @@ public class JobHandlerServiceImp {
         try {
             Set<SimilarityResult> similarities = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndClass(jobRegistry.getNode(), jobRegistry.getTripleStore(), jobRegistry.getClassName(), jobRegistry.isSearchLinks(), jobRegistry.getSearchFromDelta());
             for (SimilarityResult similarityResult : similarities) { // Por cada similitud encontrada
-                ObjectResult objectResult = new ObjectResult(jobRegistry, similarityResult.getTripleObject(), null);
+                ObjectResult objectResult = new ObjectResult(jobRegistry, similarityResult.getTripleObject(), null,null);
                 ObjectResult toUpdate = objectResult;
                 Set<ObjectResult> toDelete = new HashSet<>();
                 Set<ObjectResult> toLink = new HashSet<>();
                 for (EntitySimilarityObj eso : similarityResult.getAutomatic()) { // Para todos las similitudes automáticas
-                    ObjectResult objResAuto = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity());
+                    ObjectResult objResAuto = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId());
                     objectResult.addAutomatic(objResAuto);
                     // Merges
                     if (objectResult.getNode().equals(objResAuto.getNode())
                             && objectResult.getTripleStore().equals(objResAuto.getTripleStore())) { // Si es el mismo nodo y triple store ACCIÓN = UPDATE o DELETE
-                        ObjectResult toUpdateAux = new ObjectResult(null, toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry)), eso.getSimilarity());
+                        ObjectResult toUpdateAux = new ObjectResult(null, toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry)), eso.getSimilarity(), eso.getSimilarityWithoutId());
                         if (!toUpdateAux.getEntityId().equals(toUpdate.getEntityId())) {
                             toDelete.remove(toUpdateAux);
                             toDelete.add(toUpdate);
@@ -464,7 +467,7 @@ public class JobHandlerServiceImp {
 
                 }
                 for (EntitySimilarityObj eso : similarityResult.getManual()) { // Para todos las similitudes automáticas
-                    ObjectResult objResManual = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity());
+                    ObjectResult objResManual = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId());
                     objectResult.addManual(objResManual);
                 }
 
@@ -525,13 +528,13 @@ public class JobHandlerServiceImp {
         jobRegistry.setStartedDate(new Date());
         isWorking = true;
         try {
-            Set<SimilarityResult> similarities = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndClassInLOD(jobRegistry.getNode(), jobRegistry.getTripleStore(), jobRegistry.getClassName(), jobRegistry.getSearchFromDelta());
+            Set<SimilarityResult> similarities = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndClassInLOD(jobRegistry.getDataSource(),jobRegistry.getNode(), jobRegistry.getTripleStore(), jobRegistry.getClassName(), jobRegistry.getSearchFromDelta());
             for (SimilarityResult similarityResult : similarities) { // Por cada similitud encontrada
 
-                ObjectResult objectResult = new ObjectResult(jobRegistry, similarityResult.getTripleObject(), null);
+                ObjectResult objectResult = new ObjectResult(jobRegistry, similarityResult.getTripleObject(), null,null);
                 for (EntitySimilarityObj eso : similarityResult.getAutomatic()) { // Para todos las similitudes automáticas
                     try {
-                        ObjectResult objResAuto = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity());
+                        ObjectResult objResAuto = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId());
                         objectResult.addAutomatic(objResAuto);
 
                     } catch (Exception e) {
@@ -541,7 +544,7 @@ public class JobHandlerServiceImp {
 
                 }
                 for (EntitySimilarityObj eso : similarityResult.getManual()) { // Para todos las similitudes automáticas
-                    ObjectResult objResManual = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity());
+                    ObjectResult objResManual = new ObjectResult(null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId());
                     objectResult.addManual(objResManual);
                 }
 
@@ -581,7 +584,7 @@ public class JobHandlerServiceImp {
                         if (locationTripleObjectAutomatic != null) {
                             // objectResult.setLocalURI(locationTripleObjectAutomatic);
                             tripleObjectAutomatic.setLocalURI(locationTripleObjectAutomatic);
-                            ObjectResult objectResultLink = new ObjectResult(jobRegistry, tripleObjectAutomatic, null);
+                            ObjectResult objectResultLink = new ObjectResult(jobRegistry, tripleObjectAutomatic, null,null);
                             toLink.add(objectResultLink);
                         }
                     }
@@ -699,7 +702,7 @@ public class JobHandlerServiceImp {
             } else if (!qInstances.isEmpty()) {
                 return CompletableFuture.supplyAsync(() -> findSimilaritiesByInstance(qInstances.poll()));
             } else if (!qLod.isEmpty()) {
-                return CompletableFuture.supplyAsync(() -> findSimilaritiesInLod(qInstances.poll()));
+                return CompletableFuture.supplyAsync(() -> findSimilaritiesInLod(qLod.poll()));
             }
         }
         return CompletableFuture.completedFuture(null);

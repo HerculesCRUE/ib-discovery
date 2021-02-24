@@ -18,6 +18,21 @@ services:
       #- ./fuseki-conf/log4j.properties:/fuseki/log4j.properties
     networks:
       - sandbox-net
+  trellis:
+    build: ./trellis
+    container_name: trellis
+    ports:
+      - "80:8080"
+    links:
+      - "fuseki-sandbox:fuseki-sandbox"
+    depends_on:
+      - fuseki-sandbox
+    volumes:
+      - trellis-data:/opt/trellis/data
+      - trellis-log:/opt/trellis/log
+    networks:
+      - sandbox-net
+
 volumes:
   fuseki-data-sandbox:
   fuseki-backup-sandbox:

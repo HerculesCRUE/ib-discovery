@@ -60,7 +60,7 @@ public class ApplicationState {
     }
 
     private void propagueEvents(DataType dataType,State state) {
-        if (dataType == DataType.REDIS && state.getOrder() == 2) {
+        if (dataType == DataType.REDIS && state.getOrder() == 1) {
             for (AppEvents listener :appEventListeners) {
                 listener.onCachedDataIsReady();
             }

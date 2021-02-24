@@ -38,7 +38,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
     private String password;
     private TripleStore tripleStore;
 
-    private static final String TRIPLE_STORE = "sparql";
+    private static final String TRIPLE_STORE = "fuseki";
 
     SchemaService schemaService;
 
@@ -78,7 +78,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
                 ++classesCounter;
                 URIComponent uriComponent = schemaService.getURIComponentFromCanonicalLocalURI(jClass.getAsString());
                 String className = uriComponent.getConcept();
-                logger.info("Searching instances by {} class in Node {}",className,nodeName);
+                logger.info("Searching updated instances by {} class in Node {}",className,nodeName);
                 int classChanges = 0;
                 if (className!=null) {
                     queryParams.put("className",className);
@@ -89,11 +89,11 @@ public class SparqlProxyHandler extends TripleStoreHandler {
                             JsonArray jInstancesResponse = jeInstancesResponse.getAsJsonArray();
                             for (JsonElement jInstance : jInstancesResponse) {
                                 TripleObject to = new TripleObject(jInstance.getAsJsonObject());
-                                TripleObject toStored = cacheService.getTripleObject(nodeName, TRIPLE_STORE, className, to.getId());
+                                TripleObject toStored = cacheService.getTripleObject(nodeName, this.tripleStore.getName(), className, to.getId());
                                 if (!to.equals(toStored)) { // Si hay cambios lo actualizo
                                     changes++;
                                     classChanges++;
-                                    cacheService.addTripleObject(nodeName, TRIPLE_STORE, to);
+                                    cacheService.addTripleObject(nodeName, tripleStore.getName(), to);
                                     String nText = ((toStored == null) ? "(New) " : " ");
                                     logger.info("		Processing Node {} Instances: {} ({}/{}): {}	,class ({}/{}):{}	,id: {}	,data:{}", nText, ++instancesCounter, ++instancesInClass, jInstancesResponse.size(), nodeName, classesCounter, jResponse.size(), className, to.getId(), to);
                                 } else { // Si no hay cambios lo elimino
@@ -106,16 +106,16 @@ public class SparqlProxyHandler extends TripleStoreHandler {
                     }
                 }
                 if (classChanges>0) // Si hay cambios en la clase, actualizo la cache
-                    cacheService.saveTriplesMapInCache(nodeName,TRIPLE_STORE,className);
+                    cacheService.saveTriplesMapInCache(nodeName,tripleStore.getName(),className);
             }
 
             if (changes > 0 || !triplesMapCached.isEmpty()) {
                 for (TripleObject to : triplesMapCached) {// Si quedan elementos cacheados, que no aparecen en la consulta
                     cacheService.removeTripleObject(this.nodeName, this.tripleStore.getName(), to); // los eliminamos
                 }
-                logger.info("Found {} changes in "+ TRIPLE_STORE +" and {} instances will be deleted. Saving in Cache and Redis. The cache is updated", changes,triplesMapCached.size());
+                logger.info("Found {} changes in "+ tripleStore.getName() +" and {} instances will be deleted. Saving in Cache and Redis. The cache is updated", changes,triplesMapCached.size());
             } else {
-                logger.info("No changes Found in "+ TRIPLE_STORE +". The cache is updated");
+                logger.info("No changes Found in "+ tripleStore.getName() +". The cache is updated");
                 return false;
             }
             return true;
@@ -129,7 +129,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
         String instanceId = uriChunks[uriChunks.length-1];
         Map<String,String> headers = new HashMap<>();
         if (basicAction.equals(BasicAction.DELETE)) { // Si se elimino, lo eliminamos de la cache
-            TripleObject to = cacheService.getTripleObject(nodeName,TRIPLE_STORE,className,instanceId);
+            TripleObject to = cacheService.getTripleObject(nodeName,this.tripleStore.getName(),className,instanceId);
             cacheService.removeTripleObject(node, tripleStore, to);
         } else { // en otro caso, se actualiza la cache
             Map<String,String> qParams = ImmutableMap.of("localURI",localURI);
@@ -140,8 +140,8 @@ public class SparqlProxyHandler extends TripleStoreHandler {
                     Map<String,String> qParamsInstance = ImmutableMap.of("className",className,"node",node,"service","sparql-proxy","tripleStore",tripleStore,"uri",canonicalLocalURI);
                     JsonElement jeInstance = doRequest(new URL(this.baseURL + "/data-fetcher/instance/find"),Connection.Method.GET,headers,null,qParamsInstance);
                     TripleObject to = new TripleObject(jeInstance.getAsJsonObject());
-                    cacheService.addTripleObject(nodeName,TRIPLE_STORE, to);
-                    cacheService.saveTriplesMapInCache(nodeName,TRIPLE_STORE,className);
+                    cacheService.addTripleObject(nodeName,this.tripleStore.getName(), to);
+                    cacheService.saveTriplesMapInCache(nodeName,this.tripleStore.getName(),className);
                     return true;
                 }
             }

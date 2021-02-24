@@ -12,5 +12,5 @@ public interface EntitiesHandlerService {
 
     SimilarityResult findEntitiesLinksByNodeAndTripleStoreAndTripleObject (TripleObject tripleObject, boolean searchInOtherNodes);
 
-    Set<SimilarityResult> findEntitiesLinksByNodeAndTripleStoreAndClassInLOD (String node, String tripleStore, String className, Date deltaDate);
+    Set<SimilarityResult> findEntitiesLinksByNodeAndTripleStoreAndClassInLOD (String dataSource,String node, String tripleStore, String className, Date deltaDate);
 }
