@@ -42,3 +42,11 @@ jobs:
           SONAR_ORGANIZATION: herculescrue
           SONAR_PROJECT_KEY: HerculesCRUE_ib-discovery
         run: mvn -B sonar:sonar -Djava.io.tmpdir=/tmp -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.organization=${SONAR_ORGANIZATION} -Dsonar.projectKey=${SONAR_PROJECT_KEY}
+      - name: Microsoft Teams Notification
+        uses: skitionek/notify-microsoft-teams@master
+        if: failure()
+        with:
+          webhook_url: ${{ secrets.MSTEAMS_WEBHOOK }}
+          needs: ${{ toJson(needs) }}
+          job: ${{ toJson(job) }}
+          steps: ${{ toJson(steps) }}
