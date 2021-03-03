@@ -65,24 +65,24 @@ public final class DataGenerator {
         // Añado todos los Triple Objects como Object Results
         int actionCounter = 0;
         for (TripleObject to :tripleObjects) {
-            ObjectResult or = new ObjectResult(jobRegistry,to,0f);
+            ObjectResult or = new ObjectResult(jobRegistry,to,0f,0f);
             or.setId(Long.valueOf(to.getId()));
             jobRegistry.getObjectResults().add(or);
             float i = 0f;
             for (TripleObject toInner :tripleObjects) {
                 i++;
                 if (Math.abs(Integer.valueOf(to.getId()) - Integer.valueOf(toInner.getId())) <= 1) {
-                    ObjectResult orInner = new ObjectResult(null,toInner,1f);
+                    ObjectResult orInner = new ObjectResult(null,toInner,1f,1f);
                     orInner.setId(Long.valueOf(toInner.getId()));
                     orInner.setParentAutomatic(or);
                     or.addAutomatic(orInner);
                 } else if (Math.abs(Integer.valueOf(to.getId()) - Integer.valueOf(toInner.getId())) <= 2) {
-                    ObjectResult orInner = new ObjectResult(null,toInner,0.9f -(i/10f));
+                    ObjectResult orInner = new ObjectResult(null,toInner,0.9f -(i/10f),0.9f -(i/10f));
                     orInner.setId(Long.valueOf(toInner.getId()));
                     orInner.setParentManual(or);
                     or.addManual(orInner);
                 } else {
-                    ObjectResult orInner = new ObjectResult(null,toInner,0.9f -(i/10f));
+                    ObjectResult orInner = new ObjectResult(null,toInner,0.9f -(i/10f),0.9f -(i/10f));
                     orInner.setId(Long.valueOf(toInner.getId()));
                     orInner.setParentLink(or);
                     or.getLink().add(orInner);

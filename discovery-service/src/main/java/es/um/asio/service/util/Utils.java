@@ -4,9 +4,20 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import es.um.asio.service.model.AttributeType;
+import org.apache.catalina.util.URLEncoder;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.jsoup.Connection;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
@@ -360,6 +371,70 @@ public class Utils {
             }
         }
         return str;
+    }
+
+    public static JsonElement doRequest(URL url, Connection.Method method, Map<String,String> headers, Map<String,String> params, Map<String,String> queryParams, boolean encode) throws IOException {
+        if (queryParams!=null) {
+            url = buildQueryParams(url,queryParams, encode);
+        }
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod(method.toString());
+        con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        if (headers!=null) {
+            for (Map.Entry<String, String> headerEntry : headers.entrySet()) {
+                con.setRequestProperty(headerEntry.getKey(),headerEntry.getValue());
+            }
+        }
+        if (params!=null) {
+            for (Map.Entry<String, String> paramEntry : params.entrySet()) {
+                con.setRequestProperty(paramEntry.getKey(),paramEntry.getValue());
+            }
+        }
+        con.setDoOutput(true);
+        StringBuilder response;
+        try(BufferedReader br = new BufferedReader(
+                new InputStreamReader(con.getInputStream(), "utf-8"))) {
+            response = new StringBuilder();
+            String responseLine;
+            while ((responseLine = br.readLine()) != null) {
+                response.append(responseLine.trim());
+            }
+        }
+        con.disconnect();
+        JsonElement jResponse = new Gson().fromJson(response.toString(), JsonElement.class);
+        return jResponse;
+    }
+
+    private static URL buildQueryParams(URL baseURL, Map<String,String> queryParams,boolean encode) throws MalformedURLException, UnsupportedEncodingException {
+        StringBuffer base = new StringBuffer();
+        base.append(baseURL.toString());
+        if (queryParams!=null && queryParams.size()>0) {
+            base.append("?");
+            List<String> qpList = new ArrayList<>();
+            for (Map.Entry<String, String> qpEntry : queryParams.entrySet()) {
+                if (encode)
+                    qpList.add(qpEntry.getKey()+"="+ new URLEncoder().encode(qpEntry.getValue(), Charset.defaultCharset()));
+                else
+                    qpList.add(qpEntry.getKey()+"="+qpEntry.getValue());
+            }
+            base.append(String.join("&",qpList));
+        }
+        return new URL(base.toString());
+    }
+
+    public static boolean isIdFormat(String field) {
+        for (String w : field.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])")) {
+            if (w.toLowerCase().equals("id"))
+                return true;
+        }
+        return false;
+    }
+
+    public static String normalizeUri(String s) {
+        String r = StringUtils.stripAccents(s);
+        r = r.replace(" ", "_");
+        r = r.replaceAll("[^\\.A-Za-z0-9_]", "");
+        return r;
     }
 
 }

@@ -45,6 +45,9 @@ public class JobRegistry {
     @Column(name = Columns.CLASS_NAME, nullable = false,columnDefinition = "VARCHAR(200)",length = 200)
     private String className;
 
+    @Column(name = Columns.DATA_SOURCE, nullable = true,columnDefinition = "VARCHAR(200)",length = 200)
+    private String dataSource;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "jobRegistry", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<RequestRegistry> requestRegistries;
 
@@ -187,6 +190,10 @@ public class JobRegistry {
          * CLASS_NAME column.
          */
         protected static final String CLASS_NAME = "class_name";
+        /**
+         * DATA_SOURCE column.
+         */
+        protected static final String DATA_SOURCE = "data_source";
         /**
          * COMPLETION_DATE column.
          */

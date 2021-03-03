@@ -68,7 +68,7 @@ public class TripleObjectLink {
     }
 
     public String getURLEndedID(){
-        return URLEncoder.encode(this.id, StandardCharsets.UTF_8);
+        return URLEncoder.encode(Utils.normalizeUri(this.getId()), StandardCharsets.UTF_8);
     }
 
     public TripleObjectLink(JsonObject jTol) {

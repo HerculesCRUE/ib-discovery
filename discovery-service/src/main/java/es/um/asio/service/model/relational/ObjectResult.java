@@ -24,6 +24,7 @@ public class ObjectResult {
     public static final String TABLE = "object_result";
 
     public static final String SIMILARITY = "similarity";
+    public static final String SIMILARITY_NO_ID = "similarityWithoutId";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -94,6 +95,9 @@ public class ObjectResult {
     @Column(name = Columns.SIMILARITY, nullable = true)
     private Float similarity;
 
+    @Column(name = Columns.SIMILARITY_WITH_OUT_ID, nullable = true)
+    private Float similarityWithOutId;
+
     @Column(name = Columns.IS_MAIN, nullable = false)
     private boolean isMain = true;
 
@@ -117,7 +121,7 @@ public class ObjectResult {
     @ManyToOne(optional = true, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     private ActionResult actionResultParent;
 
-    public ObjectResult(JobRegistry jobRegistry, TripleObject to, Float similarity) {
+    public ObjectResult(JobRegistry jobRegistry, TripleObject to, Float similarity, Float similarityWithOutId) {
         this.className = to.getClassName();
         this.node = to.getTripleStore().getNode().getNodeName();
         this.tripleStore = to.getTripleStore().getName();
@@ -132,6 +136,8 @@ public class ObjectResult {
         this.attributes = new HashSet<>();
         if (similarity!=null)
             this.similarity = similarity;
+        if (similarityWithOutId!=null)
+            this.similarityWithOutId = similarityWithOutId;
         for (Map.Entry<String, Object> attEntry : to.getAttributes().entrySet()) {
             try {
                 this.attributes.add(new Attribute(attEntry.getKey(), attEntry.getValue(), this));
@@ -210,11 +216,13 @@ public class ObjectResult {
         JsonObject jResponse = new JsonObject();
         jResponse.addProperty("node",getNode());
         jResponse.addProperty("tripleStore",getTripleStore());
+        jResponse.addProperty("className",getClassName());
         jResponse.addProperty("entityId",getEntityId());
         jResponse.addProperty("localUri",getLocalURI());
         if (getSimilarity()!=null)
             jResponse.addProperty(SIMILARITY,getSimilarity());
-
+        if (getSimilarityWithOutId()!=null)
+            jResponse.addProperty(SIMILARITY_NO_ID,getSimilarityWithOutId());
         LinkedTreeMap<String,Object> attrsMap = getAttributesAsMap(attributes, new LinkedTreeMap<>());
         jResponse.add("attributes",new Gson().toJsonTree(attrsMap).getAsJsonObject());
         if (getAutomatic()!=null && expands) {
@@ -285,6 +293,12 @@ public class ObjectResult {
          * SIMILARITY column.
          */
         protected static final String SIMILARITY = "similarity";
+
+        /**
+         * SIMILARITY column.
+         */
+        protected static final String SIMILARITY_WITH_OUT_ID = "similarity_no_id";
+
         /**
          * IS_MAIN column.
          */

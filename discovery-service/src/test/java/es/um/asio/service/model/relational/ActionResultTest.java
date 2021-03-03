@@ -36,6 +36,7 @@ class ActionResultTest {
             ObjectResult orNew = new ObjectResult(
                     null,
                     to,
+                    0f,
                     0f
             );
             actionResult.addObjectResult(orNew);
@@ -81,6 +82,7 @@ class ActionResultTest {
             ObjectResult orNew = new ObjectResult(
                     null,
                     to,
+                    0f,
                     0f
             );
             actionResult.setObjectResultParent(orNew);

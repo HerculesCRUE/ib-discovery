@@ -19,7 +19,7 @@ public abstract class TripleStoreHandler {
     public static TripleStoreHandler getHandler(SchemaService schemaService,DataSourcesConfiguration dataSourcesConfiguration, DataSourcesConfiguration.Node node, DataSourcesConfiguration.Node.TripleStore ts) {
         if (ts.getType().trim().equalsIgnoreCase("trellis"))
             return new TrellisHandler(node.getNodeName(),ts.getBaseURL(),ts.getUser(),ts.getPassword());
-        else if (ts.getType().trim().equalsIgnoreCase("sparql"))
+        else if (ts.getType().trim().equalsIgnoreCase("fuseki"))
             return new SparqlProxyHandler(schemaService, dataSourcesConfiguration,node,ts);
         else
             throw new IllegalArgumentException("Not exist correct handler for type: "+ ts.getType());
