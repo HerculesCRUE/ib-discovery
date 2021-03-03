@@ -13,7 +13,7 @@
 
 	<groupId>es.um.asio</groupId>
 	<artifactId>discovery</artifactId>
-	<version>1.2.0</version>
+	<version>2.0.0</version>
 	<packaging>pom</packaging>
 	<name>UM - ASIO - discovery</name>
 	<description>UM - ASIO - discovery</description>
@@ -24,6 +24,7 @@
 	</scm>
 
 	<properties>
+		<app.version>2.0.0</app.version>
 		<java.version>11</java.version>
 		<resource.delimiter>@</resource.delimiter> <!-- delimiter that doesn't clash with Spring ${} placeholders -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
