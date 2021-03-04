@@ -11,7 +11,7 @@ on:
 env:
   DOCKER_IMAGE: herculescrue/discovery
   ARTIFACT_PATH: discovery-back/target/discovery-back-*.jar
-  DOWNLOAD_ARTIFACT_PATH: docker-build/java/app.jar
+  DOWNLOAD_ARTIFACT_PATH: docker-build/java
 
 jobs:
   build:
@@ -59,7 +59,11 @@ jobs:
         with:
           name: jar
           path: ${{ env.DOWNLOAD_ARTIFACT_PATH }}
-      
+
+      - name: Prepare artifact
+        working-directory: ${{ env.DOWNLOAD_ARTIFACT_PATH }}
+        run: mv *.jar app.jar
+
       - name: Docker meta
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v1
@@ -91,6 +95,3 @@ jobs:
           labels: ${{ steps.docker_meta.outputs.labels }}
           cache-from: type=registry,ref=${{ env.DOCKER_IMAGE }}:latest
           cache-to: type=inline
-
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
