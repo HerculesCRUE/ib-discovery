@@ -344,3 +344,5 @@ hs_err_pid*
 discovery-back/src/test/features/
 discovery-service/src/test/java/es/um/asio/service/algorithms/
 discovery-service/src/test/java/es/um/asio/service/listener/
+/.ci/
+/.github/
