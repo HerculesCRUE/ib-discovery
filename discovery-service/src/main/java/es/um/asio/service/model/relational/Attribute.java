@@ -9,6 +9,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Attribute Class. In relational model the Attribute entity.
+ * @see Value
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Entity
 @Table(name = Attribute.TABLE)
 @Getter
@@ -42,6 +49,13 @@ public class Attribute {
     @JoinColumn(nullable = true)
     private Value parentValue;
 
+    /**
+     * Constructor
+     * @see Value
+     * @param key String. Name of attribute
+     * @param value Object. value of attribute
+     * @param objectResult ObjectResult. Object Result to which it belongs
+     */
     public Attribute(String key, Object value, ObjectResult objectResult) {
         this.key = key;
         this.objectResult = objectResult;
@@ -56,6 +70,11 @@ public class Attribute {
     }
 
 
+    /**
+     * Equals
+     * @param o Obejct. Other Attribute entity
+     * @return boolean. True if are equal
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -64,6 +83,10 @@ public class Attribute {
         return Objects.equals(key, attribute.key);
     }
 
+    /**
+     * hasCode method
+     * @return int with hashCode
+     */
     @Override
     public int hashCode() {
         return Objects.hash(key);

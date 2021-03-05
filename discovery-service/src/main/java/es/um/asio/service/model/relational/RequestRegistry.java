@@ -6,6 +6,14 @@ import javax.persistence.*;
 import java.util.Date;
 import java.util.Objects;
 
+/**
+ * CacheRegistry Class. In relational model the Cache Registry entity for audit.
+ * @see RequestType
+ * @see JobRegistry
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Entity
 @Table(name = RequestRegistry.TABLE, uniqueConstraints = {@UniqueConstraint(columnNames = {RequestRegistry.Columns.USER_ID,RequestRegistry.Columns.REQUEST_CODE,RequestRegistry.Columns.REQUEST_TYPE})})
 @Getter
@@ -48,6 +56,13 @@ public class RequestRegistry {
     @Column(name = Columns.PROPAGUE_IN_KAFKA, nullable = false)
     private boolean propagueInKafka = false;
 
+    /**
+     * Constructor
+     * @param userId String. the user ID
+     * @param requestCode String. the user request code
+     * @param requestType String. the user request type
+     * @param requestDate Date. the user request date
+     */
     public RequestRegistry(String userId, String requestCode, RequestType requestType, Date requestDate) {
         this.userId = userId;
         this.requestCode = requestCode;
@@ -55,6 +70,11 @@ public class RequestRegistry {
         this.requestDate = (requestDate!=null)?requestDate:new Date();
     }
 
+    /**
+     * Equals
+     * @param o Object. The other RequestRegistry
+     * @return boolean
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -64,6 +84,10 @@ public class RequestRegistry {
                 requestCode.equals(that.requestCode);
     }
 
+    /**
+     * HashCode method
+     * @return int
+     */
     @Override
     public int hashCode() {
         return Objects.hash(userId, requestCode,requestType);

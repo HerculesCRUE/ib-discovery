@@ -10,12 +10,21 @@ import java.util.Arrays;
 
 import static org.simmetrics.builders.StringMetricBuilder.with;
 
+/**
+ * This class implements the similitude of Overlap Coefficient Similarity algorithm to compare Strings
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 public class OverlapCoefficientSimilarityImp implements Similarity {
 
-    /*
-     * Mide el grado en el cual existen substring del conjunto A que aparecen en el conjunto B
-     * Ventajas: Funciona bien con los mezclados
-     * Inconvenientes: Mal en el resto de casos
+    /**
+     *
+     *  This method calculate the similarity using Overlap Coefficient Algorithm in (0,1) range.
+     *  description: The algorithm is based on Overlap Coefficient of the String A and B
+     * @param str1 : fist sting to compare similarity
+     * @param str2: second String to compare Similarity
+     * @return float as similitude measure in range (0,1)
      */
     @Override
     public float calculateSimilarity(String str1, String str2) {

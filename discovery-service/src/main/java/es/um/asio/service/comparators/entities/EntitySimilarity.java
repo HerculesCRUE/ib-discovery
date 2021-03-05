@@ -10,12 +10,32 @@ import lombok.Setter;
 
 import java.util.*;
 
+/**
+ * This class implements the statics methods by calculate the entity similitude
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Getter
 @Setter
 public class EntitySimilarity {
 
+    /**
+     * The default constructor
+     */
     private EntitySimilarity() {}
 
+    /**
+     * The method compare two entities
+     * @see TripleObject
+     * @see AttributeStats
+     * @see "https://github.com/HerculesCRUE/ib-discovery/blob/master/docs/ASIO_Libreria_de_descubrimiento.md#m%C3%A9tricas-de-similitud-en-comparaci%C3%B3n-de-entidades"
+     * @param to: TripleObject from which the entity comparison will be made
+     * @param attributeStatsMap Map<String, AttributeStats> Stats of Attributes. The attribute name is the key, and the value is a AttributeStats Object
+     * @param obj1 Object first attributes to compare. The attributes is the attribute value of the TripleObject pass as parameter
+     * @param obj2 Object second attributes to compare
+     * @return EntitySimilarityObj with the similitude between entities
+     */
     public static EntitySimilarityObj compare(TripleObject to, Map<String, AttributeStats> attributeStatsMap, Object obj1, Object obj2) {
         Gson gson = new Gson();
         EntitySimilarityObj eso  = new EntitySimilarityObj(to);
@@ -51,6 +71,17 @@ public class EntitySimilarity {
         return eso;
     }
 
+    /**
+     * The method compare two attributes
+     * @see TripleObject
+     * @see AttributeStats
+     * @param to: TripleObject from which the entity comparison will be made
+     * @param attributeStatsMap Map<String, AttributeStats> Stats of Attributes. The attribute name is the key, and the value is a AttributeStats Object
+     * @param key The name of the attribute
+     * @param a1 Object first attribute to compare.
+     * @param a2 Object second attribute to compare.
+     * @return float with the similarity value in range (0,1)
+     */
     public static float compareAtt(TripleObject to,Map<String, AttributeStats> attributeStatsMap,String key, Object a1, Object a2) {
         if (isNumber(a1) && isNumber(a2)) {
             return compareNumberAtt(((key!=null)?attributeStatsMap.get(key).getRelativeImportanceRatio():0.5f), Float.valueOf(a1.toString()), Float.valueOf(a2.toString()));
@@ -66,6 +97,14 @@ public class EntitySimilarity {
 
     }
 
+
+    /**
+     * The method compare two attributes of type Numeric
+     * @param variability variability ratio of the attributes
+     * @param a1: first number to compare
+     * @param a2: second number to compare
+     * @return float with the similarity value in range (0,1)
+     */
     public static float compareNumberAtt(float variability, float a1, float a2) {
         if (a1 == a2)
             return 1;
@@ -79,6 +118,12 @@ public class EntitySimilarity {
         return (float) Math.pow((0.5f),(nMax-nMin));
     }
 
+    /**
+     * The method compare two attributes of type Boolean
+     * @param a1 boolean first boolean to compare
+     * @param a2 boolean second boolean to compare
+     * @return float with the similarity value in range (0,1)
+     */
     public static float compareNumberAtt(boolean a1, boolean a2) {
         if (a1 == a2)
             return 1.0f;
@@ -86,6 +131,12 @@ public class EntitySimilarity {
             return 0f;
     }
 
+    /**
+     * The method compare two attributes of type String
+     * @param a1 String first boolean to compare
+     * @param a2 String second boolean to compare
+     * @return float with the similarity value in range (0,1)
+     */
     public static float compareNumberAtt(String a1, String a2) {
         if (a1.trim().equalsIgnoreCase(a2.trim()))
             return 1.0f;
@@ -93,22 +144,53 @@ public class EntitySimilarity {
             return AccordSimilarity.calculateAccordSimilarity(String.valueOf(a1),String.valueOf(a2));
     }
 
+    /**
+     * The method check if the object is Number type
+     * @param o The Object to check
+     * @return true is the attribute is of type
+     */
     public static boolean isNumber(Object o) {
         return Utils.isValidNumber(o.toString());
     }
 
+    /**
+     * The method check if the object is Boolean type
+     * @param o The Object to check
+     * @return true is the attribute is of type
+     */
     public static boolean isBoolean(Object o) {
         return Utils.isBoolean(o.toString());
     }
 
+    /**
+     * The method check if the object is Object type
+     * @param o The Object to check
+     * @return true is the attribute is of type
+     */
     public static boolean isObject(Object o) {
         return o instanceof Map;
     }
 
+    /**
+     * The method check if the object is List type
+     * @param o The Object to check
+     * @return true is the attribute is of type
+     */
     public static boolean isArrayList(Object o) {
         return o instanceof List;
     }
 
+
+    /**
+     * The method compare two attributes of type List<Object>
+     * @see TripleObject
+     * @see AttributeStats
+     * @param to: TripleObject from which the entity comparison will be made
+     * @param attributeStatsMap Map<String, AttributeStats> Stats of Attributes. The attribute name is the key, and the value is a AttributeStats Object
+     * @param ls1 Object first List to compare.
+     * @param ls2 Object second List to compare.
+     * @return float with the similarity value in range (0,1)
+     */
     public static List<Float> compareLists(TripleObject to,Map<String, AttributeStats> attributeStatsMap,List<Object> ls1, List<Object> ls2) {
         List<Object> l1 = (ls1.size() >= ls2.size())?ls1:ls2;
         List<Object> l2 = (ls1.size() >= ls2.size())?ls2:ls1;

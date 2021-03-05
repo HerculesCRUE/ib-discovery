@@ -6,8 +6,17 @@ import es.um.asio.service.util.Utils;
 
 import java.util.*;
 
+/**
+ * This class implements the similarity measure for Attribute
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 public class AttributeSimilarity {
 
+    /**
+     * Constants by type
+     */
     private static final String INTEGER = "int";
     private static final String LONG = "long";
     private static final String FLOAT = "float";
@@ -17,11 +26,21 @@ public class AttributeSimilarity {
     private static final String LIST = "List";
     private static final String STRING = "String";
 
-    /*
+    /**
      * Default constructor
      */
     private AttributeSimilarity() {}
 
+
+    /**
+     * The algorithm implements the integer comparision
+     * @see "https://github.com/HerculesCRUE/ib-discovery/blob/master/docs/ASIO_Libreria_de_descubrimiento.md#atributos-de-tipo-num%C3%A9rico"
+     * @see SimilarityValue
+     * @param a1 The first integer
+     * @param a2 The second integer
+     * @param weight The weight tho apply
+     * @return SimilarityValue
+     */
     public static SimilarityValue compareInteger(int a1, int a2, float weight) {
         float similarity = 0;
         if (a1 == a2) {
@@ -38,6 +57,15 @@ public class AttributeSimilarity {
         return new SimilarityValue(similarity,weight);
     }
 
+    /**
+     * The algorithm implements the integer comparision
+     * @see "https://github.com/HerculesCRUE/ib-discovery/blob/master/docs/ASIO_Libreria_de_descubrimiento.md#atributos-de-tipo-num%C3%A9rico"
+     * @see SimilarityValue
+     * @param a1 The first Long
+     * @param a2 The second Long
+     * @param weight The weight tho apply
+     * @return SimilarityValue
+     */
     public static SimilarityValue compareLong(long a1, long a2, float weight) {
         float similarity = 0;
         if (a1 == a2) {
@@ -54,6 +82,15 @@ public class AttributeSimilarity {
         return new SimilarityValue(similarity,weight);
     }
 
+    /**
+     * The algorithm implements the Date comparision
+     * @see "https://github.com/HerculesCRUE/ib-discovery/blob/master/docs/ASIO_Libreria_de_descubrimiento.md#m%C3%A9tricas-de-similitud-para-atributos"
+     * @see SimilarityValue
+     * @param a1 The first Long
+     * @param a2 The second Long
+     * @param weight The weight tho apply
+     * @return SimilarityValue
+     */
     public static SimilarityValue compareDate(Date a1, Date a2, float weight) {
         float similarity = 0;
         if (a1.compareTo(a2) == 0) {
@@ -72,6 +109,15 @@ public class AttributeSimilarity {
         return new SimilarityValue(similarity,weight);
     }
 
+    /**
+     * The algorithm implements the Double comparision
+     * @see "https://github.com/HerculesCRUE/ib-discovery/blob/master/docs/ASIO_Libreria_de_descubrimiento.md#m%C3%A9tricas-de-similitud-para-atributos"
+     * @see SimilarityValue
+     * @param a1 The first Double
+     * @param a2 The second Double
+     * @param weight The weight tho apply
+     * @return SimilarityValue
+     */
     public static SimilarityValue compareDouble(double a1, double a2, float weight) {
         float similarity = 0;
         if (a1 == a2) {
@@ -88,6 +134,15 @@ public class AttributeSimilarity {
         return new SimilarityValue(similarity,weight);
     }
 
+    /**
+     * The algorithm implements the Float comparision
+     * @see "https://github.com/HerculesCRUE/ib-discovery/blob/master/docs/ASIO_Libreria_de_descubrimiento.md#m%C3%A9tricas-de-similitud-para-atributos"
+     * @see SimilarityValue
+     * @param a1 The first Float
+     * @param a2 The second Float
+     * @param weight The weight tho apply
+     * @return SimilarityValue
+     */
     public static SimilarityValue compareFloat(float a1, float a2, float weight) {
         float similarity = 0;
         if (a1 == a2) {
@@ -104,6 +159,15 @@ public class AttributeSimilarity {
         return new SimilarityValue(similarity,weight);
     }
 
+    /**
+     * The algorithm implements the String comparision
+     * @see "https://github.com/HerculesCRUE/ib-discovery/blob/master/docs/ASIO_Libreria_de_descubrimiento.md#m%C3%A9tricas-de-similitud-para-atributos"
+     * @see SimilarityValue
+     * @param a1 The first String
+     * @param a2 The second String
+     * @param weight The weight tho apply
+     * @return SimilarityValue
+     */
     public static SimilarityValue compareString(String a1, String a2, float weight) {
         float similarity = 0;
         if (a1.toLowerCase().strip().equals(a2.toLowerCase().strip())) {
@@ -114,6 +178,15 @@ public class AttributeSimilarity {
         return new SimilarityValue(similarity,weight);
     }
 
+    /**
+     * The algorithm implements the Boolean comparision
+     * @see "https://github.com/HerculesCRUE/ib-discovery/blob/master/docs/ASIO_Libreria_de_descubrimiento.md#m%C3%A9tricas-de-similitud-para-atributos"
+     * @see SimilarityValue
+     * @param a1 The first Boolean
+     * @param a2 The second Boolean
+     * @param weight The weight tho apply
+     * @return SimilarityValue
+     */
     public static SimilarityValue compareBoolean(boolean a1, boolean a2, float weight) {
         float similarity = 0;
         if (a1==a2)
@@ -121,6 +194,15 @@ public class AttributeSimilarity {
         return new SimilarityValue(similarity,weight);
     }
 
+    /**
+     * The algorithm implements the List comparision
+     * @see "https://github.com/HerculesCRUE/ib-discovery/blob/master/docs/ASIO_Libreria_de_descubrimiento.md#m%C3%A9tricas-de-similitud-para-atributos"
+     * @see SimilarityValue
+     * @param a1 The first List
+     * @param a2 The second List
+     * @param weight The weight tho apply
+     * @return SimilarityValue
+     */
     public static SimilarityValue compareList(List<Object> a1, List<Object> a2, float weight) {
         List<Object> l1;
         List<Object> l2;
@@ -164,6 +246,15 @@ public class AttributeSimilarity {
         return new SimilarityValue(0,weight,sumSimilarities/similarities.size());
     }
 
+    /**
+     * The generic algorithm resolve the the type of the parameters and apply the accuracy comparator
+     * @see "https://github.com/HerculesCRUE/ib-discovery/blob/master/docs/ASIO_Libreria_de_descubrimiento.md#m%C3%A9tricas-de-similitud-para-atributos"
+     * @see SimilarityValue
+     * @param o1 The first List of Objects (of any type).
+     * @param o2 The second List of Objects (of any type).
+     * @param weight The weight tho apply
+     * @return SimilarityValue
+     */
     public static SimilarityValue compare(List<Object> o1,List<Object> o2, float weight) {
         Object a1;
         Object a2;
@@ -199,23 +290,48 @@ public class AttributeSimilarity {
         }
     }
 
-
+    /**
+     * The function determine if the object pass in parameter is a Number
+     * @param o : Object. The object to evaluate
+     * @return boolean. True if object is of type, else false
+     */
     public static boolean isNumber(Object o) {
         return Utils.isValidNumber(o.toString());
     }
 
+    /**
+     * The function determine if the object pass in parameter is a Boolean
+     * @param o : Object. The object to evaluate
+     * @return boolean. True if object is of type, else false
+     */
     public static boolean isBoolean(Object o) {
         return Utils.isBoolean(o.toString());
     }
 
+    /**
+     * The function determine if the object pass in parameter is a Date Object
+     * @param o : Object. The object to evaluate
+     * @return boolean. True if object is of type, else false
+     */
     public static boolean isDate(Object o) {
         return Utils.isDate(o.toString());
     }
 
+    /**
+     * The function return a Date if object is a Date type, null else
+     * @param o : Object. The object to evaluate
+     * @return Date. A valid date if object is of type, else null
+     */
     public static Date getDate(Object o) {
         return Utils.getDate(o.toString());
     }
 
+    /**
+     * The function return the common type of the params objects
+     * @param a1 : Object. The first object
+     * @param a2 : Object. The second object
+     * @return String. The common type of the params
+     */
     public static String getClassOffAttributes(Object a1, Object a2) {
         if (isNumber(a1) && isNumber(a2)) {
             if (Utils.checkIfInt(a1.toString()) && Utils.checkIfInt(a2.toString()))
@@ -240,8 +356,20 @@ public class AttributeSimilarity {
     }
 }
 
+/**
+ * This class implements a SpecialComparator
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 class SpecialComparator implements Comparator<Object> {
 
+    /**
+     * Comparator for Objects for sort in list
+     * @param o1 First Object to compare
+     * @param o2 Second Object to compare
+     * @return int, -1 if o1 is less to o2, 0 if are equals or 1 if o1 is greater to o2
+     */
     public int compare(Object o1, Object o2) {
         if (o1 == null && o2 != null) return -1;
         else if (o1 != null && o2 == null) return 1;

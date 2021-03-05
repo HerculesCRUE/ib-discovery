@@ -10,12 +10,49 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 
+/**
+ * Abstract class to Handle request for Trellis LDP Server
+ * @see SchemaService
+ * @see DataSourcesConfiguration
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 public abstract class TripleStoreHandler {
 
+    /**
+     * Handle request for Update data in Trellis
+     * @param cacheService. CacheService. Contains all data to update
+     * @return boolean
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws ParseException
+     */
     public abstract boolean updateData(CacheServiceImp cacheService) throws IOException, URISyntaxException, ParseException;
 
+    /**
+     * Update a specific data in trellis
+     * @param cacheService CacheService. Contains all data to update
+     * @param node String. Name of node
+     * @param tripleStore String. Name of triple Store
+     * @param className String. The class name
+     * @param localURI String. The local URI
+     * @param basicAction BasicAction. The basic Action
+     * @return boolean
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws ParseException
+     */
     public abstract boolean updateTripleObject(CacheServiceImp cacheService,String node, String tripleStore, String className,String localURI, BasicAction basicAction) throws IOException, URISyntaxException, ParseException;
 
+    /**
+     * Select Handler for get data
+     * @param schemaService SchemaService
+     * @param dataSourcesConfiguration DataSourcesConfiguration
+     * @param node String. Name of node
+     * @param ts TripleStore
+     * @return
+     */
     public static TripleStoreHandler getHandler(SchemaService schemaService,DataSourcesConfiguration dataSourcesConfiguration, DataSourcesConfiguration.Node node, DataSourcesConfiguration.Node.TripleStore ts) {
         if (ts.getType().trim().equalsIgnoreCase("trellis"))
             return new TrellisHandler(node.getNodeName(),ts.getBaseURL(),ts.getUser(),ts.getPassword());

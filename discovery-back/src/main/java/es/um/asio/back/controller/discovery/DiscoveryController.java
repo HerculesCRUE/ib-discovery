@@ -1,12 +1,18 @@
 package es.um.asio.back.controller.discovery;
 
+import com.google.api.client.json.Json;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import es.um.asio.service.config.DataSourcesConfiguration;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.relational.JobRegistry;
+import es.um.asio.service.model.relational.RequestRegistry;
+import es.um.asio.service.model.relational.RequestType;
+import es.um.asio.service.repository.relational.RequestRegistryRepository;
 import es.um.asio.service.service.EntitiesHandlerService;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import es.um.asio.service.service.impl.DataHandlerImp;
@@ -14,9 +20,12 @@ import es.um.asio.service.service.impl.JobHandlerServiceImp;
 import es.um.asio.service.util.Utils;
 import es.um.asio.service.validation.group.Create;
 import io.swagger.annotations.*;
+import org.checkerframework.checker.units.qual.A;
+import org.jsoup.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +34,13 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 
 /**
@@ -59,6 +69,17 @@ public class DiscoveryController {
     @Autowired
     DataHandlerImp dataHandler;
 
+    @Autowired
+    RequestRegistryRepository requestRegistryRepository;
+
+    @Value("${app.node}")
+    String localNode;
+
+    @Value("${lod.host}")
+    String lodHost;
+
+    @Value("${lod.port}")
+    String lodPort;
 
     private static final Logger logger = LoggerFactory.getLogger(DiscoveryController.class);
 
@@ -107,8 +128,8 @@ public class DiscoveryController {
     public Map<String,Object> findEntityLinkByNodeTripleStoreAndClass(
             @ApiParam(name = "userId", value = "1", defaultValue = "1", required = true)
             @RequestParam(required = true, defaultValue = "1") @Validated(Create.class) final String userId,
-            @ApiParam(name = "requestCode", value = "12345", defaultValue = "12345", required = true)
-            @RequestParam(required = true, defaultValue = "12345") @Validated(Create.class) final String requestCode,
+            @ApiParam(name = "requestCode", value = "request code. If not present, a random request code will be created", required = false)
+            @RequestParam(required = false) @Validated(Create.class) String requestCode,
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = false)
             @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
             @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "fuseki", required = false)
@@ -130,6 +151,14 @@ public class DiscoveryController {
         if (!doSynchronous && ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
             throw new CustomDiscoveryException("The request must be synchronous or web hook or/and propague in kafka must be valid" );
         }
+        if (requestCode == null) {
+            do {
+                requestCode = UUID.randomUUID().toString();
+            } while (requestRegistryRepository.existRequestCode(requestCode)!=0);
+        }
+        if (!requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode, RequestType.ENTITY_LINK_CLASS).isEmpty())
+            throw new CustomDiscoveryException("UserId and RequestCode for type ENTITY_LINK_CLASS must be unique");
+
         JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForClass(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka,linkEntities,applyDelta);
         JsonObject jResponse = new JsonObject();
         jResponse.add("state",applicationState.toSimplifiedJson());
@@ -137,11 +166,71 @@ public class DiscoveryController {
             JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
             jJobRegistry.addProperty("userId", userId);
             jJobRegistry.addProperty("requestCode", requestCode);
+            jJobRegistry.addProperty("requestType", RequestType.ENTITY_LINK_CLASS.toString());
             jResponse.add("response", jJobRegistry);
         } else {
             jResponse.addProperty("message","Application is not ready, please retry late");
         }
         return new Gson().fromJson(jResponse,Map.class);
+    }
+
+
+    /**
+     * Find similarities for all class.
+     *
+     * @return Get the Entty Stats
+     */
+
+    @PostMapping(Mappings.ENTITY_LINK_ALL)
+    @ApiOperation(value = "Find Similarities between entities for all class", tags = "search")
+    public List<Map<String,Object>> findEntityLinkByNodeTripleStoreForAllClass(
+            @ApiParam(name = "userId", value = "1", defaultValue = "1", required = true)
+            @RequestParam(required = true, defaultValue = "1") @Validated(Create.class) final String userId,
+            @ApiParam(name = "requestCode", value = "request code. If not present, a random request code will be created", required = false)
+            @RequestParam(required = false) @Validated(Create.class)  String requestCode,
+            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "fuseki", required = false)
+            @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "webHook", value = "Web Hook, URL Callback with response", required = false)
+            @RequestParam(required = false) @Validated(Create.class) final String webHook,
+            @ApiParam(name = "propague_in_kafka", value = "Propague result in Kafka", defaultValue = "true", required = false)
+            @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka,
+            @ApiParam(name = "linkEntities", value = "Search also in other Nodes and Triple Stores for link", defaultValue = "false", required = true)
+            @RequestParam(required = true) @Validated(Create.class) final boolean linkEntities,
+            @ApiParam(name = "applyDelta", value = "SearchindEntityLinkByEntityAndNodeTripleStoreAndClass only from last date in similar request", defaultValue = "true",required = true)
+            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta
+    ) {
+
+        if (((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
+            throw new CustomDiscoveryException("The request must be synchronous or web hook or/and propague in kafka must be valid" );
+        }
+        if (requestCode == null) {
+            do {
+                requestCode = UUID.randomUUID().toString();
+            } while (requestRegistryRepository.existRequestCode(requestCode)!=0);
+        }
+
+        if (!requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode, RequestType.ENTITY_LINK_CLASS).isEmpty())
+            throw new CustomDiscoveryException("UserId and RequestCode for type ENTITY_LINK_CLASS must be unique");
+
+        List<Map<String,Object>> responses = new ArrayList<>();
+        for (String className : cache.getAllClassesByNodeAndTripleStore(localNode,tripleStore)) {
+
+            try {
+                Map<String, Object> response = findEntityLinkByNodeTripleStoreAndClass(userId, requestCode + "/" + className, localNode, tripleStore, className, false, webHook, propagueInKafka, linkEntities, applyDelta);
+                responses.add(response);
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+            }
+            try
+            {
+                Thread.sleep(1000);
+            }
+            catch(InterruptedException ex)
+            {
+                Thread.currentThread().interrupt();
+            }
+        }
+        return responses;
     }
 
     /**
@@ -177,8 +266,8 @@ public class DiscoveryController {
     public Map<String,Object> findEntityLinkByEntityAndNodeTripleStoreAndClass(
             @ApiParam(name = "userId", value = "1", defaultValue = "1", required = true)
             @RequestParam(required = true, defaultValue = "1") @Validated(Create.class) final String userId,
-            @ApiParam(name = "requestCode", value = "12345", defaultValue = "12345", required = true)
-            @RequestParam(required = true, defaultValue = "12345") @Validated(Create.class) final String requestCode,
+            @ApiParam(name = "requestCode", value = "request code. If not present, a random request code will be created", required = false)
+            @RequestParam(required = false) @Validated(Create.class) String requestCode,
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = false)
             @RequestParam(required = false, defaultValue = "um") @Validated(Create.class) final String node,
             @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "fuseki", required = false)
@@ -199,6 +288,14 @@ public class DiscoveryController {
     ) {
         JSONObject jsonData = new JSONObject((LinkedHashMap) object);
         String jBodyStr = jsonData.toString();
+        if (requestCode == null) {
+            do {
+                requestCode = UUID.randomUUID().toString();
+            } while (requestRegistryRepository.existRequestCode(requestCode)!=0);
+        }
+        if (!requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode, RequestType.ENTITY_LINK_INSTANCE).isEmpty())
+            throw new CustomDiscoveryException("UserId and RequestCode for type ENTITY_LINK_CLASS must be unique");
+
         if (!doSynchronous && ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
             throw new CustomDiscoveryException("The request must be synchronous or web hook or/and propague in kafka must be valid" );
         }
@@ -222,6 +319,7 @@ public class DiscoveryController {
                 JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
                 jJobRegistry.addProperty("userId", userId);
                 jJobRegistry.addProperty("requestCode", requestCode);
+                jJobRegistry.addProperty("requestType", RequestType.ENTITY_LINK_INSTANCE.toString());
                 jResponse.add("response", jJobRegistry);
             } else {
                 jResponse.addProperty("message","Application is not ready, please retry late");
@@ -242,8 +340,8 @@ public class DiscoveryController {
     public Map<String,Object> findFindLinkInLODByNodeTripleStoreAndClass(
             @ApiParam(name = "userId", value = "1", defaultValue = "1", required = true)
             @RequestParam(required = true, defaultValue = "1") @Validated(Create.class) final String userId,
-            @ApiParam(name = "requestCode", value = "12345", defaultValue = "12345", required = true)
-            @RequestParam(required = true, defaultValue = "12345") @Validated(Create.class) final String requestCode,
+            @ApiParam(name = "requestCode", value = "request code. If not present, a random request code will be created", required = false)
+            @RequestParam(required = false) @Validated(Create.class) String requestCode,
             @ApiParam(name = "dataSource", value = "Datasources to search. * is wildcard. Then search in all data sources", defaultValue = "*", required = false)
             @RequestParam(required = false, defaultValue = "*") @Validated(Create.class) final String dataSource,
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = false)
@@ -260,11 +358,18 @@ public class DiscoveryController {
             @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka,
             @ApiParam(name = "applyDelta", value = "SearchindEntityLinkByEntityAndNodeTripleStoreAndClass only from last date in similar request", defaultValue = "true",required = true)
             @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta
-    ) {
+    ) throws IOException {
 
         if (!doSynchronous && ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
             throw new CustomDiscoveryException("The request must be synchronous or web hook or/and propague in kafka must be valid" );
         }
+        if (requestCode == null) {
+            do {
+                requestCode = UUID.randomUUID().toString();
+            } while (requestRegistryRepository.existRequestCode(requestCode)!=0);
+        }
+        if (!requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode, RequestType.LOD_SEARCH).isEmpty())
+            throw new CustomDiscoveryException("UserId and RequestCode for type ENTITY_LINK_CLASS must be unique");
         JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForLOD(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka,applyDelta, dataSource);
         JsonObject jResponse = new JsonObject();
         jResponse.add("state",applicationState.toSimplifiedJson());
@@ -272,12 +377,83 @@ public class DiscoveryController {
             JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
             jJobRegistry.addProperty("userId", userId);
             jJobRegistry.addProperty("requestCode", requestCode);
+            jJobRegistry.addProperty("requestType", RequestType.LOD_SEARCH.toString());
             jResponse.add("response", jJobRegistry);
         } else {
             jResponse.addProperty("message","Application is not ready, please retry late");
         }
         return new Gson().fromJson(jResponse,Map.class);
     }
+
+
+    /**
+     * Find similarities by Class Name.
+     *
+     * @return Get the Entty Stats
+     */
+    @PostMapping(Mappings.LOD_SEARCH_ALL)
+    @ApiOperation(value = "Find Similarities between entities in cloud LOD for all class", tags = "search")
+    public List<Map<String,Object>> findFindLinkInLODByNodeTripleStore(
+            @ApiParam(name = "userId", value = "1", defaultValue = "1", required = true)
+            @RequestParam(required = true, defaultValue = "1") @Validated(Create.class) final String userId,
+            @ApiParam(name = "requestCode", value = "request code. If not present, a random request code will be created", required = false)
+            @RequestParam(required = false) @Validated(Create.class) String requestCode,
+            @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "fuseki", required = false)
+            @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "webHook", value = "Web Hook, URL Callback with response", required = false)
+            @RequestParam(required = false) @Validated(Create.class) final String webHook,
+            @ApiParam(name = "propague_in_kafka", value = "Propague result in Kafka", defaultValue = "true", required = false)
+            @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka,
+            @ApiParam(name = "applyDelta", value = "SearchindEntityLinkByEntityAndNodeTripleStoreAndClass only from last date in similar request", defaultValue = "true",required = true)
+            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta
+    ) throws IOException {
+
+        if ( ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
+            throw new CustomDiscoveryException("The request must be synchronous or web hook or/and propague in kafka must be valid" );
+        }
+        if (requestCode == null) {
+            do {
+                requestCode = UUID.randomUUID().toString();
+            } while (requestRegistryRepository.existRequestCode(requestCode)!=0);
+        }
+        if (!requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode, RequestType.LOD_SEARCH).isEmpty())
+            throw new CustomDiscoveryException("UserId and RequestCode for type ENTITY_LINK_CLASS must be unique");
+        List<Map<String,Object>> responses = new ArrayList<>();
+        JsonElement jLodNames = Utils.doRequest(new URL(lodHost+":"+lodPort+"/lod/datasets"), Connection.Method.GET,null,null,null,true);
+        List<String> dataSetNames = new Gson().fromJson(jLodNames.getAsJsonArray(), ArrayList.class);
+        JsonElement jClassNames = Utils.doRequest(new URL(lodHost+":"+lodPort+"/lod/clases"), Connection.Method.GET,null,null,null,true);
+        List<String> classNames = new Gson().fromJson(jClassNames.getAsJsonArray(), ArrayList.class);
+        List<String> classNamesFiltered = cache.getAllClassesByNodeAndTripleStore(localNode,tripleStore)
+                .stream()
+                .filter(c -> Utils.machClassName(classNames,c))
+                .collect(Collectors.toList());
+        for (String className : classNamesFiltered) {
+            if (Utils.machClassName(classNames,className)) {
+                try {
+                    Map<String, Object> response = findFindLinkInLODByNodeTripleStoreAndClass(
+                            userId,
+                            requestCode + "/" + className,
+                            String.join(",", dataSetNames),
+                            localNode,
+                            tripleStore,
+                            className,
+                            false,
+                            webHook,
+                            propagueInKafka,
+                            applyDelta
+                    );
+                    if (response != null) {
+                        responses.add(response);
+                    }
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                }
+            }
+        }
+
+        return responses;
+    }
+
 
     /**
      * Get Entity Stats.
@@ -319,8 +495,8 @@ public class DiscoveryController {
     }
 
     @PostMapping(Mappings.RELOAD_CACHE)
-    @ApiOperation(value = "Force reload cache from Triple Store Data", tags = "control")
-    public ResponseEntity<String> doForceReloadCache() {
+    @ApiOperation(value = "Force reload cache from Triple Store Data", tags = "search")
+    public ResponseEntity<String> getResult() {
         try {
             if (applicationState.getAppState().getOrder() >= ApplicationState.AppState.INITIALIZED.getOrder()) {
                 dataHandler.populateData();
@@ -338,9 +514,37 @@ public class DiscoveryController {
         return new ResponseEntity<>("FAIL",HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    /**
-     * Mappgins.
-     */
+    @GetMapping(Mappings.GET_RESULT)
+    @ApiOperation(value = "Get Job Result by UserId, RequestCode and RequestType", tags = "search")
+    public Map<String,Object> doForceReloadCache(
+            @ApiParam(name = "userId", value = "The User Id of the request", required = true)
+            @RequestParam(required = true) @Validated(Create.class) final String userId,
+            @ApiParam(name = "requestCode", value = "The Request Code of the request", required = true)
+            @RequestParam(required = true) @Validated(Create.class) String requestCode,
+            @ApiParam(name = "requestType", value = "The Request Type of the request", required = true, allowableValues = "ENTITY_LINK_CLASS, ENTITY_LINK_INSTANCE, LOD_SEARCH")
+            @RequestParam(required = true) @Validated(Create.class) RequestType requestType
+    ) {
+        JsonObject jResponse = new JsonObject();
+        Optional<RequestRegistry> requestRegistry = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode,requestType);
+        if (requestRegistry.isPresent()) {
+            JobRegistry jobRegistry = requestRegistry.get().getJobRegistry();
+            JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
+            jJobRegistry.addProperty("userId", userId);
+            jJobRegistry.addProperty("requestCode", requestCode);
+            jJobRegistry.addProperty("requestType", requestType.toString());
+            jJobRegistry.addProperty("status", jobRegistry.getStatusResult().toString());
+            jResponse.add("response", jJobRegistry);
+        } else {
+            JsonObject jJobRegistry = new JsonObject();
+            jJobRegistry.addProperty("userId", userId);
+            jJobRegistry.addProperty("requestCode", requestCode);
+            jJobRegistry.addProperty("requestType", requestType.toString());
+            jJobRegistry.addProperty("status", "not found");
+            jResponse.add("response", jJobRegistry);
+        }
+        return new Gson().fromJson(jResponse,Map.class);
+    }
+
     static final class Mappings {
 
         private Mappings(){}
@@ -358,12 +562,17 @@ public class DiscoveryController {
 
         protected static final String ENTITY_LINK = "/entity-link";
 
+        protected static final String ENTITY_LINK_ALL = "/entity-link/all";
+
         protected static final String ENTITY_LINK_ENTITY = "/entity-link/instance";
 
         protected static final String ENTITY_CHANGE = "/entity/change";
 
         protected static final String LOD_SEARCH = "/lod/search";
 
+        protected static final String LOD_SEARCH_ALL = "/lod/search/all";
+
+        protected static final String GET_RESULT = "/result";
 
     }
 }

@@ -10,6 +10,9 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Persistence related properties.
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
  */
 @ConfigurationProperties("app.persistence")
 @Validated

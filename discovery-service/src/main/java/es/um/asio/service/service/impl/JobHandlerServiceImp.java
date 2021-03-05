@@ -47,7 +47,7 @@ public class JobHandlerServiceImp {
     Queue<JobRegistry> qClasses;
     Queue<JobRegistry> qInstances;
     Queue<JobRegistry> qLod;
-    boolean isWorking;
+    volatile boolean isWorking;
     boolean isAppReady;
 
     @Autowired
@@ -154,8 +154,13 @@ public class JobHandlerServiceImp {
             jobRegistry.setSearchFromDelta(deltaDate);
         }
         RequestRegistry requestRegistry;
-        Optional<RequestRegistry> requestRegistryOpt = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, RequestType.ENTITY_LINK_CLASS);
-        if (requestRegistryOpt.isEmpty()) {
+        Optional<RequestRegistry> requestRegistryOpt = null;
+        try {
+            requestRegistryOpt = requestRegistryProxy.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, RequestType.ENTITY_LINK_CLASS);
+        } catch (Exception e) {
+
+        }
+        if (requestRegistryOpt == null || requestRegistryOpt.isEmpty()) {
             requestRegistry = new RequestRegistry(userId, requestCode, RequestType.ENTITY_LINK_CLASS, new Date());
         } else {
             requestRegistry = requestRegistryOpt.get();
@@ -170,7 +175,11 @@ public class JobHandlerServiceImp {
         jobRegistry.addRequestRegistry(requestRegistry);
         jrClassMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()), jobRegistry);
 
-        jobRegistryRepository.save(jobRegistry);
+        try {
+            jobRegistryRepository.save(jobRegistry);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
         for (RequestRegistry rr : jobRegistry.getRequestRegistries()) {
             requestRegistryProxy.save(rr);
         }
@@ -343,6 +352,7 @@ public class JobHandlerServiceImp {
 
     // Gestiona la petición pesada de búsqueda de similaridades en una misma clase
     public JobRegistry findSimilaritiesByInstance(JobRegistry jobRegistry) {
+        isWorking = true;
         TripleObject to = jobRegistry.getTripleObject();
         if (to == null) {
             logger.error("Triple Object can´t be null");
@@ -353,7 +363,6 @@ public class JobHandlerServiceImp {
         }
         jobRegistry.setStarted(true);
         jobRegistry.setStartedDate(new Date());
-        isWorking = true;
         try {
             SimilarityResult similarityResult = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndTripleObject(to, jobRegistry.isSearchLinks());
 
@@ -437,9 +446,9 @@ public class JobHandlerServiceImp {
 
     // Gestiona la petición pesada de búsqueda de similaridades en una misma clase
     public JobRegistry findSimilaritiesByClass(JobRegistry jobRegistry) {
+        isWorking = true;
         jobRegistry.setStarted(true);
         jobRegistry.setStartedDate(new Date());
-        isWorking = true;
         try {
             Set<SimilarityResult> similarities = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndClass(jobRegistry.getNode(), jobRegistry.getTripleStore(), jobRegistry.getClassName(), jobRegistry.isSearchLinks(), jobRegistry.getSearchFromDelta());
             for (SimilarityResult similarityResult : similarities) { // Por cada similitud encontrada
@@ -501,18 +510,30 @@ public class JobHandlerServiceImp {
                 }
 
                 jobRegistry.getObjectResults().add(objectResult);
-                objectResultRepository.save(objectResult);
+                try {
+                    objectResultRepository.save(objectResult);
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                }
             }
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
-            jobRegistryRepository.save(jobRegistry);
+            try {
+                jobRegistryRepository.save(jobRegistry);
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+            }
         } catch (Exception e) {
             logger.error("Fail on findSimilaritiesByClass: {}", e.getMessage());
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
-            jobRegistryRepository.save(jobRegistry);
+            try {
+                jobRegistryRepository.save(jobRegistry);
+            } catch (Exception e2) {
+                logger.error(e2.getMessage());
+            }
         }
         isWorking = false;
         handleQueueFindSimilarities();
@@ -524,9 +545,9 @@ public class JobHandlerServiceImp {
 
     // Gestiona la petición pesada de búsqueda de similaridades en una misma clase
     public JobRegistry findSimilaritiesInLod(JobRegistry jobRegistry) {
+        isWorking = true;
         jobRegistry.setStarted(true);
         jobRegistry.setStartedDate(new Date());
-        isWorking = true;
         try {
             Set<SimilarityResult> similarities = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndClassInLOD(jobRegistry.getDataSource(),jobRegistry.getNode(), jobRegistry.getTripleStore(), jobRegistry.getClassName(), jobRegistry.getSearchFromDelta());
             for (SimilarityResult similarityResult : similarities) { // Por cada similitud encontrada
@@ -695,13 +716,16 @@ public class JobHandlerServiceImp {
     }
 
     public CompletableFuture<JobRegistry> handleQueueFindSimilarities() {
-        isWorking = false;
-        if (isAppReady) {
+        // isWorking = false;
+        if (isAppReady && !isWorking) {
             if (!qClasses.isEmpty()) {
+                isWorking = true;
                 return CompletableFuture.supplyAsync(() -> findSimilaritiesByClass(qClasses.poll()));
             } else if (!qInstances.isEmpty()) {
+                isWorking = true;
                 return CompletableFuture.supplyAsync(() -> findSimilaritiesByInstance(qInstances.poll()));
             } else if (!qLod.isEmpty()) {
+                isWorking = true;
                 return CompletableFuture.supplyAsync(() -> findSimilaritiesInLod(qLod.poll()));
             }
         }

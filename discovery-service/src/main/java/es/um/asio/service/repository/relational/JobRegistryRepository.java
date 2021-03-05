@@ -7,8 +7,23 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Date;
 
+/**
+ * JobRegistryRepository interface. Repository JpaRepository for JobRegistry entities
+ * @see JpaRepository
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 public interface JobRegistryRepository extends JpaRepository<JobRegistry,String> {
 
+    /**
+     * Query for get Open Jobs by appId, node, tripleStore and className
+     * @param appId String. The app id.
+     * @param node String. The node name.
+     * @param tripleStore String. The triple store name.
+     * @param className String. The class name.
+     * @return JobRegistry
+     */
     @Query(value = "select j.* from job_registry j " +
             "left join request_registry r on j.id = r.jobRegistry_id " +
             "where " +
@@ -27,6 +42,10 @@ public interface JobRegistryRepository extends JpaRepository<JobRegistry,String>
            @Param("tripleStore") String tripleStore,
            @Param("className") String className);
 
+    /**
+     * Query for update to ABORTED the old request not closed
+     * @param appId String. The app id.
+     */
     @Query(value = "update job_registry j " +
             "set j.status_result = 'ABORTED' , j.is_completed = 1, j.completion_date = now() " +
             "WHERE j.discoveryApplication_id <> :appId and " +
@@ -34,6 +53,14 @@ public interface JobRegistryRepository extends JpaRepository<JobRegistry,String>
             , nativeQuery = true)
     void closeOtherJobRegistryByAppId(@Param("appId") String appId);
 
+    /**
+     * Get last date in Job by appId, node, tripleStore and requestType
+     * @param appId String. The app id.
+     * @param node String. The node name.
+     * @param tripleStore String. The triple store name.
+     * @param requestType String. The request type.
+     * @return
+     */
     @Query(value = "SELECT max(completion_date) " +
             "FROM job_registry j " +
             "left join request_registry as r on j.id = r.jobRegistry_id " +

@@ -28,6 +28,14 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
 
+/**
+ * Handle request for Trellis LDP Server
+ * @see SchemaService
+ * @see DataSourcesConfiguration
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 public class SparqlProxyHandler extends TripleStoreHandler {
 
     private final Logger logger = LoggerFactory.getLogger(SparqlProxyHandler.class);
@@ -44,6 +52,17 @@ public class SparqlProxyHandler extends TripleStoreHandler {
 
     DataSourcesConfiguration dataSourcesConfiguration;
 
+    /**
+     * Constructor
+     * @see SchemaService
+     * @see DataSourcesConfiguration
+     * @see DataSourcesConfiguration.Node
+     * @see DataSourcesConfiguration.Node.TripleStore
+     * @param schemaService SchemaService. The service for handle URIS factory Schema
+     * @param dataSourcesConfiguration DataSourcesConfiguration. The data sources configuration
+     * @param node Node. The node
+     * @param ts TripleStore. The triple Store
+     */
     public SparqlProxyHandler(SchemaService schemaService, DataSourcesConfiguration dataSourcesConfiguration,DataSourcesConfiguration.Node node, DataSourcesConfiguration.Node.TripleStore ts) {
         this.nodeName = node.getNodeName();
         this.baseURL = ts.getBaseURL();
@@ -57,6 +76,14 @@ public class SparqlProxyHandler extends TripleStoreHandler {
         this.dataSourcesConfiguration = dataSourcesConfiguration;
     }
 
+    /**
+     * Handle request for Update data in Trellis
+     * @param cacheService. CacheService. Contains all data to update
+     * @return boolean
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws ParseException
+     */
     @Override
     public boolean updateData(CacheServiceImp cacheService) throws IOException, URISyntaxException, ParseException {
         logger.info("Start Update data from SPARQL");
@@ -80,6 +107,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
                 String className = uriComponent.getConcept();
                 logger.info("Searching updated instances by {} class in Node {}",className,nodeName);
                 int classChanges = 0;
+                int classInstances = 0;
                 if (className!=null) {
                     queryParams.put("className",className);
                     try {
@@ -88,6 +116,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
                             int instancesInClass = 0;
                             JsonArray jInstancesResponse = jeInstancesResponse.getAsJsonArray();
                             for (JsonElement jInstance : jInstancesResponse) {
+                                ++classInstances;
                                 TripleObject to = new TripleObject(jInstance.getAsJsonObject());
                                 TripleObject toStored = cacheService.getTripleObject(nodeName, this.tripleStore.getName(), className, to.getId());
                                 if (!to.equals(toStored)) { // Si hay cambios lo actualizo
@@ -105,6 +134,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
                         e.printStackTrace();
                     }
                 }
+                logger.info("Updating cache instances by {} class in Node {}: Changes ({}/{})",className,nodeName,classChanges,classInstances);
                 if (classChanges>0) // Si hay cambios en la clase, actualizo la cache
                     cacheService.saveTriplesMapInCache(nodeName,tripleStore.getName(),className);
             }
@@ -123,6 +153,19 @@ public class SparqlProxyHandler extends TripleStoreHandler {
         return false;
     }
 
+    /**
+     * Update a specific data in trellis
+     * @param cacheService CacheService. Contains all data to update
+     * @param node String. Name of node
+     * @param tripleStore String. Name of triple Store
+     * @param className String. The class name
+     * @param localURI String. The local URI
+     * @param basicAction BasicAction. The basic Action
+     * @return boolean
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws ParseException
+     */
     @Override
     public boolean updateTripleObject(CacheServiceImp cacheService, String node, String tripleStore, String className, String localURI, BasicAction basicAction) throws IOException, URISyntaxException, ParseException {
         String [] uriChunks = (localURI.charAt(localURI.length()-1)=='/')?localURI.substring(0,localURI.length()-1).split("/"):localURI.split("/");

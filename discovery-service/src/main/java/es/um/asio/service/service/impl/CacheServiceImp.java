@@ -15,6 +15,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * CacheServiceImpl class. For handle cached data. Implement CacheService
+ * @see CacheService
+ * @see TripleObject
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Service
 public class CacheServiceImp implements CacheService {
 
@@ -40,6 +48,13 @@ public class CacheServiceImp implements CacheService {
         dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     }
 
+    /**
+     * Add a new TripleObject in memory.
+     * @see TripleObject
+     * @param node String. The node name.
+     * @param triple String. The triple store name.
+     * @param to TripleObject. The triple object instance to add.
+     */
     @Override
     public void addTripleObject(String node, String triple, TripleObject to) {
         if (to!=null) {
@@ -80,12 +95,26 @@ public class CacheServiceImp implements CacheService {
         }
     }
 
+    /**
+     * Add a new TripleObject in memory from TripleObjectES.
+     * @see TripleObjectES
+     * @param node String. The node name.
+     * @param triple String. The triple store name.
+     * @param toES TripleObjectES. The triple object ES instance to add.
+     */
     @Override
     public void addTripleObjectES(String node, String triple, TripleObjectES toES) {
         TripleObject to = new TripleObject(toES);
         addTripleObject(node,triple,to);
     }
 
+    /**
+     * remove TripleObject from memory.
+     * @see TripleObject
+     * @param node String. The node name.
+     * @param triple String. The triple store name.
+     * @param to TripleObject. The triple object instance to add.
+     */
     @Override
     public void removeTripleObject(String node, String triple, TripleObject to) {
         if (    triplesMap.containsKey(node) &&
@@ -105,6 +134,9 @@ public class CacheServiceImp implements CacheService {
         }
     }
 
+    /**
+     * Save all in Redis
+     */
     @Override
     public void saveInCache() {
         redisServiceImp.setTriplesMap(this.triplesMap, true,true);
@@ -113,16 +145,31 @@ public class CacheServiceImp implements CacheService {
         redisServiceImp.setElasticSearchTriplesMap(this.esTriplesMap);
     }
 
+    /**
+     * Save Triples Map estructure in Redis
+     */
     @Override
     public void saveTriplesMapInCache() {
         redisServiceImp.setTriplesMap(this.triplesMap, true,true);
     }
 
+    /**
+     * Save Triples Map estructure in Redis by node, tripleStore and className
+     * @param node String. The node name.
+     * @param tripleStore String. The triple store name.
+     * @param className String. The class name.
+     */
     @Override
     public void saveTriplesMapInCache(String node, String tripleStore, String className) {
         redisServiceImp.setTriplesMap(getTipleMapByNodeAndTripleStoreAndClassName(node,tripleStore,className), true, true);
     }
 
+    /**
+     * Get TripleObject by node, tripleStore and className
+     * @param node String. The node name.
+     * @param tripleStore String. The triple store name.
+     * @param className String. The class name.
+     */
     @Override
     public Map<String, Map<String, Map<String, Map<String, TripleObject>>>> getTipleMapByNodeAndTripleStoreAndClassName(String node, String tripleStore, String className) {
         Map<String, Map<String, Map<String, Map<String, TripleObject>>>> returnedTripleMap = new HashMap<>();
@@ -151,46 +198,79 @@ public class CacheServiceImp implements CacheService {
         return returnedTripleMap;
     }
 
+    /**
+     * Save Filter Map In Cache
+     */
     @Override
     public void saveFilterMapInCache() {
         redisServiceImp.setFilteredTriples(this.filtered);
     }
 
+    /**
+     * Save Entity Stats In Cache
+     */
     @Override
     public void saveEntityStatsInCache() {
         redisServiceImp.setEntityStats(this.statsHandler);
     }
 
+    /**
+     * Save Elastic Search Triples Map In Cache
+     */
     @Override
     public void saveElasticSearchTriplesMapInCache() {
         redisServiceImp.setElasticSearchTriplesMap(this.esTriplesMap);
     }
 
+    /**
+     * Load Triples Map from Redis Cache
+     * @return Map<String, Map<String, Map<String, Map<String,TripleObject>>>>. The Triples Map structure
+     */
     @Override
     public Map<String, Map<String, Map<String, Map<String, TripleObject>>>> loadTiplesMapFromCache() {
         return redisServiceImp.getTriplesMap();
     }
 
+    /**
+     * Load Elastic Search Triples Map from Redis Cache
+     * @return Map<String, Map<String, Map<String, Map<String,TripleObject>>>> . Elastic Search Triples Map  structure
+     */
     @Override
     public Map<String, Map<String, Map<String, TripleObject>>> loadFilteredMapFromCache() {
         return redisServiceImp.getFilteredTriples();
     }
 
+    /**
+     * Load stats from cache
+     * @see StatsHandler
+     * @return StatsHandler
+     */
     @Override
     public StatsHandler loadEntitiesStatsFromCache() {
         return  redisServiceImp.getEntityStats();
     }
 
+    /**
+     * Load Elastic Search Triples Map from Redis Cache
+     * @return Map<String, Map<String, Map<String, Map<String,TripleObject>>>> . Elastic Search Triples Map  structure
+     */
     @Override
     public Map<String, Map<String, Map<String, Map<String, TripleObject>>>> loadElasticSearchTiplesMapFromCache() {
         return redisServiceImp.getElasticSearchTriplesMap();
     }
 
+    /**
+     * Check if is populated cache
+     * @return boolean
+     */
     @Override
     public boolean isPopulatedCache() {
         return (triplesMap.size()>0 && filtered.size()>0);
     }
 
+    /**
+     * Generaty entity stats
+     */
     @Override
     public void generateEntityStats() {
         for (Map.Entry<String, Map<String, Map<String, Map<String, TripleObject>>>> nodeEntry: triplesMap.entrySet()) { // Node
@@ -206,6 +286,10 @@ public class CacheServiceImp implements CacheService {
             redisServiceImp.setEntityStats(statsHandler);
     }
 
+    /**
+     * Get filtered iterator
+     * @return Iterator<TripleObject>
+     */
     @Override
     public Iterator<TripleObject> getFilteredIterator() {
         List<TripleObject> tripleObjects = new ArrayList<>();
@@ -219,6 +303,13 @@ public class CacheServiceImp implements CacheService {
         return tripleObjects.iterator();
     }
 
+    /**
+     * Get all triple Objects by node and triple store
+     * @see TripleObject
+     * @param node String. The node name.
+     * @param tripleStore String. The triple store name.
+     * @return Set<TripleObject>
+     */
     @Override
     public Set<TripleObject> getAllTripleObjects(String node, String tripleStore) {
         Set<TripleObject> triples = new HashSet<>();
@@ -242,6 +333,14 @@ public class CacheServiceImp implements CacheService {
         return triples;
     }
 
+    /**
+     * Get all triple Objects by node ,triple store and class name
+     * @see TripleObject
+     * @param node String. The node name.
+     * @param tripleStore String. The triple store name.
+     * @param className String. The class name.
+     * @return Map<String,TripleObject>
+     */
     @Override
     public Map<String, TripleObject> getTripleObjects(String node, String tripleStore, String className) {
         if (this.triplesMap.containsKey(node) && this.triplesMap.get(node).containsKey(tripleStore) && this.triplesMap.get(node).get(tripleStore).containsKey(className))
@@ -250,8 +349,15 @@ public class CacheServiceImp implements CacheService {
             return null;
     }
 
-
-
+    /**
+     * Get specific  triple Objects by node ,triple store , class name and id
+     * @see TripleObject
+     * @param node String. The node name.
+     * @param tripleStore String. The triple store name.
+     * @param className String. The class name.
+     * @param id String. The id of the entity
+     * @return
+     */
     @Override
     public TripleObject getTripleObject(String node, String tripleStore, String className, String id) {
         try {
@@ -266,10 +372,18 @@ public class CacheServiceImp implements CacheService {
 
     }
 
+    /**
+     * Get all int Triples Map
+     * @return Map<String, Map<String, Map<String, Map<String, TripleObject>>>>
+     */
     public Map<String, Map<String, Map<String, Map<String, TripleObject>>>> getTriplesMap() {
         return triplesMap;
     }
 
+    /**
+     * Update Triple map in memory
+     * @param triplesMap Map<String, Map<String, Map<String, Map<String, TripleObject>>>> triplesMap. The new Triple Map
+     */
     public void setTriplesMap(Map<String, Map<String, Map<String, Map<String, TripleObject>>>> triplesMap) {
         this.triplesMap = triplesMap;
         if (triplesMap!=null && triplesMap.entrySet()!=null) {
@@ -319,10 +433,19 @@ public class CacheServiceImp implements CacheService {
         logger.info("Completed load in cache");
     }
 
+    /**
+     * Update Triple map ES in memory
+     * @param esTriplesMap Map<String, Map<String, Map<String, Map<String,TripleObject>>>>. The nes Triple Map ES
+     */
     public void setEsTriplesMap(Map<String, Map<String, Map<String, Map<String,TripleObject>>>> esTriplesMap) {
         this.esTriplesMap = esTriplesMap;
     }
 
+    /**
+     * Get all Triple Objects
+     * @see TripleObject
+     * @return Set<TripleObject>
+     */
     public Set<TripleObject> getEsTriplesMapAsSet() {
         Set<TripleObject> tos = new HashSet<>();
         for (Map.Entry<String, Map<String, Map<String, Map<String, TripleObject>>>> nodeEntry: esTriplesMap.entrySet()) { // Node
@@ -337,22 +460,56 @@ public class CacheServiceImp implements CacheService {
         return tos;
     }
 
+    /**
+     * Return filtered Triple Map
+     * @return Map<String, Map<String, Map<String, TripleObject>>>
+     */
     public Map<String, Map<String, Map<String, TripleObject>>> getFiltered() {
         return filtered;
     }
 
+    /**
+     * Update filtered Triple Map. Map<String, Map<String, Map<String, TripleObject>>> the new triple map filtered
+     * @param filtered
+     */
     public void setFiltered(Map<String, Map<String, Map<String, TripleObject>>> filtered) {
         this.filtered = filtered;
     }
 
+    /**
+     * Get the Stats handler
+     * @see StatsHandler
+     * @return  StatsHandler
+     */
     public StatsHandler getStatsHandler() {
         return statsHandler;
     }
 
+    /**
+     * UPDATE the Stats handler
+     * @param statsHandler StatsHandler
+     */
     public void setStatsHandler(StatsHandler statsHandler) {
         this.statsHandler = statsHandler;
     }
 
+    /**
+     * Get the list of all classes by node and triple store
+     * @param node String. The node name
+     * @param tripleStore String. The triple store name
+     * @return List<String>
+     */
+    public  List<String> getAllClassesByNodeAndTripleStore(String node, String tripleStore) {
+        if (triplesMap.containsKey(node) && triplesMap.get(node).containsKey(tripleStore)) {
+            return new ArrayList<>(triplesMap.get(node).get(tripleStore).keySet());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Update all stats
+     */
     @Override
     public void updateStats() {
         statsHandler = new StatsHandler();
@@ -373,11 +530,20 @@ public class CacheServiceImp implements CacheService {
         }
     }
 
+    /**
+     * Get all nodes
+     * @return Set<String>
+     */
     @Override
     public Set<String> getAllNodes() {
         return triplesMap.keySet();
     }
 
+    /**
+     * Get all triple stores
+     * @param node
+     * @return Set<String>
+     */
     @Override
     public Set<String> getAllTripleStoreByNode(String node) {
         Set<String> tripleStores = new HashSet<>();

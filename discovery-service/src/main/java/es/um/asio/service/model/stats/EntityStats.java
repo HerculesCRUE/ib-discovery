@@ -1,6 +1,7 @@
 package es.um.asio.service.model.stats;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import es.um.asio.service.model.relational.Value;
 import es.um.asio.service.util.Utils;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +10,15 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * EntityStats Class. Model the stats of entities. Can be recursive. Extends of ObjectStat
+ * @see ObjectStat
+ * @see AttributeStats
+ * @see EntityStats
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Getter
 @Setter
 public class EntityStats extends ObjectStat{
@@ -18,6 +28,11 @@ public class EntityStats extends ObjectStat{
 
     private final Logger logger = LoggerFactory.getLogger(EntityStats.class);
 
+    /**
+     * Constructor
+     * @see ObjectStat
+     * @param name. String. The name in ObjectStat
+     */
     public EntityStats(String name) {
         setName(name);
         setCounter(0);
@@ -25,6 +40,11 @@ public class EntityStats extends ObjectStat{
         objValues = new HashMap<>();
     }
 
+    /**
+     * Add value
+     * @param name String. The attribute name
+     * @param value Object. The value
+     */
     public void addValue(String name,Object value) {
         setCounter(getCounter()+1);
         if (Utils.isPrimitive(value)) { // Si es primitivo
@@ -34,6 +54,11 @@ public class EntityStats extends ObjectStat{
         }
     }
 
+    /**
+     * Add Attribute value
+     * @param name String. The attribute name
+     * @param value Object. The value
+     */
     private void addAttValue(String name,Object value) {
         setCounter(getCounter()+1);
         AttributeStats attributeStats;
@@ -45,6 +70,12 @@ public class EntityStats extends ObjectStat{
         attValues.put(name,attributeStats);
     }
 
+
+    /**
+     * Add Object value
+     * @param name String. The attribute name
+     * @param value Object. The value
+     */
     private void addObjValue(String name,Object value) {
         setCounter(getCounter()+1);
 
@@ -70,6 +101,10 @@ public class EntityStats extends ObjectStat{
         }
     }
 
+    /**
+     * Calculate Relative importance for entity
+     * @return float. The relative importance
+     */
     @Override
     public float getRelativeImportanceRatio() {
         float maxAtt = getAttRelativeImportanceRatio();
@@ -77,6 +112,10 @@ public class EntityStats extends ObjectStat{
         return Math.max(maxAtt,maxEnt);
     }
 
+    /**
+     * Calculate Relative importance for attributes
+     * @return float. The relative importance
+     */
     public float getAttRelativeImportanceRatio(){
         List<Float> attrsRatio = new ArrayList<>();
         if (!attValues.isEmpty()) {
@@ -88,6 +127,10 @@ public class EntityStats extends ObjectStat{
         return !attrsRatio.isEmpty()?Collections.max(attrsRatio):0f;
     }
 
+    /**
+     * Calculate Relative importance for entity
+     * @return float. The relative importance
+     */
     public float getEntRelativeImportanceRatio(){
         List<Float> entityRatio = new ArrayList<>();
         if (!objValues.isEmpty()) {
@@ -99,6 +142,10 @@ public class EntityStats extends ObjectStat{
         return !entityRatio.isEmpty()?Collections.max(entityRatio):0f;
     }
 
+    /**
+     * Build stats for all attributes
+     * @return Map<String,Object>. The stats. The key is the kpi of the stat and the value is the stat
+     */
     public Map<String,Object> buildStats() {
         Map<String,Object> stats = new HashMap<>();
         stats.put("maxRelativeRatio",getRelativeImportanceRatio());
@@ -124,6 +171,11 @@ public class EntityStats extends ObjectStat{
         return stats;
     }
 
+    /**
+     * Generate more relevant stats of attributes
+     * @param prefix string. generatee prefix for work with flatten attributes
+     * @return Map<String,Float>. More relevant stats of attributes
+     */
     public Map<String,Float> generateMoreRelevantAttributesMap(String prefix){
         String p;
         if (Utils.isValidString(prefix)) {

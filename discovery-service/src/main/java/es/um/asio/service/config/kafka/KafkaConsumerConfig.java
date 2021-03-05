@@ -1,7 +1,9 @@
 package es.um.asio.service.config.kafka;
 
 
+import es.um.asio.service.comparators.entities.SimilarityValue;
 import es.um.asio.service.config.DataProperties;
+import es.um.asio.service.model.TripleObject;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +18,16 @@ import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The Kafka Consumer config
+ * @see DataProperties
+ * @see ConsumerConfig
+ * @see DefaultKafkaConsumerFactory
+ * @see KafkaListenerContainerFactory
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @EnableKafka
 @Configuration
 public class KafkaConsumerConfig {

@@ -7,10 +7,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class implements the Entity comparator
+ * @see "https://github.com/HerculesCRUE/ib-discovery/blob/master/docs/ASIO_Libreria_de_descubrimiento.md#m%C3%A9tricas-de-similitud-en-comparaci%C3%B3n-de-entidades"
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 public class EntityComparator {
 
+    /**
+     * The default constructor
+     */
     private EntityComparator(){}
 
+
+    /**
+     * The algorithm compare entities applying the stats
+     * @see TripleObject
+     * @see EntitySimilarityObj
+     * @see "https://github.com/HerculesCRUE/ib-discovery/blob/master/docs/ASIO_Libreria_de_descubrimiento.md#m%C3%A9tricas-de-similitud-en-comparaci%C3%B3n-de-entidades"
+     * @param o1 TripleObject the first entity to compare
+     * @param o2 TripleObject the second entity to compare
+     * @param stats Map<String, Float> with the attribute name as key and the weight of the attribute as value
+     * @return EntitySimilarityObj
+     */
     public static EntitySimilarityObj compare(TripleObject o1, TripleObject o2, Map<String, Float> stats) {
         stats = cleanStat(o1,o2,stats);
         EntitySimilarityObj eso = new EntitySimilarityObj(o2);
@@ -23,6 +44,14 @@ public class EntityComparator {
         return eso;
     }
 
+    /**
+     * The algorithm calculate new stats weights with the union of attributes between the TripleObjects pass in parameters
+     * @see TripleObject
+     * @param to1 TripleObject the first entity to compare
+     * @param to2 TripleObject the second entity to compare
+     * @param stats Map<String, Float> with the attribute name as key and the weight of the attribute as value
+     * @return Map<String, Float> with the new stats of the union of the TripleObjects. The attribute name is the key and the weight of the attribute is the value
+     */
     private static Map<String, Float> cleanStat(TripleObject to1,TripleObject to2,Map<String, Float> stats) {
         Map<String,Float> statAux = new HashMap<>();
         for (Map.Entry<String, Float> statEntry: stats.entrySet()) {

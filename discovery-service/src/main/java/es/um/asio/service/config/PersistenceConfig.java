@@ -33,6 +33,9 @@ import java.util.Set;
 
 /**
  * Persistence configuration.
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
  */
 @Configuration
 @EnableConfigurationProperties(PersistenceProperties.class)
@@ -78,13 +81,19 @@ public class PersistenceConfig {
             config.setJdbcUrl(datasourceProperties.getUrl());
             config.setUsername(datasourceProperties.getUsername());
             config.setPassword(datasourceProperties.getPassword());
+            config.setConnectionTimeout(172800000);
+            config.setMaximumPoolSize(100);
+            config.setMinimumIdle(10);
+            config.setIdleTimeout(3600000);
         }
 
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         config.addDataSourceProperty("useServerPrepStmts", "true");
-
+        config.addDataSourceProperty("testOnBorrow", "true");
+        config.addDataSourceProperty("validationQuery ", "SELECT 1");
+        config.addDataSourceProperty("timeBetweenEvictionRunsMillis ", "3600000");
         return new HikariDataSource(config);
     }
 

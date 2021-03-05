@@ -11,6 +11,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * This class Model a EntitySimilarityObj with TripleObject target, Data source, similarity found and Map of similarities by attribute
+ * @see TripleObject
+ * @see SimilarityValue
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Getter
 @Setter
 @AllArgsConstructor
@@ -21,11 +29,20 @@ public class EntitySimilarityObj {
     private float similarity;
     private Map<String, SimilarityValue> similarities; // Att -> Value
 
+    /**
+     * Constructor
+     * @see TripleObject
+     * @param to TripleObject
+     */
     public EntitySimilarityObj(TripleObject to) {
         this.tripleObject = to;
         similarities = new HashMap<>();
     }
 
+    /**
+     * Calculate the similarity from similarities structure
+     * @return Float. the similarity
+     */
     public float getSimilarity() {
         if (similarity==0) {
             similarity = new ArrayList<SimilarityValue>(similarities.values()).stream().map(SimilarityValue::getWeightedSimilarity).reduce(0f,Float::sum);
@@ -33,6 +50,12 @@ public class EntitySimilarityObj {
         return similarity;
     }
 
+    /**
+     * Add a new similarity by name and SimilarityValue
+     * @see SimilarityValue
+     * @param name String. The name of the attribute.
+     * @param similarityValue SimilarityValue. The value of the similarity.
+     */
     public void addSimilarity(String name, SimilarityValue similarityValue) {
         if (!similarities.containsKey(name)) {
             similarity += similarityValue.getWeightedSimilarity();
@@ -43,10 +66,20 @@ public class EntitySimilarityObj {
         similarities.put(name,similarityValue);
     }
 
+
+    /**
+     * Get the similarities
+     * @see SimilarityValue
+     * @return Map<String, SimilarityValue>. The key is the name of the attribute and the value is the SimilarityValue
+     */
     public Map<String, SimilarityValue> getSimilarities() {
         return similarities;
     }
 
+    /**
+     * Get the weighted similarities without id attribute.
+     * @return Float. The weighted similarities without id attribute.
+     */
     public float getSimilarityWithoutId() {
         float sumSimilarities = 0f;
         float sumWeight = 0f;
@@ -59,6 +92,11 @@ public class EntitySimilarityObj {
         return (sumWeight!=0)?sumSimilarities/sumWeight:similarity;
     }
 
+    /**
+     * Check if the Object pass is equal to TripleObject attribute.
+     * @param o Object. The object to compare
+     * @return Boolean. True if equal else False
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -69,6 +107,9 @@ public class EntitySimilarityObj {
                 Objects.equals(similarities, that.similarities);
     }
 
+    /**
+     * @return int. The hashCode
+     */
     @Override
     public int hashCode() {
         return Objects.hash(tripleObject.getId());

@@ -14,6 +14,16 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * JobRegistry Class. In relational model the Job Registry entity. Job registry is a Job of search of similarities.
+ * @see DiscoveryApplication
+ * @see RequestRegistry
+ * @see StatusResult
+ * @see ObjectResult
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Entity
 @Table(name = JobRegistry.TABLE)
 @Getter
@@ -87,7 +97,15 @@ public class JobRegistry {
     private TripleObject tripleObject;
 
 
-
+    /**
+     * Constructor
+     * @see DiscoveryApplication
+     * @param discoveryApplication DiscoveryApplication. The discovery application
+     * @param node String. The node name
+     * @param tripleStore String. The triple Store name
+     * @param className String. The class name
+     * @param searchLinks. boolean. Is true then search links in other nodes
+     */
     public JobRegistry(DiscoveryApplication discoveryApplication, String node, String tripleStore, String className, boolean searchLinks) {
         this.discoveryApplication = discoveryApplication;
         this.node = node;
@@ -99,6 +117,10 @@ public class JobRegistry {
         this.objectResults = new HashSet<>();
     }
 
+    /**
+     * Get the last date of the more similar JobRegistry
+     * @return Date. The date of the more similar JobRegistry if exist, else null
+     */
     public Date getMaxRequestDate() {
         if (requestRegistries == null || requestRegistries.isEmpty())
             return new Date(Long.MIN_VALUE);
@@ -112,12 +134,20 @@ public class JobRegistry {
         }
     }
 
+    /**
+     * @see RequestRegistry
+     * @param requestRegistry RequestRegistry. Add a new RequestRegistry to Job
+     */
     public void addRequestRegistry(RequestRegistry requestRegistry) {
         requestRegistry.setJobRegistry(this);
         this.requestRegistries.remove(requestRegistry);
         this.requestRegistries.add(requestRegistry);
     }
 
+    /**
+     * Get the value of started date attribute in String
+     * @return String. The value of started date attribute in String
+     */
     public String getStarDateStr() {
         try {
             return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(getStartedDate());
@@ -126,6 +156,10 @@ public class JobRegistry {
         }
     }
 
+    /**
+     * Get the value of completed date attribute in String
+     * @return String. The value of completed date attribute in String
+     */
     public String getCompletedDateStr() {
         try {
             return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(getCompletedDate());
@@ -134,6 +168,10 @@ public class JobRegistry {
         }
     }
 
+    /**
+     * Build Job Registry in Json (Simplified)
+     * @return JsonObject
+     */
     public JsonObject toSimplifiedJson() {
         JsonObject jResponse = new JsonObject();
         jResponse.addProperty("node",getNode());
@@ -151,6 +189,10 @@ public class JobRegistry {
         return jResponse;
     }
 
+    /**
+     * get the Web Hooks in the Requests
+     * @return Set<String>. The Web Hooks
+     */
     public Set<String> getWebHooks() {
         Set<String> webHooks = new HashSet<>();
         for (RequestRegistry rr : requestRegistries) {
@@ -161,12 +203,25 @@ public class JobRegistry {
         return webHooks;
     }
 
+    /**
+     * get true if propague in kafka is true the Requests
+     * @return boolean. True if propague in kafka is true the Requests
+     */
     public boolean isPropagatedInKafka() {
         for (RequestRegistry rr : requestRegistries) {
             if(rr.isPropagueInKafka())
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Finalize object
+     * @throws Throwable
+     */
+    @Override
+    public void finalize() throws Throwable {
+        super.finalize();
     }
 
     /**

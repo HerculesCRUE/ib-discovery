@@ -9,6 +9,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * DiscoveryApplication Class. In relational model the Discovery Application entity for audit.
+ * @see CacheRegistry
+ * @see ElasticRegistry
+ * @see JobRegistry
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Entity
 @Table(name = DiscoveryApplication.TABLE)
 @Getter
@@ -53,6 +62,10 @@ public class DiscoveryApplication {
     private Set<JobRegistry> jobRegistries;
 
 
+    /**
+     * Constructor
+     * @param name String. The name of the discovery application
+     */
     public DiscoveryApplication(String name) {
         this.id = UUID.randomUUID().toString();
         this.name = name;

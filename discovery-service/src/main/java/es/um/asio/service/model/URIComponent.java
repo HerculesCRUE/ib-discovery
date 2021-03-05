@@ -14,6 +14,13 @@ import java.util.regex.Pattern;
 
 import static java.lang.Character.isUpperCase;
 
+/**
+ * URIComponent. Entity for URI Component in URIs factory.
+ * @see Node
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,6 +33,15 @@ public class URIComponent {
     private String concept;
     private String reference;
 
+    /**
+     * Constructor
+     * @param domain String. The domain
+     * @param subDomain String. The subDomain
+     * @param language String. The language
+     * @param type String. The type
+     * @param concept String. The concept
+     * @param reference String. The reference
+     */
     public URIComponent(String domain, String subDomain, String language, String type, String concept, String reference) {
         this.domain = domain;
         this.subDomain = subDomain;
@@ -35,6 +51,12 @@ public class URIComponent {
         this.reference = reference;
     }
 
+    /**
+     * Constructor
+     * @param schema String. The URI schema in the ASIO proyect
+     * @link "https://github.com/HerculesCRUE/ib-asio-docs-/blob/master/08-Esquema_de_URIs_H%C3%A9rcules/ASIO_Izertis_ArquitecturaDeURIs.md"
+     * @param uri String. The URI to decompose in components in the class
+     */
     public URIComponent(String schema, String uri) {
         String regex = "^(http[s]?://www\\.|http[s]?://|www\\.)";
         List<String> cleanSchema = Arrays.asList(schema.replaceFirst(regex,"").split("/"));
@@ -65,6 +87,11 @@ public class URIComponent {
         }
     }
 
+    /**
+     * Build a new URI using URIS Schema
+     * @param schema String. The URI Schema
+     * @return String. The URI build with the schema
+     */
     public String buildURIFromComponents(String schema) {
         String protocol = schema.substring(0,schema.indexOf("://")+3);
         List<String> parts = new ArrayList<>();
@@ -97,6 +124,10 @@ public class URIComponent {
         }
     }
 
+    /**
+     * Denormalize concept attribute
+     * @return String. Concept attribute denormalized
+     */
     public String getDenormalizedConcept() {
         StringBuilder conceptAux = new StringBuilder(concept);
         while (conceptAux.indexOf("-")>=0) {

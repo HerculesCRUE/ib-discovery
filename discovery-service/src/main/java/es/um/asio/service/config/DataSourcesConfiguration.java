@@ -20,6 +20,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Data Sources Configuration configuration properties.
+ * @see Thresholds
+ * @see Node
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Component
 @ConfigurationProperties("data-sources") // prefix app, find app.* values
 @Getter
@@ -35,6 +43,11 @@ public class DataSourcesConfiguration {
     private String discoveryServiceHost;
     private String serviceDataName;
 
+    /**
+     * @see Node
+     * @param nodeName String
+     * @return Node
+     */
     public Node getNodeByName(String nodeName) {
         for (Node node: nodes) {
             if (node.getNodeName().equalsIgnoreCase(nodeName))
@@ -43,6 +56,11 @@ public class DataSourcesConfiguration {
         return null;
     }
 
+    /**
+     * After initialize do request to Service-Discovery to get Nodes
+     * @see Node
+     * link "https://github.com/HerculesCRUE/ib-service-discovery"
+     */
     @PostConstruct
     private void postConstruct() {
         try {
@@ -61,6 +79,12 @@ public class DataSourcesConfiguration {
         }
     }
 
+    /**
+     * Thresholds Configuration configuration properties.
+     * @author  Daniel Ruiz Santamaría
+     * @version 2.0
+     * @since   1.0
+     */
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
@@ -79,6 +103,14 @@ public class DataSourcesConfiguration {
 
     }
 
+    /**
+     * Node Configuration configuration properties.
+     * @see Node
+     * @see TripleStore
+     * @author  Daniel Ruiz Santamaría
+     * @version 2.0
+     * @since   1.0
+     */
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
@@ -112,6 +144,11 @@ public class DataSourcesConfiguration {
             }
         }
 
+        /**
+         * Filter TripleStore by name
+         * @param type
+         * @return
+         */
         public TripleStore getTripleStoreByType(String type) {
             for (TripleStore to: tripleStores) {
                 if (to.type.trim().equalsIgnoreCase(type.trim())) {
@@ -121,10 +158,19 @@ public class DataSourcesConfiguration {
             return null;
         }
 
+        /**
+         * @return String. The node name
+         */
         public String getNodeName() {
             return Utils.normalize(nodeName);
         }
 
+        /**
+         * TripleStore Configuration configuration properties.
+         * @author  Daniel Ruiz Santamaría
+         * @version 2.0
+         * @since   1.0
+         */
         @AllArgsConstructor
         @NoArgsConstructor
         @Getter

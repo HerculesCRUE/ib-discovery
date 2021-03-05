@@ -9,6 +9,7 @@ import es.um.asio.service.comparators.entities.EntitySimilarity;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.model.rdf.TripleObjectLink;
+import es.um.asio.service.model.relational.Value;
 import es.um.asio.service.model.stats.AttributeStats;
 import es.um.asio.service.model.stats.EntityStats;
 import es.um.asio.service.service.impl.CacheServiceImp;
@@ -26,6 +27,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
 
+/**
+ * TripleObject Class. Generalized model for entities.
+ * @see TripleObjectLink
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Getter
 @Setter
 @ToString
@@ -64,6 +72,11 @@ public class TripleObject {
     @JsonIgnore
     private Set<TripleObjectLink> tripleObjectLink;
 
+    /**
+     * Constructor: cast to TripleObject TripleObjectES pass in parameter
+     * @see TripleObjectES
+     * @param toES TripleObjectES
+     */
     public TripleObject(TripleObjectES toES) {
         this.id = toES.getEntityId();
         this.className = toES.getClassName();
@@ -74,6 +87,10 @@ public class TripleObject {
         buildFlattenAttributes();
     }
 
+    /**
+     * Constructor: cast to TripleObject JsonObject pass in parameter
+     * @param jTripleObject JsonObject
+     */
     public TripleObject(JsonObject jTripleObject) {
         try {
             if (jTripleObject.has("id") && !jTripleObject.get("id").isJsonNull())
@@ -94,6 +111,11 @@ public class TripleObject {
         }
     }
 
+    /**
+     * Constructor: cast to TripleObject TripleObjectLink pass in parameter
+     * @see TripleObjectLink
+     * @param tol TripleObjectLink
+     */
     public TripleObject(TripleObjectLink tol) {
         if (this.tripleObjectLink == null) {
             this.id = tol.getId();
@@ -106,6 +128,13 @@ public class TripleObject {
         this.tripleObjectLink.add(tol);
     }
 
+    /**
+     * Constructor
+     * @param node String node name
+     * @param tripleStore String triple store name
+     * @param className String class name
+     * @param jData JsonObject. Attributes in format Json
+     */
     public TripleObject(String node, String tripleStore, String className, JSONObject jData ) {
         this.setTripleStore(new TripleStore(tripleStore,node));
         this.className = className;
@@ -113,6 +142,13 @@ public class TripleObject {
         this.flattenAttributes = new HashMap<>();
     }
 
+    /**
+     * Constructor
+     * @param node String node name
+     * @param tripleStore String triple store name
+     * @param className String class name
+     * @param attributes LinkedTreeMap<String,Object>. Attributes in format LinkedTreeMap<String,Object>
+     */
     public TripleObject(String node, String tripleStore, String className, LinkedTreeMap<String,Object> attributes ) {
         this.setTripleStore(new TripleStore(tripleStore,node));
         this.className = className;
@@ -121,6 +157,15 @@ public class TripleObject {
     }
 
 
+    /**
+     * Constructor
+     * @param tripleStore String triple store name
+     * @param jData JsonObject. Attributes in format Json
+     * @param className String class name
+     * @param id String. The id of the entity
+     * @param localURI String. The local URI of resource in the triple store
+     * @param lastMod String. Date of las modification
+     */
     public TripleObject(TripleStore tripleStore, JsonObject jData, String className, String id,String localURI, String lastMod) {
         this.tripleStore = tripleStore;
         this.className = className;
@@ -137,6 +182,10 @@ public class TripleObject {
         this.flattenAttributes = new HashMap<>();
     }
 
+    /**
+     * Get year of last modification
+     * @return int
+     */
     @JsonIgnore
     public int getYear(){
         Calendar c = Calendar.getInstance();
@@ -144,6 +193,10 @@ public class TripleObject {
         return c.get(Calendar.YEAR);
     }
 
+    /**
+     * Get month of last modification
+     * @return int
+     */
     @JsonIgnore
     public int getMonth(){
         Calendar c = Calendar.getInstance();
@@ -164,11 +217,20 @@ public class TripleObject {
                 equalAttributes(that.attributes);
     }
 
+    /**
+     * hashCode
+     * @return int
+     */
     @Override
     public int hashCode() {
         return Objects.hash(id);
     }
 
+    /**
+     * check if other attributes is equal at attributes in this instance
+     * @param other LinkedTreeMap<String,Object>. The attributes of other instance to compare
+     * @return boolean
+     */
     private boolean equalAttributes(LinkedTreeMap<String,Object> other) {
         try {
             Set<String> allKeys = this.attributes.keySet();
@@ -195,6 +257,12 @@ public class TripleObject {
         }
     }
 
+    /**
+     * Compare instances of Triple Objects
+     * @param cacheService CacheServiceImp. Reference at CacheServiceImp instance
+     * @param other TripleObject. Other triple object instance
+     * @return EntitySimilarityObj. Similarity in object EntitySimilarityObj
+     */
     public EntitySimilarityObj compare(CacheServiceImp cacheService, TripleObject other) {
         if (equalAttributesRatio(other)< 0.5f) {
             EntitySimilarityObj eso = new EntitySimilarityObj(other);
@@ -213,6 +281,12 @@ public class TripleObject {
         return EntitySimilarity.compare(other, attributesMap,this.getAttributes(),other.getAttributes());
     }
 
+    /**
+     * Compare instances of Triple Objects in lazy mode
+     * @param cacheService CacheServiceImp. Reference at CacheServiceImp instance
+     * @param other TripleObject. Other triple object instance
+     * @return EntitySimilarityObj. Similarity in object EntitySimilarityObj
+     */
     public EntitySimilarityObj compareLazzy(CacheServiceImp cacheService, TripleObject other) {
         EntityStats entityStats = cacheService.getStatsHandler().getAttributesMap(this.getTripleStore().getNode().getNodeName(), this.tripleStore.getName(), this.getClassName());
         Map<String,AttributeStats> attributesMap = new HashMap<>();
@@ -226,6 +300,11 @@ public class TripleObject {
         return EntitySimilarity.compare(other, attributesMap,this.getAttributes(),other.getAttributes());
     }
 
+    /**
+     * Measures the ratio of similarity of attributes
+     * @param other TripleObject other
+     * @return float
+     */
     public float equalAttributesRatio(TripleObject other) {
         Set<String> allAttrs = new HashSet<>();
         allAttrs.addAll(this.getAttributes().keySet());
@@ -240,6 +319,12 @@ public class TripleObject {
     }
 
 
+    /**
+     * Check if attribute pass as parameter is in attribute structure LinkedTreeMap<String,Object>
+     * @param att String. The attribute name
+     * @param map LinkedTreeMap<String,Object>. The attribute structure
+     * @return boolean
+     */
     public boolean hasAttribute(String att,LinkedTreeMap<String,Object> map) {
         try {
             if (!Utils.isValidString(att))
@@ -270,6 +355,12 @@ public class TripleObject {
         }
     }
 
+    /**
+     * Get the attribute value for a name of attribute
+     * @param att String. The attribute name
+     * @param map LinkedTreeMap<String,Object>. The attribute structure
+     * @return List<Object> of value/s. If has only one value then the List as only one element
+     */
     public List<Object> getAttributeValue(String att,LinkedTreeMap<String,Object> map) {
         if (!Utils.isValidString(att))
             return new ArrayList<>();
@@ -296,12 +387,21 @@ public class TripleObject {
         }
     }
 
+    /**
+     * Check if exist Attribute in attribute structure
+     * @param att String. The attribute name
+     * @return boolean
+     */
     public boolean checkIfHasAttribute(String att) {
         if (this.flattenAttributes.isEmpty())
             buildFlattenAttributes();
         return this.flattenAttributes.containsKey(att);
     }
 
+    /**
+     * Build a no nested Map of attributes from nested Map of attributes.
+     * The keys ob object nested are in the form obj1.obj2.obj3.....value
+     */
     public void buildFlattenAttributes() {
         try {
             this.flattenAttributes = new HashMap<>();
@@ -340,6 +440,11 @@ public class TripleObject {
 
     }
 
+    /**
+     * Get a value from flatten attributes
+     * @param key String. The attribute name
+     * @return List<Object> with de value/s
+     */
     public List<Object> getValueFromFlattenAttributes(String key){
         if (this.flattenAttributes == null || this.flattenAttributes.size() == 0)
             buildFlattenAttributes();
@@ -373,6 +478,12 @@ public class TripleObject {
     }
 
 
+    /**
+     * Merge the attributes of two TripleObjects
+     * @see TripleObject
+     * @param other TripleObject. Other TripleObject
+     * @return TripleObject. The merged triple Object
+     */
     public TripleObject merge(TripleObject other) {
         TripleObject mergedTO;
         TripleObject oldTO;
@@ -387,6 +498,12 @@ public class TripleObject {
         return mergedTO;
     }
 
+    /**
+     * Merge attributes of two Triple Objects
+     * @param main LinkedTreeMap<String,Object>. Attributes of main TripleObject
+     * @param other LinkedTreeMap<String,Object>. Attributes of other TripleObject
+     * @return LinkedTreeMap<String,Object>. New set of attributes merged
+     */
     private LinkedTreeMap<String,Object> mergeAttributes(LinkedTreeMap<String,Object> main, LinkedTreeMap<String,Object> other ) {
         List<String> allKeys = new ArrayList<>(main.keySet());
         allKeys.addAll(other.keySet());
@@ -407,6 +524,10 @@ public class TripleObject {
     }
 
 
+    /**
+     * Check if all values of attributes are primitive types
+     * @return boolean
+     */
     public boolean checkIsSimpleObject() {
         boolean isSimple = true;
         for (Object att: attributes.values()) {
@@ -418,6 +539,10 @@ public class TripleObject {
         return isSimple;
     }
 
+    /**
+     * Cast TripleObject to JsonObject
+     * @return JsonObject
+     */
     public JsonObject toJson() {
         JsonObject jTo = new JsonObject();
         jTo.addProperty("localURI",this.localURI);

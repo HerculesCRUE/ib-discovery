@@ -147,7 +147,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
                 throw new CustomDiscoveryException(String.format("Not found for [ Node: %s, TripleStore: %s, ClassName: %s]", node, tripleStore, className));
 
         }
-        Map<TripleObject,List<TripleObjectLink>> links = handleRequestLodSearch(dataSource,tripleObjects);
+        Map<TripleObject,List<TripleObjectLink>> links = handleRequestLodSearch(dataSource,className,tripleObjects);
         for (Map.Entry<TripleObject, List<TripleObjectLink>> linkEntry : links.entrySet()) { // TripleObject --> List<TripleObjectLink>
             Map<String, List<EntitySimilarityObj>> similarity = new HashMap<>();
             similarity.put(MANUAL_KEY,new ArrayList<>());
@@ -204,7 +204,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
         }
      */
 
-    private Map<TripleObject,List<TripleObjectLink>> handleRequestLodSearch(String datasource,Map<String, TripleObject> tripleObjects) {
+    private Map<TripleObject,List<TripleObjectLink>> handleRequestLodSearch(String datasource,String className, Map<String, TripleObject> tripleObjects) {
         Map<TripleObject,List<TripleObjectLink>> links = new HashMap<>();
 
 
@@ -222,7 +222,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
         int splitCounter = 0;
         int requestCounter = 0;
         for (List<TripleObject> split : triplesSplits.values()) { // Por cada conjunto de datos
-            logger.info("Request LOD split group {} of {}",++splitCounter,triplesSplits.size());
+            logger.info("Request LOD split group: {} of {} in datasource: {} with class: {}",++splitCounter,triplesSplits.size(),datasource,className);
             Map<TripleObject,CompletableFuture<Response>> futures = new HashMap<>(); // Futures in split
 
             for (TripleObject to : split) { // Por cada Triple Object
@@ -233,7 +233,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
                 try {
                     if (future.getValue()!=null) {
                         Response response = future.getValue().join();
-                        logger.info("Request LOD {} of {} wit status {}", ++requestCounter, tripleObjects.size(), response.getStatusCode());
+                        logger.info("Request LOD {} of {} with status {} with class: {}", ++requestCounter, tripleObjects.size(), response.getStatusCode(),className);
                         future.getValue().cancel(false);
                         if (response.getStatusCode() == 200) {
                             String body = response.getResponseBody();

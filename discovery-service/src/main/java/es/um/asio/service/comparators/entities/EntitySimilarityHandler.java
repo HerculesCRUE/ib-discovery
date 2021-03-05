@@ -14,6 +14,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class implements the Entity Similarity Handler
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Component
 public class EntitySimilarityHandler {
 
@@ -27,6 +33,18 @@ public class EntitySimilarityHandler {
     @Autowired
     DataSourcesConfiguration dataSourcesConfiguration;
 
+    /**
+     * This method calculate the similitude between the TripleObject pass in parameter with the other TripleObjects pass in parameter, and use Thresholds for manual and automatic cataloging of similarities
+     * @see EntitySimilarityObj
+     * @see CacheServiceImp
+     * @see TripleObject
+     * @param cache Cache The cache objects with the TripleObjects stored
+     * @param tripleObject TripleObject. The TripleObject to evaluate the similitude with the rest
+     * @param tripleObjects List<TripleObject>. The rest of TripleObjects to evaluate the similitude with TripleObject pass in parameter
+     * @param manualThreshold Double. The  manual Threshold
+     * @param automaticThreshold Double. The  automatic Threshold
+     * @return Map<String, List<EntitySimilarityObj>> with the key as MANUAL or AUTOMATIC, and the value the EntitySimilarityObj found
+     */
     public static Map<String, List<EntitySimilarityObj>> calculateSimilarityInEntities(
             CacheServiceImp cache,
             TripleObject tripleObject,

@@ -11,7 +11,18 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.*;
 
-
+/**
+ * ObjectResult Class. In relational model the Object Result entity. Object Result is a result of search of similarities. Can be recursive. Object result is similar in relational model to TripleObject object
+ * @see JobRegistry
+ * @see Attribute
+ * @see ObjectResult
+ * @see ObjectResult
+ * @see MergeAction
+ * @see Action
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Entity
 @Table(name = ObjectResult.TABLE)
 @Getter
@@ -121,6 +132,15 @@ public class ObjectResult {
     @ManyToOne(optional = true, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     private ActionResult actionResultParent;
 
+    /**
+     * Constructor
+     * @see JobRegistry
+     * @see TripleObject
+     * @param jobRegistry JobRegistry. Job registry parent of ObjectResult
+     * @param to TripleObject. triple object related to Object Result
+     * @param similarity Float. Value of the similarity
+     * @param similarityWithOutId Float. Value of the similarity without id
+     */
     public ObjectResult(JobRegistry jobRegistry, TripleObject to, Float similarity, Float similarityWithOutId) {
         this.className = to.getClassName();
         this.node = to.getTripleStore().getNode().getNodeName();
@@ -147,6 +167,11 @@ public class ObjectResult {
         }
     }
 
+    /**
+     * Add a Automatic results to Object Result
+     * @see ObjectResult
+     * @param objectResult ObjectResult. Object result to add in automatic
+     */
     public void addAutomatic(ObjectResult objectResult){
         objectResult.isMain = false;
         objectResult.isAutomatic = true;
@@ -154,6 +179,11 @@ public class ObjectResult {
         this.automatic.add(objectResult);
     }
 
+    /**
+     * Add a Manual results to Object Result
+     * @see ObjectResult
+     * @param objectResult ObjectResult. Object result to add in Manual
+     */
     public void addManual(ObjectResult objectResult){
         objectResult.isMain = false;
         objectResult.isManual = true;
@@ -161,6 +191,11 @@ public class ObjectResult {
         this.manual.add(objectResult);
     }
 
+    /**
+     * Cast JobRegistry to TripleObject
+     * @see ObjectResult
+     * @param objectResult ObjectResult. Object result to add in Manual
+     */
     public TripleObject toTripleObject(JobRegistry jr) {
         JobRegistry jobRegistryInner = getRecursiveJobRegistry();
         if (jobRegistryInner == null)
@@ -172,6 +207,12 @@ public class ObjectResult {
         return to;
     }
 
+    /**
+     * Build a LinkedTreeMap<String,Object> from Set<Attribute> in recursive way
+     * @param attributesSet Set<Attribute>. Set ob attributes ob ObjectResult
+     * @param attrs LinkedTreeMap<String,Object> of attributes. At call method this are empty. Is used by recursion
+     * @return
+     */
     public LinkedTreeMap<String,Object> getAttributesAsMap(Set<Attribute> attributesSet,LinkedTreeMap<String,Object> attrs) {
         for (Attribute attribute :attributesSet) {
             String key = attribute.getKey();
@@ -199,6 +240,10 @@ public class ObjectResult {
         return attrs;
     }
 
+    /**
+     * Get Parent JobRegistry in recursive way
+     * @return JobRegistry
+     */
     public JobRegistry getRecursiveJobRegistry() {
         if (jobRegistry!=null)
             return this.jobRegistry;
@@ -212,6 +257,11 @@ public class ObjectResult {
             return null;
     }
 
+    /**
+     * Cast to Simplified Json from instance
+     * @param expands boolean. If true expand recursively ObjectResult nested
+     * @return JsonObject
+     */
     public JsonObject toSimplifiedJson(boolean expands) {
         JsonObject jResponse = new JsonObject();
         jResponse.addProperty("node",getNode());

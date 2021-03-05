@@ -1,5 +1,13 @@
 package es.um.asio.service.model.rdf;
 
+import es.um.asio.service.config.DataProperties;
+
+/**
+ * Constant of RDF format types
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 public final class MediaTypes {
 
     public static final String TEXT_TURTLE = "text/turtle";

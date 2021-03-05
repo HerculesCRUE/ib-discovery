@@ -70,14 +70,15 @@ public class Utils {
         );
 
         List<String> formats = new ArrayList<>();
+        formats.add("yyyy-MM-dd");
+        formats.add("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        formats.add("EEEEE MMMMM yyyy HH:mm:ss.SSSZ");
         for (String date: dateFormats) {
             formats.add(date);
             for (String time: timeFormats) {
                 formats.add(date+" "+time);
             }
         }
-        formats.add("EEEEE MMMMM yyyy HH:mm:ss.SSSZ");
-        formats.add("yyyy-MM-dd'T'HH:mm:ss. SSSZ");
         return formats;
     }
 
@@ -87,6 +88,21 @@ public class Utils {
             ints.add(arg);
         }
         return ints;
+    }
+
+    public static boolean machClassName(List<String> classes, String className) {
+        String [] chunkedClassName = className.split("\\-");
+        for (String c: classes) { // Para cada clase
+            if (chunkedClassName.length == 0)
+                return false;
+            boolean match = true;
+            for (String ccn: chunkedClassName) { // Para todos los pedazos del nombre de la clase
+                match = match && c.toLowerCase().contains(ccn.toLowerCase());
+            }
+            if (match)
+                return true;
+        }
+        return false;
     }
 
     private static List<String> buildListStr(String ... args) {
@@ -197,6 +213,7 @@ public class Utils {
     }
 
     public static Date getDate(String s) {
+
         for (Locale l : locales) {
             for (String f: dateFormats) {
                 DateFormat sdf = new SimpleDateFormat(f,l);

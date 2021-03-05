@@ -7,7 +7,13 @@ import java.util.Date;
 
 import static es.um.asio.service.model.relational.ElasticRegistry.TABLE;
 
-
+/**
+ * ElasticRegistry Class. In relational model the Elastic Registry entity for audit.
+ * @see DiscoveryApplication
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Entity
 @Table(name = TABLE)
 @Getter
@@ -43,6 +49,15 @@ public class ElasticRegistry {
     @Column(name = Columns.LAST_UPDATE, nullable = false,columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP",insertable = true, updatable = false)
     private Date lastUpdate;
 
+    /**
+     * Constructor
+     * @see DiscoveryApplication
+     * @param discoveryApplication  DiscoveryApplication. The discovery application
+     * @param node String. The node name
+     * @param tripleStore String. The triple Store name
+     * @param className String. The class name
+     * @param inserted. int. Number of instances inserted
+     */
     public ElasticRegistry(DiscoveryApplication discoveryApplication, String node, String tripleStore, String className,int inserted) {
         this.discoveryApplication = discoveryApplication;
         this.node = node;

@@ -9,12 +9,21 @@ import java.util.Arrays;
 
 import static org.simmetrics.builders.StringMetricBuilder.with;
 
+/**
+ * This class implements the similitude of Jaro Winkler Similarity algorithm to compare Strings
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 public class JaroWinklerSimilarityImp implements Similarity {
 
-    /*
-     * El algoritmo se basa en aplicar penalizaciones cuando no exista coincidencia siendo mayor la penalización en los 4 primeros. El vector se forma con el conteo de las palabras en las dos cadenas
-     * Ventajas: Muy bueno con los mezclados
-     * Inconvenientes: Funciona mal con las abreviaturas o cambios de caracteres
+    /**
+     *
+     *  This method calculate the similarity using Jaro Winkler Algorithm in (0,1) range.
+     *  description: The algorithm is based on applying penalties when there is no match, the penalty being greater in the first 4. The vector is formed by counting the words in the two strings.
+     * @param str1 : fist sting to compare similarity
+     * @param str2: second String to compare Similarity
+     * @return float as similitude measure in range (0,1)
      */
     @Override
     public float calculateSimilarity(String str1, String str2) {

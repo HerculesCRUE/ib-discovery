@@ -9,12 +9,21 @@ import java.util.Arrays;
 
 import static org.simmetrics.builders.StringMetricBuilder.with;
 
+/**
+ * This class implements the similitude of Longest Common Subsequence Similarity algorithm to compare Strings
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 public class LongestCommonSubsequenceSimilarityImp implements Similarity {
 
-    /*
-     * Mide el grado de la longitud de caracteres que coinciden en cualquier posición de la palabra
-     * Ventajas: Funciona bien con los mezclados
-     * Inconvenientes: Mal en el resto de casos
+    /**
+     *
+     *  This method calculate the similarity using Longest Common Subsequence Algorithm in (0,1) range.
+     *  description: The algorithm is based on Longest Common Subsequence of the String A and B
+     * @param str1 : fist sting to compare similarity
+     * @param str2: second String to compare Similarity
+     * @return float as similitude measure in range (0,1)
      */
     @Override
     public float calculateSimilarity(String str1, String str2) {

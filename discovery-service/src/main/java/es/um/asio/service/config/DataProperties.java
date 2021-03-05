@@ -6,7 +6,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * Cors related configuration properties.
+ * Data Properties configuration properties.
+ * @see ElasticSearch
+ * @see Redis
+ * @see Kafka
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
  */
 @Configuration
 @ConfigurationProperties("data")
@@ -22,6 +28,7 @@ public class DataProperties {
     private boolean readCacheFromFirebase;
     /**
      * Elastic Search Configuration
+     * @see ElasticSearch
      */
     private ElasticSearch elasticSearch;
 
@@ -31,10 +38,16 @@ public class DataProperties {
     private Redis redis;
 
     /**
-     * Redis Configuration
+     * Kafka Configuration
      */
     private Kafka kafka;
 
+    /**
+     * ElasticSearch configuration properties.
+     * @author  Daniel Ruiz Santamaría
+     * @version 2.0
+     * @since   1.0
+     */
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
@@ -47,6 +60,12 @@ public class DataProperties {
 
     }
 
+    /**
+     * Redis configuration properties.
+     * @author  Daniel Ruiz Santamaría
+     * @version 2.0
+     * @since   1.0
+     */
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
@@ -57,6 +76,14 @@ public class DataProperties {
         private String password;
     }
 
+    /**
+     * Kafka configuration properties.
+     * @see TopicEntityChange
+     * @see TopicDiscoveryAction
+     * @author  Daniel Ruiz Santamaría
+     * @version 2.0
+     * @since   1.0
+     */
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
@@ -71,6 +98,12 @@ public class DataProperties {
             return host+":"+port;
         }
 
+        /**
+         * Topic Entity Change configuration properties.
+         * @author  Daniel Ruiz Santamaría
+         * @version 2.0
+         * @since   1.0
+         */
         @AllArgsConstructor
         @NoArgsConstructor
         @Getter
@@ -80,6 +113,12 @@ public class DataProperties {
             private String groupId;
         }
 
+        /**
+         * Topic Discovery Action configuration properties.
+         * @author  Daniel Ruiz Santamaría
+         * @version 2.0
+         * @since   1.0
+         */
         @AllArgsConstructor
         @NoArgsConstructor
         @Getter

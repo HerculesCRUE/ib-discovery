@@ -7,10 +7,12 @@ import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+import es.um.asio.service.config.DataSourcesConfiguration;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
+import es.um.asio.service.service.SchemaService;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import es.um.asio.service.util.Utils;
 import org.slf4j.Logger;
@@ -22,6 +24,14 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.*;
 
+/**
+ * Handle request for Trellis LDP Server
+ * @see SchemaService
+ * @see DataSourcesConfiguration
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 public class TrellisHandler extends TripleStoreHandler {
 
     private final Logger logger = LoggerFactory.getLogger(TrellisHandler.class);
@@ -41,6 +51,13 @@ public class TrellisHandler extends TripleStoreHandler {
     private static final String ID = "@id";
     private static final String VALUE = "@val";
 
+    /**
+     * Constructor
+     * @param nodeName String. The node name
+     * @param baseURL String. The base URL
+     * @param user String. The user
+     * @param password String. The password
+     */
     public TrellisHandler(String nodeName, String baseURL, String user, String password) {
         this.nodeName = nodeName;
         this.baseURL = baseURL;
@@ -52,6 +69,14 @@ public class TrellisHandler extends TripleStoreHandler {
         headers.put("Authorization",getBasicAuthentication());
     }
 
+    /**
+     * Constructor
+     * @param cacheService. CacheService. Contains all data to update
+     * @return boolean
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws ParseException
+     */
     @Override
     public boolean updateData(CacheServiceImp cacheService) throws IOException, URISyntaxException, ParseException {
         logger.info("Start Update data from SPARQL");
@@ -158,6 +183,19 @@ public class TrellisHandler extends TripleStoreHandler {
         }
     }
 
+    /**
+     * Update a specific data in trellis
+     * @param cacheService CacheService. Contains all data to update
+     * @param node String. Name of node
+     * @param tripleStore String. Name of triple Store
+     * @param className String. The class name
+     * @param localURI String. The local URI
+     * @param basicAction BasicAction. The basic Action
+     * @return boolean
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws ParseException
+     */
     @Override
     public boolean updateTripleObject(CacheServiceImp cacheService,String node, String tripleStore, String className,String localURI, BasicAction basicAction) throws IOException, URISyntaxException, ParseException {
         Response rClass = doRequest(this.baseURL+className); // Request

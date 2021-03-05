@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
+import es.um.asio.service.config.DataProperties;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.URIComponent;
 import es.um.asio.service.service.SchemaService;
@@ -26,6 +27,12 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * TripleObjectLink is the model of TripleObject for express a link of LOD cloud.
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Getter
 @Setter
 @ToString
@@ -44,6 +51,14 @@ public class TripleObjectLink {
     private LinkedTreeMap<String, Object> attributes;
     private Map<String,String> prefixes;
 
+    /**
+     * Constructor
+     * @param id String. The id
+     * @param datasetName String. The data set name
+     * @param baseURL String. The base URL
+     * @param remoteName String. The remote name
+     * @param localClassName. The local class name
+     */
     public TripleObjectLink(String id, String datasetName, String baseURL, String remoteName, String localClassName) {
         this.id = id;
         this.datasetName = datasetName;
@@ -56,6 +71,13 @@ public class TripleObjectLink {
         this.prefixes = new HashMap<>();
     }
 
+    /**
+     * Constructor
+     * @param datasetName String. The data set name
+     * @param baseURL String. The base URL
+     * @param remoteName String. The remote name
+     * @param localClassName. The local class name
+     */
     public TripleObjectLink(String datasetName, String baseURL, String remoteName, String localClassName) {
         this.datasetName = datasetName;
         this.baseURL = baseURL;
@@ -67,10 +89,18 @@ public class TripleObjectLink {
         this.prefixes = new HashMap<>();
     }
 
+    /**
+     * Get the id, with URL encoded
+     * @return
+     */
     public String getURLEndedID(){
         return URLEncoder.encode(Utils.normalizeUri(this.getId()), StandardCharsets.UTF_8);
     }
 
+    /**
+     * Constructor
+     * @param jTol JsonObject. Build TripleObjectLink from Json
+     */
     public TripleObjectLink(JsonObject jTol) {
         if (jTol.has("id") && !jTol.get("id").isJsonNull())
             this.id = jTol.get("id").getAsString();
@@ -89,7 +119,10 @@ public class TripleObjectLink {
     }
 
 
-
+    /**
+     * Populate Mapper attribute
+     * @param jTol JsonObject. Mapper in Json
+     */
     private void populateMapper(JsonObject jTol) {
         try {
             this.mapper = new Gson().fromJson(jTol.get("mapper").getAsJsonObject(), HashMap.class);
@@ -98,6 +131,10 @@ public class TripleObjectLink {
         }
     }
 
+    /**
+     * Populate Links attribute
+     * @param jTol JsonObject. Links in Json
+     */
     private void populateLinks(JsonObject jTol) {
         List<LinkedTreeMap<String, Object>> links = new ArrayList<>();
         Gson gson = new Gson();
@@ -113,6 +150,10 @@ public class TripleObjectLink {
         }
     }
 
+    /**
+     * Populate attributes
+     * @param jTol JsonObject. Attributes in Json
+     */
     private void populateAttributes(JsonObject jTol) {
         try {
             this.attributes = new Gson().fromJson(jTol.get("attributes").getAsJsonObject(), LinkedTreeMap.class);
@@ -121,6 +162,10 @@ public class TripleObjectLink {
         }
     }
 
+    /**
+     * Populate Prefixes attribute
+     * @param jTol JsonObject. Prefixes in Json
+     */
     private void populatePrefixes(JsonObject jTol) {
         try {
             this.prefixes = new Gson().fromJson(jTol.get("prefixes").getAsJsonObject(), HashMap.class);
@@ -129,6 +174,10 @@ public class TripleObjectLink {
         }
     }
 
+    /**
+     * Populate Origin attribute
+     * @param jTol JsonObject. Origin in Json
+     */
     private void populateOrigin(JsonObject jTol) {
         try {
             this.origin = new TripleObject(jTol.get("origin").getAsJsonObject());
@@ -137,6 +186,12 @@ public class TripleObjectLink {
         }
     }
 
+    /**
+     * Generate RDF model from TripleObjectLink
+     * @see org.apache.jena.Jena
+     * @param schemaService SchemaService. The Schema Service for build URLs
+     * @return Model. The RDF model
+     */
     public Model generateModelFromJson(SchemaServiceImp schemaService) {
 
         String skos = "http://www.w3.org/2004/02/skos/core#";
@@ -192,6 +247,16 @@ public class TripleObjectLink {
         return m;
     }
 
+    /**
+     * Expands Attributes in recursive way
+     * @see org.apache.jena.Jena
+     * @see Model
+     * @see Resource
+     * @param model Model. The JENA Model
+     * @param resource Resource. The JENA Resource
+     * @param attributes LinkedTreeMap<String, Object>. The attributes
+     * @return Resource
+     */
     private Resource expandAttributes(Model model,Resource resource, LinkedTreeMap<String, Object> attributes) {
         String rdfs = "http://www.w3.org/2000/01/rdf-schema#";
         for (Map.Entry<String, Object> attEntry: attributes.entrySet()) {
@@ -243,6 +308,11 @@ public class TripleObjectLink {
         return resource;
     }
 
+    /**
+     * Expand component attributes from URI
+     * @param att String. The attribute
+     * @return String. The expanded attribute
+     */
     private String expandAttributeURIFRomPrefixes(String att) {
         String regex = "^(.*):";
         Pattern pattern = Pattern.compile("^(.*):");
@@ -259,6 +329,11 @@ public class TripleObjectLink {
         return buildURI(prefixes.get("default"), Arrays.asList(new String[] {attName}));
     }
 
+    /**
+     * Build URI from parts
+     * @param baseURL String. The base URL
+     * @param uriParts List<String>. The URL parts
+     */
     private String buildURI(String baseURL,List<String> uriParts) {
         List<String> uriChunks = new ArrayList<>();
         if (Utils.isValidString(baseURL)) {

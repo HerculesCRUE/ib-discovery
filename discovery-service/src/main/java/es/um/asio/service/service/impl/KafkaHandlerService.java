@@ -42,7 +42,7 @@ public class KafkaHandlerService {
                 jMessage.add("object", jLink);
             }
             String msgStr = jMessage.toString();
-            logger.info("Sending kafka message: {}, by node: {}, tripleStore: {}, className: {}",msgStr,node,tripleStore,className);
+            logger.info(": {}, by node: {}, tripleStore: {}, className: {}",msgStr,node,tripleStore,className);
             kafkaTemplate.send(topic,jMessage.toString());
         }
     }

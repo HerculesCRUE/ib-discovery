@@ -15,18 +15,36 @@ import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.mapper.ObjectMapperDeserializationContext;
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext;
 
+/**
+ * Mapper for objects to RDF
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 public class RdfObjectMapper implements ObjectMapper  {
 
     private String baseURI;
 
+    /**
+     * Constructor
+     */
     public RdfObjectMapper() {
         this.baseURI = "";
     }
 
+    /**
+     * Constructor
+     * @param baseURI: String. The baseUri
+     */
     public RdfObjectMapper(String baseURI) {
         this.baseURI = baseURI;
     }
 
+    /**
+     * Get the RDF Format
+     * @param mediaType String. The RDF format
+     * @return String. The correct RDF format
+     */
     private String getLang(String mediaType) {
         if (MediaTypes.TEXT_TURTLE.equals(mediaType)) {
             return "TURTLE";
@@ -43,6 +61,11 @@ public class RdfObjectMapper implements ObjectMapper  {
         throw new IllegalArgumentException("Unsupported media type: " + mediaType);
     }
 
+    /**
+     * Deserializer
+     * @param context Context. The context
+     * @return Object. The deserialized object
+     */
     @Override
     public Object deserialize(ObjectMapperDeserializationContext context) {
         InputStream input = context.getDataToDeserialize().asInputStream();
@@ -68,6 +91,11 @@ public class RdfObjectMapper implements ObjectMapper  {
             return null;
     }
 
+    /**
+     * Serializer
+     * @param context Context. The context
+     * @return Object. The serialized object
+     */
     @Override
     public Object serialize(ObjectMapperSerializationContext context) {
         Model model = context.getObjectToSerializeAs(Model.class);

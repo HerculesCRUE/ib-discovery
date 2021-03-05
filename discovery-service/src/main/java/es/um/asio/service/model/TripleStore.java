@@ -2,6 +2,7 @@ package es.um.asio.service.model;
 
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
+import es.um.asio.service.model.rdf.TripleObjectLink;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -13,6 +14,13 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+/**
+ * TripleStore. Entity for Triple Store.
+ * @see Node
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Entity
 @Table(name = "TRIPLE_STORE")
 @Getter
@@ -76,6 +84,15 @@ public class TripleStore {
     @Expose(serialize = true, deserialize = true)
     private String password;
 
+    /**
+     * Constructor
+     * @see Node
+     * @param tripleStore String. Triple store name
+     * @param node String. Node name
+     * @param baseURL String. The base URL
+     * @param user String. The user name
+     * @param password String. The password
+     */
     public TripleStore(String tripleStore, String node, String baseURL, String user, String password) {
         this.name = tripleStore;
         this.node = new Node(node);
@@ -84,14 +101,27 @@ public class TripleStore {
         this.password = password;
     }
 
+    /**
+     * Constructor
+     * @param tripleStore String. Triple store name
+     * @param node String. Node name
+     */
     public TripleStore(String tripleStore, String node) {
         this.name = tripleStore;
         this.node = new Node(node);
     }
 
+    /**
+     * Constructor
+     */
     public TripleStore() {
     }
 
+    /**
+     * Cast to JsonObject
+     * @see JsonObject
+     * @return JsonObject
+     */
     public JsonObject toJson() {
         JsonObject jTs = new JsonObject();
         jTs.addProperty("id",getId());

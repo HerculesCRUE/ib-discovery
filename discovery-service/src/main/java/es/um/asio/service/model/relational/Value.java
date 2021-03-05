@@ -10,6 +10,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Attribute Class. In relational model the value of a Attribute entity.
+ * @see Attribute
+ * @see DataType
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Entity
 @Table(name = Value.TABLE)
 @Getter
@@ -46,6 +54,12 @@ public class Value {
     @EqualsAndHashCode.Include
     private Set<Attribute> attributes;
 
+    /**
+     * Constructor
+     * @see Attribute
+     * @param attribute Attribute. The parent attribute
+     * @param val Object. The value
+     */
     public Value(Attribute attribute, Object val) {
         this.attribute = attribute;
         this.dataType = getDataType(val);
@@ -63,6 +77,10 @@ public class Value {
 
     }
 
+    /**
+     * Get the value int the type defined
+     * @return Object with the value int the type defined
+     */
     public Object getValueParsedToType() {
         if (dataType == DataType.FLOAT) {
             return Float.valueOf(val);
@@ -83,6 +101,12 @@ public class Value {
         }
     }
 
+    /**
+     * Get data type
+     * @see DataType
+     * @param v Object. The value
+     * @return DataType. The type of value
+     */
     public DataType getDataType(Object v){
         if (Utils.checkIfFloat(String.valueOf(v)))
             return DataType.FLOAT;

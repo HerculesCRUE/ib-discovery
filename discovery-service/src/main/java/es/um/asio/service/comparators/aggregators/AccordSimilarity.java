@@ -7,12 +7,32 @@ import es.um.asio.service.util.Utils;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * This class implements Accord Similarity between Strings using all algorithms describes
+ * @see es.um.asio.service.comparators.strings
+ * @link https://github.com/HerculesCRUE/ib-discovery/blob/master/docs/ASIO_Libreria_de_descubrimiento.md#m%C3%A9tricas-de-similitud-para-atributos
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 public class AccordSimilarity {
 
+    /**
+     * Default constructor
+     */
     private AccordSimilarity() {}
 
+    /**
+     * algorithms map, the key is the name of algorithm and the value is the value of the similarity
+     */
     static Map<String, Similarity> algorithms;
 
+
+    /**
+     * @param str1 The first string to compare
+     * @param str2 The second string to compare
+     * @return float as the value of the similarity by accord
+     */
     public static float calculateAccordSimilarity(String str1, String str2) {
         str1 = Utils.normalize(str1);
         str2 = Utils.normalize(str2);
@@ -30,7 +50,10 @@ public class AccordSimilarity {
     }
 
 
-
+    /**
+     * @see Similarity
+     * @return Map<String,Similarity> with the name of the algorithm and the implementation
+     */
     public static Map<String,Similarity>  getAlgorithms() {
         if (algorithms != null)
             return algorithms;
@@ -54,6 +77,12 @@ public class AccordSimilarity {
         }
     }
 
+    /**
+     * The method calculate the Weighted average of similitudes
+     * @param l List<Float> of the similitude of algorithms
+     * @param ratio Threshold for evaluate if the similarity is positive or negative
+     * @return float. The weighted mean value of similitaries
+     */
     public static float getDescendantWeightMean(List<Float> l, float ratio) {
         float mean = 0f;
         float w = 1f;

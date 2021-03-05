@@ -1,5 +1,11 @@
 package es.um.asio.service.model;
 
+/**
+ * Enumerated Class. BasicAction one of this [INSERT,UPDATE,DELETE,LINK].
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 public enum BasicAction {
     INSERT("INSERT"),UPDATE("UPDATE"),DELETE("DELETE"),LINK("LINK");
 

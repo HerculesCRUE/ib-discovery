@@ -1,6 +1,7 @@
 package es.um.asio.service.repository.elasticsearch;
 
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
+import es.um.asio.service.model.rdf.TripleObjectLink;
 import es.um.asio.service.service.impl.TextHandlerServiceImp;
 import es.um.asio.service.util.Utils;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+/**
+ * TripleObjectESCustomRepository Class. Create and handle queries in elasticsearch.
+ * @see ElasticsearchTemplate
+ * @see TextHandlerServiceImp
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Repository
 public class TripleObjectESCustomRepository{
 
@@ -36,6 +45,12 @@ public class TripleObjectESCustomRepository{
     private static final String CLASSES = "classes";
     private static final String ATTRIBUTES_REGEX = "attributes.%s";
 
+    /**
+     * Crate query in elasticsearch wit result paginated, with the attributes
+     * @param indexName String. The index in elasticsearch where search
+     * @param musts. List<Triplet<String,String,String>>. List of attributes with MUST coincide exactly int Elasticsearch. The triplets are val1 = attribute name in elasticsearch,  val2 = the triple store stored in elasticsearch and val3 = is the type of query
+     * @param attrs. List<Pair<String,Object>>. List of attributes with SHOULD match approximately in ElasticSearch. The triplets are val1 = attribute name in elasticsearch,  val2 = is the value
+     */
     public List<TripleObjectES> findByClassNameAndAttributesWithPartialMatch(String indexName, List<Triplet<String,String,String>> musts, List<Pair<String,Object>> attrs){
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         for (Triplet<String,String,String> must : musts) {
@@ -85,6 +100,14 @@ public class TripleObjectESCustomRepository{
         return lResult;
     }
 
+    /**
+     * Get all TripleObjectsES in ElasticSearch by node, triple store and className
+     * @see TripleObjectES
+     * @param node String. The node name
+     * @param tripleStore String. The triple store name
+     * @param className String. The class name
+     * @return List<TripleObjectES>. All TripleObjectsES in ElasticSearch by node, triple store and className
+     */
     public List<TripleObjectES> getAllTripleObjectsESByNodeAndTripleStoreAndClassName(String node,String tripleStore,String className) {
         Set<TripleObjectES> results = new HashSet<>();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -106,6 +129,13 @@ public class TripleObjectESCustomRepository{
         return new ArrayList<>(results);
     }
 
+    /**
+     * Get all TripleObjectsES in ElasticSearch by node and triple store
+     * @see TripleObjectES
+     * @param node String. The node name
+     * @param tripleStore String. The triple store name
+     * @return List<TripleObjectES>. All TripleObjectsES in ElasticSearch by node and triple store
+     */
     public List<TripleObjectES> getAllTripleObjectsESByNodeAndTripleStore(String node,String tripleStore) {
         Set<TripleObjectES> results = new HashSet<>();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -126,6 +156,11 @@ public class TripleObjectESCustomRepository{
         return new ArrayList<>(results);
     }
 
+    /**
+     * Get all TripleObjectsES in ElasticSearch
+     * @see TripleObjectES
+     * @return List<TripleObjectES>. All TripleObjectsES in ElasticSearch
+     */
     public List<TripleObjectES> getAllTripleObjectsES() {
         Set<TripleObjectES> results = new HashSet<>();
         NativeSearchQuery build = new NativeSearchQueryBuilder().build();
@@ -143,7 +178,14 @@ public class TripleObjectESCustomRepository{
         return new ArrayList<>(results);
     }
 
-    public Map<String,Set<String>>getAllClassAndId(String node, String tripleStore) {
+    /**
+     * Get all Class and Ids stored in elasticsearch
+     * @see TripleObjectES
+     * @param node String. The node name
+     * @param tripleStore String. The triple store name
+     * @return Map<String,Set<String>>. All Class and Ids stored in elasticsearch
+     */
+    public Map<String,Set<String>> getAllClassAndId(String node, String tripleStore) {
         Map<String,Set<String>> results = new HashMap<>();
 
         String[] includes = new String[]{"entityId", "className"};
@@ -181,6 +223,13 @@ public class TripleObjectESCustomRepository{
     }
 }
 
+/**
+ * PairES Class. Pair with entityId and className
+ * @see TripleObjectLink
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

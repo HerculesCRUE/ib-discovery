@@ -10,12 +10,21 @@ import java.util.Arrays;
 
 import static org.simmetrics.builders.StringMetricBuilder.with;
 
+/**
+ * This class implements the similitude of Jaccard Generalized Similarity algorithm to compare Strings
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 public class GeneralizedJaccardSimilarityImp implements Similarity {
 
-    /*
-     * El algoritmo se basa en medir el coseno entre la distancia de las cadenas A a la cadena B. El vector se forma con el conteo de las palabras en las dos cadenas
-     * Ventajas: Muy bueno con los mezclados
-     * Inconvenientes: Funciona mal con las abreviaturas o cambios de caracteres
+    /**
+     *
+     *  This method calculate the similarity using Jaccard Generalized Algorithm in (0,1) range.
+     *  description: The algorithm is based on measuring the Jaccard Generalized distance from strings A to string B.
+     * @param str1 : fist sting to compare similarity
+     * @param str2: second String to compare Similarity
+     * @return float as similitude measure in range (0,1)
      */
     @Override
     public float calculateSimilarity(String str1, String str2) {
