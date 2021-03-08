@@ -14,7 +14,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 
-
+/**
+ * Firebase Storage Handler. For speed up application deployment the first time
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Service
 public class FirebaseStorageStrategy{
 
@@ -23,6 +28,10 @@ public class FirebaseStorageStrategy{
     private static final String PROJECTID = "discovery-lib";
     private static final String BUCKETNAME = "discovery-lib.appspot.com";
 
+    /**
+     * Access to Firebase
+     * @throws IOException
+     */
     @PostConstruct
     public void initializeFirebase() throws IOException {
         InputStream serviceAccount = getClass().getResourceAsStream("/discovery-lib-firebase-adminsdk-93pb4-46e5934f16.json");
@@ -32,12 +41,23 @@ public class FirebaseStorageStrategy{
                 .build();
     }
 
+    /**
+     * Let read a file storage in Firebase
+     * @param fileName String. The file name
+     * @return String. The body of the document
+     */
     public String readFileFromStorage(String fileName){
         Storage storage = storageOptions.getService();
         Blob blob = storage.get(BUCKETNAME, fileName);
         return new String(blob.getContent());
     }
 
+    /**
+     * Let write a file storage in Firebase
+     * @param fileName String. The file name
+     * @param content String. The context
+     * @return String. The body of the document
+     */
     @Async
     public CompletableFuture<String[]> writeFile(String fileName, String content) {
         log.info("File " + fileName + " uploaded to bucket " + BUCKETNAME + " as " + fileName);

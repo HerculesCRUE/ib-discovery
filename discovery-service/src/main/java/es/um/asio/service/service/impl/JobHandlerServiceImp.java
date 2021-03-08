@@ -35,6 +35,15 @@ import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Job Handler implementation.
+ * Let handle Jobs in asynchronous or synchronous mode
+ * Prevents two identical jobs from being processed multiple times
+ * Manage the execution of Jobs
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Service
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 public class JobHandlerServiceImp {
@@ -81,6 +90,10 @@ public class JobHandlerServiceImp {
     TrellisCache trellisCache;
 
 
+    /**
+     * Initialization
+     * Initialize the data structures and manages the application listeners
+     */
     @PostConstruct
     public void init() {
         jrClassMap = new LinkedHashMap<>();
@@ -117,6 +130,23 @@ public class JobHandlerServiceImp {
     }
 
 
+    /**
+     * Handle a new Job for search similitudes by class
+     * @see DiscoveryApplication
+     * @see JobRegistry
+     * @param application DiscoveryApplication The discovery application to which the job belongs
+     * @param userId String. The userId for handle the response
+     * @param requestCode String. The requestCode for handle the response
+     * @param node String. The node where we want search similitudes
+     * @param tripleStore String. The triple store where we want search similitudes
+     * @param className String. The class name where we want search similitudes
+     * @param doSync boolean. Do or not the operation in synchronous mode
+     * @param webHook String. Web Hook where the call back will be done
+     * @param propagueInKafka boolean. Do or not the response propagation in kafka
+     * @param searchLinks boolean. Do or not the search of similarities in other nodes
+     * @param applyDelta boolean. Do or not the search only with deltas since the last modification
+     * @return JobRegistry with the results id is synchronous, else Job registry with the request id for get the response when the Job will be finished
+     */
     public JobRegistry addJobRegistryForClass(
             DiscoveryApplication application,
             String userId, String requestCode,
@@ -198,6 +228,24 @@ public class JobHandlerServiceImp {
     }
 
 
+    /**
+     * Handle a new Job for search similitudes for the instance pass in parameter, with her class
+     * @see DiscoveryApplication
+     * @see JobRegistry
+     * @param application DiscoveryApplication The discovery application to which the job belongs
+     * @param userId String. The userId for handle the response
+     * @param requestCode String. The requestCode for handle the response
+     * @param node String. The node where we want search similitudes
+     * @param tripleStore String. The triple store where we want search similitudes
+     * @param className String. The class name where we want search similitudes
+     * @param entityId String. The entity Id
+     * @param jBodyStr String. The attributes of the object to search
+     * @param doSync boolean. Do or not the operation in synchronous mode
+     * @param webHook String. Web Hook where the call back will be done
+     * @param propagueInKafka boolean. Do or not the response propagation in kafka
+     * @param searchLinks boolean. Do or not the search of similarities in other nodes
+     * @return JobRegistry with the results id is synchronous, else Job registry with the request id for get the response when the Job will be finished
+     */
     public JobRegistry addJobRegistryForInstance(
             DiscoveryApplication application,
             String userId,
@@ -279,6 +327,23 @@ public class JobHandlerServiceImp {
         return jobRegistry;
     }
 
+    /**
+     * Handle a new Job for search similitudes by class in the LOD cloud
+     * @see DiscoveryApplication
+     * @see JobRegistry
+     * @param application DiscoveryApplication The discovery application to which the job belongs
+     * @param userId String. The userId for handle the response
+     * @param requestCode String. The requestCode for handle the response
+     * @param node String. The node where we want search similitudes
+     * @param tripleStore String. The triple store where we want search similitudes
+     * @param className String. The class name where we want search similitudes
+     * @param doSync boolean. Do or not the operation in synchronous mode
+     * @param webHook String. Web Hook where the call back will be done
+     * @param propagueInKafka boolean. Do or not the response propagation in kafka
+     * @param applyDelta boolean. Do or not the search only with deltas since the last modification
+     * @param applyDelta String. The name of the dataset where will be done the search
+     * @return JobRegistry with the results id is synchronous, else Job registry with the request id for get the response when the Job will be finished
+     */
     public JobRegistry addJobRegistryForLOD(
             DiscoveryApplication application,
             String userId, String requestCode,
@@ -350,7 +415,11 @@ public class JobHandlerServiceImp {
         return jobRegistry;
     }
 
-    // Gestiona la petición pesada de búsqueda de similaridades en una misma clase
+    /**
+     * Manages the heavy request to search for similarities by instance in the same class
+     * @param jobRegistry
+     * @return JobRegistry with the search completed
+     */
     public JobRegistry findSimilaritiesByInstance(JobRegistry jobRegistry) {
         isWorking = true;
         TripleObject to = jobRegistry.getTripleObject();
@@ -444,7 +513,11 @@ public class JobHandlerServiceImp {
         return jobRegistry;
     }
 
-    // Gestiona la petición pesada de búsqueda de similaridades en una misma clase
+    /**
+     * Manages the heavy request to search for similarities in the same class
+     * @param jobRegistry
+     * @return JobRegistry with the search completed
+     */
     public JobRegistry findSimilaritiesByClass(JobRegistry jobRegistry) {
         isWorking = true;
         jobRegistry.setStarted(true);
@@ -543,7 +616,11 @@ public class JobHandlerServiceImp {
         return jobRegistry;
     }
 
-    // Gestiona la petición pesada de búsqueda de similaridades en una misma clase
+    /**
+     * Manages the heavy request to search for similarities by class in the LOD Cloud
+     * @param jobRegistry
+     * @return JobRegistry with the search completed
+     */
     public JobRegistry findSimilaritiesInLod(JobRegistry jobRegistry) {
         isWorking = true;
         jobRegistry.setStarted(true);
@@ -715,6 +792,10 @@ public class JobHandlerServiceImp {
         return jobRegistry;
     }
 
+    /**
+     * Handle the queues of Jobs
+     * @return CompletableFuture<JobRegistry>
+     */
     public CompletableFuture<JobRegistry> handleQueueFindSimilarities() {
         // isWorking = false;
         if (isAppReady && !isWorking) {
@@ -732,6 +813,10 @@ public class JobHandlerServiceImp {
         return CompletableFuture.completedFuture(null);
     }
 
+    /**
+     * Handle send call backs in Web Hooks defined  for a jobRegistry
+     * @param jobRegistry
+     */
     private void sendWebHooks(JobRegistry jobRegistry) {
         Set<String> webHooks = jobRegistry.getWebHooks();
         HttpClient client = HttpClient.newHttpClient();
@@ -754,6 +839,10 @@ public class JobHandlerServiceImp {
         }
     }
 
+    /**
+     * Handle send the responses in Kafka for a jobRegistry
+     * @param jobRegistry
+     */
     private void propagueKafkaActions(JobRegistry jobRegistry) {
         for (ObjectResult or : jobRegistry.getObjectResults()) { // Por todas las acciones
             for (ActionResult ar : or.getActionResults()) { // Por todos las Acciones

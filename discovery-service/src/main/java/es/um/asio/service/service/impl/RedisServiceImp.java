@@ -28,7 +28,13 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-
+/**
+ * RedisService implementation. For handle operations with REDIS
+ * @see TripleObject
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Service
 @EnableCaching
 public class RedisServiceImp implements RedisService {
@@ -66,6 +72,11 @@ public class RedisServiceImp implements RedisService {
                 .create();
     }
 
+    /**
+     * Get all Triple Object With recursive Map structure stored by Node -> Triple Store -> Class Name -> Id, TripleObject
+     * @see TripleObject
+     * @return Map<String, Map<String, Map<String, Map<String, TripleObject>>>>
+     */
     @Override
     public Map<String, Map<String, Map<String, Map<String, TripleObject>>>> getTriplesMap() {
         Map<String, Map<String, Map<String, Map<String, TripleObject>>>> cachedMap = new HashMap<>();
@@ -115,6 +126,11 @@ public class RedisServiceImp implements RedisService {
         return cachedMap;
     }
 
+    /**
+     * Get all Triple Object With recursive Map structure stored by Node -> Triple Store -> Class Name -> Id, TripleObject
+     * @see TripleObject
+     * @return Map<String, Map<String, Map<String, Map<String, TripleObject>>>>
+     */
     @Override
     public Map<String, Map<String, Map<String, Map<String, TripleObject>>>> getTriplesMapByNodeAndStorageAndClass(String node, String tripleStore, String className) {
         Map<String, Map<String, Map<String, Map<String, TripleObject>>>> cachedMap = new HashMap<>();
@@ -155,6 +171,13 @@ public class RedisServiceImp implements RedisService {
         return cachedMap;
     }
 
+    /**
+     * Store in REDIS, the structure Map<String, Map<String, Map<String, Map<String, TripleObject>>>> which is a recursive Map structure stored by Node -> Triple Store -> Class Name -> Id, TripleObject
+     * @see TripleObject
+     * @param triplesMap Map<String, Map<String, Map<String, Map<String, TripleObject>>>>. The structure to save
+     * @param keepKeys boolean. If false old keys will be deleted, else the keys will be preserved
+     * @param doAsync boolean. If true the operation will be done in asynchronous mode, else the operation will be in synchronous mode
+     */
     @Override
     public void setTriplesMap(Map<String, Map<String, Map<String, Map<String, TripleObject>>>> triplesMap, boolean keepKeys, boolean doAsync) {
 
@@ -190,6 +213,16 @@ public class RedisServiceImp implements RedisService {
         redisRepository.add(TRIPLES_MAP_KEYS,jKeys.toString());
     }
 
+    /**
+     * Store in REDIS, the structure Map<String, Map<String, Map<String, Map<String, TripleObject>>>> which is a recursive Map structure stored by Node -> Triple Store -> Class Name -> Id, TripleObject
+     * The operation will be filtered by Node, Triple Store and Class Name
+     * @see TripleObject
+     * @param node String. The node name
+     * @param tripleStore String. The triple store name
+     * @param className String. The class name
+     * @param triplesMap Map<String, TripleObject>. The triple Objects to Store in REDIS
+     * @param doAsync boolean. If true the operation will be done in asynchronous mode, else the operation will be in synchronous mode
+     */
     @Override
     public void setTriplesMapByNodeAndStorageAndClass(String node, String tripleStore, String className, Map<String, TripleObject> triplesMap, boolean doAsync) {
         List<CompletableFuture<Boolean>> futures = new ArrayList<>();
@@ -209,6 +242,11 @@ public class RedisServiceImp implements RedisService {
         redisRepository.add(TRIPLES_MAP_KEYS,jKeys.toString());
     }
 
+    /**
+     * Get Triple Objects filtered by date of last modification
+     * @see TripleObject
+     * @return Map<String, Map<String, Map<String,TripleObject>>>
+     */
     @Override
     public Map<String, Map<String, Map<String, TripleObject>>> getFilteredTriples() {
         String cachedTriplesMapStr = redisRepository.getBy(FILTERED_KEY);
@@ -227,6 +265,11 @@ public class RedisServiceImp implements RedisService {
         return new HashMap<>();
     }
 
+    /**
+     * UPDATE Triple Objects filtered by date of last modification
+     * @see TripleObject
+     * @param filteredTriples Map<String, Map<String, Map<String,TripleObject>>>
+     */
     @Override
     public void setFilteredTriples(Map<String, Map<String, Map<String, TripleObject>>> filteredTriples) {
         Gson gsonInner = new GsonBuilder()
@@ -237,6 +280,11 @@ public class RedisServiceImp implements RedisService {
         redisRepository.add(FILTERED_KEY,jTriplesMap.toString());
     }
 
+    /**
+     * Get the entities Stats
+     * @see StatsHandler
+     * @return StatsHandler
+     */
     @Override
     public StatsHandler getEntityStats() {
         String entityStatsStr = redisRepository.getBy(ENTITY_STATS_KEY);
@@ -258,6 +306,11 @@ public class RedisServiceImp implements RedisService {
         return new StatsHandler();
     }
 
+    /**
+     * UPDATE the entities Stats
+     * @see StatsHandler
+     * @param statsHandler StatsHandler. The stats of the entities
+     */
     @Override
     public void setEntityStats(StatsHandler statsHandler) {
         Gson gsonInner = new Gson();
@@ -266,6 +319,10 @@ public class RedisServiceImp implements RedisService {
         redisRepository.add(ENTITY_STATS_KEY,jEntityStats.toString());
     }
 
+    /**
+     * Get the Entities inserted in Elasticsearch
+     * @return Map<String, Map<String, Map<String, Map<String,TripleObject>>>>
+     */
     @Override
     public Map<String, Map<String, Map<String, Map<String, TripleObject>>>> getElasticSearchTriplesMap() {
         String cachedElasticSearchTriplesMapStr = redisRepository.getBy(ELASTICSEARCH_KEY);
@@ -284,6 +341,10 @@ public class RedisServiceImp implements RedisService {
         return new HashMap<>();
     }
 
+    /**
+     * UPDATE the Entities inserted in Elasticsearch
+     * @return Map<String, Map<String, Map<String, Map<String,TripleObject>>>>
+     */
     @Override
     public void setElasticSearchTriplesMap(Map<String, Map<String, Map<String, Map<String, TripleObject>>>> elasticSearchTriplesMap) {
         Gson gsonInner = new GsonBuilder()

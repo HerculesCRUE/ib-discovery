@@ -12,11 +12,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * TextHandlerService Implementation. For remove stop words
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Service
 public class TextHandlerServiceImp implements TextHandlerService {
 
     Set<String> stopWords;
 
+    /**
+     * On init load the Stop words dictionaries
+     */
     @PostConstruct
     public void init() {
         stopWords = new HashSet<>();
@@ -25,6 +34,11 @@ public class TextHandlerServiceImp implements TextHandlerService {
         reader.lines().forEach(l -> stopWords.add(l.replaceAll(",","").toLowerCase().strip()));
     }
 
+    /**
+     * Remove the stop words of the String using dictionaries in languages
+     * @param s String. The text
+     * @return String. The text without stop words
+     */
     @Override
     public String removeStopWords(String s) {
         s = s.replaceAll("\\p{Punct}", "");

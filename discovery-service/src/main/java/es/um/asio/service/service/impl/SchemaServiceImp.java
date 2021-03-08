@@ -32,6 +32,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * SchemaService interface. For handle operations with the URIs Factory
+ * @see TripleObject
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Service
 public class SchemaServiceImp implements SchemaService {
 
@@ -56,20 +63,40 @@ public class SchemaServiceImp implements SchemaService {
         canonicalLocalSchema = getSchemaFromUrisFactory(urisFactoryHost,"/uri-factory/local-schema",defaultSchema);
     }
 
+    /**
+     * break down into URIComponent a URI created by URIS factory for Canonical URIs
+     * @see URIComponent
+     * @param uri
+     * @return
+     */
     @Override
     public URIComponent getURIComponentFromCanonicalURI(String uri) {
         return new URIComponent(canonicalSchema,uri);
     }
 
+    /**
+     * break down into URIComponent a URI created by URIS factory for Canonical Local URIs
+     * @see URIComponent
+     * @param uri
+     * @return
+     */
     @Override
     public URIComponent getURIComponentFromCanonicalLocalURI(String uri) {
         return new URIComponent(canonicalLocalSchema,uri);
     }
 
+    /**
+     * Get the canonical Schema from URIs factory
+     * @return String. The schema
+     */
     public String getCanonicalSchema() {
         return canonicalSchema;
     }
 
+    /**
+     * Get the canonical local Schema from URIs factory
+     * @return String. The schema
+     */
     public String getCanonicalLocalSchema() {
         return canonicalLocalSchema;
     }
@@ -90,6 +117,16 @@ public class SchemaServiceImp implements SchemaService {
         return defaultSchema;
     }
 
+    /**
+     * Create a Canonical URI from Triple Object for a RESOURCE
+     * @see TripleObject
+     * @param to TripleObject. The triple Object
+     * @param type String. The type attribute in URI
+     * @param language String. The language attribute in URI
+     * @param tripleStore String. The triple store attribute in URI
+     * @param requestDiscovery boolean. If true do a request to URIs Factory
+     * @return JsonObject with the response of the URIs factory
+     */
     @Override
     public JsonObject createCanonicalURIFromResource(TripleObject to, String type, String language, String tripleStore, boolean requestDiscovery) {
         Gson gson = new Gson();
@@ -117,16 +154,45 @@ public class SchemaServiceImp implements SchemaService {
 
     }
 
+    /**
+     * Create a Canonical URI from Triple Object for a ENTITY
+     * @see TripleObject
+     * @param to TripleObject. The triple Object
+     * @param type String. The type attribute in URI
+     * @param language String. The language attribute in URI
+     * @param tripleStore String. The triple store attribute in URI
+     * @param requestDiscovery boolean. If true do a request to URIs Factory
+     * @return JsonObject with the response of the URIs factory
+     */
     @Override
     public JsonObject createCanonicalURIFromEntity(String className, String canonicalClassName, String type, String language) {
         return null;
     }
 
+    /**
+     * Create a Canonical URI from Triple Object for a PROPERTY
+     * @see TripleObject
+     * @param to TripleObject. The triple Object
+     * @param type String. The type attribute in URI
+     * @param language String. The language attribute in URI
+     * @param tripleStore String. The triple store attribute in URI
+     * @param requestDiscovery boolean. If true do a request to URIs Factory
+     * @return JsonObject with the response of the URIs factory
+     */
     @Override
     public JsonObject createCanonicalURIFromProperty(String className, String canonicalClassName, String type, String language) {
         return null;
     }
 
+    /**
+     * Create a link of Local URI and canonical URI
+     * @see TripleObject
+     * @param to TripleObject. The triple Object
+     * @param canonicalLanguageURI String. The canonical URI
+     * @param localURI String. The local URI
+     * @param storageName String. The storage name
+     * @return JsonObject with the response of the URIs factory
+     */
     @Override
     public JsonArray linkCanonicalToLocalURI(String canonicalLanguageURI, String localURI, String storageName) {
         return null;

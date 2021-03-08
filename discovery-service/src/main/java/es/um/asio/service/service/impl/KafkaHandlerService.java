@@ -14,6 +14,12 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 
+/**
+ * KafkaHandlerService implementation. Handle to publish or subscribe in Topics
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Service
 public class KafkaHandlerService {
 
@@ -30,6 +36,14 @@ public class KafkaHandlerService {
         logger.info("initialized kafka handler service");
     }
 
+    /**
+     * Send a message to publish a new action
+     * @see ActionResult
+     * @param actionResult ActionResult. The action result
+     * @param node String. The node where the action is needed
+     * @param tripleStore String. The triple store where the action is needed
+     * @param className String. The class name where the action is needed
+     */
     void sendMessageAction(ActionResult actionResult,String node, String tripleStore, String className) {
         String topic = dataProperties.getKafka().getTopicDiscoveryAction().getTopic();
         for (ObjectResult or : actionResult.getObjectResults()) {
@@ -47,6 +61,10 @@ public class KafkaHandlerService {
         }
     }
 
+    /**
+     * Subscriber to entity changes
+     * @param message String. The message of the changes on entity
+     */
     @KafkaListener(topics = "${data.kafka.topicEntityChange.topic}", groupId = "${data.kafka.topicEntityChange.groupId}")
     public void onEntityChange(String message) {
         logger.info("On entity Change message: {}", message);

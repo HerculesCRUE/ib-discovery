@@ -36,6 +36,13 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * DataHandler implementation. For handle fetch data
+ * @see TripleObject
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 @Service
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class DataHandlerImp implements DataHandler {
@@ -96,6 +103,14 @@ public class DataHandlerImp implements DataHandler {
 
     }
 
+    /**
+     * Call to handle populate data from REDIS cache, Triple Stores and save in ELASTICSEARCH
+     * @see CompletableFuture
+     * @return CompletableFuture, in async way. True is is completed else False
+     * @throws ParseException Exception if error in parse data
+     * @throws IOException Exception on In Out operations
+     * @throws URISyntaxException Exception launch on URIs syntax exception
+     */
     @Override
     @Async("threadPoolTaskExecutor")
     public CompletableFuture<Boolean> populateData() throws ParseException, IOException, URISyntaxException {
@@ -120,6 +135,18 @@ public class DataHandlerImp implements DataHandler {
         return CompletableFuture.completedFuture(true);
     }
 
+    /**
+     * Call when a new data is available
+     * @param nodeName String. Node of the data to update
+     * @param tripleStore String. Triple Store of the data to update
+     * @param className String. Class of the data to update
+     * @param entityURI String. localUri where the data is stored
+     * @param basicAction String. One of this INSERT, UPDATE or DELETE
+     * @return CompletableFuture
+     * @throws ParseException Exception if error in parse data
+     * @throws IOException Exception on In Out operations
+     * @throws URISyntaxException Exception launch on URIs syntax exception
+     */
     @Override
     public CompletableFuture<Boolean> actualizeData(String nodeName, String tripleStore, String className,String entityURL, BasicAction basicAction) throws ParseException, IOException, URISyntaxException {
         DataSourcesConfiguration.Node node = dataSourcesConfiguration.getNodeByName(nodeName);

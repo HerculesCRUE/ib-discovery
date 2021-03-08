@@ -26,6 +26,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * Utils. General utils in the application
+ * @author  Daniel Ruiz Santamaría
+ * @version 2.0
+ * @since   1.0
+ */
 public class Utils {
 
     private Utils(){}
@@ -33,6 +39,10 @@ public class Utils {
     static List<String> dateFormats = generateValidFormatDates();
     static List<Locale> locales = generateLocales();
 
+    /**
+     * Generate Format dates
+     * @return The format dates
+     */
     public static List<String> generateValidFormatDates() {
         List<String> dateFormats = new ArrayList<>();
         dateFormats.addAll(
@@ -82,6 +92,10 @@ public class Utils {
         return formats;
     }
 
+    /**
+     * @param args List of integer with the length of the patterns
+     * @return List<Integer>
+     */
     private static List<Integer> buildListInt(int ... args) {
         List<Integer> ints = new ArrayList<>();
         for (int arg : args) {
@@ -90,6 +104,12 @@ public class Utils {
         return ints;
     }
 
+    /**
+     * Filter a list of classes with the pattern of the class name
+     * @param classes List<String> list of classes
+     * @param className String. Class from where the pattern will be inferred
+     * @return boolean. True if class name pattern is in List
+     */
     public static boolean machClassName(List<String> classes, String className) {
         String [] chunkedClassName = className.split("\\-");
         for (String c: classes) { // Para cada clase
@@ -109,6 +129,17 @@ public class Utils {
         return Arrays.asList(args);
     }
 
+    /**
+     * Generate combinations of Date Formats
+     * @param c1 String. The first pattern
+     * @param rep1 List<Integer>. The number of repetitions
+     * @param c2 String. The second pattern
+     * @param rep2 List<Integer>. The number of repetitions
+     * @param c3 String. The third pattern
+     * @param rep3 List<Integer>. The number of repetitions
+     * @param separators List<String>. Valid separators between date parts
+     * @return List<String>. List of Valid date format patterns
+     */
     public static List<String> generateCombinations(String c1, List<Integer> rep1, String c2, List<Integer> rep2, String c3, List<Integer> rep3, List<String> separators) {
         List<String> combinations = new ArrayList<>();
         for (String s: separators) {
@@ -123,6 +154,10 @@ public class Utils {
         return combinations;
     }
 
+    /**
+     * Generate valid locales for dates
+     * @return List<Locale>
+     */
     public static List<Locale> generateLocales() {
         List<Locale> locales = new ArrayList<>();
         locales.add(new Locale ( "es" , "ES" ));
@@ -131,6 +166,19 @@ public class Utils {
         return locales;
     }
 
+    /**
+     * Generate combinations of Time Formats part
+     * @param c1 String. The first pattern
+     * @param rep1 List<Integer>. The number of repetitions
+     * @param c2 String. The second pattern
+     * @param rep2 List<Integer>. The number of repetitions
+     * @param c3 String. The third pattern
+     * @param rep3 List<Integer>. The number of repetitions
+     * @param c4 String. The fourth pattern
+     * @param rep4 List<Integer>. The number of repetitions
+     * @param separators List<String>. Valid separators between date parts
+     * @return List<String>. List of Valid time format patterns
+     */
     public static List<String> generateCombinationsTime(String c1, List<Integer> rep1, String c2, List<Integer> rep2, String c3, List<Integer> rep3, String c4, List<Integer> rep4, List<String> separators) {
         List<String> combinations = new ArrayList<>();
         for (String s: separators) {
@@ -151,6 +199,10 @@ public class Utils {
         return combinations;
     }
 
+    /**
+     * Generate all valid time patters
+     * @return Map<Locale,List<String>>. The key is the locale and the value the valid Date Format
+     */
     public static Map<Locale,List<String>> getStringFormat() {
         Map<Locale,List<String>> formats = new HashMap<>();
         formats.put(Locale.ROOT,new ArrayList<>(buildListStr("MM/DD/YY","DD/MM/YY","YY/MM/DD","MMM D, YY","M/D/YY","D/M/YY","YY/M/D","M/bD/YY",
@@ -173,25 +225,50 @@ public class Utils {
     }
 
 
+    /**
+     * Check if is integer
+     * @param s String. The value to check
+     * @return boolean. True if is integer
+     */
     public static boolean isInteger(String s) {
         String regex = "-?\\d+";
         return s.trim().matches(regex);
     }
 
+    /**
+     * Check if is number
+     * @param s String. The value to check
+     * @return boolean. True if is number
+     */
     public static boolean isNumber(String s) {
         String regex = "^-?[1-9]\\d*\\.(\\d+)?$";
         return s.trim().matches(regex);
     }
 
+    /**
+     * Check if is valid number
+     * @param s String. The value to check
+     * @return boolean. True if is a valid number
+     */
     public static boolean isValidNumber(String s) {
         return isInteger(s) || isNumber(s);
     }
 
+    /**
+     * Check if is valid boolean
+     * @param s String. The value to check
+     * @return boolean. True if is a valid boolean
+     */
     public static boolean isBoolean(String s) {
         String regex = "^(true|false|yes|no|si|s|n)$";
         return s.trim().toLowerCase().matches(regex);
     }
 
+    /**
+     * Get boolean from String if is valid boolean
+     * @param s String. The value to check
+     * @return boolean. The boolean value
+     */
     public static boolean getBoolean(String s) {
         s = s.strip().toLowerCase();
         if (s.equals("true") || s.equals("yes") || s.equals("si") || s.equals("s"))
@@ -207,11 +284,21 @@ public class Utils {
         }
     }
 
+    /**
+     * Check if is valid Date
+     * @param s String. The value to check
+     * @return boolean. True if is a valid Date
+     */
     public static boolean isDate(String s) {
         String regex = "[0-9]{2,4}(/|-|\\.)[0-9]{2,4}(/|-|\\.)[0-9]{2,4}((\\s|T)[0-5][0-9]:[0-5][0-9]:[0-5][0-9](Z|\\.[0-9]||\\.[0-9]{2,3})?)?";
         return s.matches(regex);
     }
 
+    /**
+     * Get Date from String if is valid Date
+     * @param s String. The value to check
+     * @return boolean. The boolean Date
+     */
     public static Date getDate(String s) {
 
         for (Locale l : locales) {
@@ -227,6 +314,11 @@ public class Utils {
         return null;
     }
 
+    /**
+     * Check if is valid Object
+     * @param s String. The value to check
+     * @return boolean. True if is a valid Object
+     */
     public static boolean isObject(String s) {
         try {
             JsonElement je = new Gson().fromJson(s, JsonElement.class);
@@ -239,6 +331,12 @@ public class Utils {
         }
     }
 
+    /**
+     * Get the AttributeType from String
+     * @see AttributeType
+     * @param s String. The value to check
+     * @return AttributeType. The Attribute type
+     */
     public static AttributeType getAttributeType(String s) {
         if (isDate(s))
             return AttributeType.DATE;
@@ -254,10 +352,20 @@ public class Utils {
             return AttributeType.STRING;
     }
 
+    /**
+     * Check if is valid String
+     * @param s String. The value to check
+     * @return boolean. True if is a valid String
+     */
     public static boolean isValidString(String s) {
         return s != null && !s.equals("");
     }
 
+    /**
+     * Normalize a String
+     * @param s String. The String to normalize
+     * @return String. The normalized String
+     */
     public static String normalize(String s)
     {
         s = Normalizer.normalize(s, Normalizer.Form.NFD);
@@ -266,27 +374,55 @@ public class Utils {
         return StringUtils.stripAccents(s);
     }
 
+    /**
+     * Check if is valid java primitive
+     * @param s String. The value to check
+     * @return boolean. True if is a valid primitive
+     */
     public static boolean isPrimitive(Object o) {
         if (o == null)
             return true;
         return ClassUtils.isPrimitiveOrWrapper(o.getClass()) || o instanceof String;
     }
 
+    /**
+     * Check if String match with the regex
+     * @param text String. The String to evaluate
+     * @param regex. The regex
+     * @return boolean. True if he regex match with the String
+     */
     public static boolean containsRegex(String text, String regex) {
         return text.matches(regex);
     }
 
+    /**
+     * Check if the String pass in the parameter is a valid URL
+     * @param url String to check
+     * @return boolean. True if is valid else false
+     */
     public static boolean isValidURL(String url) {
         if (url.endsWith("$"))
             return false;
         return new UrlValidator().isValid(url);
     }
 
+    /**
+     * Extract the last fragment in a URL
+     * @param url String. The URL
+     * @return String. The last fragment
+     */
     public static String getLastFragmentURL(String url) {
         String [] urlParts = url.split("/");
         return urlParts[urlParts.length-1];
     }
 
+    /**
+     * Sort a Map for values
+     * @param map Map<K, V>. The map to sort
+     * @param <K>. The key in the map
+     * @param <V>. The value in the map
+     * @return <K, V extends Comparable<V>>. The map sorted
+     */
     public static <K, V extends Comparable<V>> Map<K, V> sortByValues(final Map<K, V> map) {
         Comparator<K> valueComparator =
                 new Comparator<K>() {
@@ -304,6 +440,11 @@ public class Utils {
         return sortedByValues;
     }
 
+    /**
+     * Check if is valid Float
+     * @param s String. The value to check
+     * @return boolean. True if is a valid Float
+     */
     public static boolean checkIfFloat(String s) {
         try {
             String regex = "^([+-]?\\d*\\.\\d+(e\\d+)?)$";
@@ -314,7 +455,11 @@ public class Utils {
         }
     }
 
-
+    /**
+     * Check if is valid Double
+     * @param s String. The value to check
+     * @return boolean. True if is a valid Double
+     */
     public static boolean checkIfDouble(String s) {
         try {
             String regex = "^([+-]?\\d*\\.\\d+(e\\d+)?)$";
@@ -325,6 +470,11 @@ public class Utils {
         }
     }
 
+    /**
+     * Check if is valid Int
+     * @param s String. The value to check
+     * @return boolean. True if is a valid Int
+     */
     public static boolean checkIfInt(String s) {
         try {
             String regex = "[+-]?[0-9]+";
@@ -335,6 +485,11 @@ public class Utils {
         }
     }
 
+    /**
+     * Check if is valid Long
+     * @param s String. The value to check
+     * @return boolean. True if is a valid Long
+     */
     public static boolean checkIfLong(String s) {
         try {
             String regex = "[+-]?[0-9]+";
@@ -345,14 +500,29 @@ public class Utils {
         }
     }
 
+    /**
+     * Check if is valid Boolean
+     * @param s String. The value to check
+     * @return boolean. True if is a valid Boolean
+     */
     public static boolean checkIfBoolean(String s) {
         return isBoolean(s);
     }
 
+    /**
+     * Check if is valid Date
+     * @param s String. The value to check
+     * @return boolean. True if is a valid Date
+     */
     public static boolean checkIfDaten(String s) {
         return isDate(s);
     }
 
+    /**
+     * Check if is valid String
+     * @param s String. The value to check
+     * @return boolean. True if is a valid String
+     */
     public static boolean checkIfString(Object o) {
         try {
             boolean isString = false;
@@ -365,7 +535,13 @@ public class Utils {
         }
     }
 
-        public static boolean checkIfComposeStringIsSame(String str1, String str2) {
+    /**
+     * Check if two composed String is same
+     * @param str1 String. The first String
+     * @param str2 String. The second String
+     * @return boolean
+     */
+    public static boolean checkIfComposeStringIsSame(String str1, String str2) {
         List<String> str1List = Arrays.asList(str1.split("(?=\\p{Upper})|-"));
         List<String> str2List = Arrays.asList(str2.split("(?=\\p{Upper})|-"));
         str1List = str1List.stream().filter(Utils::isValidString).filter(s->!s.matches("j\\.[0-9]+:")).map(String::toLowerCase).collect(Collectors.toList());
@@ -377,6 +553,14 @@ public class Utils {
         return true;
     }
 
+    /**
+     * Replace Sub-strings in JsonObject using regex
+     * @param str String. The String to search
+     * @param replace String. The String to replace
+     * @param jContext String. The object witch contains the attribute to replace
+     * @param regex String. The regex
+     * @return String. The String replaced
+     */
     public static String replaceSubstringByRegex(String str,String replace, JsonObject jContext, String regex) {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(str);
@@ -390,6 +574,19 @@ public class Utils {
         return str;
     }
 
+    /**
+     * Do generic request REST HTTP
+     * @see URL
+     * @see Connection.Method
+     * @param url URL. The URL to request
+     * @param method Connection.Method. The request method HTTP
+     * @param headers Map<String,String>. The headers. Key is the header key, value is the header value
+     * @param params Map<String,String>. The Params. Key is the param key, value is the param value
+     * @param queryParams Map<String,String>. The Query Params. Key is the query param key, value is the query param value
+     * @param encode boolean. If true then URL encode will be done
+     * @return JsonElement with the HTTP response
+     * @throws IOException
+     */
     public static JsonElement doRequest(URL url, Connection.Method method, Map<String,String> headers, Map<String,String> params, Map<String,String> queryParams, boolean encode) throws IOException {
         if (queryParams!=null) {
             url = buildQueryParams(url,queryParams, encode);
@@ -439,6 +636,11 @@ public class Utils {
         return new URL(base.toString());
     }
 
+    /**
+     * Check if name of field has Id format
+     * @param field String. The name of the field
+     * @return boolean
+     */
     public static boolean isIdFormat(String field) {
         for (String w : field.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])")) {
             if (w.toLowerCase().equals("id"))
@@ -447,6 +649,11 @@ public class Utils {
         return false;
     }
 
+    /**
+     * Notmalize URL
+     * @param s String. The url to normalize
+     * @return String. A URL normalized
+     */
     public static String normalizeUri(String s) {
         String r = StringUtils.stripAccents(s);
         r = r.replace(" ", "_");
