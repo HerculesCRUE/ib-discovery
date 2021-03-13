@@ -41,17 +41,17 @@ Los artefactos se generarán dentro del directorio `target` de cada uno de los m
 
 Módulo que añade una capa de servicios REST a la funcionalidad de la aplicación.
 
-Los artefactos se encuentran dentro de uris-generator-back/target
+Los artefactos se encuentran dentro de discovery-back/target
 
-* Artefacto: uris-generator-back-{version}.jar
+* Artefacto: discovery-back-{version}.jar
 
 #### Módulo Service
 
 Módulo que contiene la lógica de la aplicación. Puede ser utilizado como librería independiente para ser integrado en otras aplicaciones
 
-* Los artefactos se encuentran dentro de triples-storage-adapter-service-abstractions/target
+* Los artefactos se encuentran dentro de discovery-service/target
 
-  * Artefacto: triples-storage-adapter-service-abstractions-{version}.jar
+  * Artefacto: discovery-service-{version}.jar
 
 #### Módulo jpa-abstractions
 
