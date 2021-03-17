@@ -4,11 +4,10 @@ import com.google.api.client.json.Json;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import es.um.asio.service.util.Utils;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.jsoup.Connection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -29,11 +28,12 @@ import java.util.Map;
  * @since   1.0
  */
 @Component
-@ConfigurationProperties("datasources") // prefix app, find app.* values
+@ConfigurationProperties("data-sources") // prefix app, find app.* values
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class Datasources {
 
     private boolean useCachedData;
@@ -42,6 +42,9 @@ public class Datasources {
     private String urisFactoryHost;
     private String discoveryServiceHost;
     private String serviceDataName;
+
+    @ToString.Exclude
+    private static final Logger logger = LoggerFactory.getLogger(Datasources.class);
 
     /**
      * @see Node
@@ -67,6 +70,7 @@ public class Datasources {
 
             Map<String,String> qParams = new HashMap<>();
             qParams.put("serviceName",serviceDataName);
+            logger.info("DataSorce: "+ this.toString());
             JsonElement jResponse = Utils.doRequest(new URL(discoveryServiceHost+"service-discovery/service"), Connection.Method.GET,null,null,qParams,true);
             if (jResponse!=null && jResponse.isJsonArray()) {
                 for (JsonElement jeNode : jResponse.getAsJsonArray()) {
