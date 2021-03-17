@@ -1,8 +1,10 @@
 ---
 app:
+  node: um
   domain: hercules.org
   subdomain: um
   language: en-EN
+  threadsInLod: 20
   defaultSchema: http://$domain$/$sub-domain$/$language$/$type$/$reference$/$concept$
 
   persistence:
@@ -79,29 +81,41 @@ data-sources:
     elasticSearchCutOffAccordPercentile: 0.5
     manualThreshold: 0.7
     automaticThreshold: 0.95
+    manualThresholdWithOutId: 0.7
+    automaticThresholdWithOutId: 0.95
   urisFactoryHost: http://localhost:9326/
-  nodes:
-    -
-      nodeName: um
-      serviceName: sparql-proxy
-      tripleStores:
-        -
-          type: sparql
-          baseURL: http://localhost:9328/
-          name: sparql
-          user:
-          password:
+  discoveryServiceHost: http://localhost:9329/
+  serviceDataName: Federation
+#  nodes:
+#    -
+#      nodeName: um
+#      serviceName: sparql-proxy
+#      tripleStores:
+#        -
+#          type: sparql
+#          baseURL: http://localhost:9328/
+#          name: sparql
+#          user:
+#          password:
+#
+#    -
+#      nodeName: um2
+#      serviceName: sparql-proxy
+#      tripleStores:
+#        -
+#          type: sparql
+#          baseURL: http://localhost:9328/
+#          name: sparql
+#          user:
+#          password:
 
-    -
-      nodeName: um2
-      serviceName: sparql-proxy
-      tripleStores:
-        -
-          type: sparql
-          baseURL: http://localhost:9328/
-          name: sparql
-          user:
-          password:
+# LOD
+lod:
+  host: http://localhost
+  port: 9328
+  endpoint: /lod/search
+  lodDatasets:
+    - CROSSREF,SCOPUS,WIKIDATA,ORCID,DOAJ,PUBMED,DBLP
 
 ## Actuator
 management:

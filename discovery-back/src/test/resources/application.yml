@@ -1,5 +1,13 @@
 ---
+---
 app:
+  node: um
+  domain: hercules.org
+  subdomain: um
+  language: en-EN
+  threadsInLod: 20
+  defaultSchema: http://$domain$/$sub-domain$/$language$/$type$/$reference$/$concept$
+
   persistence:
     datasource:
       driver-class-name: org.mariadb.jdbc.Driver
@@ -35,6 +43,15 @@ app:
   swagger:
     enabled: true
 
+  # Trellis
+  trellis:
+    enabled: true
+    endpoint: http://localhost:80
+    authentication:
+      enabled: false
+      username: admin
+      password: admin
+
 data:
   readCacheFromFirebase: false
   elasticsearch:
@@ -65,22 +82,41 @@ data-sources:
     elasticSearchCutOffAccordPercentile: 0.5
     manualThreshold: 0.7
     automaticThreshold: 0.95
-  nodes:
-    -
-      nodeName: um
-      tripleStores:
-        -
-          type: trellis
-          baseURL: http://herc-iz-front-desa.atica.um.es/
-          user: admin
-          password: admin
-
-#    - nodeName: um2
+    manualThresholdWithOutId: 0.7
+    automaticThresholdWithOutId: 0.95
+  urisFactoryHost: http://localhost:9326/
+  discoveryServiceHost: http://localhost:9329/
+  serviceDataName: Federation
+#  nodes:
+#    -
+#      nodeName: um
+#      serviceName: sparql-proxy
 #      tripleStores:
-#        - type: trellis
-#          baseURL: http://localhost:80/
-#          user: admin
-#          password: admin
+#        -
+#          type: sparql
+#          baseURL: http://localhost:9328/
+#          name: sparql
+#          user:
+#          password:
+#
+#    -
+#      nodeName: um2
+#      serviceName: sparql-proxy
+#      tripleStores:
+#        -
+#          type: sparql
+#          baseURL: http://localhost:9328/
+#          name: sparql
+#          user:
+#          password:
+
+# LOD
+lod:
+  host: http://localhost
+  port: 9328
+  endpoint: /lod/search
+  lodDatasets:
+    - CROSSREF,SCOPUS,WIKIDATA,ORCID,DOAJ,PUBMED,DBLP
 
 ## Actuator
 management:
@@ -122,7 +158,10 @@ spring:
     elasticsearch:
       cluster-name: es-asio-cluster
       cluster-nodes: localhost:9300
-
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: myGroup
 security:
   basic:
     enabled: false
