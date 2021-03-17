@@ -101,7 +101,48 @@ public class Datasources {
         private double elasticSearchMaxDesirableNumbersOfResults;
         private double elasticSearchCutOffAccordPercentile;
 
+        /*public void setManualThreshold(String manualThreshold) {
+            this.manualThreshold = Double.valueOf(manualThreshold);
+        }
+
+        public void setAutomaticThreshold(String automaticThreshold) {
+            this.automaticThreshold = Double.valueOf(automaticThreshold);
+        }
+
+        public void setManualThresholdWithOutId(String manualThresholdWithOutId) {
+            this.manualThresholdWithOutId = Double.valueOf(manualThresholdWithOutId);
+        }
+
+        public void setAutomaticThresholdWithOutId(String automaticThresholdWithOutId) {
+            this.automaticThresholdWithOutId = Double.valueOf(automaticThresholdWithOutId);
+        }
+
+        public void setElasticSearchAttributesThresholdSimple(String elasticSearchAttributesThresholdSimple) {
+            this.elasticSearchAttributesThresholdSimple = Double.valueOf(elasticSearchAttributesThresholdSimple);
+        }
+
+        public void setElasticSearchAttributesNumberRatioSimple(String elasticSearchAttributesNumberRatioSimple) {
+            this.elasticSearchAttributesNumberRatioSimple = Double.valueOf(elasticSearchAttributesNumberRatioSimple);
+        }
+
+        public void setElasticSearchAttributesThresholdComplex(String elasticSearchAttributesThresholdComplex) {
+            this.elasticSearchAttributesThresholdComplex = Double.valueOf(elasticSearchAttributesThresholdComplex);
+        }
+
+        public void setElasticSearchAttributesNumberRatioComplex(String elasticSearchAttributesNumberRatioComplex) {
+            this.elasticSearchAttributesNumberRatioComplex = Double.valueOf(elasticSearchAttributesNumberRatioComplex);
+        }
+
+        public void setElasticSearchMaxDesirableNumbersOfResults(String elasticSearchMaxDesirableNumbersOfResults) {
+            this.elasticSearchMaxDesirableNumbersOfResults = Double.valueOf(elasticSearchMaxDesirableNumbersOfResults);
+        }
+
+        public void setElasticSearchCutOffAccordPercentile(String elasticSearchCutOffAccordPercentile) {
+            this.elasticSearchCutOffAccordPercentile = Double.valueOf(elasticSearchCutOffAccordPercentile);
+        }*/
     }
+
+
 
     /**
      * Node Configuration configuration properties.

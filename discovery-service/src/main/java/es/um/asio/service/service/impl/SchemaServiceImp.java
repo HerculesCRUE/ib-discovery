@@ -53,8 +53,8 @@ public class SchemaServiceImp implements SchemaService {
 
     @PostConstruct
     private void init() {
-        canonicalSchema = getSchemaFromUrisFactory(urisFactoryHost,"/uri-factory/schema",defaultSchema);
-        canonicalLocalSchema = getSchemaFromUrisFactory(urisFactoryHost,"/uri-factory/local-schema",defaultSchema);
+        canonicalSchema = getSchemaFromUrisFactory(urisFactoryHost, "/uri-factory/schema", defaultSchema);
+        canonicalLocalSchema = getSchemaFromUrisFactory(urisFactoryHost, "/uri-factory/local-schema", defaultSchema);
     }
 
     /**
