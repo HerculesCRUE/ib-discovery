@@ -7,7 +7,7 @@ import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
-import es.um.asio.service.config.DataSources;
+import es.um.asio.service.config.Datasources;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.TripleObject;
@@ -27,7 +27,7 @@ import java.util.*;
 /**
  * Handle request for Trellis LDP Server
  * @see SchemaService
- * @see DataSources
+ * @see Datasources
  * @author  Daniel Ruiz Santamaría
  * @version 2.0
  * @since   1.0

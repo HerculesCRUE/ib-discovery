@@ -1,7 +1,7 @@
 package es.um.asio.service.comparators.entities;
 
 
-import es.um.asio.service.config.DataSources;
+import es.um.asio.service.config.Datasources;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ public class EntitySimilarityHandler {
     CacheServiceImp cache;
 
     @Autowired
-    DataSources dataSources;
+    Datasources dataSources;
 
     /**
      * This method calculate the similitude between the TripleObject pass in parameter with the other TripleObjects pass in parameter, and use Thresholds for manual and automatic cataloging of similarities

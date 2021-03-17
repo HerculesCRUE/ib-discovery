@@ -70,7 +70,7 @@ data:
       topic: discovery_action
       groupId: discovery_action_1
 
-dataSources:
+datasources:
   useCachedData: true
   thresholds:
     elasticSearchAttributesThresholdSimple: 0.8

@@ -3,7 +3,7 @@ package es.um.asio.back.controller.discovery;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import es.um.asio.service.config.DataSources;
+import es.um.asio.service.config.Datasources;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.appstate.ApplicationState;
@@ -57,7 +57,7 @@ public class DiscoveryController {
     EntitiesHandlerService entitiesHandlerService;
 
     @Autowired
-    DataSources dataSources;
+    Datasources dataSources;
 
     @Autowired
     JobHandlerServiceImp jobHandlerServiceImp;

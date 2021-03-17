@@ -29,12 +29,12 @@ import java.util.Map;
  * @since   1.0
  */
 @Component
-@ConfigurationProperties("dataSources") // prefix app, find app.* values
+@ConfigurationProperties("datasources") // prefix app, find app.* values
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DataSources {
+public class Datasources {
 
     private boolean useCachedData;
     private Thresholds thresholds;

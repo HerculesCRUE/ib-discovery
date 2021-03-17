@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import es.um.asio.service.config.DataProperties;
-import es.um.asio.service.config.DataSources;
+import es.um.asio.service.config.Datasources;
 import es.um.asio.service.config.LodConfiguration;
 import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.TripleObject;
@@ -62,7 +62,7 @@ public class DataHandlerImp implements DataHandler {
 
 
     @Autowired
-    DataSources dataSources;
+    Datasources dataSources;
 
     @Autowired
     DataProperties dataProperties;
@@ -149,9 +149,9 @@ public class DataHandlerImp implements DataHandler {
      */
     @Override
     public CompletableFuture<Boolean> actualizeData(String nodeName, String tripleStore, String className,String entityURL, BasicAction basicAction) throws ParseException, IOException, URISyntaxException {
-        DataSources.Node node = dataSources.getNodeByName(nodeName);
+        Datasources.Node node = dataSources.getNodeByName(nodeName);
         if (applicationState.getAppState() == ApplicationState.AppState.INITIALIZED && node != null) {
-            DataSources.Node.TripleStore ts = node.getTripleStoreByType(tripleStore);
+            Datasources.Node.TripleStore ts = node.getTripleStoreByType(tripleStore);
             if (ts != null) {
                 TripleStoreHandler handler = TripleStoreHandler.getHandler(schemaService, dataSources,node,ts);
                 if (handler != null) {
@@ -227,8 +227,8 @@ public class DataHandlerImp implements DataHandler {
 
     private void updateCachedData() throws ParseException, IOException, URISyntaxException {
         boolean isChanged = false;
-        for (DataSources.Node node : dataSources.getNodes()) {
-            for (DataSources.Node.TripleStore ts : node.getTripleStores()) {
+        for (Datasources.Node node : dataSources.getNodes()) {
+            for (Datasources.Node.TripleStore ts : node.getTripleStores()) {
                 TripleStoreHandler handler = TripleStoreHandler.getHandler(schemaService, dataSources, node,ts);
                 isChanged = isChanged | handler.updateData(cache);
             }

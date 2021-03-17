@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.comparators.entities.EntityComparator;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
-import es.um.asio.service.config.DataSources;
+import es.um.asio.service.config.Datasources;
 import es.um.asio.service.config.LodConfiguration;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.model.SimilarityResult;
@@ -45,7 +45,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
     ElasticsearchServiceImp es;
 
     @Autowired
-    DataSources dataSources;
+    Datasources dataSources;
 
     @Autowired
     LodConfiguration lodConfiguration;

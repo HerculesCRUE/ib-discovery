@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import es.um.asio.service.config.DataSources;
+import es.um.asio.service.config.Datasources;
 import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
@@ -27,7 +27,7 @@ import java.util.*;
 /**
  * Handle request for Trellis LDP Server
  * @see SchemaService
- * @see DataSources
+ * @see Datasources
  * @author  Daniel Ruiz Santamaría
  * @version 2.0
  * @since   1.0
@@ -46,20 +46,20 @@ public class SparqlProxyHandler extends TripleStoreHandler {
 
     SchemaService schemaService;
 
-    DataSources dataSources;
+    Datasources dataSources;
 
     /**
      * Constructor
      * @see SchemaService
-     * @see DataSources
-     * @see DataSources.Node
-     * @see DataSources.Node.TripleStore
+     * @see Datasources
+     * @see Datasources.Node
+     * @see Datasources.Node.TripleStore
      * @param schemaService SchemaService. The service for handle URIS factory Schema
      * @param dataSources DataSourcesConfiguration. The data sources configuration
      * @param node Node. The node
      * @param ts TripleStore. The triple Store
      */
-    public SparqlProxyHandler(SchemaService schemaService, DataSources dataSources, DataSources.Node node, DataSources.Node.TripleStore ts) {
+    public SparqlProxyHandler(SchemaService schemaService, Datasources dataSources, Datasources.Node node, Datasources.Node.TripleStore ts) {
         this.nodeName = node.getNodeName();
         this.baseURL = ts.getBaseURL();
         if (this.baseURL.charAt(baseURL.length()-1) == '/')

@@ -1,6 +1,6 @@
 package es.um.asio.service.repository.triplestore;
 
-import es.um.asio.service.config.DataSources;
+import es.um.asio.service.config.Datasources;
 import es.um.asio.service.model.BasicAction;
 
 import es.um.asio.service.service.SchemaService;
@@ -13,7 +13,7 @@ import java.text.ParseException;
 /**
  * Abstract class to Handle request for Trellis LDP Server
  * @see SchemaService
- * @see DataSources
+ * @see Datasources
  * @author  Daniel Ruiz Santamaría
  * @version 2.0
  * @since   1.0
@@ -53,7 +53,7 @@ public abstract class TripleStoreHandler {
      * @param ts TripleStore
      * @return
      */
-    public static TripleStoreHandler getHandler(SchemaService schemaService, DataSources dataSources, DataSources.Node node, DataSources.Node.TripleStore ts) {
+    public static TripleStoreHandler getHandler(SchemaService schemaService, Datasources dataSources, Datasources.Node node, Datasources.Node.TripleStore ts) {
         if (ts.getType().trim().equalsIgnoreCase("trellis"))
             return new TrellisHandler(node.getNodeName(),ts.getBaseURL(),ts.getUser(),ts.getPassword());
         else if (ts.getType().trim().equalsIgnoreCase("fuseki"))
