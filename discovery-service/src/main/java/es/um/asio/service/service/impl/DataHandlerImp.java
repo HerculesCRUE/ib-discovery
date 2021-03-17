@@ -226,6 +226,7 @@ public class DataHandlerImp implements DataHandler {
     }
 
     private void updateCachedData() throws ParseException, IOException, URISyntaxException {
+        logger.info("Start update real data");
         boolean isChanged = false;
         for (Datasources.Node node : dataSources.getNodes()) {
             for (Datasources.Node.TripleStore ts : node.getTripleStores()) {

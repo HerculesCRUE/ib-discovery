@@ -82,7 +82,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
      */
     @Override
     public boolean updateData(CacheServiceImp cacheService) throws IOException, URISyntaxException, ParseException {
-        logger.info("Start Update data from SPARQL");
+        logger.info("Start Update data from SPARQL with baseURL: {}", this.baseURL);
         Set<TripleObject> triplesMapCached = cacheService.getAllTripleObjects(this.nodeName,this.tripleStore.getName());
         int instancesCounter = 0;
         int changes = 0;
@@ -94,6 +94,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
         queryParams.put("tripleStore",tripleStore.getName());
         // Get all class
         JsonElement jeResponse = doRequest(new URL(this.baseURL + "/data-fetcher/objects"), Connection.Method.GET, headers,null,queryParams); // Request Classes
+        logger.info("Response Objects: {}",jeResponse.toString());
         if (jeResponse!=null && jeResponse.isJsonArray()) { // Si la respuesta es correcta
             int classesCounter = 0;
             JsonArray jResponse = jeResponse.getAsJsonArray();
