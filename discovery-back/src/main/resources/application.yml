@@ -57,10 +57,10 @@ app:
 data:
   readCacheFromFirebase: false
   elasticsearch:
-    host: localhost
+    host: http://herc-iz-bd-desa.atica.um.es
     port: 9200
   redis:
-    host: localhost
+    host: http://herc-iz-bd-desa.atica.um.es
     port: 16379
     password: j!VxttMdHGhy
   kafka:

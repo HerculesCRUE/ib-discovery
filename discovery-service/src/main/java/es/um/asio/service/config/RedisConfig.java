@@ -1,6 +1,8 @@
 package es.um.asio.service.config;
 
 import es.um.asio.service.repository.redis.StringRedisRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -24,9 +26,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 @EntityScan(basePackages = "es.um.asio.service.model.redis")
 public class RedisConfig {
 
+    private final Logger logger = LoggerFactory.getLogger(RedisConfig.class);
+
     @Bean
     JedisConnectionFactory connectionFactory(DataProperties dataProperties) {
-
+        logger.info("Starting REDIS with HOST: {}, PORT: {}, PASSWORD: {}",dataProperties.getRedis().getHost(),dataProperties.getRedis().getPort(),dataProperties.getRedis().getPassword());
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
         redisStandaloneConfiguration.setHostName(dataProperties.getRedis().getHost());
         redisStandaloneConfiguration.setPort(dataProperties.getRedis().getPort());
