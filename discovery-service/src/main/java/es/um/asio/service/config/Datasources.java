@@ -8,6 +8,7 @@ import lombok.*;
 import org.jsoup.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -39,8 +40,11 @@ public class Datasources {
     private boolean useCachedData;
     private Thresholds thresholds;
     private List<Node> nodes = new ArrayList<>();
+    @Value("${app.uris-factory-host}")
     private String urisFactoryHost;
-    private String discoveryServiceHost;
+    @Value("${app.discovery-service-host}")
+    private String discoveryServiceHost; //dsh;
+    @Value("${app.service-data-name}")
     private String serviceDataName;
 
     @ToString.Exclude
@@ -69,9 +73,9 @@ public class Datasources {
         try {
 
             Map<String,String> qParams = new HashMap<>();
-            qParams.put("serviceName",serviceDataName);
+            qParams.put("serviceName",getServiceDataName());
             logger.info("DataSource: "+ this.toString());
-            JsonElement jResponse = Utils.doRequest(new URL(discoveryServiceHost+"service-discovery/service"), Connection.Method.GET,null,null,qParams,true);
+            JsonElement jResponse = Utils.doRequest(new URL(getDiscoveryServiceHost()+"service-discovery/service"), Connection.Method.GET,null,null,qParams,true);
             if (jResponse!=null && jResponse.isJsonArray()) {
                 for (JsonElement jeNode : jResponse.getAsJsonArray()) {
                     Node n = new Node(jeNode.getAsJsonObject());
