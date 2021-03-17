@@ -36,7 +36,7 @@ import java.util.Map;
 @Service
 public class SchemaServiceImp implements SchemaService {
 
-    @Value("${data-sources.urisFactoryHost}")
+    @Value("${app.uris-factory-host}")
     public String urisFactoryHost;
 
     @Value("${app.domain}")

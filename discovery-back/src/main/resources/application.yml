@@ -62,7 +62,7 @@ data:
   redis:
     host: localhost
     port: 16379
-    password: redispass
+    password: j!VxttMdHGhy
   kafka:
     host: localhost
     port: 9092
