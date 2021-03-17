@@ -70,7 +70,7 @@ public class Datasources {
 
             Map<String,String> qParams = new HashMap<>();
             qParams.put("serviceName",serviceDataName);
-            logger.info("DataSorce: "+ this.toString());
+            logger.info("DataSource: "+ this.toString());
             JsonElement jResponse = Utils.doRequest(new URL(discoveryServiceHost+"service-discovery/service"), Connection.Method.GET,null,null,qParams,true);
             if (jResponse!=null && jResponse.isJsonArray()) {
                 for (JsonElement jeNode : jResponse.getAsJsonArray()) {
@@ -93,6 +93,7 @@ public class Datasources {
     @NoArgsConstructor
     @Getter
     @Setter
+    @ToString
     public static class Thresholds {
         private double manualThreshold;
         private double automaticThreshold;
@@ -160,6 +161,7 @@ public class Datasources {
     @NoArgsConstructor
     @Getter
     @Setter
+    @ToString
     public static class Node {
         private String nodeName;
         private String serviceName;
@@ -220,6 +222,7 @@ public class Datasources {
         @NoArgsConstructor
         @Getter
         @Setter
+        @ToString
         public static class TripleStore {
             private String type;
             private String baseURL;
