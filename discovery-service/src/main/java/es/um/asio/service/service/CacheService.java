@@ -1,6 +1,5 @@
 package es.um.asio.service.service;
 
-import es.um.asio.service.config.DataSourcesConfiguration;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.model.stats.StatsHandler;

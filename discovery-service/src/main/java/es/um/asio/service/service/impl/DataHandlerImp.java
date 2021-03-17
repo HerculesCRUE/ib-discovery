@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import es.um.asio.service.config.DataProperties;
-import es.um.asio.service.config.DataSourcesConfiguration;
+import es.um.asio.service.config.DataSources;
 import es.um.asio.service.config.LodConfiguration;
 import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.TripleObject;
@@ -62,7 +62,7 @@ public class DataHandlerImp implements DataHandler {
 
 
     @Autowired
-    DataSourcesConfiguration dataSourcesConfiguration;
+    DataSources dataSources;
 
     @Autowired
     DataProperties dataProperties;
@@ -149,11 +149,11 @@ public class DataHandlerImp implements DataHandler {
      */
     @Override
     public CompletableFuture<Boolean> actualizeData(String nodeName, String tripleStore, String className,String entityURL, BasicAction basicAction) throws ParseException, IOException, URISyntaxException {
-        DataSourcesConfiguration.Node node = dataSourcesConfiguration.getNodeByName(nodeName);
+        DataSources.Node node = dataSources.getNodeByName(nodeName);
         if (applicationState.getAppState() == ApplicationState.AppState.INITIALIZED && node != null) {
-            DataSourcesConfiguration.Node.TripleStore ts = node.getTripleStoreByType(tripleStore);
+            DataSources.Node.TripleStore ts = node.getTripleStoreByType(tripleStore);
             if (ts != null) {
-                TripleStoreHandler handler = TripleStoreHandler.getHandler(schemaService, dataSourcesConfiguration,node,ts);
+                TripleStoreHandler handler = TripleStoreHandler.getHandler(schemaService, dataSources,node,ts);
                 if (handler != null) {
                     boolean isCompleted = handler.updateTripleObject(cache, nodeName, tripleStore, className, entityURL, basicAction);
                     if (isCompleted) {
@@ -227,9 +227,9 @@ public class DataHandlerImp implements DataHandler {
 
     private void updateCachedData() throws ParseException, IOException, URISyntaxException {
         boolean isChanged = false;
-        for (DataSourcesConfiguration.Node node : dataSourcesConfiguration.getNodes()) {
-            for (DataSourcesConfiguration.Node.TripleStore ts : node.getTripleStores()) {
-                TripleStoreHandler handler = TripleStoreHandler.getHandler(schemaService, dataSourcesConfiguration, node,ts);
+        for (DataSources.Node node : dataSources.getNodes()) {
+            for (DataSources.Node.TripleStore ts : node.getTripleStores()) {
+                TripleStoreHandler handler = TripleStoreHandler.getHandler(schemaService, dataSources, node,ts);
                 isChanged = isChanged | handler.updateData(cache);
             }
         }

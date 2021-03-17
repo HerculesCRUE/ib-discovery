@@ -1,11 +1,9 @@
 package es.um.asio.back.controller.discovery;
 
-import com.google.api.client.json.Json;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import es.um.asio.service.config.DataSourcesConfiguration;
+import es.um.asio.service.config.DataSources;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.appstate.ApplicationState;
@@ -20,7 +18,6 @@ import es.um.asio.service.service.impl.JobHandlerServiceImp;
 import es.um.asio.service.util.Utils;
 import es.um.asio.service.validation.group.Create;
 import io.swagger.annotations.*;
-import org.checkerframework.checker.units.qual.A;
 import org.jsoup.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.ParseException;
@@ -61,7 +57,7 @@ public class DiscoveryController {
     EntitiesHandlerService entitiesHandlerService;
 
     @Autowired
-    DataSourcesConfiguration dataSourcesConfiguration;
+    DataSources dataSources;
 
     @Autowired
     JobHandlerServiceImp jobHandlerServiceImp;

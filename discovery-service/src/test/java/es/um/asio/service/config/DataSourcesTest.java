@@ -10,20 +10,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-class DataSourcesConfigurationTest {
+class DataSourcesTest {
 
-    DataSourcesConfiguration dsc;
+    DataSources dsc;
 
     @BeforeEach
     void setUp() {
-        dsc = new DataSourcesConfiguration();
-        List<DataSourcesConfiguration.Node> nodes = new ArrayList<>();
+        dsc = new DataSources();
+        List<DataSources.Node> nodes = new ArrayList<>();
         for (int i = 1 ; i <=5; i++) {
-            DataSourcesConfiguration.Node n = new DataSourcesConfiguration.Node();
+            DataSources.Node n = new DataSources.Node();
             n.setNodeName(String.format("node%s",i));
-            List<DataSourcesConfiguration.Node.TripleStore> tripleStores = new ArrayList<>();
+            List<DataSources.Node.TripleStore> tripleStores = new ArrayList<>();
             for (int j = 1 ; j <=2; j++) {
-                DataSourcesConfiguration.Node.TripleStore ts = new DataSourcesConfiguration.Node.TripleStore(String.format("type_%s",j),String.format("baseURL_%s",j),String.format("name_%s",j),String.format("user_%s",j),String.format("password_%s",j),"");
+                DataSources.Node.TripleStore ts = new DataSources.Node.TripleStore(String.format("type_%s",j),String.format("baseURL_%s",j),String.format("name_%s",j),String.format("user_%s",j),String.format("password_%s",j),"");
                 tripleStores.add(ts);
             }
             n.setTripleStores(tripleStores);
@@ -46,14 +46,14 @@ class DataSourcesConfigurationTest {
 
     @Test
     void setThresholds() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         dsc.setThresholds(t);
         Assert.assertEquals(t,dsc.getThresholds());
     }
 
     @Test
     void setThresholdsManualThreshold() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setManualThreshold(mt);
         dsc.setThresholds(t);
@@ -62,7 +62,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void getThresholdsManualThreshold() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setManualThreshold(mt);
         dsc.setThresholds(t);
@@ -71,7 +71,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void setThresholdsAutomaticThreshold() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setAutomaticThreshold(mt);
         dsc.setThresholds(t);
@@ -80,7 +80,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void getThresholdsAutomaticThreshold() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setAutomaticThreshold(mt);
         dsc.setThresholds(t);
@@ -89,7 +89,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void setThresholdsElasticSearchAttributesThresholdSimpleThreshold() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setElasticSearchAttributesThresholdSimple(mt);
         dsc.setThresholds(t);
@@ -98,7 +98,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void getThresholdsElasticSearchAttributesThresholdSimpleThreshold() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setElasticSearchAttributesThresholdSimple(mt);
         dsc.setThresholds(t);
@@ -107,7 +107,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void setThresholdsElasticSearchAttributesNumberRatioSimpleThreshold() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setElasticSearchAttributesNumberRatioSimple(mt);
         dsc.setThresholds(t);
@@ -116,7 +116,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void getThresholdsElasticSearchAttributesNumberRatioSimpleThreshold() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setElasticSearchAttributesNumberRatioSimple(mt);
         dsc.setThresholds(t);
@@ -125,7 +125,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void setThresholdsElasticSearchAttributesThresholdComplexThreshold() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setElasticSearchAttributesThresholdComplex(mt);
         dsc.setThresholds(t);
@@ -134,7 +134,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void getThresholdsElasticSearchAttributesThresholdComplexThreshold() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setElasticSearchAttributesThresholdComplex(mt);
         dsc.setThresholds(t);
@@ -143,7 +143,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void setThresholdsElasticSearchAttributesNumberRatioComplex() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setElasticSearchAttributesNumberRatioComplex(mt);
         dsc.setThresholds(t);
@@ -152,7 +152,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void getThresholdsElasticSearchAttributesNumberRatioComplex() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setElasticSearchAttributesNumberRatioComplex(mt);
         dsc.setThresholds(t);
@@ -161,7 +161,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void setThresholdsElasticSearchMaxDesirableNumbersOfResults() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setElasticSearchMaxDesirableNumbersOfResults(mt);
         dsc.setThresholds(t);
@@ -170,7 +170,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void getThresholdsElasticSearchMaxDesirableNumbersOfResults() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setElasticSearchMaxDesirableNumbersOfResults(mt);
         dsc.setThresholds(t);
@@ -179,7 +179,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void setThresholdsElasticSearchCutOffAccordPercentile() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setElasticSearchCutOffAccordPercentile(mt);
         dsc.setThresholds(t);
@@ -188,7 +188,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void getThresholdsElasticSearchCutOffAccordPercentile() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         double mt = new Random().nextDouble();
         t.setElasticSearchCutOffAccordPercentile(mt);
         dsc.setThresholds(t);
@@ -197,14 +197,14 @@ class DataSourcesConfigurationTest {
 
     @Test
     void setNodes() {
-        List<DataSourcesConfiguration.Node> nodes = dsc.getNodes();
+        List<DataSources.Node> nodes = dsc.getNodes();
         dsc.setNodes(nodes);
         Assert.assertEquals(nodes,dsc.getNodes());
     }
 
     @Test
     void setNodeName() {
-        for (DataSourcesConfiguration.Node n : dsc.getNodes()) {
+        for (DataSources.Node n : dsc.getNodes()) {
             String rnd = RandomStringUtils.randomAlphabetic(10);
             n.setNodeName(rnd);
             Assert.assertEquals(rnd,n.getNodeName());
@@ -213,7 +213,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void getNodeName() {
-        for (DataSourcesConfiguration.Node n : dsc.getNodes()) {
+        for (DataSources.Node n : dsc.getNodes()) {
             String rnd = RandomStringUtils.randomAlphabetic(10);
             n.setNodeName(rnd);
             Assert.assertEquals(rnd,n.getNodeName());
@@ -222,8 +222,8 @@ class DataSourcesConfigurationTest {
 
     @Test
     void getTripleStoreByTypeNode() {
-        for (DataSourcesConfiguration.Node n : dsc.getNodes()) {
-            for (DataSourcesConfiguration.Node.TripleStore ts: n.getTripleStores()) {
+        for (DataSources.Node n : dsc.getNodes()) {
+            for (DataSources.Node.TripleStore ts: n.getTripleStores()) {
                 String type = ts.getType();
                 Assert.assertEquals(ts, n.getTripleStoreByType(type));
             }
@@ -232,8 +232,8 @@ class DataSourcesConfigurationTest {
 
     @Test
     void setTripleStoreType() {
-        for (DataSourcesConfiguration.Node n : dsc.getNodes()) {
-            for (DataSourcesConfiguration.Node.TripleStore ts: n.getTripleStores()) {
+        for (DataSources.Node n : dsc.getNodes()) {
+            for (DataSources.Node.TripleStore ts: n.getTripleStores()) {
                 String rnd = RandomStringUtils.randomAlphabetic(10);
                 ts.setType(rnd);
                 Assert.assertEquals(rnd, ts.getType());
@@ -243,8 +243,8 @@ class DataSourcesConfigurationTest {
 
     @Test
     void getTripleStoreType() {
-        for (DataSourcesConfiguration.Node n : dsc.getNodes()) {
-            for (DataSourcesConfiguration.Node.TripleStore ts: n.getTripleStores()) {
+        for (DataSources.Node n : dsc.getNodes()) {
+            for (DataSources.Node.TripleStore ts: n.getTripleStores()) {
                 Assert.assertTrue(Utils.isValidString(ts.getType()));
             }
         }
@@ -252,8 +252,8 @@ class DataSourcesConfigurationTest {
 
     @Test
     void setTripleStoreBaseURL() {
-        for (DataSourcesConfiguration.Node n : dsc.getNodes()) {
-            for (DataSourcesConfiguration.Node.TripleStore ts: n.getTripleStores()) {
+        for (DataSources.Node n : dsc.getNodes()) {
+            for (DataSources.Node.TripleStore ts: n.getTripleStores()) {
                 String rnd = RandomStringUtils.randomAlphabetic(10);
                 ts.setBaseURL(rnd);
                 Assert.assertEquals(rnd, ts.getBaseURL());
@@ -263,8 +263,8 @@ class DataSourcesConfigurationTest {
 
     @Test
     void getTripleStoreBaseURL() {
-        for (DataSourcesConfiguration.Node n : dsc.getNodes()) {
-            for (DataSourcesConfiguration.Node.TripleStore ts: n.getTripleStores()) {
+        for (DataSources.Node n : dsc.getNodes()) {
+            for (DataSources.Node.TripleStore ts: n.getTripleStores()) {
                 Assert.assertTrue(Utils.isValidString(ts.getBaseURL()));
             }
         }
@@ -272,8 +272,8 @@ class DataSourcesConfigurationTest {
 
     @Test
     void setTripleStoreUser() {
-        for (DataSourcesConfiguration.Node n : dsc.getNodes()) {
-            for (DataSourcesConfiguration.Node.TripleStore ts: n.getTripleStores()) {
+        for (DataSources.Node n : dsc.getNodes()) {
+            for (DataSources.Node.TripleStore ts: n.getTripleStores()) {
                 String rnd = RandomStringUtils.randomAlphabetic(10);
                 ts.setUser(rnd);
                 Assert.assertEquals(rnd, ts.getUser());
@@ -283,8 +283,8 @@ class DataSourcesConfigurationTest {
 
     @Test
     void getTripleStoreUser() {
-        for (DataSourcesConfiguration.Node n : dsc.getNodes()) {
-            for (DataSourcesConfiguration.Node.TripleStore ts: n.getTripleStores()) {
+        for (DataSources.Node n : dsc.getNodes()) {
+            for (DataSources.Node.TripleStore ts: n.getTripleStores()) {
                 Assert.assertTrue(Utils.isValidString(ts.getUser()));
             }
         }
@@ -292,8 +292,8 @@ class DataSourcesConfigurationTest {
 
     @Test
     void setTripleStorePassword() {
-        for (DataSourcesConfiguration.Node n : dsc.getNodes()) {
-            for (DataSourcesConfiguration.Node.TripleStore ts: n.getTripleStores()) {
+        for (DataSources.Node n : dsc.getNodes()) {
+            for (DataSources.Node.TripleStore ts: n.getTripleStores()) {
                 String rnd = RandomStringUtils.randomAlphabetic(10);
                 ts.setPassword(rnd);
                 Assert.assertEquals(rnd, ts.getPassword());
@@ -303,8 +303,8 @@ class DataSourcesConfigurationTest {
 
     @Test
     void getTripleStorePassword() {
-        for (DataSourcesConfiguration.Node n : dsc.getNodes()) {
-            for (DataSourcesConfiguration.Node.TripleStore ts: n.getTripleStores()) {
+        for (DataSources.Node n : dsc.getNodes()) {
+            for (DataSources.Node.TripleStore ts: n.getTripleStores()) {
                 Assert.assertTrue(Utils.isValidString(ts.getPassword()));
             }
         }
@@ -319,7 +319,7 @@ class DataSourcesConfigurationTest {
 
     @Test
     void getThresholds() {
-        DataSourcesConfiguration.Thresholds t = new DataSourcesConfiguration.Thresholds();
+        DataSources.Thresholds t = new DataSources.Thresholds();
         dsc.setThresholds(t);
         Assert.assertEquals(t, dsc.getThresholds());
     }

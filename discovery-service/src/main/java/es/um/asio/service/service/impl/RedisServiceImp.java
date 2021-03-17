@@ -6,7 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
-import es.um.asio.service.config.DataSourcesConfiguration;
+import es.um.asio.service.config.DataSources;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.relational.CacheRegistry;
@@ -26,7 +26,6 @@ import javax.annotation.PostConstruct;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * RedisService implementation. For handle operations with REDIS
@@ -54,7 +53,7 @@ public class RedisServiceImp implements RedisService {
     ApplicationState applicationState;
 
     @Autowired
-    DataSourcesConfiguration dataSourcesConfiguration;
+    DataSources dataSources;
 
     private static final String TRIPLES_MAP_PREFIX = "TRIPLES_MAP";
     private static final String TRIPLES_MAP_KEYS = "TRIPLES_MAP_KEYS";
@@ -86,8 +85,8 @@ public class RedisServiceImp implements RedisService {
             keys = new ArrayList<>();
         List<String> nodesPrefixes = new ArrayList<>();
         // Filtro los keys para los data sources definidos
-        for (DataSourcesConfiguration.Node node : dataSourcesConfiguration.getNodes()) {
-            for (DataSourcesConfiguration.Node.TripleStore tripleStore : node.getTripleStores()) {
+        for (DataSources.Node node : dataSources.getNodes()) {
+            for (DataSources.Node.TripleStore tripleStore : node.getTripleStores()) {
                 nodesPrefixes.add(TRIPLES_MAP_PREFIX+":"+node.getNodeName()+"."+tripleStore.getType()+".");
             }
         }

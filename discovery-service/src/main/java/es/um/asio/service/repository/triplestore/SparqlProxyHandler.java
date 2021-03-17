@@ -4,20 +4,16 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import es.um.asio.service.config.DataSourcesConfiguration;
+import es.um.asio.service.config.DataSources;
 import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
 import es.um.asio.service.model.URIComponent;
 import es.um.asio.service.service.SchemaService;
 import es.um.asio.service.service.impl.CacheServiceImp;
-import es.um.asio.service.util.Utils;
-import org.apache.commons.lang3.tuple.Triple;
 import org.jsoup.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,7 +27,7 @@ import java.util.*;
 /**
  * Handle request for Trellis LDP Server
  * @see SchemaService
- * @see DataSourcesConfiguration
+ * @see DataSources
  * @author  Daniel Ruiz Santamaría
  * @version 2.0
  * @since   1.0
@@ -50,20 +46,20 @@ public class SparqlProxyHandler extends TripleStoreHandler {
 
     SchemaService schemaService;
 
-    DataSourcesConfiguration dataSourcesConfiguration;
+    DataSources dataSources;
 
     /**
      * Constructor
      * @see SchemaService
-     * @see DataSourcesConfiguration
-     * @see DataSourcesConfiguration.Node
-     * @see DataSourcesConfiguration.Node.TripleStore
+     * @see DataSources
+     * @see DataSources.Node
+     * @see DataSources.Node.TripleStore
      * @param schemaService SchemaService. The service for handle URIS factory Schema
-     * @param dataSourcesConfiguration DataSourcesConfiguration. The data sources configuration
+     * @param dataSources DataSourcesConfiguration. The data sources configuration
      * @param node Node. The node
      * @param ts TripleStore. The triple Store
      */
-    public SparqlProxyHandler(SchemaService schemaService, DataSourcesConfiguration dataSourcesConfiguration,DataSourcesConfiguration.Node node, DataSourcesConfiguration.Node.TripleStore ts) {
+    public SparqlProxyHandler(SchemaService schemaService, DataSources dataSources, DataSources.Node node, DataSources.Node.TripleStore ts) {
         this.nodeName = node.getNodeName();
         this.baseURL = ts.getBaseURL();
         if (this.baseURL.charAt(baseURL.length()-1) == '/')
@@ -73,7 +69,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
         this.password = ts.getPassword();
         this.tripleStore = new TripleStore(ts.getName(),node.getNodeName(),this.baseURL,this.user,this.password);
         this.schemaService = schemaService;
-        this.dataSourcesConfiguration = dataSourcesConfiguration;
+        this.dataSources = dataSources;
     }
 
     /**
@@ -176,7 +172,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
             cacheService.removeTripleObject(node, tripleStore, to);
         } else { // en otro caso, se actualiza la cache
             Map<String,String> qParams = ImmutableMap.of("localURI",localURI);
-            JsonElement jeResponse = doRequest(new URL(dataSourcesConfiguration.getUrisFactoryHost() + "uri-factory/local"), Connection.Method.GET,headers,null,qParams);
+            JsonElement jeResponse = doRequest(new URL(dataSources.getUrisFactoryHost() + "uri-factory/local"), Connection.Method.GET,headers,null,qParams);
             if (jeResponse!=null && jeResponse.isJsonArray() && jeResponse.getAsJsonArray().size()>0) {
                 String canonicalLocalURI = jeResponse.getAsJsonArray().get(0).getAsJsonObject().get("fullURI").getAsString();
                 if (canonicalLocalURI!=null) {

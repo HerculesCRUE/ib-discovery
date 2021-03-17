@@ -1,6 +1,6 @@
 package es.um.asio.service.repository.triplestore;
 
-import es.um.asio.service.config.DataSourcesConfiguration;
+import es.um.asio.service.config.DataSources;
 import es.um.asio.service.model.BasicAction;
 
 import es.um.asio.service.service.SchemaService;
@@ -13,7 +13,7 @@ import java.text.ParseException;
 /**
  * Abstract class to Handle request for Trellis LDP Server
  * @see SchemaService
- * @see DataSourcesConfiguration
+ * @see DataSources
  * @author  Daniel Ruiz Santamaría
  * @version 2.0
  * @since   1.0
@@ -48,16 +48,16 @@ public abstract class TripleStoreHandler {
     /**
      * Select Handler for get data
      * @param schemaService SchemaService
-     * @param dataSourcesConfiguration DataSourcesConfiguration
+     * @param dataSources DataSourcesConfiguration
      * @param node String. Name of node
      * @param ts TripleStore
      * @return
      */
-    public static TripleStoreHandler getHandler(SchemaService schemaService,DataSourcesConfiguration dataSourcesConfiguration, DataSourcesConfiguration.Node node, DataSourcesConfiguration.Node.TripleStore ts) {
+    public static TripleStoreHandler getHandler(SchemaService schemaService, DataSources dataSources, DataSources.Node node, DataSources.Node.TripleStore ts) {
         if (ts.getType().trim().equalsIgnoreCase("trellis"))
             return new TrellisHandler(node.getNodeName(),ts.getBaseURL(),ts.getUser(),ts.getPassword());
         else if (ts.getType().trim().equalsIgnoreCase("fuseki"))
-            return new SparqlProxyHandler(schemaService, dataSourcesConfiguration,node,ts);
+            return new SparqlProxyHandler(schemaService, dataSources,node,ts);
         else
             throw new IllegalArgumentException("Not exist correct handler for type: "+ ts.getType());
     }

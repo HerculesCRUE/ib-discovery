@@ -2,12 +2,11 @@ package es.um.asio.service.service.impl;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.comparators.entities.EntityComparator;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
-import es.um.asio.service.config.DataSourcesConfiguration;
+import es.um.asio.service.config.DataSources;
 import es.um.asio.service.config.LodConfiguration;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.model.SimilarityResult;
@@ -46,7 +45,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
     ElasticsearchServiceImp es;
 
     @Autowired
-    DataSourcesConfiguration dataSourcesConfiguration;
+    DataSources dataSources;
 
     @Autowired
     LodConfiguration lodConfiguration;
@@ -190,9 +189,9 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
                 EntitySimilarityObj eso = linkEntry.getKey().compareLazzy(cache,to);
                 eso.setTripleObject(to);
                 eso.setDataSource(link.getRemoteName());
-                if (eso.getSimilarity()>=dataSourcesConfiguration.getThresholds().getAutomaticThreshold()) {
+                if (eso.getSimilarity()>= dataSources.getThresholds().getAutomaticThreshold()) {
                     similarity.get(AUTOMATIC_KEY).add(eso);
-                } else if (eso.getSimilarity()>=dataSourcesConfiguration.getThresholds().getManualThreshold()) {
+                } else if (eso.getSimilarity()>= dataSources.getThresholds().getManualThreshold()) {
                     similarity.get(MANUAL_KEY).add(eso);
                 }
             }
@@ -377,9 +376,9 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
             }
 
             EntitySimilarityObj eso = EntityComparator.compare(to,other,statsAux);
-            if (eso.getSimilarity() >= dataSourcesConfiguration.getThresholds().getAutomaticThreshold() || eso.getSimilarityWithoutId() >= dataSourcesConfiguration.getThresholds().getAutomaticThresholdWithOutId()) {
+            if (eso.getSimilarity() >= dataSources.getThresholds().getAutomaticThreshold() || eso.getSimilarityWithoutId() >= dataSources.getThresholds().getAutomaticThresholdWithOutId()) {
                 similarities.get(AUTOMATIC_KEY).add(eso);
-            } else if (eso.getSimilarity() >= dataSourcesConfiguration.getThresholds().getManualThreshold() || eso.getSimilarityWithoutId() >= dataSourcesConfiguration.getThresholds().getManualThresholdWithOutId()) {
+            } else if (eso.getSimilarity() >= dataSources.getThresholds().getManualThreshold() || eso.getSimilarityWithoutId() >= dataSources.getThresholds().getManualThresholdWithOutId()) {
                 similarities.get(MANUAL_KEY).add(eso);
             }
         }
@@ -405,8 +404,8 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
                             )
                     ).collect(Collectors.toList()
                     );
-            if (matches.size()>=dataSourcesConfiguration.getThresholds().getElasticSearchMaxDesirableNumbersOfResults()) {
-                float filterScore = matches.get(matches.size()-1).getScore()+ ((matches.get(0).getScore()-matches.get(matches.size()-1).getScore())*(float) dataSourcesConfiguration.getThresholds().getElasticSearchCutOffAccordPercentile());
+            if (matches.size()>= dataSources.getThresholds().getElasticSearchMaxDesirableNumbersOfResults()) {
+                float filterScore = matches.get(matches.size()-1).getScore()+ ((matches.get(0).getScore()-matches.get(matches.size()-1).getScore())*(float) dataSources.getThresholds().getElasticSearchCutOffAccordPercentile());
                 matches = matches.stream().filter(toEs -> toEs.getScore() >= filterScore).collect(Collectors.toList());
             }
             return TripleObjectES.getTripleObjects(matches);
@@ -434,15 +433,15 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
             counter += 1;
             moreRelevant.add(stat.getKey());
             if (to.checkIsSimpleObject()) {
-                if (aggregateValue >= dataSourcesConfiguration.getThresholds().getElasticSearchAttributesThresholdSimple()
-                        && ((Double.valueOf(counter)/Double.valueOf(statsAux.size()))>=dataSourcesConfiguration.getThresholds().getElasticSearchAttributesNumberRatioSimple())
+                if (aggregateValue >= dataSources.getThresholds().getElasticSearchAttributesThresholdSimple()
+                        && ((Double.valueOf(counter)/Double.valueOf(statsAux.size()))>= dataSources.getThresholds().getElasticSearchAttributesNumberRatioSimple())
                         && counter>1
                 ) {
                     break;
                 }
             } else {
-                if (aggregateValue >= dataSourcesConfiguration.getThresholds().getElasticSearchAttributesThresholdComplex()
-                        && ((Double.valueOf(++counter)/Double.valueOf(statsAux.size()))>=dataSourcesConfiguration.getThresholds().getElasticSearchAttributesNumberRatioComplex())
+                if (aggregateValue >= dataSources.getThresholds().getElasticSearchAttributesThresholdComplex()
+                        && ((Double.valueOf(++counter)/Double.valueOf(statsAux.size()))>= dataSources.getThresholds().getElasticSearchAttributesNumberRatioComplex())
                 ) {
                     break;
                 }

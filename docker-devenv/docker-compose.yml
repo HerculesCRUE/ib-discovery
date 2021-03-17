@@ -63,7 +63,7 @@ services:
     ports:
       - "16379:6379"
     environment:
-      - REDIS_PASSWORD=redispass
+      - REDIS_PASSWORD=j!VxttMdHGhy
     volumes:
       - redis-data:/bitnami/redis/data
     networks:

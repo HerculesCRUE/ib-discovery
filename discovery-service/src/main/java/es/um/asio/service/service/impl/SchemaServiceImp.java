@@ -3,20 +3,14 @@ package es.um.asio.service.service.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.specification.RequestSpecification;
 import com.squareup.okhttp.*;
-import es.um.asio.service.config.DataSourcesConfiguration;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.URIComponent;
 
 import es.um.asio.service.service.SchemaService;
 import es.um.asio.service.util.Utils;
-import org.apache.http.client.methods.RequestBuilder;
 import org.jsoup.Connection;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
