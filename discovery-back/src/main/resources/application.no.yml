@@ -6,8 +6,8 @@ app:
   language: en-EN
   threadsInLod: 20
   defaultSchema: http://$domain$/$sub-domain$/$language$/$type$/$reference$/$concept$
-  uris-factory-host: http://localhost:9326/
-  discovery-service-host: http://localhost:9329/
+  uris-factory-host: http://uris-generator:8080/
+  discovery-service-host: http://herc-iz-front-desa.atica.um.es:8089/
   service-data-name: Federation
 
   persistence:
@@ -57,10 +57,10 @@ app:
 data:
   readCacheFromFirebase: false
   elasticsearch:
-    host: localhost
+    host: herc-iz-bd-desa.atica.um.es
     port: 9200
   redis:
-    host: localhost
+    host: herc-iz-bd-desa.atica.um.es
     port: 16379
     password: j!VxttMdHGhy
   kafka:
@@ -86,9 +86,9 @@ data-sources:
     automaticThreshold: 0.95
     manualThresholdWithOutId: 0.7
     automaticThresholdWithOutId: 0.95
-  #urisFactoryHost: http://localhost:9326/
-  #discoveryServiceHost: http://localhost:9329/
-  #serviceDataName: Federation
+    urisFactoryHost: http://uris-generator:8080/
+    discoveryServiceHost: http://herc-iz-front-desa.atica.um.es:8089/
+    serviceDataName: Federation
 #  nodes:
 #    -
 #      nodeName: um
