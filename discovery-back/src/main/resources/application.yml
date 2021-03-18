@@ -5,8 +5,8 @@ app:
   subdomain: um
   language: en-EN
   threadsInLod: 20
-  defaultSchema: http://$domain$/$sub-domain$/$language$/$type$/$reference$/$concept$
-  uris-factory-host: http://localhost:9326/
+  defaultSchema: http://$domain$/$sub-domain$/$language$/$type$/$concept$/$reference$
+  uris-factory-host: http://localhost:19326/
   discovery-service-host: http://localhost:9329/
   service-data-name: Federation
 
@@ -86,7 +86,7 @@ data-sources:
     automaticThreshold: 0.95
     manualThresholdWithOutId: 0.7
     automaticThresholdWithOutId: 0.95
-  urisFactoryHost: http://localhost:9326/
+  urisFactoryHost: http://localhost:19326/
   discoveryServiceHost: http://localhost:9329/
   serviceDataName: Federation
 #  nodes:

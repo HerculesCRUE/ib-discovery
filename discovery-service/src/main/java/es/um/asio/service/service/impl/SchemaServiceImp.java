@@ -11,6 +11,8 @@ import es.um.asio.service.model.URIComponent;
 import es.um.asio.service.service.SchemaService;
 import es.um.asio.service.util.Utils;
 import org.jsoup.Connection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +38,8 @@ import java.util.Map;
 @Service
 public class SchemaServiceImp implements SchemaService {
 
+    private final Logger logger = LoggerFactory.getLogger(SchemaServiceImp.class);
+
     @Value("${app.uris-factory-host}")
     public String urisFactoryHost;
 
@@ -53,6 +57,7 @@ public class SchemaServiceImp implements SchemaService {
 
     @PostConstruct
     private void init() {
+        logger.info("Actualizing Schema in SchemaServiceImp. URIS factory HOST: {}", urisFactoryHost);
         canonicalSchema = getSchemaFromUrisFactory(urisFactoryHost, "/uri-factory/schema", defaultSchema);
         canonicalLocalSchema = getSchemaFromUrisFactory(urisFactoryHost, "/uri-factory/local-schema", defaultSchema);
     }
@@ -102,12 +107,13 @@ public class SchemaServiceImp implements SchemaService {
             URL url = new URL(basePath + relativePath);
             String res = doRequest(url);
             if (res != null && !res.equals("")) {
+                logger.info("Updated Schema: {}", res);
                 return res;
             }
         } catch (Exception e) {
 
         }
-
+        logger.info("Using default Schema: {}", defaultSchema);
         return defaultSchema;
     }
 
