@@ -9,7 +9,7 @@
 | Objetivo       | Librería de descubrimiento para el proyecto Backend SGI (ASIO) |
 | Estado         | Completada                                                   |
 | Próximos pasos | Implementación                                               |
-| Documentación  | [Implementación de librería de descubrimiento](https://github.com/HerculesCRUE/ib-discovery/tree/master/docs) |
+| Documentación  | [Implementación de librería de descubrimiento](https://github.com/HerculesCRUE/ib-discovery/tree/master/docs)<br/>[Federación](https://github.com/HerculesCRUE/ib-discovery<br/>https://github.com/HerculesCRUE/ib-federation<br/>https://github.com/HerculesCRUE/ib-service-discovery)<br/>[Service Discovery](https://github.com/HerculesCRUE/ib-service-discovery) |
 
 # Librería de descubrimiento
 
