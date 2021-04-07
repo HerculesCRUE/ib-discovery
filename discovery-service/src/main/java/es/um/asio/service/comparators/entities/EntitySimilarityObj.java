@@ -5,6 +5,7 @@ import es.um.asio.service.util.Utils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @AllArgsConstructor
+@ToString
 public class EntitySimilarityObj {
 
     private TripleObject tripleObject;

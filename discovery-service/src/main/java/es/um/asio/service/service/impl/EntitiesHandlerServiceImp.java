@@ -377,8 +377,10 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
 
             EntitySimilarityObj eso = EntityComparator.compare(to,other,statsAux);
             if (eso.getSimilarity() >= dataSources.getThresholds().getAutomaticThreshold() || eso.getSimilarityWithoutId() >= dataSources.getThresholds().getAutomaticThresholdWithOutId()) {
+                logger.info("Adding automatic ==> Similarity: [ withId: {}, withoutId: {} ], AutomaticThreshold: [ withId: {}, withoutId: {} ] ==> Entity Similarity Object: {}",eso.getSimilarity(),eso.getSimilarityWithoutId(),dataSources.getThresholds().getAutomaticThreshold(), dataSources.getThresholds().getAutomaticThresholdWithOutId(), eso.toString() );
                 similarities.get(AUTOMATIC_KEY).add(eso);
             } else if (eso.getSimilarity() >= dataSources.getThresholds().getManualThreshold() || eso.getSimilarityWithoutId() >= dataSources.getThresholds().getManualThresholdWithOutId()) {
+                logger.info("Adding manual ==> Similarity: [ withId: {}, withoutId: {} ], AutomaticThreshold: [ withId: {}, withoutId: {} ] ==> Entity Similarity Object: {}",eso.getSimilarity(),eso.getSimilarityWithoutId(),dataSources.getThresholds().getManualThreshold(), dataSources.getThresholds().getManualThresholdWithOutId(), eso.toString() );
                 similarities.get(MANUAL_KEY).add(eso);
             }
         }
