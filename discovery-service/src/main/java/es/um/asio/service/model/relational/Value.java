@@ -72,7 +72,7 @@ public class Value {
                 this.attributes.add(at);
             }
         } else {
-            this.val = String.valueOf(val);
+            this.val = String.valueOf(String.valueOf(val));
         }
 
     }

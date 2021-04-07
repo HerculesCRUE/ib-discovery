@@ -84,7 +84,7 @@ data-sources:
     elasticSearchCutOffAccordPercentile: 0.5
     manualThreshold: 0.7
     automaticThreshold: 0.95
-    manualThresholdWithOutId: 0.7
+    manualThresholdWithOutId: 0.85
     automaticThresholdWithOutId: 0.95
   urisFactoryHost: http://localhost:9326/
   discoveryServiceHost: http://localhost:8089/

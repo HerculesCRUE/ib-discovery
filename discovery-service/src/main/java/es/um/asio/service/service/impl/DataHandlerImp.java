@@ -95,6 +95,7 @@ public class DataHandlerImp implements DataHandler {
 
     @PostConstruct
     private void initialize() {
+        logger.info("datasources: {}", dataSources.toString());
         logger.info("Initializing DataHandlerImp");
         handlers = new ArrayList<>();
         DiscoveryApplication discoveryApplication = applicationState.getApplication();
