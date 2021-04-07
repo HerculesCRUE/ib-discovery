@@ -329,8 +329,12 @@ public class TrellisOperationsImpl implements TrellisOperations {
                 url = path;
             else
                 url = buildURI(trellisUrlEndPoint, Arrays.asList(new String[] {path}));
-
-            Model entityModel = getEntry(path,tripleObjectLink.getURLEndedID(),isFullURI);
+            Model entityModel;
+            try {
+                entityModel = getEntry(path, tripleObjectLink.getURLEndedID(), isFullURI);
+            } catch (Exception e) {
+                entityModel = null;
+            }
             String operation = "INSERT";
             if (entityModel!=null) {
                 operation = "UPDATE";
