@@ -15,6 +15,7 @@ import org.jsoup.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,6 +37,7 @@ import java.util.*;
 public class SparqlProxyHandler extends TripleStoreHandler {
 
     private final Logger logger = LoggerFactory.getLogger(SparqlProxyHandler.class);
+    private String domain;
     private String nodeName;
     private String baseURL;
     private String serviceName;
@@ -49,9 +51,6 @@ public class SparqlProxyHandler extends TripleStoreHandler {
 
     Datasources dataSources;
 
-    @Value("${app.domain}")
-    String domain;
-
     /**
      * Constructor
      * @see SchemaService
@@ -63,7 +62,8 @@ public class SparqlProxyHandler extends TripleStoreHandler {
      * @param node Node. The node
      * @param ts TripleStore. The triple Store
      */
-    public SparqlProxyHandler(SchemaService schemaService, Datasources dataSources, Datasources.Node node, Datasources.Node.TripleStore ts) {
+    public SparqlProxyHandler(String domain,SchemaService schemaService, Datasources dataSources, Datasources.Node node, Datasources.Node.TripleStore ts) {
+        this.domain = domain;
         this.nodeName = node.getNodeName();
         this.baseURL = ts.getBaseURL();
         if (this.baseURL.charAt(baseURL.length()-1) == '/')

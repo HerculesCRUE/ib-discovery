@@ -53,11 +53,11 @@ public abstract class TripleStoreHandler {
      * @param ts TripleStore
      * @return
      */
-    public static TripleStoreHandler getHandler(SchemaService schemaService, Datasources dataSources, Datasources.Node node, Datasources.Node.TripleStore ts) {
+    public static TripleStoreHandler getHandler(String domain,SchemaService schemaService, Datasources dataSources, Datasources.Node node, Datasources.Node.TripleStore ts) {
         if (ts.getType().trim().equalsIgnoreCase("trellis"))
-            return new TrellisHandler(node.getNodeName(),ts.getBaseURL(),ts.getUser(),ts.getPassword());
+            return new TrellisHandler(domain, node.getNodeName(),ts.getBaseURL(),ts.getUser(),ts.getPassword());
         else if (ts.getType().trim().equalsIgnoreCase("fuseki"))
-            return new SparqlProxyHandler(schemaService, dataSources,node,ts);
+            return new SparqlProxyHandler(domain, schemaService, dataSources,node,ts);
         else
             throw new IllegalArgumentException("Not exist correct handler for type: "+ ts.getType());
     }

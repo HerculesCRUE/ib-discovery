@@ -23,6 +23,7 @@ import es.um.asio.service.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.scheduling.annotation.Async;
@@ -88,6 +89,8 @@ public class DataHandlerImp implements DataHandler {
     @Autowired
     LodConfiguration lodConfiguration;
 
+    @Value("${app.domain}")
+    String domain;
 
 
     @PostConstruct
@@ -153,7 +156,7 @@ public class DataHandlerImp implements DataHandler {
         if (applicationState.getAppState() == ApplicationState.AppState.INITIALIZED && node != null) {
             Datasources.Node.TripleStore ts = node.getTripleStoreByType(tripleStore);
             if (ts != null) {
-                TripleStoreHandler handler = TripleStoreHandler.getHandler(schemaService, dataSources,node,ts);
+                TripleStoreHandler handler = TripleStoreHandler.getHandler(domain,schemaService, dataSources,node,ts);
                 if (handler != null) {
                     boolean isCompleted = handler.updateTripleObject(cache, nodeName, tripleStore, className, entityURL, basicAction);
                     if (isCompleted) {
@@ -230,7 +233,7 @@ public class DataHandlerImp implements DataHandler {
         boolean isChanged = false;
         for (Datasources.Node node : dataSources.getNodes()) {
             for (Datasources.Node.TripleStore ts : node.getTripleStores()) {
-                TripleStoreHandler handler = TripleStoreHandler.getHandler(schemaService, dataSources, node,ts);
+                TripleStoreHandler handler = TripleStoreHandler.getHandler(domain,schemaService, dataSources, node,ts);
                 isChanged = isChanged | handler.updateData(cache);
             }
         }

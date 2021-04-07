@@ -35,6 +35,7 @@ import java.util.*;
 public class TrellisHandler extends TripleStoreHandler {
 
     private final Logger logger = LoggerFactory.getLogger(TrellisHandler.class);
+    private String domain;
     private String nodeName;
     private String baseURL;
     private String user;
@@ -58,7 +59,8 @@ public class TrellisHandler extends TripleStoreHandler {
      * @param user String. The user
      * @param password String. The password
      */
-    public TrellisHandler(String nodeName, String baseURL, String user, String password) {
+    public TrellisHandler(String domain,String nodeName, String baseURL, String user, String password) {
+        this.domain = domain;
         this.nodeName = nodeName;
         this.baseURL = baseURL;
         this.user = user;
