@@ -3,6 +3,7 @@ package es.um.asio.service.model.rdf;
 
 import com.github.jsonldjava.shaded.com.google.common.io.CharSource;
 import com.github.jsonldjava.shaded.com.google.common.io.CharStreams;
+import es.um.asio.service.service.impl.EntitiesHandlerServiceImp;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.jena.rdf.model.Model;
@@ -10,10 +11,13 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFWriter;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.mapper.ObjectMapperDeserializationContext;
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Mapper for objects to RDF
@@ -23,6 +27,7 @@ import com.jayway.restassured.mapper.ObjectMapperSerializationContext;
  */
 public class RdfObjectMapper implements ObjectMapper  {
 
+    private final Logger logger = LoggerFactory.getLogger(RdfObjectMapper.class);
     private String baseURI;
 
     /**
@@ -84,6 +89,7 @@ public class RdfObjectMapper implements ObjectMapper  {
                 m.read(targetStream,baseURI, getLang(MediaTypes.TEXT_TURTLE));
                 return m;
             } catch (IOException e) {
+                logger.error("Error in deserialize: {}",text);
                 e.printStackTrace();
                 return null;
             }
