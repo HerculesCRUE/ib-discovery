@@ -1,7 +1,7 @@
 ---
 app:
   node: um
-  domain: hercules.org
+  domain: ldp.herculesasioizertis.desa.um.es
   subdomain: um
   language: en-EN
   threadsInLod: 20

@@ -14,6 +14,7 @@ import es.um.asio.service.service.impl.CacheServiceImp;
 import org.jsoup.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,6 +48,9 @@ public class SparqlProxyHandler extends TripleStoreHandler {
     SchemaService schemaService;
 
     Datasources dataSources;
+
+    @Value("${app.domain}")
+    String domain;
 
     /**
      * Constructor
@@ -89,6 +93,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
         Map<String,String> headers = new HashMap<>();
         //headers.put("accept","application/json");
         Map<String,String> queryParams = new HashMap<>();
+        queryParams.put("domain",domain);
         queryParams.put("node",nodeName);
         queryParams.put("service",serviceName);
         queryParams.put("tripleStore",tripleStore.getName());
@@ -177,7 +182,13 @@ public class SparqlProxyHandler extends TripleStoreHandler {
             if (jeResponse!=null && jeResponse.isJsonArray() && jeResponse.getAsJsonArray().size()>0) {
                 String canonicalLocalURI = jeResponse.getAsJsonArray().get(0).getAsJsonObject().get("fullURI").getAsString();
                 if (canonicalLocalURI!=null) {
-                    Map<String,String> qParamsInstance = ImmutableMap.of("className",className,"node",node,"service","sparql-proxy","tripleStore",tripleStore,"uri",canonicalLocalURI);
+                    Map<String,String> qParamsInstance = ImmutableMap.of(
+                            "className",className,
+                            "node",node,
+                            "service", "sparql-proxy",
+                            "tripleStore", tripleStore,
+                            "uri",canonicalLocalURI);
+                    qParamsInstance.put("domain",domain);
                     JsonElement jeInstance = doRequest(new URL(this.baseURL + "/data-fetcher/instance/find"),Connection.Method.GET,headers,null,qParamsInstance);
                     TripleObject to = new TripleObject(jeInstance.getAsJsonObject());
                     cacheService.addTripleObject(nodeName,this.tripleStore.getName(), to);
