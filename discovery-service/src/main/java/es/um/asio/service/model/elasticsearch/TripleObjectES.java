@@ -5,6 +5,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.config.DataProperties;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
+import es.um.asio.service.util.Utils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -13,10 +14,8 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.Score;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * TripleObjectES is the model of TripleObject for Elasticsearch.
@@ -78,10 +77,32 @@ public class TripleObjectES implements Comparable<TripleObjectES>{
         this.localURI = to.getLocalURI();
         this.className = to.getClassName();
         this.lastModification = new Date(to.getLastModification());
-        this.attributes = to.getAttributes();
+        this.attributes = normalizeAttributes(to.getAttributes());
         this.tripleStore = to.getTripleStore();
         this.id = generateComposedId();
     }
+
+
+    private LinkedTreeMap<String,Object> normalizeAttributes(LinkedTreeMap<String,Object> attributes) {
+        LinkedTreeMap<String,Object> attributesAux = new LinkedTreeMap<>();
+        for (Map.Entry<String, Object> attEntry : attributes.entrySet()) {
+            if (Utils.isDate(attEntry.getValue().toString())) { // Si es fecha normalizo
+                attributesAux.put(attEntry.getKey(),normalizeDate(attEntry.getValue().toString()));
+            } else if (attEntry.getValue() instanceof LinkedTreeMap) { // Si es objeto anidado
+                attributesAux.put(attEntry.getKey(),normalizeAttributes((LinkedTreeMap<String, Object>) attEntry.getValue()));
+            } else {
+                attributesAux.put(attEntry.getKey(),attEntry.getValue());
+            }
+        }
+        return attributesAux;
+    }
+
+    private String normalizeDate(String date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
+        Date d = Utils.getDate(date);
+        return sdf.format(d);
+    }
+
 
     /**
      * Comparator for TripleObjectES entities

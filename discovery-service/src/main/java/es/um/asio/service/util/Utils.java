@@ -47,17 +47,17 @@ public class Utils {
         List<String> dateFormats = new ArrayList<>();
         dateFormats.addAll(
                 generateCombinations(
-                "d",buildListInt(1,2),
-                "M",buildListInt(1,2,3,5),
-                "y",buildListInt(2,4),
+                        "y",buildListInt(2,4),
+                        "M",buildListInt(1,2,3,5),
+                        "d",buildListInt(1,2),
                         buildListStr(".","/","-"))
         );
         dateFormats.addAll(
                 generateCombinations(
-                "y",buildListInt(2,4),
-                "M",buildListInt(1,2,3,5),
                 "d",buildListInt(1,2),
-                buildListStr(".","/","-"))
+                "M",buildListInt(1,2,3,5),
+                "y",buildListInt(2,4),
+                        buildListStr(".","/","-"))
         );
 
         List<String> timeFormats = new ArrayList<>();
@@ -82,6 +82,8 @@ public class Utils {
         List<String> formats = new ArrayList<>();
         formats.add("yyyy-MM-dd");
         formats.add("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        formats.add("yyyy/MM/dd");
+        formats.add("yyyy/MM/dd'T'HH:mm:ss.SSS'Z'");
         formats.add("EEEEE MMMMM yyyy HH:mm:ss.SSSZ");
         for (String date: dateFormats) {
             formats.add(date);
@@ -290,7 +292,7 @@ public class Utils {
      * @return boolean. True if is a valid Date
      */
     public static boolean isDate(String s) {
-        String regex = "[0-9]{2,4}(/|-|\\.)[0-9]{2,4}(/|-|\\.)[0-9]{2,4}((\\s|T)[0-5][0-9]:[0-5][0-9]:[0-5][0-9](Z|\\.[0-9]||\\.[0-9]{2,3})?)?";
+        String regex = "[0-9]{2,4}(/|-|\\.)[0-9]{2,4}(/|-|\\.)[0-9]{2,4}((\\s|T)[0-5][0-9]:[0-5][0-9]:[0-5][0-9](Z|\\.[0-9]+||\\.[0-9]{2,3})?)?";
         return s.matches(regex);
     }
 
@@ -305,7 +307,8 @@ public class Utils {
             for (String f: dateFormats) {
                 DateFormat sdf = new SimpleDateFormat(f,l);
                 try {
-                    return sdf.parse(s);
+                    Date d = sdf.parse(s);
+                    return d;
                 } catch (Exception e) {
                     continue;
                 }

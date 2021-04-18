@@ -27,7 +27,7 @@ public class CacheRegistry {
     public static final String TABLE = "cache_registry";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = Columns.ID)
     @EqualsAndHashCode.Include
     private long id;

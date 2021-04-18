@@ -26,7 +26,7 @@ public class ElasticRegistry {
     public static final String TABLE = "elastic_registry";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = Columns.ID)
     @EqualsAndHashCode.Include
     private long id;

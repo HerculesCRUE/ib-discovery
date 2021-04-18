@@ -19,7 +19,7 @@ app:
     jpa:
       dialect: org.hibernate.dialect.MariaDB53Dialect
       generate-ddl: true
-      ddl-auto: create
+      ddl-auto: update
       show-sql: true
       format_sql: true
       use_sql_comments: true
