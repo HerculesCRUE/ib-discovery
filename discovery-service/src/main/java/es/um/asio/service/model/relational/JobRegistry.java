@@ -1,6 +1,7 @@
 package es.um.asio.service.model.relational;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import es.um.asio.service.model.TripleObject;
@@ -10,9 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * JobRegistry Class. In relational model the Job Registry entity. Job registry is a Job of search of similarities.
@@ -182,7 +181,7 @@ public class JobRegistry {
         jResponse.addProperty("status", getStatusResult().toString());
 
         JsonArray jResultsArray = new JsonArray();
-        for (ObjectResult or : getObjectResults()) {
+        for (ObjectResult or : orderObjectsResult()) {
             jResultsArray.add(or.toSimplifiedJson(true));
         }
         jResponse.add("results",jResultsArray);
@@ -213,6 +212,12 @@ public class JobRegistry {
                 return true;
         }
         return false;
+    }
+
+    public List<ObjectResult> orderObjectsResult() {
+        List<ObjectResult> objectResultAux = new ArrayList<>(this.objectResults);
+        Collections.sort(objectResultAux,Collections.reverseOrder());
+        return objectResultAux;
     }
 
     /**

@@ -32,6 +32,7 @@ public class EntityComparator {
      * @param stats Map<String, Float> with the attribute name as key and the weight of the attribute as value
      * @return EntitySimilarityObj
      */
+    // TODO: Es posible que interese cambiar el comportamiento si es un identificador
     public static EntitySimilarityObj compare(TripleObject o1, TripleObject o2, Map<String, Float> stats) {
         stats = cleanStat(o1,o2,stats);
         EntitySimilarityObj eso = new EntitySimilarityObj(o2);

@@ -6,8 +6,8 @@ app:
   language: en-EN
   threadsInLod: 20
   defaultSchema: http://$domain$/$sub-domain$/$language$/$type$/$concept$/$reference$
-  uris-factory-host: http://localhost:9326/
-  discovery-service-host: http://localhost:8089/
+  uris-factory-host: http://localhost:9321/
+  discovery-service-host: http://localhost:9329/
   service-data-name: Federation
 
   persistence:
@@ -82,12 +82,12 @@ data-sources:
     elasticSearchAttributesNumberRatioComplex: 0.2
     elasticSearchMaxDesirableNumbersOfResults: 50
     elasticSearchCutOffAccordPercentile: 0.5
-    manualThreshold: 0.7
+    manualThreshold: 0.75
     automaticThreshold: 0.95
     manualThresholdWithOutId: 0.85
-    automaticThresholdWithOutId: 0.95
+    automaticThresholdWithOutId: 0.98
   urisFactoryHost: http://localhost:9326/
-  discoveryServiceHost: http://localhost:8089/
+  discoveryServiceHost: http://localhost:9329/
   serviceDataName: Federation
 #  nodes:
 #    -

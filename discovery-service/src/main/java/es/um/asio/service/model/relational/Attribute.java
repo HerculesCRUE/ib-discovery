@@ -28,7 +28,7 @@ public class Attribute {
     public static final String TABLE = "attribute";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = Attribute.Columns.ID)
     @EqualsAndHashCode.Include
     private long id;

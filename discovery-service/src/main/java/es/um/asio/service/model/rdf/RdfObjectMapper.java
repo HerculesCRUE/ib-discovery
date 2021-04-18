@@ -1,11 +1,14 @@
 package es.um.asio.service.model.rdf;
 
-
+/*
 import com.github.jsonldjava.shaded.com.google.common.io.CharSource;
 import com.github.jsonldjava.shaded.com.google.common.io.CharStreams;
 import es.um.asio.service.service.impl.EntitiesHandlerServiceImp;
 import org.apache.commons.io.IOUtils;
+ */
 import org.apache.commons.io.input.ReaderInputStream;
+import org.apache.jena.ext.com.google.common.io.CharSource;
+import org.apache.jena.ext.com.google.common.io.CharStreams;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFWriter;

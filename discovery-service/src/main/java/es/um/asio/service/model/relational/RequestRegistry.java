@@ -25,7 +25,7 @@ public class RequestRegistry {
     public static final String TABLE = "request_registry";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = ObjectResult.Columns.ID)
     @EqualsAndHashCode.Include
     private long id;

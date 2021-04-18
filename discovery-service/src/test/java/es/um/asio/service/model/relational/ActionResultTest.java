@@ -34,6 +34,8 @@ class ActionResultTest {
         TripleObject to = dg.getTripleObjects().get(0);
         for (ActionResult actionResult : actionResults) {
             ObjectResult orNew = new ObjectResult(
+                    Origin.ASIO,
+                    State.CLOSED,
                     null,
                     to,
                     0f,
@@ -80,6 +82,8 @@ class ActionResultTest {
         TripleObject to = dg.getTripleObjects().get(0);
         for (ActionResult actionResult : actionResults) {
             ObjectResult orNew = new ObjectResult(
+                    Origin.ASIO,
+                    State.CLOSED,
                     null,
                     to,
                     0f,

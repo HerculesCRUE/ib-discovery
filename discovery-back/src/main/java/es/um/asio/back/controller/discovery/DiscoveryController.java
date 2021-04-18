@@ -1,20 +1,18 @@
 package es.um.asio.back.controller.discovery;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import es.um.asio.service.config.Datasources;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.model.BasicAction;
+import es.um.asio.service.model.Decision;
 import es.um.asio.service.model.appstate.ApplicationState;
-import es.um.asio.service.model.relational.JobRegistry;
-import es.um.asio.service.model.relational.RequestRegistry;
-import es.um.asio.service.model.relational.RequestType;
+import es.um.asio.service.model.relational.*;
 import es.um.asio.service.repository.relational.RequestRegistryRepository;
 import es.um.asio.service.service.EntitiesHandlerService;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import es.um.asio.service.service.impl.DataHandlerImp;
 import es.um.asio.service.service.impl.JobHandlerServiceImp;
+import es.um.asio.service.service.impl.OpenSimilaritiesHandlerImpl;
 import es.um.asio.service.util.Utils;
 import es.um.asio.service.validation.group.Create;
 import io.swagger.annotations.*;
@@ -67,6 +65,9 @@ public class DiscoveryController {
 
     @Autowired
     RequestRegistryRepository requestRegistryRepository;
+
+    @Autowired
+    OpenSimilaritiesHandlerImpl openSimilaritiesHandler;
 
     @Value("${app.node}")
     String localNode;
@@ -491,8 +492,8 @@ public class DiscoveryController {
     }
 
     @PostMapping(Mappings.RELOAD_CACHE)
-    @ApiOperation(value = "Force reload cache from Triple Store Data", tags = "search")
-    public ResponseEntity<String> getResult() {
+    @ApiOperation(value = "Force reload cache from Triple Store Data", tags = "control")
+    public ResponseEntity<String> forceReloadCache() {
         try {
             if (applicationState.getAppState().getOrder() >= ApplicationState.AppState.INITIALIZED.getOrder()) {
                 dataHandler.populateData();
@@ -541,6 +542,59 @@ public class DiscoveryController {
         return new Gson().fromJson(jResponse,Map.class);
     }
 
+    @GetMapping(Mappings.GET_OPEN_OBJECT_RESULT)
+    @ApiOperation(value = "Get all Open Objects Result", tags = "search",
+            produces = "application/json")
+    public String getAllOpenObjectResult(
+            @ApiParam(name = "node", value = "The node to search", required = true, defaultValue = "um")
+            @RequestParam(required = true) @Validated(Create.class) final String node,
+            @ApiParam(name = "tripleStore", value = "The triple store to search", required = true, defaultValue = "fuseki")
+            @RequestParam(required = true) @Validated(Create.class) String tripleStore
+    ) {
+        List<ObjectResult> results = openSimilaritiesHandler.getOpenObjectResults(node,tripleStore);
+        Collections.sort(results,Collections.reverseOrder());
+        JsonArray response = new JsonArray();
+        for (ObjectResult or : results) {
+            response.add(or.toSimplifiedJson(true));
+        }
+        return new GsonBuilder().setPrettyPrinting().create().toJson(response);
+    }
+
+    @PostMapping(Mappings.ACTION_OVER_OBJECT_RESULT)
+    @ApiOperation(value = "Get all Open Objects Result", tags = "search",
+            produces = "application/json")
+    public String decisionOverObjectResult(
+            @ApiParam(name = "className", value = "The class name of the Object Result", required = true)
+            @RequestParam(required = true) @Validated(Create.class) final String className,
+            @ApiParam(name = "entityIdMainObject", value = "The entity Id of the main object", required = true)
+            @RequestParam(required = true) @Validated(Create.class) String entityIdMainObject,
+            @ApiParam(name = "entityIdRelatedObject", value = "The entity Id of the related object", required = true)
+            @RequestParam(required = true) @Validated(Create.class) String entityIdRelatedObject,
+            @ApiParam(name = "decision", value = "The decision over objects", required = true, allowableValues = "ACCEPTED, DISCARDED")
+            @RequestParam(required = true) @Validated(Create.class) Decision decision
+    ) {
+        Map<ObjectResult,List<ActionResult>> result = openSimilaritiesHandler.decisionOverObjectResult(className,entityIdMainObject,entityIdRelatedObject,decision);
+        JsonArray response = new JsonArray();
+        for (ObjectResult or : result.keySet()) {
+            response.add(or.toSimplifiedJson(true));
+        }
+        JsonArray jActionResults = new JsonArray();
+        for (List<ActionResult> arList : result.values()) {
+            for (ActionResult ar : arList) {
+                JsonObject jAction = new JsonObject();
+                jAction.addProperty("action", ar.getAction().toString());
+                JsonArray jObjectResultActionsArray = new JsonArray();
+                for (ObjectResult or : ar.getObjectResults()) {
+                    jObjectResultActionsArray.add(or.toSimplifiedJson(false));
+                }
+                jAction.add("items", jObjectResultActionsArray);
+                jActionResults.add(jAction);
+            }
+        }
+        return new GsonBuilder().setPrettyPrinting().create().toJson(jActionResults);
+    }
+
+
     static final class Mappings {
 
         private Mappings(){}
@@ -569,6 +623,10 @@ public class DiscoveryController {
         protected static final String LOD_SEARCH_ALL = "/lod/search/all";
 
         protected static final String GET_RESULT = "/result";
+
+        protected static final String GET_OPEN_OBJECT_RESULT = "/object-result/open";
+
+        protected static final String ACTION_OVER_OBJECT_RESULT = "/object-result/action";
 
     }
 }

@@ -131,10 +131,10 @@ public class DataHandlerImp implements DataHandler {
             updateState(DataType.CACHE,cache.getTriplesMap());
         }
         // Update data from triple store (add deltas)
-        updateCachedData(); //  quit comment
+        // updateCachedData(); //  quit comment
         // Update elasticSearch
         logger.info("Writing Triple Objects in Elasticsearch");
-        updateElasticData();
+        // updateElasticData();
         logger.info("Completed load data");
         return CompletableFuture.completedFuture(true);
     }

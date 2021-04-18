@@ -30,7 +30,7 @@ public class Value {
     public static final String TABLE = "val";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = Columns.ID)
     @EqualsAndHashCode.Include
     private long id;

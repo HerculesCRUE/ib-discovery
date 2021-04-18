@@ -30,7 +30,7 @@ import java.util.*;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @AllArgsConstructor
 @NoArgsConstructor
-public class ObjectResult {
+public class ObjectResult implements Comparable<ObjectResult>{
 
     public static final String TABLE = "object_result";
 
@@ -38,10 +38,14 @@ public class ObjectResult {
     public static final String SIMILARITY_NO_ID = "similarityWithoutId";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = Columns.ID)
     @EqualsAndHashCode.Include
     private long id;
+
+    @Column(name = Columns.ORIGIN, nullable = false,columnDefinition = "VARCHAR(40)",length = 40)
+    @Enumerated(value = EnumType.STRING)
+    private Origin origin;
 
     @Column(name = Columns.NODE, nullable = true,columnDefinition = "VARCHAR(100)",length = 100)
     @EqualsAndHashCode.Include
@@ -128,6 +132,10 @@ public class ObjectResult {
     @Enumerated(value = EnumType.STRING)
     private MergeAction mergeAction;
 
+    @Column(name = Columns.STATE, nullable = true,columnDefinition = "VARCHAR(40)",length = 40)
+    @Enumerated(value = EnumType.STRING)
+    private State state;
+
     @JsonIgnore
     @ManyToOne(optional = true, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     private ActionResult actionResultParent;
@@ -141,8 +149,10 @@ public class ObjectResult {
      * @param similarity Float. Value of the similarity
      * @param similarityWithOutId Float. Value of the similarity without id
      */
-    public ObjectResult(JobRegistry jobRegistry, TripleObject to, Float similarity, Float similarityWithOutId) {
+    public ObjectResult(Origin origin, State state,JobRegistry jobRegistry, TripleObject to, Float similarity, Float similarityWithOutId) {
         this.className = to.getClassName();
+        this.origin = origin;
+        this.state = state;
         this.node = to.getTripleStore().getNode().getNodeName();
         this.tripleStore = to.getTripleStore().getName();
         this.localURI = to.getLocalURI();
@@ -187,7 +197,7 @@ public class ObjectResult {
     public void addManual(ObjectResult objectResult){
         objectResult.isMain = false;
         objectResult.isManual = true;
-        objectResult.setParentAutomatic(this);
+        objectResult.setParentManual(this);
         this.manual.add(objectResult);
     }
 
@@ -269,6 +279,8 @@ public class ObjectResult {
         jResponse.addProperty("className",getClassName());
         jResponse.addProperty("entityId",getEntityId());
         jResponse.addProperty("localUri",getLocalURI());
+        jResponse.addProperty("origin",getOrigin().toString());
+        jResponse.addProperty("state",getState().toString());
         if (getSimilarity()!=null)
             jResponse.addProperty(SIMILARITY,getSimilarity());
         if (getSimilarityWithOutId()!=null)
@@ -304,6 +316,56 @@ public class ObjectResult {
             jResponse.add("actions",jActionResults);
         }
         return jResponse;
+    }
+
+
+    public void setStateFromChild() {
+        for (ObjectResult or : getAutomatic()) {
+            if (or.getState() == State.OPEN) {
+                this.state = State.OPEN;
+                return;
+            }
+        }
+
+        for (ObjectResult or : getManual()) {
+            if (or.getState() == State.OPEN) {
+                this.state = State.OPEN;
+                return;
+            }
+        }
+
+        for (ObjectResult or : getLink()) {
+            if (or.getState() == State.OPEN) {
+                this.state = State.OPEN;
+                return;
+            }
+        }
+        this.state = State.CLOSED;
+    }
+
+    public Float getMaxSimilarity() {
+        Float maxSimilarity = Math.max(((getSimilarity()!=null)?getSimilarity():0f),((getSimilarityWithOutId()!=null)?getSimilarityWithOutId():0f));
+        for (ObjectResult or : getAutomatic()) {
+            Float localMax = Math.max(((or.getSimilarity()!=null)?or.getSimilarity():0f),((or.getSimilarityWithOutId()!=null)?or.getSimilarityWithOutId():0f));
+            if (localMax>maxSimilarity)
+                maxSimilarity = localMax;
+        }
+        for (ObjectResult or : getManual()) {
+            Float localMax = Math.max(((or.getSimilarity()!=null)?or.getSimilarity():0f),((or.getSimilarityWithOutId()!=null)?or.getSimilarityWithOutId():0f));
+            if (localMax>maxSimilarity)
+                maxSimilarity = localMax;
+        }
+        for (ObjectResult or : getLink()) {
+            Float localMax = Math.max(((or.getSimilarity()!=null)?or.getSimilarity():0f),((or.getSimilarityWithOutId()!=null)?or.getSimilarityWithOutId():0f));
+            if (localMax>maxSimilarity)
+                maxSimilarity = localMax;
+        }
+        return maxSimilarity;
+    }
+
+    @Override
+    public int compareTo(ObjectResult o) {
+        return this.getMaxSimilarity().compareTo(o.getMaxSimilarity());
     }
 
     /**
@@ -373,6 +435,14 @@ public class ObjectResult {
          * MERGE_ACTION column.
          */
         protected static final String MERGE_ACTION = "merge_action";
+        /**
+         * ORIGIN column.
+         */
+        protected static final String STATE = "state";
+        /**
+         * ORIGIN column.
+         */
+        protected static final String ORIGIN = "origin";
 
     }
 }

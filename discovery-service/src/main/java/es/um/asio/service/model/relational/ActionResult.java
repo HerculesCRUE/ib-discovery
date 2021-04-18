@@ -27,7 +27,7 @@ public class ActionResult {
     public static final String TABLE = "action_result";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = Columns.ID)
     @EqualsAndHashCode.Include
     private long id;
