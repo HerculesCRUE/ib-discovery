@@ -82,6 +82,7 @@ public class Datasources {
                     this.nodes.add(n);
                 }
             }
+            logger.info("Nodes: {}",this.nodes);
         } catch (IOException e) {
             e.printStackTrace();
         }
