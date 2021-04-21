@@ -7,7 +7,7 @@ app:
   threadsInLod: 20
   defaultSchema: http://$domain$/$sub-domain$/$language$/$type$/$concept$/$reference$
   uris-factory-host: http://localhost:9321/
-  discovery-service-host: http://localhost:8089/
+  discovery-service-host: http://localhost:9329/
   service-data-name: Federation
 
   persistence:
