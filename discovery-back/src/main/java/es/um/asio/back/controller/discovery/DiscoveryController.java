@@ -85,7 +85,7 @@ public class DiscoveryController {
      *
      * @return Get the App status
      */
-    @GetMapping()
+    @GetMapping(Mappings.STATUS)
     @ApiOperation(value = "Get status of the Application", tags = "control")
     public ApplicationState status() {
         return applicationState;
@@ -561,7 +561,7 @@ public class DiscoveryController {
     }
 
     @PostMapping(Mappings.ACTION_OVER_OBJECT_RESULT)
-    @ApiOperation(value = "Get all Open Objects Result", tags = "search",
+    @ApiOperation(value = "Apply Decision over Object Result", tags = "search",
             produces = "application/json")
     public String decisionOverObjectResult(
             @ApiParam(name = "className", value = "The class name of the Object Result", required = true)

@@ -5,10 +5,10 @@
 | Fecha         | 28/04/2021                                                   |
 | Revisador por | Paloma Terán Pérez                                           |
 | Proyecto      | [ASIO](https://www.um.es/web/hercules/proyectos/asio) (Arquitectura Semántica e Infraestructura Ontológica) en el marco de la iniciativa [Hércules](https://www.um.es/web/hercules/) para la Semántica de Datos de Investigación de Universidades que forma parte de [CRUE-TIC](https://www.crue.org/proyecto/hercules/) |
-| Módulo        | Arquitectura Semántica                                       |
+| Módulo        | Discovery                                                    |
 | Tipo          | Documentación                                                |
 | Objetivo      | El presente documento describe el proceso de compilación y despliegue de la librería de descubrimiento. |
-| Documentación | [Librería de descubrimiento](https://github.com/HerculesCRUE/ib-asio-docs-/blob/master/24-Librer%C3%ADa_de_descubrimiento/ASIO_Libreria_de_descubrimiento.md)<br/>[Manual de usuario](./manual_de_usuario.md) (documentación de alto nivel)<br />[Documentación técnica](./documentacion-tecnica.md) (documentación de bajo nivel)<br/>[Documentación API REST de la Factoria de URIs](./documentacion_api_rest_de_la_libreria_de_descubrimiento.md) (documentación de bajo nivel)<br/>[README](../README.md)<br/>[docker](./docker.md)<br/>[Federación](https://github.com/HerculesCRUE/ib-discovery<br/>https://github.com/HerculesCRUE/ib-federation<br/>https://github.com/HerculesCRUE/ib-service-discovery)<br/>[Service Discovery](https://github.com/HerculesCRUE/ib-service-discovery) |
+| Documentación | [Librería de descubrimiento](https://github.com/HerculesCRUE/ib-asio-docs-/blob/master/24-Librer%C3%ADa_de_descubrimiento/README.md)<br/>[Manual de usuario](./manual_de_usuario.md) (documentación de alto nivel)<br />[Documentación técnica](./documentacion-tecnica.md) (documentación de bajo nivel)<br/>[Documentación API REST de la Factoria de URIs](./documentacion_api_rest_de_la_libreria_de_descubrimiento.md) (documentación de bajo nivel)<br/>[README](../README.md)<br/>[docker](./docker.md)<br/>[Federación](https://github.com/HerculesCRUE/ib-federation)<br/>[Service Discovery](https://github.com/HerculesCRUE/ib-service-discovery) |
 
 # Compilación
 
@@ -26,9 +26,13 @@ La librería de descubrimiento, tiene dependencias con las siguientes herramient
 
 Por lo tanto es necesario que estén configurados los parámetros de conexión a dichos componentes. Estos parámetros de conexión pueden establecerse por medio de variables de entorno tal como se indica en el fichero [README.md](https://github.com/HerculesCRUE/ib-uris-generator/blob/master/README.md#variables-de-entorno) (sección Variables de entorno).
 
-También es posible y recomendable desplegar el entorno (con las dependencias adecuadamente configuradas para su uso por la librería). Esto esta descrito en en el fichero [README.md](https://github.com/HerculesCRUE/ib-uris-generator/blob/master/README.md#entorno-de-desarrollo-docker) (sección entorno de desarrollo Docker).
+También tiene dependencias con los siguientes servicios de la arquitectura de la solución ASIO:
 
-Es conveniente también tener en cuenta que que la librería de descubrimiento esta diseñada para interactuar con otros componentes de la arquitectura, por lo que para su correcta utilización, componentes tales como el event processor, deben de escuchar los mensajes de cambios, emitidos por la librería e implementar las acciones, o por ejemplo el frontal, deberá de ofrecer al usuario la posibilidad de decidir si dos entidades identificadas como similares, son en realidad la misma, y por lo tanto realizar las acciones de merge que correspondan, o de desechar los cambios.
+* [Federación](https://github.com/HerculesCRUE/ib-federation): Para acceder a los datos de los distintos nodos de la solución ASIO.
+* [Service Discovery](https://github.com/HerculesCRUE/ib-service-discovery): Para que los distintos nodos de federación, conozcan las ubicaciones del resto de nodos.
+* [Event Proccesor](https://github.com/HerculesCRUE/ib-event-processor): Para implementar las acciones de cambio de instancias sobre los Triple Stores.
+
+También es posible y recomendable desplegar el entorno (con las dependencias adecuadamente configuradas para su uso por la librería). Esto esta descrito en en el fichero [README.md](https://github.com/HerculesCRUE/ib-uris-generator/blob/master/README.md#entorno-de-desarrollo-docker) (sección entorno de desarrollo Docker).
 
 ## Despliegue de la librería
 
@@ -51,11 +55,11 @@ Para ello daremos dos opciones:
 
 Para ello tenemos que seguir los siguientes pasos:
 
-1. Descarga de binarios de la ultima release en el [repositorio de la librería](https://github.com/HerculesCRUE/ib-discovery/releases/tag/v1.2.0).
+1. Descarga de binarios de la ultima release en el [repositorio de la librería](https://github.com/HerculesCRUE/ib-discovery/releases/tag/2.0.0).
 
    
 
-   ![jar](./img/jar.png)
+   ![jar](./img/release.png)
 
 
 
@@ -154,34 +158,34 @@ Para ello tenemos que seguir los siguientes pasos:
    - Aplicación discovery: http://localhost:{SERVER_PORT}
    - Swagger discovery: http://localhost:{SERVER_PORT}/swagger-ui.html
 
-### Modulos
+### Módulos
 
 #### Back
 
 Los artefactos se encuentran dentro de discovery-back/target
 
-* Artefacto: discovery-back-{version}.jar
+* Artefacto: discovery-back-{versión}.jar
 
 #### Service
 
 Los artefactos se encuentran dentro de discovery-service/target
 
-* Artefacto: discovery-service-{version}.jar
+* Artefacto: discovery-service-{versión}.jar
 
 #### Service Abstractions
 
 Los artefactos se encuentran dentro de discovery-service-abstractions/target
 
-* Artefacto: discovery-service-abstractions-{version}.jar
+* Artefacto: discovery-service-abstractions-{versión}.jar
 
 #### JPA Abstractions
 
 Los artefactos se encuentran dentro de discovery-jpa-abstractions/target
 
-* Artefacto:discoveryr-jpa-abstractions-{version}.jar
+* Artefacto: discovery-jpa-abstractions-{versión}.jar
 
 #### Swagger
 
 Los artefactos se encuentran dentro dediscovery-swagger/target
 
-* Artefacto: discovery-swagger-{version}.jar
+* Artefacto: discovery-swagger-{versión}.jar

@@ -1,18 +1,18 @@
 ![cabecera](./img/logos_feder.png)
 
-# Documentación técnica para la Factoría de URIs 
+# Documentación técnica para la Librería de descubrimiento 
 
 | Entregable     | Documentación de la librería de descubrimiento               |
 | -------------- | ------------------------------------------------------------ |
 | Fecha          | 28/04/2021                                                   |
 | Revisado por   | Paloma Terán Pérez                                           |
 | Proyecto       | [ASIO](https://www.um.es/web/hercules/proyectos/asio) (Arquitectura Semántica e Infraestructura Ontológica) en el marco de la iniciativa [Hércules](https://www.um.es/web/hercules/) para la Semántica de Datos de Investigación de Universidades que forma parte de [CRUE-TIC](https://www.crue.org/proyecto/hercules/) |
-| Módulo         | Arquitectura Semántica                                       |
-| Tipo           | Documento                                                    |
-| Objetivo       | El presente documento pretende ser la documentación técnica relativa a el entregable librería de descubrimiento. Para ello, se documentaran exhaustivamente tanto los aspectos relativos a su despliegue, como todos los End Point que esta ofrece a otros procesos o usuarios, para interactuar con la misma. |
-| Estado         | Todas los objetivos (excepto el de búsqueda de instancias relacionadas en la nube LOD), enumeradas en el punto anterior, están implementadas al **100%**. Dado que para implementar el objetivo restante, se reutilizara la mayor parte de la algoritmia implementada, las partes necesarias a desarrollar se concentraran básicamente en los conectores y mapeos descritos en el documento por lo que se estima que el nivel de completitud de la librería seria aproximadamente de un **75%** |
-| Próximos pasos | La integración con componentes desarrollados en una fase de madurez no final, o otros por desarrollar (tales como la gestión de eventos de acciones propagados por la librería o la parte del frontal web que permita aceptar o desechar sugerencias de similitud por parte de usuarios finales), quizás requieran la modificación o creación de algún EndPoint adicional, aunque según lo descrito en el apartado anterior, la implementación de estos desde el punto de vista de la librería debería de ser trivial. |
-| Documentación  | [Librería de descubrimiento](https://github.com/HerculesCRUE/ib-asio-docs-/blob/master/24-Librer%C3%ADa_de_descubrimiento/ASIO_Libreria_de_descubrimiento.md)<br/>[Manual de usuario](./manual_de_usuario.md) (documentación de alto nivel)<br />[Documentación técnica](./documentacion-tecnica.md) (documentación de bajo nivel)<br/>[Documentación API REST de la librería de descubrimiento](./documentacion_api_rest_de_la_libreria_de_descubrimiento.md) (documentación de bajo nivel)<br/>[README](../README.md)<br/>[docker](./docker.md)<br/>[Federación](https://github.com/HerculesCRUE/ib-discovery<br/>https://github.com/HerculesCRUE/ib-federation<br/>https://github.com/HerculesCRUE/ib-service-discovery)<br/>[Service Discovery](https://github.com/HerculesCRUE/ib-service-discovery) |
+| Módulo         | Discovery                                                    |
+| Tipo           | Software                                                     |
+| Objetivo       | Librería de descubrimiento para el proyecto Backend SGI (ASIO). |
+| Estado         | Completado                                                   |
+| Próximos pasos | -                                                            |
+| Documentación  | [Librería de descubrimiento](https://github.com/HerculesCRUE/ib-asio-docs-/tree/master/24-Librer%C3%ADa_de_descubrimiento)<br/>[Manual de usuario](./manual_de_usuario.md) (documentación de alto nivel)<br />[Documentación API REST de la librería de descubrimiento](./documentacion_api_rest_de_la_libreria_de_descubrimiento.md) (documentación de bajo nivel)<br/>[README](../README.md)<br/>[docker](./docker.md)<br/>[Federación](https://github.com/HerculesCRUE/ib-federation)<br/>[Service Discovery](https://github.com/HerculesCRUE/ib-service-discovery) |
 
 
 
@@ -245,7 +245,7 @@ Entre las entidades destacan:
 * **cache_registry:** Datos de auditoria, sobre las actualizaciones en la cache REDIS.
 * **elastic_registry:** Datos de auditoria, sobre las actualizaciones en Elasticsearch.
 * **job_registry:** Entidad que modela un tipo de petición. Por cada petición distinta se creara un Job_registry. 
-* **request_registry:** Entidad que modela las peticiones realizadas por el usuario. Dichas peticiones pueden ser procesadas de forma sincrona o asincrona. En el segundo de los casos, se asegura de que si se realiza la misma petición mas de una vez (mismo Job_registry), esta solo será procesada una sola vez, y los datos serán enviados a todos los usuarios, que los solicitaron.
+* **request_registry:** Entidad que modela las peticiones realizadas por el usuario. Dichas peticiones pueden ser procesadas de forma síncrona o asíncrona. En el segundo de los casos, se asegura de que si se realiza la misma petición mas de una vez (mismo Job_registry), esta solo será procesada una sola vez, y los datos serán enviados a todos los usuarios, que los solicitaron.
 * **object_result:** Entidad que modela el resultado de una Job_Registry o actúa como hija de otro Object Result. Modela la parte de los metadatos descrita por la entidad TripleObject. Es una entidad recursiva, es decir las se apunta a si misma para modelar la lista de los similitudes automáticas, manuales y link con otros Backend SGI. Las entidades attribute y  value, modelan los atributos en forma de clave-valor de forma que siempre es posible la conversión entre un Object Result y a un TripleObject y viceversa.
 * **attibute:** Entidad que modela la parte de el key, del clave valor.  
 * **value:** Entidad que modela la parte de el valor, del clave valor.  El valor puede apuntar a un attribute, en caso de un objeto, de esta forma es posible modelar la anidación de objetos. 
@@ -258,7 +258,7 @@ Entre las entidades destacan:
 
 ##### Problema
 
-Es importante para comprender el diseño de la aplicación, ponerse en contexto del reto planteado. Básicamente una vez implementada la algoritmia descrita  en el documento [ASIO_Libreria_de_descubrimiento.md](https://github.com/HerculesCRUE/ib-asio-docs-/blob/master/24-Librer%C3%ADa_de_descubrimiento/ASIO_Libreria_de_descubrimiento.md), nos encontramos ante un problema  de rendimiento (como cabria esperar).
+Es importante para comprender el diseño de la aplicación, ponerse en contexto del reto planteado. Básicamente una vez implementada la algoritmia descrita  en el documento [Librería de descubrimiento](https://github.com/HerculesCRUE/ib-asio-docs-/tree/master/24-Librer%C3%ADa_de_descubrimiento), nos encontramos ante un problema  de rendimiento (como cabria esperar).
 
 El problema radica que para evaluar si hay duplicados dentro de una misma clase, es necesario evaluar cada uno de los elementos con el resto. Esto nos lleva a una complejidad n*(n-1), es decir del tipo cuadrática O(n^2).
 

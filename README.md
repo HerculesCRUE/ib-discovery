@@ -2,17 +2,17 @@
 
 
 
-| Entregable     | Procesador de datos                                          |
+| Entregable     | Librería de descubrimiento                                   |
 | -------------- | ------------------------------------------------------------ |
 | Fecha          | 28/04/2021                                                   |
-| Revisado por   | Paloma Terán Pérez                                           |
+| Revisado por   | Daniel Ruiz Santamaría                                       |
 | Proyecto       | [ASIO](https://www.um.es/web/hercules/proyectos/asio) (Arquitectura Semántica e Infraestructura Ontológica) en el marco de la iniciativa [Hércules](https://www.um.es/web/hercules/) para la Semántica de Datos de Investigación de Universidades que forma parte de [CRUE-TIC](http://www.crue.org/SitePages/ProyectoHercules.aspx) |
 | Módulo         | Discovery                                                    |
 | Tipo           | Software                                                     |
 | Objetivo       | Librería de descubrimiento para el proyecto Backend SGI (ASIO). |
-| Estado         | Todas los objetivos (excepto el de búsqueda de instancias relacionadas en la nube LOD), enumeradas en el punto anterior, están implementadas al **100%**. Dado que para implementar el objetivo restante, se reutilizara la mayor parte de la algoritmia implementada, las partes necesarias a desarrollar se concentraran básicamente en los conectores y mapeos descritos en el documento por lo que se estima que el nivel de completitud de la librería seria aproximadamente de un **75%** |
-| Próximos pasos | La integración con componentes desarrollados en una fase de madurez no final, o otros por desarrollar (tales como la gestión de eventos de acciones propagados por la librería o la parte del frontal web que permita aceptar o desechar sugerencias de similitud por parte de usuarios finales), quizás requieran la modificación o creación de algún EndPoint adicional, aunque según lo descrito en el apartado anterior, la implementación de estos desde el punto de vista de la librería debería de ser trivial. |
-| Documentación  | [Librería de descubrimiento](https://github.com/HerculesCRUE/ib-asio-docs-/blob/master/24-Librer%C3%ADa_de_descubrimiento/ASIO_Libreria_de_descubrimiento.md)<br/>[Manual de usuario](./docs/manual_de_usuario.md) (documentación de alto nivel)<br />[Documentación técnica](./docs/documentacion-tecnica.md) (documentación de bajo nivel)<br/>[Documentación API REST de la librería de descubrimiento](./docs/documentacion_api_rest_de_la_libreria_de_descubrimiento.md) (documentación de bajo nivel)<br/>[docker](./docs/docker.md)<br/>[Federación](https://github.com/HerculesCRUE/ib-discovery<br/>https://github.com/HerculesCRUE/ib-federation<br/>https://github.com/HerculesCRUE/ib-service-discovery)<br/>[Service Discovery](https://github.com/HerculesCRUE/ib-service-discovery) |
+| Estado         | Completada                                                   |
+| Próximos pasos | -                                                            |
+| Documentación  | [Librería de descubrimiento](https://github.com/HerculesCRUE/ib-asio-docs-/tree/master/24-Librer%C3%ADa_de_descubrimiento)<br/>[Manual de usuario](./docs/manual_de_usuario.md) (documentación de alto nivel)<br />[Documentación técnica](./docs/documentacion-tecnica.md) (documentación de bajo nivel)<br/>[Documentación API REST de la librería de descubrimiento](./docs/documentacion_api_rest_de_la_libreria_de_descubrimiento.md) (documentación de bajo nivel)<br/>[docker](./docs/docker.md)<br/>[Federación](https://github.com/HerculesCRUE/ib-discovery<br/>https://github.com/HerculesCRUE/ib-federation<br/>https://github.com/HerculesCRUE/ib-service-discovery)<br/>[Service Discovery](https://github.com/HerculesCRUE/ib-service-discovery) |
 
 # ASIO - Discovery
 
