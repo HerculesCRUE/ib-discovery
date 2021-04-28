@@ -4,7 +4,8 @@
 
 | Entregable     | Procesador de datos                                          |
 | -------------- | ------------------------------------------------------------ |
-| Fecha          | 17/12/2020                                                   |
+| Fecha          | 28/04/2021                                                   |
+| Revisado por   | Paloma Terán Pérez                                           |
 | Proyecto       | [ASIO](https://www.um.es/web/hercules/proyectos/asio) (Arquitectura Semántica e Infraestructura Ontológica) en el marco de la iniciativa [Hércules](https://www.um.es/web/hercules/) para la Semántica de Datos de Investigación de Universidades que forma parte de [CRUE-TIC](http://www.crue.org/SitePages/ProyectoHercules.aspx) |
 | Módulo         | Discovery                                                    |
 | Tipo           | Software                                                     |
@@ -63,7 +64,7 @@ docker-compose down
 
 ## Swagger
 
-Se ha añadido la posibilidad de utilizar Swagger. Para acceder a Swagger, se utilizará la siguiente URL:
+Se ha añadido la posibilidad de utilizar Swagger. Para acceder a Swagger desde local, se utilizará la siguiente URL:
 
 * http://localhost:8080/swagger-ui.html
 
@@ -136,7 +137,7 @@ No es necesario especificar la clase de inicio de la aplicación, ya que el fich
 
 Se incluyen los resultados del testing y cobertura en los siguientes enlaces:
 
-* [Testing](http://herc-iz-front-desa.atica.um.es:8070/discovery/surefire/surefire-report.html)
+* [Testing](https://reports.herculesasioizertis.desa.um.es/discovery/surefire/surefire-report.html)
 * [Cobertura](https://sonarcloud.io/component_measures?id=HerculesCRUE_ib-discovery&metric=coverage&view=list)
 
 ##  Documentación adicional

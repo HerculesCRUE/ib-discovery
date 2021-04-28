@@ -2,7 +2,8 @@
 
 | Entregable     | Documentación de la librería de descubrimiento               |
 | -------------- | ------------------------------------------------------------ |
-| Fecha          | 17/12/2020                                                   |
+| Fecha          | 28/04/2021                                                   |
+| Revisado por   | Daniel Ruiz Santamaría                                       |
 | Proyecto       | [ASIO](https://www.um.es/web/hercules/proyectos/asio) (Arquitectura Semántica e Infraestructura Ontológica) en el marco de la iniciativa [Hércules](https://www.um.es/web/hercules/) para la Semántica de Datos de Investigación de Universidades que forma parte de [CRUE-TIC](https://www.crue.org/proyecto/hercules/) |
 | Módulo         | Discovery                                                    |
 | Tipo           | Documentación                                                |
