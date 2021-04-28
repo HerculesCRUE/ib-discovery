@@ -20,7 +20,7 @@ La librería de descubrimiento despliega los siguientes EndPoints:
 
 ### Implementación
 
-Es implementado por el controlador [DiscoveryController] descrito en la [seccion controladores, de la documentacion tecnica](./documentacion-tecnica.md#Controladores) 
+Es implementado por el controlador DiscoveryController descrito en la [seccion controladores, de la documentacion tecnica](./documentacion-tecnica.md#Controladores) 
 
 ### EndPoints
 
