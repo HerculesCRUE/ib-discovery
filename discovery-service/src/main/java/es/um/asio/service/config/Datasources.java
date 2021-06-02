@@ -1,6 +1,5 @@
 package es.um.asio.service.config;
 
-import com.google.api.client.json.Json;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import es.um.asio.service.util.Utils;

@@ -1,7 +1,5 @@
 package es.um.asio.service.repository.redis;
 
-import es.um.asio.service.service.impl.TextHandlerServiceImp;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.HashSet;

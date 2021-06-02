@@ -1,7 +1,5 @@
 package es.um.asio.service.model.rdf;
 
-import es.um.asio.service.config.DataProperties;
-
 /**
  * Constant of RDF format types
  * @author  Daniel Ruiz Santamaría

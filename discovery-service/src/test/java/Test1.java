@@ -1,16 +1,6 @@
 import es.um.asio.service.util.Utils;
-import org.apache.commons.io.output.WriterOutputStream;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.vocabulary.VCARD4;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.*;
 
 
 public class Test1 {

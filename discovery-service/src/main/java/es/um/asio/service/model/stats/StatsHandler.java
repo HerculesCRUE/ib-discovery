@@ -1,7 +1,6 @@
 package es.um.asio.service.model.stats;
 
 import es.um.asio.service.model.TripleObject;
-import es.um.asio.service.model.relational.Value;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

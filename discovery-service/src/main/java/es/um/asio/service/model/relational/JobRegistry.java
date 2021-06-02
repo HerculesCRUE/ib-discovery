@@ -1,7 +1,6 @@
 package es.um.asio.service.model.relational;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import es.um.asio.service.model.TripleObject;

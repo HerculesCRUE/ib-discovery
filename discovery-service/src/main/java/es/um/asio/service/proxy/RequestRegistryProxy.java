@@ -2,7 +2,6 @@ package es.um.asio.service.proxy;
 
 import es.um.asio.service.model.relational.RequestRegistry;
 import es.um.asio.service.model.relational.RequestType;
-import es.um.asio.service.model.relational.Value;
 
 import java.util.Optional;
 

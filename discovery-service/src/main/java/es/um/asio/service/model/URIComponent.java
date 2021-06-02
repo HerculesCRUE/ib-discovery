@@ -1,7 +1,5 @@
 package es.um.asio.service.model;
 
-import es.um.asio.service.util.Utils;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,8 +7,6 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static java.lang.Character.isUpperCase;
 

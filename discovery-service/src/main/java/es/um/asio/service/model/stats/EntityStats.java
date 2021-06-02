@@ -1,7 +1,6 @@
 package es.um.asio.service.model.stats;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.um.asio.service.model.relational.Value;
 import es.um.asio.service.util.Utils;
 import lombok.Getter;
 import lombok.Setter;

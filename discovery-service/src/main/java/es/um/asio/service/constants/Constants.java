@@ -1,7 +1,5 @@
 package es.um.asio.service.constants;
 
-import es.um.asio.service.config.DataProperties;
-
 /**
  * Constant in Application.
  * @author  Daniel Ruiz Santamaría

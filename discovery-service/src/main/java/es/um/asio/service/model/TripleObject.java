@@ -9,7 +9,6 @@ import es.um.asio.service.comparators.entities.EntitySimilarity;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.model.rdf.TripleObjectLink;
-import es.um.asio.service.model.relational.Value;
 import es.um.asio.service.model.stats.AttributeStats;
 import es.um.asio.service.model.stats.EntityStats;
 import es.um.asio.service.service.impl.CacheServiceImp;
@@ -25,7 +24,6 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import javax.persistence.Id;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Date;
 
 /**
  * TripleObject Class. Generalized model for entities.

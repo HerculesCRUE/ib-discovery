@@ -2,7 +2,6 @@ package es.um.asio.service.repository.triplestore;
 
 import es.um.asio.service.config.Datasources;
 import es.um.asio.service.model.BasicAction;
-
 import es.um.asio.service.service.SchemaService;
 import es.um.asio.service.service.impl.CacheServiceImp;
 

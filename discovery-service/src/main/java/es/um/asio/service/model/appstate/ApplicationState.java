@@ -2,7 +2,6 @@ package es.um.asio.service.model.appstate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.JsonObject;
-import es.um.asio.service.config.DataProperties;
 import es.um.asio.service.listener.AppEvents;
 import es.um.asio.service.model.relational.DiscoveryApplication;
 import lombok.Getter;

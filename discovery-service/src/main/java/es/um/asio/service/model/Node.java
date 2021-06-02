@@ -1,6 +1,5 @@
 package es.um.asio.service.model;
 
-import com.google.api.client.json.Json;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import es.um.asio.service.model.relational.Value;

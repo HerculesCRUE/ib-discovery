@@ -7,7 +7,6 @@ import com.google.gson.JsonObject;
 import com.squareup.okhttp.*;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.URIComponent;
-
 import es.um.asio.service.service.SchemaService;
 import es.um.asio.service.util.Utils;
 import org.jsoup.Connection;
@@ -17,7 +16,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;

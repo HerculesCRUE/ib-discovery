@@ -2,7 +2,6 @@ package es.um.asio.service.model;
 
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
-import es.um.asio.service.model.rdf.TripleObjectLink;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;

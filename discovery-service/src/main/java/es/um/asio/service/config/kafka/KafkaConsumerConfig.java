@@ -1,9 +1,7 @@
 package es.um.asio.service.config.kafka;
 
 
-import es.um.asio.service.comparators.entities.SimilarityValue;
 import es.um.asio.service.config.DataProperties;
-import es.um.asio.service.model.TripleObject;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;

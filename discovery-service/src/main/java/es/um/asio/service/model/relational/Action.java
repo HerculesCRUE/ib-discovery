@@ -1,7 +1,5 @@
 package es.um.asio.service.model.relational;
 
-import es.um.asio.service.config.DataProperties;
-
 /**
  * Enumerated Class. In relational model the Action to do.
  * @author  Daniel Ruiz Santamaría

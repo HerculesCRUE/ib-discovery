@@ -2,7 +2,6 @@ package es.um.asio.service.model.elasticsearch;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.internal.LinkedTreeMap;
-import es.um.asio.service.config.DataProperties;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
 import es.um.asio.service.util.Utils;

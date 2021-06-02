@@ -1,7 +1,5 @@
 package es.um.asio.service.exceptions;
 
-import es.um.asio.service.config.DataProperties;
-
 /**
  * Exception CustomDiscoveryException.
  * @author  Daniel Ruiz Santamaría

@@ -1,6 +1,5 @@
 package es.um.asio.service.comparators.entities;
 
-import es.um.asio.service.model.TripleObject;
 import lombok.Getter;
 import lombok.Setter;
 

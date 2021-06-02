@@ -6,21 +6,20 @@ import com.github.jsonldjava.shaded.com.google.common.io.CharStreams;
 import es.um.asio.service.service.impl.EntitiesHandlerServiceImp;
 import org.apache.commons.io.IOUtils;
  */
+
+import com.jayway.restassured.mapper.ObjectMapper;
+import com.jayway.restassured.mapper.ObjectMapperDeserializationContext;
+import com.jayway.restassured.mapper.ObjectMapperSerializationContext;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.jena.ext.com.google.common.io.CharSource;
 import org.apache.jena.ext.com.google.common.io.CharStreams;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFWriter;
-
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-
-import com.jayway.restassured.mapper.ObjectMapper;
-import com.jayway.restassured.mapper.ObjectMapperDeserializationContext;
-import com.jayway.restassured.mapper.ObjectMapperSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.*;
 
 /**
  * Mapper for objects to RDF

@@ -1,7 +1,6 @@
 package es.um.asio.service.model.appstate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import es.um.asio.service.config.DataProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

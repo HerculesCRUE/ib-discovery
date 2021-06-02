@@ -1,7 +1,5 @@
 package es.um.asio.service.service;
 
-import es.um.asio.service.model.TripleObject;
-
 /**
  * TextHandlerService interface. For remove stop words
  * @author  Daniel Ruiz Santamaría

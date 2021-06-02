@@ -1,7 +1,6 @@
 package es.um.asio.service.model;
 
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
-import es.um.asio.service.model.relational.Value;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

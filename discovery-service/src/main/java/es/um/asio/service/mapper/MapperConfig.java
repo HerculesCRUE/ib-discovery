@@ -1,6 +1,5 @@
 package es.um.asio.service.mapper;
 
-import es.um.asio.service.config.DataProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 

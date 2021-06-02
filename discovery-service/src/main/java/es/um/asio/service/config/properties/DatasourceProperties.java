@@ -1,10 +1,7 @@
 package es.um.asio.service.config.properties;
 
-import es.um.asio.service.config.DataProperties;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.kafka.clients.admin.NewTopic;
-import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.validation.annotation.Validated;
 
 
