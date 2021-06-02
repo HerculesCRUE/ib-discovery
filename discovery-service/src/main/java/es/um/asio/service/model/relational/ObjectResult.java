@@ -7,6 +7,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.model.TripleObject;
 import lombok.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import java.util.*;
@@ -31,6 +33,8 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ObjectResult implements Comparable<ObjectResult>{
+
+    private final Logger logger = LoggerFactory.getLogger(ObjectResult.class);
 
     public static final String TABLE = "object_result";
 
@@ -172,7 +176,7 @@ public class ObjectResult implements Comparable<ObjectResult>{
             try {
                 this.attributes.add(new Attribute(attEntry.getKey(), attEntry.getValue(), this));
             } catch (Exception e) {
-                System.out.println();
+                logger.error(e.getMessage());
             }
         }
     }

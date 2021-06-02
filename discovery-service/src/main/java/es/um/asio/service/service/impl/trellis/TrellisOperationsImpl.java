@@ -211,9 +211,7 @@ public class TrellisOperationsImpl implements TrellisOperations {
             if (entityModel!=null) {
                 operation = "UPDATE";
 
-                if (isFullURI) {
-                    url = url;
-                } else {
+                if (!isFullURI) {
                     if (url.endsWith("/")) {
                         url = url + tripleObjectLink.getId();
                     } else {
@@ -342,9 +340,7 @@ public class TrellisOperationsImpl implements TrellisOperations {
                 operation = "INSERT";
             }
 
-            if (isFullURI) {
-                url = url;
-            } else {
+            if (!isFullURI) {
                 if (url.endsWith("/")) {
                     url = url + tripleObjectLink.getURLEndedID(); // AQUI
                 } else {

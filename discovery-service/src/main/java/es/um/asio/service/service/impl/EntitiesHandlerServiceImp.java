@@ -242,7 +242,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
         // Split in sets
         int counter = 0;
         for (Map.Entry<String, TripleObject> toEntry : tripleObjects.entrySet()) {
-            int splitSet = Integer.valueOf(counter/((threadsInLod!=null)?threadsInLod:4));
+            int splitSet = counter/((threadsInLod!=null)?threadsInLod:4);
             if (!triplesSplits.containsKey(splitSet))
                 triplesSplits.put(splitSet,new ArrayList<>());
             triplesSplits.get(splitSet).add(toEntry.getValue());

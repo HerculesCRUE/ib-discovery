@@ -61,8 +61,7 @@ public class RdfObjectMapper implements ObjectMapper  {
         } else if (MediaTypes.APPLICATION_JSON.equals(mediaType) ||
                 MediaTypes.APPLICATION_LD_JSON.equals(mediaType)) {
             return "JSON-LD";
-        } else  if (MediaTypes.APPLICATION_SPARQL_UPDATE.equals(mediaType) ||
-                MediaTypes.APPLICATION_SPARQL_UPDATE.equals(mediaType)) {
+        } else  if (MediaTypes.APPLICATION_SPARQL_UPDATE.equals(mediaType)) {
             return "sparql-update";
         }
 

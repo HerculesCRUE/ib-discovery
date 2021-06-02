@@ -47,7 +47,7 @@ public class OpenSimilaritiesHandlerImpl implements OpenSimilaritiesHandler {
                     break;
                 }
             }
-            if (or == null || or.getState() == State.CLOSED) {
+            if (null == or || or.getState() == State.CLOSED) {
                 throw new CustomDiscoveryException(String.format("Entity of class: %s with entityId: %s not found related entity with entityId: %s or State is closed: %s",className,entityIdMainObject,entityIdRelatedObject,or.getState().toString()));
             } else {
                 if (decision == Decision.DISCARDED) {

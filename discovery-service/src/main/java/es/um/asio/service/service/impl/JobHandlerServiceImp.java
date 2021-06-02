@@ -28,6 +28,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -184,13 +185,13 @@ public class JobHandlerServiceImp {
             jobRegistry.setSearchFromDelta(deltaDate);
         }
         RequestRegistry requestRegistry;
-        Optional<RequestRegistry> requestRegistryOpt = null;
+        Optional<RequestRegistry> requestRegistryOpt = Optional.empty();
         try {
             requestRegistryOpt = requestRegistryProxy.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, RequestType.ENTITY_LINK_CLASS);
         } catch (Exception e) {
 
         }
-        if (requestRegistryOpt == null || requestRegistryOpt.isEmpty()) {
+        if (requestRegistryOpt.isEmpty()) {
             requestRegistry = new RequestRegistry(userId, requestCode, RequestType.ENTITY_LINK_CLASS, new Date());
         } else {
             requestRegistry = requestRegistryOpt.get();
@@ -226,6 +227,7 @@ public class JobHandlerServiceImp {
         handleQueueFindSimilarities();
         return jobRegistry;
     }
+
 
 
     /**
@@ -837,7 +839,7 @@ public class JobHandlerServiceImp {
                         HttpResponse.BodyHandlers.ofString());
                 String body = response.body();
                 logger.info("Response Callback: {}", body);
-            } catch (Exception e) {
+            } catch (InterruptedException | IOException e) {
                 logger.error("Error in callback at URL: {}", webHook);
             }
         }

@@ -355,7 +355,7 @@ public class DiscoveryController {
             @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka,
             @ApiParam(name = "applyDelta", value = "SearchindEntityLinkByEntityAndNodeTripleStoreAndClass only from last date in similar request", defaultValue = "true",required = true)
             @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta
-    ) throws IOException {
+    ) {
 
         if (!doSynchronous && ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
             throw new CustomDiscoveryException("The request must be synchronous or web hook or/and propague in kafka must be valid" );
