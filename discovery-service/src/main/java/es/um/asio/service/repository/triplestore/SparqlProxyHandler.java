@@ -131,7 +131,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
                             }
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        logger.error(e.getMessage());
                     }
                 }
                 logger.info("Updating cache instances by {} class in Node {}: Changes ({}/{})",className,nodeName,classChanges,classInstances);

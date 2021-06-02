@@ -91,7 +91,6 @@ public class RdfObjectMapper implements ObjectMapper  {
                 return m;
             } catch (IOException e) {
                 logger.error("Error in deserialize: {}",text);
-                e.printStackTrace();
                 return null;
             }
         } else

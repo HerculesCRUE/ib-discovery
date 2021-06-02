@@ -105,7 +105,7 @@ public class TripleObject {
                 this.attributes = new Gson().fromJson(jTripleObject.get("attributes").getAsJsonObject().toString(), LinkedTreeMap.class);
             buildFlattenAttributes();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
 
