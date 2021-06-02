@@ -35,6 +35,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Job Handler implementation.
@@ -839,7 +840,9 @@ public class JobHandlerServiceImp {
                         HttpResponse.BodyHandlers.ofString());
                 String body = response.body();
                 logger.info("Response Callback: {}", body);
-            } catch (InterruptedException | IOException e) {
+            } catch (InterruptedException e) {
+                logger.error("Error in callback at URL: {}", webHook);
+            } catch (IOException e) {
                 logger.error("Error in callback at URL: {}", webHook);
             }
         }

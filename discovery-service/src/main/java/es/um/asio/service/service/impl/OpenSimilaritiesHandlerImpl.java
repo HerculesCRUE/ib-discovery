@@ -9,6 +9,7 @@ import es.um.asio.service.service.OpenSimilaritiesHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 @Service
@@ -40,6 +41,7 @@ public class OpenSimilaritiesHandlerImpl implements OpenSimilaritiesHandler {
             if (!toPropague.containsKey(orm)) {
                 toPropague.put(orm,new ArrayList<>());
             }
+            @Nullable
             ObjectResult or = null;
             for (ObjectResult orr : orm.getManual()) { // Para todos los manuales
                 if (orr.getEntityId().equals(entityIdRelatedObject)) {
