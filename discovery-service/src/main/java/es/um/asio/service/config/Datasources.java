@@ -73,7 +73,7 @@ public class Datasources {
 
             Map<String,String> qParams = new HashMap<>();
             qParams.put("serviceName",getServiceDataName());
-            logger.info("DataSource: "+ this.toString());
+            logger.info("DataSource: {}",this.toString());
             JsonElement jResponse = Utils.doRequest(new URL(getDiscoveryServiceHost()+"service-discovery/service"), Connection.Method.GET,null,null,qParams,true);
             if (jResponse!=null && jResponse.isJsonArray()) {
                 for (JsonElement jeNode : jResponse.getAsJsonArray()) {
@@ -177,7 +177,8 @@ public class Datasources {
             if (jNode.has("services")) {
                 for (JsonElement jeService : jNode.get("services").getAsJsonArray()) {
                     JsonObject jService = jeService.getAsJsonObject();
-                    String host = null,port = null;
+                    String host = null;
+                    String port = null;
                     if (jService.has("baseURL"))
                         host = jService.get("baseURL").getAsString();
                     if (jService.has("port"))

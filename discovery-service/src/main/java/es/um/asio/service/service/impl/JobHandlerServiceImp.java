@@ -189,7 +189,7 @@ public class JobHandlerServiceImp {
         try {
             requestRegistryOpt = requestRegistryProxy.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, RequestType.ENTITY_LINK_CLASS);
         } catch (Exception e) {
-
+            logger.error(e.getMessage());
         }
         if (requestRegistryOpt.isEmpty()) {
             requestRegistry = new RequestRegistry(userId, requestCode, RequestType.ENTITY_LINK_CLASS, new Date());
@@ -640,7 +640,7 @@ public class JobHandlerServiceImp {
                         objectResult.addAutomatic(objResAuto);
 
                     } catch (Exception e) {
-                        System.out.println();
+                        logger.error(e.getMessage());
                     }
 
 
@@ -671,14 +671,14 @@ public class JobHandlerServiceImp {
                             trellisCache.saveInCache("lod-links/" + eso.getDataSource(),containerLodDataSource,Constants.CACHE_TRELLIS_CONTAINER);
                         }
                     }
-                    pathContainer = pathContainer + "/" +eso.getDataSource();
+                    pathContainer = String.format("%s/%s", pathContainer, eso.getDataSource());
                     if (trellisCache.find(pathContainer + "/"+ tripleObjectAutomatic.getClassName(),Constants.CACHE_TRELLIS_CONTAINER) == null) {
                         String containerLodDataSourceClass = trellisOperations.saveContainer(pathContainer,tripleObjectAutomatic.getClassName(),false);
                         if (containerLodDataSourceClass!=null) {
                             trellisCache.saveInCache(pathContainer + "/"+ tripleObjectAutomatic.getClassName(),containerLodDataSourceClass,Constants.CACHE_TRELLIS_CONTAINER);
                         }
                     }
-                    pathContainer = pathContainer + "/" + tripleObjectAutomatic.getClassName();
+                    pathContainer = String.format("%s/%s", pathContainer, tripleObjectAutomatic.getClassName());
                     // Inserto el elemento a linkar
 
                     List<Pair<String,String>> properties = new ArrayList<>();
@@ -840,9 +840,9 @@ public class JobHandlerServiceImp {
                 String body = response.body();
                 logger.info("Response Callback: {}", body);
             } catch (InterruptedException e) {
-                logger.error("Error in callback at URL: {}", webHook);
+                logger.error("Error InterruptedException in callback at URL: {}", webHook);
             } catch (IOException e) {
-                logger.error("Error in callback at URL: {}", webHook);
+                logger.error("Error IOException in callback at URL: {}", webHook);
             }
         }
     }

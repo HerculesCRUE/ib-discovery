@@ -95,7 +95,7 @@ public class DataHandlerImp implements DataHandler {
 
     @PostConstruct
     private void initialize() {
-        logger.info("datasources: {}", dataSources.toString());
+        logger.info("datasources: {}", dataSources);
         logger.info("Initializing DataHandlerImp");
         handlers = new ArrayList<>();
         DiscoveryApplication discoveryApplication = applicationState.getApplication();
@@ -235,7 +235,8 @@ public class DataHandlerImp implements DataHandler {
         for (Datasources.Node node : dataSources.getNodes()) {
             for (Datasources.Node.TripleStore ts : node.getTripleStores()) {
                 TripleStoreHandler handler = TripleStoreHandler.getHandler(domain,schemaService, dataSources, node,ts);
-                isChanged = isChanged | handler.updateData(cache);
+                boolean dataChanged = handler.updateData(cache);
+                isChanged = isChanged || dataChanged;
             }
         }
         if(isChanged) {

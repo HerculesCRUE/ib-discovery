@@ -224,7 +224,7 @@ public class JobRegistry {
      * @throws Throwable
      */
     @Override
-    public void finalize() throws Throwable {
+    protected void finalize() throws Throwable {
         super.finalize();
     }
 

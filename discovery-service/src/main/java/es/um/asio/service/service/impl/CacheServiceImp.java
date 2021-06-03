@@ -146,7 +146,7 @@ public class CacheServiceImp implements CacheService {
             redisServiceImp.setEntityStats(this.statsHandler);
             redisServiceImp.setElasticSearchTriplesMap(this.esTriplesMap);
         } catch (Exception e) {
-            logger.error("Error in saveInCache: "+ e.getMessage());
+            logger.error("Error in saveInCache: {}",e.getMessage());
         }
     }
 
@@ -158,7 +158,7 @@ public class CacheServiceImp implements CacheService {
         try {
             redisServiceImp.setTriplesMap(this.triplesMap, true,true);
         } catch (Exception e) {
-            logger.error("Error in saveTriplesMapInCache: "+ e.getMessage());
+            logger.error("Error in saveTriplesMapInCache: {}",e.getMessage());
         }
     }
 
@@ -173,7 +173,7 @@ public class CacheServiceImp implements CacheService {
         try {
             redisServiceImp.setTriplesMap(getTipleMapByNodeAndTripleStoreAndClassName(node, tripleStore, className), true, true);
         } catch (Exception e) {
-            logger.error("Error saving in REDIS: "+ e.getMessage());
+            logger.error("Error saving in REDIS: {}",e.getMessage());
         }
     }
 
@@ -231,7 +231,7 @@ public class CacheServiceImp implements CacheService {
         try {
             redisServiceImp.setEntityStats(this.statsHandler);
         } catch (Exception e) {
-            logger.error("Error in setEntityStats: "+ e.getMessage());
+            logger.error("Error in setEntityStats: {}",e.getMessage());
         }
     }
 
@@ -243,7 +243,7 @@ public class CacheServiceImp implements CacheService {
         try {
             redisServiceImp.setElasticSearchTriplesMap(this.esTriplesMap);
         } catch (Exception e) {
-            logger.error("Error in setElasticSearchTriplesMap: "+ e.getMessage());
+            logger.error("Error in setElasticSearchTriplesMap: {}",e.getMessage());
         }
     }
 
@@ -256,7 +256,7 @@ public class CacheServiceImp implements CacheService {
         try {
             return redisServiceImp.getTriplesMap();
         } catch (Exception e) {
-            logger.error("Error in loadTiplesMapFromCache: "+ e.getMessage());
+            logger.error("Error in loadTiplesMapFromCache: {}",e.getMessage());
             return new HashMap<>();
         }
     }
@@ -270,7 +270,7 @@ public class CacheServiceImp implements CacheService {
         try {
             return redisServiceImp.getFilteredTriples();
         } catch (Exception e) {
-            logger.error("Error in loadFilteredMapFromCache: "+ e.getMessage());
+            logger.error("Error in loadFilteredMapFromCache: {}",e.getMessage());
             return new HashMap<>();
         }
     }
@@ -285,7 +285,7 @@ public class CacheServiceImp implements CacheService {
         try {
             return redisServiceImp.getEntityStats();
         } catch (Exception e) {
-            logger.error("Error in loadEntitiesStatsFromCache: "+ e.getMessage());
+            logger.error("Error in loadEntitiesStatsFromCache: {}",e.getMessage());
             return null;
         }
     }
@@ -299,7 +299,7 @@ public class CacheServiceImp implements CacheService {
         try {
             return redisServiceImp.getElasticSearchTriplesMap();
         } catch (Exception e) {
-            logger.error("Error in loadElasticSearchTiplesMapFromCache: "+ e.getMessage());
+            logger.error("Error in loadElasticSearchTiplesMapFromCache: {}",e.getMessage());
             return new HashMap<>();
         }
     }
