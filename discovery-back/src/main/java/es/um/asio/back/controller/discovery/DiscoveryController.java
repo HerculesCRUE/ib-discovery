@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -513,7 +514,7 @@ public class DiscoveryController {
 
     @GetMapping(Mappings.GET_RESULT)
     @ApiOperation(value = "Get Job Result by UserId, RequestCode and RequestType", tags = "search")
-    public Map<String,Object> doForceReloadCache(
+    public Map<String,Object> getResult(
             @ApiParam(name = "userId", value = "The User Id of the request", required = true)
             @RequestParam(required = true) @Validated(Create.class) final String userId,
             @ApiParam(name = "requestCode", value = "The Request Code of the request", required = true)
@@ -538,6 +539,32 @@ public class DiscoveryController {
             jJobRegistry.addProperty("requestType", requestType.toString());
             jJobRegistry.addProperty("status", "not found");
             jResponse.add("response", jJobRegistry);
+        }
+        return new Gson().fromJson(jResponse,Map.class);
+    }
+
+    @GetMapping(Mappings.GET_RESULT + "/{userId}")
+    @ApiOperation(value = "Get Job Result by UserId", tags = "search")
+    public Map<String,Object> getResultByUserId(
+            @ApiParam(name = "userId", value = "The User Id of the request", required = true)
+            @PathVariable(required = true,value = "userId") @Validated(Create.class) final String userId
+    ) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        JsonObject jResponse = new JsonObject();
+        Optional<List<RequestRegistry>> requestRegistries = requestRegistryRepository.findByUserIdOrderByRequestDateDesc(userId);
+        if (requestRegistries.isPresent()) {
+            for (RequestRegistry rr: requestRegistries.get()) {
+                if (!jResponse.has(rr.getRequestType().toString())) {
+                    jResponse.add(rr.getRequestType().toString(), new JsonObject());
+                }
+                if (!jResponse.get(rr.getRequestType().toString()).getAsJsonObject().has(rr.getJobRegistry().getClassName())) {
+                    jResponse.get(rr.getRequestType().toString()).getAsJsonObject().add(rr.getJobRegistry().getClassName(), new JsonArray());
+                }
+                JsonObject jItem = new JsonObject();
+                jItem.addProperty("requestCode",rr.getRequestCode());
+                jItem.addProperty("requestDate",sdf.format(rr.getRequestDate()));
+                jResponse.get(rr.getRequestType().toString()).getAsJsonObject().get(rr.getJobRegistry().getClassName()).getAsJsonArray().add(jItem);
+            }
         }
         return new Gson().fromJson(jResponse,Map.class);
     }
@@ -623,6 +650,7 @@ public class DiscoveryController {
         protected static final String LOD_SEARCH_ALL = "/lod/search/all";
 
         protected static final String GET_RESULT = "/result";
+
 
         protected static final String GET_OPEN_OBJECT_RESULT = "/object-result/open";
 

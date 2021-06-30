@@ -259,7 +259,12 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
             Map<TripleObject,CompletableFuture<Response>> futures = new HashMap<>(); // Futures in split
 
             for (TripleObject to : split) { // Por cada Triple Object
-                futures.put(to, doRequestInLod((datasource == null || datasource.trim().equals("*"))?lodConfiguration.getDatasetsComaSeparated():datasource.replaceAll(" ",""),to));
+                try {
+                    futures.put(to, doRequestInLod((datasource == null || datasource.trim().equals("*")) ? lodConfiguration.getDatasetsComaSeparated() : datasource.replaceAll(" ", ""), to));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println();
+                }
             }
 
             for (Map.Entry<TripleObject, CompletableFuture<Response>> future : futures.entrySet()) { // Por cada future

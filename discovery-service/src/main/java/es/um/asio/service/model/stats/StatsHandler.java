@@ -47,6 +47,7 @@ public class StatsHandler {
                 stats.get(node).get(triple).put(to.getClassName(), new EntityStats(to.getClassName()));
             }
             EntityStats es = stats.get(node).get(triple).get(to.getClassName());
+            es.setCounter(es.getCounter()+1);
             for (Map.Entry<String, Object> attEntity : to.getAttributes().entrySet()) { // Para todos los attributos
                 es.addValue(attEntity.getKey(),attEntity.getValue());
             }

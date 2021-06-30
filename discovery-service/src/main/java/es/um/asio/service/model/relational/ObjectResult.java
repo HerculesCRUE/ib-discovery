@@ -34,6 +34,8 @@ import java.util.*;
 @NoArgsConstructor
 public class ObjectResult implements Comparable<ObjectResult>{
 
+    @Transient
+    @JsonIgnore
     private final Logger logger = LoggerFactory.getLogger(ObjectResult.class);
 
     public static final String TABLE = "object_result";
@@ -285,6 +287,7 @@ public class ObjectResult implements Comparable<ObjectResult>{
         jResponse.addProperty("localUri",getLocalURI());
         jResponse.addProperty("origin",getOrigin().toString());
         jResponse.addProperty("state",getState().toString());
+        jResponse.addProperty("id",getId());
         if (getSimilarity()!=null)
             jResponse.addProperty(SIMILARITY,getSimilarity());
         if (getSimilarityWithOutId()!=null)

@@ -25,6 +25,7 @@ import java.util.Set;
 public class AttributeStats extends ObjectStat{
 
     Set<Object> values;
+    private int counter;
 
     /**
      * Constructor

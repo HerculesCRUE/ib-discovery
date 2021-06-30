@@ -16,7 +16,6 @@ import lombok.Setter;
 public abstract class ObjectStat {
 
     private String name;
-    private int counter;
 
     /**
      * Calculate importance ratio for Entities

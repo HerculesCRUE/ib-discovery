@@ -37,12 +37,14 @@ public class OpenSimilaritiesHandlerImpl implements OpenSimilaritiesHandler {
         if (oMainOR.isEmpty()) {
             throw new CustomDiscoveryException(String.format("Entity of class: %s with entityId: %s not found",className,entityIdMainObject));
         }
+        List<ObjectResult> omor = oMainOR.get();
         for (ObjectResult orm : oMainOR.get()) { // Por cada Main Object Result encontrado
             if (!toPropague.containsKey(orm)) {
                 toPropague.put(orm,new ArrayList<>());
             }
             @Nullable
             ObjectResult or = null;
+            Set<ObjectResult> manuales = orm.getManual();
             for (ObjectResult orr : orm.getManual()) { // Para todos los manuales
                 if (orr.getEntityId().equals(entityIdRelatedObject)) {
                     or = orr;
@@ -50,7 +52,7 @@ public class OpenSimilaritiesHandlerImpl implements OpenSimilaritiesHandler {
                 }
             }
             if (null == or || or.getState() == State.CLOSED) {
-                throw new CustomDiscoveryException(String.format("Entity of class: %s with entityId: %s not found related entity with entityId: %s or State is closed: %s",className,entityIdMainObject,entityIdRelatedObject,or.getState().toString()));
+                // throw new CustomDiscoveryException(String.format("Entity of class: %s with entityId: %s not found related entity with entityId: %s or State is closed: %s",className,entityIdMainObject,entityIdRelatedObject,or.getState().toString()));
             } else {
                 if (decision == Decision.DISCARDED) {
                     or.setState(State.DISCARDED);

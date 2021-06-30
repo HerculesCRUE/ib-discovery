@@ -132,9 +132,12 @@ public class DataHandlerImp implements DataHandler {
         }
         // Update data from triple store (add deltas)
         updateCachedData(); //  quit comment
+        applicationState.setDataState(DataType.CACHE, State.UPLOAD_DATA);
         // Update elasticSearch
         logger.info("Writing Triple Objects in Elasticsearch");
+        applicationState.setDataState(DataType.ELASTICSEARCH, State.CACHED_DATA);
         updateElasticData();
+        applicationState.setDataState(DataType.ELASTICSEARCH, State.UPLOAD_DATA);
         logger.info("Completed load data");
         return CompletableFuture.completedFuture(true);
     }
@@ -182,10 +185,14 @@ public class DataHandlerImp implements DataHandler {
                 Set<TripleObject> tos = cache.getAllTripleObjects(node,tripleStore); // Todas las tripletas
 
                 for (TripleObject to : tos) {
-                    if (!savedInES.containsKey(to.getClassName()) || !savedInES.get(to.getClassName()).contains(to.getId())) {
-                        if (!toSaveES.containsKey(to.getClassName()))
-                            toSaveES.put(to.getClassName(), new HashMap<>());
-                        toSaveES.get(to.getClassName()).put(to.getId(), new TripleObjectES(to));
+                    try {
+                        if (!savedInES.containsKey(to.getClassName()) || !savedInES.get(to.getClassName()).contains(to.getId())) {
+                            if (!toSaveES.containsKey(to.getClassName()))
+                                toSaveES.put(to.getClassName(), new HashMap<>());
+                            toSaveES.get(to.getClassName()).put(to.getId(), new TripleObjectES(to));
+                        }
+                    } catch (Exception e) {
+                        System.out.println();
                     }
                 }
 
@@ -199,9 +206,8 @@ public class DataHandlerImp implements DataHandler {
                 }
             }
         }
-        applicationState.setDataState(DataType.ELASTICSEARCH, State.UPLOAD_DATA);
-        updateState(DataType.ELASTICSEARCH,cache.getTriplesMap());
 
+        updateState(DataType.ELASTICSEARCH,cache.getTriplesMap());
 
     }
 

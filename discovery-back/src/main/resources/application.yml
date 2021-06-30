@@ -4,7 +4,7 @@ app:
   domain: ldp.herculesasioizertis.desa.um.es
   subdomain: um
   language: en-EN
-  threadsInLod: 20
+  threadsInLod: 10
   defaultSchema: http://$domain$/$sub-domain$/$language$/$type$/$concept$/$reference$
   uris-factory-host: http://localhost:9321/
   discovery-service-host: http://localhost:9329/

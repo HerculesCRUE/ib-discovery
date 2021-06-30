@@ -33,12 +33,6 @@ class ObjectStatTest {
         Assert.assertEquals(os.getName(),rnd);
     }
 
-    @Test
-    void setCounter() {
-        int rnd = Math.abs(new Random().nextInt());
-        os.setCounter(rnd);
-        Assert.assertEquals(os.getCounter(),rnd);
-    }
 
     @Test
     void getName() {
@@ -47,12 +41,6 @@ class ObjectStatTest {
         Assert.assertEquals(os.getName(),rnd);
     }
 
-    @Test
-    void getCounter() {
-        int rnd = Math.abs(new Random().nextInt());
-        os.setCounter(rnd);
-        Assert.assertEquals(os.getCounter(),rnd);
-    }
 
     @Test
     void getRelativeImportanceRatio() {

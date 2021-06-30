@@ -24,6 +24,7 @@ public class EntityStats extends ObjectStat{
 
     Map<String,AttributeStats> attValues;
     Map<String,EntityStats> objValues;
+    private int counter;
 
     private final Logger logger = LoggerFactory.getLogger(EntityStats.class);
 
@@ -45,7 +46,7 @@ public class EntityStats extends ObjectStat{
      * @param value Object. The value
      */
     public void addValue(String name,Object value) {
-        setCounter(getCounter()+1);
+        //setCounter(getCounter()+1);
         if (Utils.isPrimitive(value)) { // Si es primitivo
             addAttValue(name,value);
         } else { // Si es un objeto
@@ -59,12 +60,14 @@ public class EntityStats extends ObjectStat{
      * @param value Object. The value
      */
     private void addAttValue(String name,Object value) {
-        setCounter(getCounter()+1);
+        // setCounter(getCounter()+1);
         AttributeStats attributeStats;
-        if (!attValues.containsKey(name))
+        if (!attValues.containsKey(name)) {
             attributeStats = new AttributeStats(name);
-        else
+        }
+        else {
             attributeStats = attValues.get(name);
+        }
         attributeStats.addValue(value);
         attValues.put(name,attributeStats);
     }

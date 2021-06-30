@@ -28,6 +28,16 @@ public interface RequestRegistryRepository extends JpaRepository<RequestRegistry
 
 
     /**
+     * Find by userId and RequestCode And RequestType
+     * @param userId String. The User id.
+     * @param requestCode String. The Request code.
+     * @param requestType String. The Request type.
+     * @return Optional<RequestRegistry>
+     */
+    Optional<List<RequestRegistry>> findByUserIdOrderByRequestDateDesc(String userId);
+
+
+    /**
      * Find distinct request codes
      * @return List<String> of distinct request codes
      */

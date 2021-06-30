@@ -318,10 +318,11 @@ public class CacheServiceImp implements CacheService {
      */
     @Override
     public void generateEntityStats() {
+        statsHandler.cleanStats();
         for (Map.Entry<String, Map<String, Map<String, Map<String, TripleObject>>>> nodeEntry: triplesMap.entrySet()) { // Node
-            for (Map.Entry<String, Map<String, Map<String, TripleObject>>> tripleEntry: nodeEntry.getValue().entrySet()) { // Node
-                for (Map.Entry<String, Map<String, TripleObject>> classEntry: tripleEntry.getValue().entrySet()) { // Node
-                    for (Map.Entry<String, TripleObject> tipleObjectEntry: classEntry.getValue().entrySet()) { // Node
+            for (Map.Entry<String, Map<String, Map<String, TripleObject>>> tripleEntry: nodeEntry.getValue().entrySet()) { // Triple
+                for (Map.Entry<String, Map<String, TripleObject>> classEntry: tripleEntry.getValue().entrySet()) { // Class
+                    for (Map.Entry<String, TripleObject> tipleObjectEntry: classEntry.getValue().entrySet()) { // TripleObject
                         statsHandler.addAttributes(nodeEntry.getKey(),tripleEntry.getKey(),tipleObjectEntry.getValue());
                     }
                 }
@@ -558,6 +559,7 @@ public class CacheServiceImp implements CacheService {
     @Override
     public void updateStats() {
         statsHandler = new StatsHandler();
+        statsHandler.cleanStats();
         for (Map.Entry<String, Map<String, Map<String, Map<String, TripleObject>>>> nodeEntry: triplesMap.entrySet()) { // Node
             for (Map.Entry<String, Map<String, Map<String, TripleObject>>> tripleEntry: nodeEntry.getValue().entrySet()) { // Triple
                 for (Map.Entry<String, Map<String, TripleObject>> classEntry: tripleEntry.getValue().entrySet()) { // Class
