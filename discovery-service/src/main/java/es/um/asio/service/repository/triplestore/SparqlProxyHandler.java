@@ -203,6 +203,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
          url = buildQueryParams(url,queryParams);
         }
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setConnectTimeout(1800000);
         con.setRequestMethod(method.toString());
         if (headers!=null) {
             for (Map.Entry<String, String> headerEntry : headers.entrySet()) {
