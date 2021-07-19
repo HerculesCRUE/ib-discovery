@@ -1,7 +1,7 @@
 ---
 app:
   node: um
-  domain: ldp.herculesasioizertis.desa.um.es
+  domain: ldpld1.um.es
   subdomain: um
   language: en-EN
   threadsInLod: 10

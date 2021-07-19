@@ -92,7 +92,7 @@ services:
       - KAFKA_BROKER_ID=1
       - KAFKA_LISTENERS=PLAINTEXT://:9092
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:12181
       - ALLOW_PLAINTEXT_LISTENER=yes
     depends_on:
       - zookeeper
@@ -101,8 +101,24 @@ services:
 #    ports:
 #      - 80:8080
 #      - 81:8081
+
+  periodic-backup:
+    build: .
+    container_name: database-backup
+    environment:
+      - MYSQL_CONTAINER_NAME=db
+      - MYSQL_PORT=root
+      - MYSQL_ROOT_USER=root
+      - MYSQL_ROOT_PASSWORD=1z3rt1s
+    depends_on:
+      - db
+    volumes:
+      - mysql-backup:/opt/mysql/backup
+    restart: always
+
 volumes:
   mysql-data2:
   redis-data:
+  mysql-backup:
   elasticsearch-data:
     driver: local

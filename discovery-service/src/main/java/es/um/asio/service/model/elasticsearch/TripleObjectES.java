@@ -85,12 +85,14 @@ public class TripleObjectES implements Comparable<TripleObjectES>{
     private LinkedTreeMap<String,Object> normalizeAttributes(LinkedTreeMap<String,Object> attributes) {
         LinkedTreeMap<String,Object> attributesAux = new LinkedTreeMap<>();
         for (Map.Entry<String, Object> attEntry : attributes.entrySet()) {
-            if (Utils.isDate(attEntry.getValue().toString())) { // Si es fecha normalizo
-                attributesAux.put(attEntry.getKey(),normalizeDate(attEntry.getValue().toString()));
-            } else if (attEntry.getValue() instanceof LinkedTreeMap) { // Si es objeto anidado
-                attributesAux.put(attEntry.getKey(),normalizeAttributes((LinkedTreeMap<String, Object>) attEntry.getValue()));
-            } else {
-                attributesAux.put(attEntry.getKey(),attEntry.getValue());
+            if (attEntry.getValue()!=null) {
+                if (Utils.isDate(attEntry.getValue().toString())) { // Si es fecha normalizo
+                    attributesAux.put(attEntry.getKey(), normalizeDate(attEntry.getValue().toString()));
+                } else if (attEntry.getValue() instanceof LinkedTreeMap) { // Si es objeto anidado
+                    attributesAux.put(attEntry.getKey(), normalizeAttributes((LinkedTreeMap<String, Object>) attEntry.getValue()));
+                } else {
+                    attributesAux.put(attEntry.getKey(), attEntry.getValue());
+                }
             }
         }
         return attributesAux;

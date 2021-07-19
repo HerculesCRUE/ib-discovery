@@ -1,0 +1,27 @@
+#!/bin/sh
+
+BACKUP_FOLDER=/opt/mysql/backup
+NOW=$(date '+%d_%m_%y %H:%M:%S')
+echo $NOW
+GZIP=$(which gzip)
+echo $GZIP
+MYSQLDUMP=$(which mysqldump)
+echo $MYSQLDUMP
+
+### MySQL Server Login info ###
+MHOST=$MYSQL_CONTAINER_NAME
+echo "MHOST=${MHOST}"
+MPASS=$MYSQL_ROOT_PASSWORD
+echo "MPASS=${MPASS}"
+MUSER=$MYSQL_ROOT_USER
+echo "MUSER=${MUSER}"
+
+[ ! -d "$BACKUP_FOLDER" ] && mkdir --parents $BACKUP_FOLDER
+
+for DB in $(mysql -h $MHOST -P 3306 -u $MUSER -p${MPASS} -e 'show databases' -s --skip-column-names)
+do
+    FILE=${BACKUP_FOLDER}/backup-${DB}-${NOW}.sql;
+    FILE=/opt/mysql/backup/backup-${DB}-${NOW}.sql;
+    echo "${MYSQLDUMP} -h ${MHOST} -P 3307 -u ${MUSER} -p${MPASS}"
+    $MYSQLDUMP -h $MHOST -P 3306 -u $MUSER -p${MPASS} --databases $DB > $FILE;
+done
