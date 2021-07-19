@@ -1,5 +1,9 @@
 # Registro de cambios
 
+## 2.1-SNAPSHOT (15/07/2021)
+
+- Corrección de errores
+
 ## 2.0-SNAPSHOT (13/05/2021)
 
 - Integración con Factoría de URIs.
