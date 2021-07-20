@@ -131,7 +131,7 @@ public class DataHandlerImp implements DataHandler {
             updateState(DataType.CACHE,cache.getTriplesMap());
         }
         // Update data from triple store (add deltas)
-        updateCachedData(); //  quit comment
+        // updateCachedData(); //  quit comment
         applicationState.setDataState(DataType.CACHE, State.UPLOAD_DATA);
         // Update elasticSearch
         logger.info("Writing Triple Objects in Elasticsearch");
@@ -192,7 +192,7 @@ public class DataHandlerImp implements DataHandler {
                             toSaveES.get(to.getClassName()).put(to.getId(), new TripleObjectES(to));
                         }
                     } catch (Exception e) {
-                        System.out.println();
+                        logger.error(e.getMessage());
                     }
                 }
 

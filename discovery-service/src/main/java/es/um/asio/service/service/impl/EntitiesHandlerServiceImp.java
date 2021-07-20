@@ -418,7 +418,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
                 float filterScore = matches.get(matches.size()-1).getScore()+ ((matches.get(0).getScore()-matches.get(matches.size()-1).getScore())*(float) dataSources.getThresholds().getElasticSearchCutOffAccordPercentile());
                 matches = matches.stream().filter(toEs -> toEs.getScore() >= filterScore).collect(Collectors.toList());
             }
-            return TripleObjectES.getTripleObjects(matches);
+            return TripleObjectES.getTripleObjects(matches).stream().filter(inner -> inner.getClassName().equals(to.getClassName())).collect(Collectors.toList());
         }
         return new ArrayList<>();
     }
