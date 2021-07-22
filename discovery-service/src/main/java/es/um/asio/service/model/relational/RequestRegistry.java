@@ -15,7 +15,7 @@ import java.util.Objects;
  * @since   1.0
  */
 @Entity
-@Table(name = RequestRegistry.TABLE, uniqueConstraints = {@UniqueConstraint(columnNames = {RequestRegistry.Columns.USER_ID,RequestRegistry.Columns.REQUEST_CODE,RequestRegistry.Columns.REQUEST_TYPE})})
+@Table(name = RequestRegistry.TABLE /*, uniqueConstraints = {@UniqueConstraint(columnNames = {RequestRegistry.Columns.USER_ID,RequestRegistry.Columns.REQUEST_CODE,RequestRegistry.Columns.REQUEST_TYPE})}*/)
 @Getter
 @Setter
 @AllArgsConstructor

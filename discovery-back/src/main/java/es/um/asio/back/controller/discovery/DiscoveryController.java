@@ -79,6 +79,8 @@ public class DiscoveryController {
     @Value("${lod.port}")
     String lodPort;
 
+    Set<String> tempRequestCode = new HashSet<>();
+
     private static final Logger logger = LoggerFactory.getLogger(DiscoveryController.class);
 
     /**
@@ -278,8 +280,8 @@ public class DiscoveryController {
             @RequestParam(required = false, defaultValue = "false") @Validated(Create.class) final boolean doSynchronous,
             @ApiParam(name = "webHook", value = "Web Hook, URL Callback with response", required = false)
             @RequestParam(required = false) @Validated(Create.class) final String webHook,
-            @ApiParam(name = "propague_in_kafka", value = "true", required = false)
-            @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka,
+            @ApiParam(name = "propague_in_kafka", value = "false", required = false)
+            @RequestParam(required = false, defaultValue = "false") @Validated(Create.class) final boolean propagueInKafka,
             @ApiParam(name = "linkEntities", value = "true", required = true)
             @RequestParam(required = true) @Validated(Create.class) final boolean linkEntities,
             @NotNull @RequestBody final Object object
@@ -289,8 +291,9 @@ public class DiscoveryController {
         if (requestCode == null) {
             do {
                 requestCode = UUID.randomUUID().toString();
-            } while (requestRegistryRepository.existRequestCode(requestCode)!=0);
+            } while (requestRegistryRepository.existRequestCode(requestCode)!=0 && !tempRequestCode.contains(requestCode));
         }
+        tempRequestCode.add(requestCode);
         if (!requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode, RequestType.ENTITY_LINK_INSTANCE).isEmpty())
             throw new CustomDiscoveryException("UserId and RequestCode for type ENTITY_LINK_CLASS must be unique");
 
@@ -322,8 +325,10 @@ public class DiscoveryController {
             } else {
                 jResponse.addProperty("message","Application is not ready, please retry late");
             }
+            tempRequestCode.remove(requestCode);
             return new Gson().fromJson(jResponse,Map.class);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new CustomDiscoveryException(e.getMessage());
         }
     }
