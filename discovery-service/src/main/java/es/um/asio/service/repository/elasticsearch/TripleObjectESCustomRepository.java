@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.javatuples.Pair;
@@ -69,7 +70,8 @@ public class TripleObjectESCustomRepository{
                         for (Object val : (List)att.getValue(1)) {
                             if (val instanceof String) {
                                 if (!Utils.isDate((String) val))
-                                    boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format(ATTRIBUTES_REGEX, att.getValue(0)), textHandler.removeStopWords((String) val)));
+                                    boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format(ATTRIBUTES_REGEX, att.getValue(0)), textHandler.removeStopWords((String) val)).fuzziness(Fuzziness.AUTO));
+                                    // boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format(ATTRIBUTES_REGEX, att.getValue(0)), textHandler.removeStopWords((String) val)));
                                 else
                                     boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format(ATTRIBUTES_REGEX, att.getValue(0)), String.valueOf(val)));
                             } else {
