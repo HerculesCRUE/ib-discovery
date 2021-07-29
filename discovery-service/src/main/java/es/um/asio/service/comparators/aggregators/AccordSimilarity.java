@@ -24,13 +24,7 @@ import java.util.stream.Collectors;
 public class AccordSimilarity {
 
     private static TextHandlerServiceImp textHandlerServiceImp;
-    @Autowired
-    private TextHandlerServiceImp textHandlerService;
 
-    @PostConstruct
-    public void init() {
-       AccordSimilarity.textHandlerServiceImp = textHandlerService;
-    }
 
     /**
      * Default constructor
