@@ -2,8 +2,13 @@ package es.um.asio.service.comparators.aggregators;
 
 
 import es.um.asio.service.comparators.strings.*;
+import es.um.asio.service.service.TextHandlerService;
+import es.um.asio.service.service.impl.TextHandlerServiceImp;
 import es.um.asio.service.util.Utils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -15,7 +20,17 @@ import java.util.stream.Collectors;
  * @version 2.0
  * @since   1.0
  */
+@Component
 public class AccordSimilarity {
+
+    private static TextHandlerServiceImp textHandlerServiceImp;
+    @Autowired
+    private TextHandlerServiceImp textHandlerService;
+
+    @PostConstruct
+    public void init() {
+       AccordSimilarity.textHandlerServiceImp = textHandlerService;
+    }
 
     /**
      * Default constructor
@@ -34,13 +49,23 @@ public class AccordSimilarity {
      * @return float as the value of the similarity by accord
      */
     public static float calculateAccordSimilarity(String str1, String str2) {
-        str1 = Utils.normalize(str1);
-        str2 = Utils.normalize(str2);
+
+        if (textHandlerServiceImp == null) {
+            textHandlerServiceImp = new TextHandlerServiceImp();
+            textHandlerServiceImp.init();
+        }
+
+        str1 = textHandlerServiceImp.removeStopWords(Utils.normalize(str1));
+        str2 = textHandlerServiceImp.removeStopWords(Utils.normalize(str2));
+        boolean equalsTokens = str1.split(" ").length == str2.split(" ").length;
         Map<String,Float> metrics = new HashMap<>();
         for (Map.Entry<String, Similarity> e : getAlgorithms().entrySet()) {
             metrics.put(e.getKey(), e.getValue().calculateSimilarity(str1,str2));
-        }
+        } // (equalsTokens || m < 1)
         List<Float> lMetrics = new ArrayList<>(metrics.values());
+        if (!equalsTokens) {
+            lMetrics = lMetrics.stream().filter(m -> m < 1).collect(Collectors.toList());
+        }
         List<Float> filtered = lMetrics.stream().filter(m-> m >= 0.6f).collect(Collectors.toList());
         if (filtered.size() >=5 )
             Collections.sort(lMetrics,Collections.reverseOrder());

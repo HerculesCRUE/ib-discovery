@@ -35,8 +35,8 @@ class AccordSimilarityTest {
 
     @Test
     void simpleSimilarity() {
-        String s1 = "Daniel Ruiz Santamaria";
-        String s2 = "Ruiz Santamaría, D.";
+        String s1 = "Universidad de Murcia";
+        String s2 = "Facultad de la Universidad de Murcia";
         float similarity = AccordSimilarity.calculateAccordSimilarity(s1, s2);
         Assert.assertTrue(similarity>= 0.2);
     }
