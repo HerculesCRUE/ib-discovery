@@ -57,7 +57,7 @@ public class AccordSimilarity {
             metrics.put(e.getKey(), e.getValue().calculateSimilarity(str1,str2));
         } // (equalsTokens || m < 1)
         List<Float> lMetrics = new ArrayList<>(metrics.values());
-        if (!equalsTokens) {
+        if (!equalsTokens && lMetrics.stream().mapToDouble(Double::valueOf).sum() < lMetrics.size()) {
             lMetrics = lMetrics.stream().filter(m -> m < 1).collect(Collectors.toList());
         }
         List<Float> filtered = lMetrics.stream().filter(m-> m >= 0.6f).collect(Collectors.toList());
@@ -65,7 +65,18 @@ public class AccordSimilarity {
             Collections.sort(lMetrics,Collections.reverseOrder());
         else
             Collections.sort(lMetrics);
-        return getDescendantWeightMean(lMetrics,(1f/3f));
+        if (lMetrics.size()>2)
+            return getDescendantWeightMean(lMetrics,(1f/3f));
+        else {
+            if (lMetrics.size() == 0) {
+                if (str1.contains(str2) || str2.contains(str1))
+                    return 0.8f;
+                else
+                    return 0.4f;
+            } else {
+                return (float) lMetrics.stream().mapToDouble(v -> v).average().orElse(0.0d);
+            }
+        }
     }
 
 

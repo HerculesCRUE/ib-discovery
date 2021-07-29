@@ -602,6 +602,7 @@ public class JobHandlerServiceImp {
                 logger.error(e.getMessage());
             }
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("Fail on findSimilaritiesByClass: {}", e.getMessage());
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
