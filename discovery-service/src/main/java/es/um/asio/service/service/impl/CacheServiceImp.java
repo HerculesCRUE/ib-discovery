@@ -5,6 +5,7 @@ import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.model.stats.StatsHandler;
+import es.um.asio.service.repository.elasticsearch.TripleObjectESCustomRepository;
 import es.um.asio.service.service.CacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,9 @@ public class CacheServiceImp implements CacheService {
     @Autowired
     RedisServiceImp redisServiceImp;
 
+    @Autowired
+    ElasticsearchServiceImp elasticsearchServiceImp;
+
     @PostConstruct
     public void initialize() {
         triplesMap = new HashMap<>();
@@ -47,6 +51,10 @@ public class CacheServiceImp implements CacheService {
         esTriplesMap = new HashMap<>();
         statsHandler = new StatsHandler();
         dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    }
+
+    public ElasticsearchServiceImp getElasticsearchServiceImp() {
+        return elasticsearchServiceImp;
     }
 
     /**

@@ -131,6 +131,28 @@ public class TripleObjectESCustomRepository{
         return new ArrayList<>(results);
     }
 
+    public List<TripleObjectES> findByNodeAndTripleStoreAndClassNameAndEntityId(String node,String tripleStore,String className,String entityId) {
+        Set<TripleObjectES> results = new HashSet<>();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.termQuery("tripleStore.node.nodeName", node));
+        boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.termQuery("tripleStore.name", tripleStore));
+        boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.termQuery("className", className));
+        boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.termQuery("entityId.keyword", entityId));
+        NativeSearchQuery build = new NativeSearchQueryBuilder().withQuery(boolQueryBuilder).build();
+        build.addIndices(TRIPLE_OBJECT);
+        build.addTypes(CLASSES);
+        build.setPageable(PageRequest.of(0,5000));
+
+        ScrolledPage<TripleObjectES> scroll =  elasticsearchTemplate.startScroll(6000, build,TripleObjectES.class);
+        while (scroll.hasContent()) {
+            results.addAll(scroll.getContent());
+            scroll = elasticsearchTemplate.continueScroll(scroll.getScrollId(),6000,TripleObjectES.class);
+        }
+        elasticsearchTemplate.clearScroll(scroll.getScrollId());
+
+        return new ArrayList<>(results);
+    }
+
     /**
      * Get all TripleObjectsES in ElasticSearch by node and triple store
      * @see TripleObjectES

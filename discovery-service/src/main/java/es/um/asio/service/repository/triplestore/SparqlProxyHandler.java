@@ -174,6 +174,8 @@ public class SparqlProxyHandler extends TripleStoreHandler {
         if (basicAction.equals(BasicAction.DELETE)) { // Si se elimino, lo eliminamos de la cache
             TripleObject to = cacheService.getTripleObject(nodeName,this.tripleStore.getName(),className,instanceId);
             cacheService.removeTripleObject(node, tripleStore, to);
+            cacheService.saveTriplesMapInCache(nodeName,this.tripleStore.getName(),className);
+            cacheService.getElasticsearchServiceImp().deleteTripleObject(to);
         } else { // en otro caso, se actualiza la cache
             Map<String,String> qParams = ImmutableMap.of("localURI",localURI);
             JsonElement jeResponse = doRequest(new URL(dataSources.getUrisFactoryHost() + "uri-factory/local"), Connection.Method.GET,headers,null,qParams);
@@ -191,6 +193,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
                     TripleObject to = new TripleObject(jeInstance.getAsJsonObject());
                     cacheService.addTripleObject(nodeName,this.tripleStore.getName(), to);
                     cacheService.saveTriplesMapInCache(nodeName,this.tripleStore.getName(),className);
+                    cacheService.getElasticsearchServiceImp().saveTripleObject(to);
                     return true;
                 }
             }

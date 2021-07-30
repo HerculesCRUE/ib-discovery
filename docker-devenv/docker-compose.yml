@@ -102,18 +102,12 @@ services:
 #      - 80:8080
 #      - 81:8081
 
-  periodic-backup:
-    build: .
-    container_name: database-backup
-    environment:
-      - MYSQL_CONTAINER_NAME=db
-      - MYSQL_PORT=root
-      - MYSQL_ROOT_USER=root
-      - MYSQL_ROOT_PASSWORD=1z3rt1s
-    depends_on:
-      - db
-    volumes:
-      - mysql-backup:/opt/mysql/backup
+  activemq:
+    image: webcenter/activemq:5.14.3
+    ports:
+      - 8161:8161
+      - 61616:61616
+    container_name: activemq
     restart: always
 
 volumes:
