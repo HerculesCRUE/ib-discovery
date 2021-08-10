@@ -1,5 +1,6 @@
 package es.um.asio.service.service.impl;
 
+import es.um.asio.service.config.Hierarchies;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.model.Decision;
 import es.um.asio.service.model.relational.*;
@@ -24,6 +25,9 @@ public class OpenSimilaritiesHandlerImpl implements OpenSimilaritiesHandler {
 
     @Autowired
     JobHandlerServiceImp jobHandlerServiceImp;
+
+    @Autowired
+    Hierarchies hierarchies;
 
     @Override
     public List<ObjectResult> getOpenObjectResults(String node, String tripleStore) {
@@ -69,7 +73,7 @@ public class OpenSimilaritiesHandlerImpl implements OpenSimilaritiesHandler {
                             orm.getNode().equals(or.getNode()) &&
                             orm.getTripleStore().equals(or.getTripleStore())
                     ) { // Entonces añado a borrar
-                        ObjectResult toUpdateAux = new ObjectResult(Origin.ASIO,State.CLOSED,null, toUpdate.toTripleObject(orm.getJobRegistry()).merge(or.toTripleObject(orm.getJobRegistry())), or.getSimilarity(), or.getSimilarityWithOutId());
+                        ObjectResult toUpdateAux = new ObjectResult(Origin.ASIO,State.CLOSED,null, toUpdate.toTripleObject(orm.getJobRegistry()).merge(or.toTripleObject(orm.getJobRegistry()),hierarchies), or.getSimilarity(), or.getSimilarityWithOutId());
                         if (!toUpdateAux.getEntityId().equals(toUpdate.getEntityId())) {
                             toDelete.remove(toUpdateAux);
                             toDelete.add(toUpdate);

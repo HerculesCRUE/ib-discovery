@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * EntityStats Class. Model the stats of entities. Can be recursive. Extends of ObjectStat
@@ -178,7 +179,11 @@ public class EntityStats extends ObjectStat{
      * @param prefix string. generatee prefix for work with flatten attributes
      * @return Map<String,Float>. More relevant stats of attributes
      */
-    public Map<String,Float> generateMoreRelevantAttributesMap(String prefix){
+    public Map<String,Float> generateMoreRelevantAttributesMap(String prefix, Map<String, Float> otherStats){
+        List<String> oStats = null;
+        if (otherStats != null) {
+            oStats = Arrays.asList(otherStats.keySet().toArray()).stream().map( m -> (m.toString())).collect(Collectors.toList());
+        }
         String p;
         if (Utils.isValidString(prefix)) {
             if ((prefix.charAt(prefix.length()-1)=='.'))
@@ -189,10 +194,15 @@ public class EntityStats extends ObjectStat{
             p = "";
         Map<String,Float> attrs = new TreeMap<>();
         for (Map.Entry<String, AttributeStats> att : attValues.entrySet()) { // Para cada atributo
-            attrs.put(p + att.getKey(),att.getValue().getRelativeImportanceRatio());
+            String a = att.getKey();
+            if (otherStats == null || oStats.contains(att.getKey())) {
+                attrs.put(p + att.getKey(), att.getValue().getRelativeImportanceRatio());
+            }
         }
         for ( Map.Entry<String, EntityStats> obj : objValues.entrySet()) {
-            attrs.putAll(obj.getValue().generateMoreRelevantAttributesMap(Utils.isValidString(p)?p+obj.getValue().getName():obj.getValue().getName()));
+            if (otherStats == null ||  otherStats.containsKey(obj.getKey())) {
+                attrs.putAll(obj.getValue().generateMoreRelevantAttributesMap(Utils.isValidString(p)?p+obj.getValue().getName():obj.getValue().getName(),otherStats));
+            }
         }
         attrs = Utils.sortByValues(attrs);
         return attrs;

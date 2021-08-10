@@ -56,7 +56,10 @@ public class EntityComparator {
     private static Map<String, Float> cleanStat(TripleObject to1,TripleObject to2,Map<String, Float> stats) {
         Map<String,Float> statAux = new HashMap<>();
         for (Map.Entry<String, Float> statEntry: stats.entrySet()) {
-            if (to1.checkIfHasAttribute(statEntry.getKey())  || to2.checkIfHasAttribute(statEntry.getKey())) {
+            if (
+                    ((to1.checkIfHasAttribute(statEntry.getKey())  || to2.checkIfHasAttribute(statEntry.getKey())) && to1.getClassName().equals(to2.getClassName())) ||
+                    (to1.checkIfHasAttribute(statEntry.getKey()) && to2.checkIfHasAttribute(statEntry.getKey()) )
+            ) {
                 statAux.put(statEntry.getKey(),statEntry.getValue());
             }
         }

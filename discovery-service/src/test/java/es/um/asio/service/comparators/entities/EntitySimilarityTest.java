@@ -39,7 +39,7 @@ class EntitySimilarityTest {
         cache.addTripleObject(to1.getTripleStore().getNode().getNodeName(), to1.getTripleStore().getName(), to1);
         cache.addTripleObject(to2.getTripleStore().getNode().getNodeName(), to2.getTripleStore().getName(), to2);
         cache.generateEntityStats();
-        stats = cache.getStatsHandler().generateMoreRelevantAttributesMap("n1","ts1","test");
+        stats = cache.getStatsHandler().generateMoreRelevantAttributesMap("n1","ts1","test",null);
         attributeStatsMap = cache.getStatsHandler().getAttributesMap("n1","ts1","test").getAttValues();
     }
 
@@ -167,7 +167,7 @@ class EntitySimilarityTest {
         cache.addTripleObject(to2.getTripleStore().getNode().getNodeName(), to2.getTripleStore().getName(), to2);
         cache.generateEntityStats();
 
-        Map<String,Float> stats = cache.getStatsHandler().generateMoreRelevantAttributesMap("n1","ts1","test");
+        Map<String,Float> stats = cache.getStatsHandler().generateMoreRelevantAttributesMap("n1","ts1","test",null);
         Map<String, AttributeStats> attributeStatsMap = cache.getStatsHandler().getAttributesMap("n1","ts1","test").getAttValues();
 
         List<Float> s1 = EntitySimilarity.compareLists(to1,attributeStatsMap,new ArrayList((ArrayList) to1.getAttributes().get("k1")),new ArrayList((ArrayList) to1.getAttributes().get("k1")));

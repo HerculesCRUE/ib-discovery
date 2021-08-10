@@ -64,7 +64,7 @@ class StatsHandlerTest {
     @Test
     void generateMoreRelevantAttributesMap() {
         for (TripleObject to : tos) {
-            Assert.assertNotNull(statsHandler.generateMoreRelevantAttributesMap(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to.getClassName()));
+            Assert.assertNotNull(statsHandler.generateMoreRelevantAttributesMap(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to.getClassName(),null));
         }
     }
 

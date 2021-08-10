@@ -20,9 +20,9 @@ app:
       dialect: org.hibernate.dialect.MariaDB53Dialect
       generate-ddl: true
       ddl-auto: create
-      show-sql: true
+      show-sql: false
       format_sql: true
-      use_sql_comments: true
+      use_sql_comments: false
       properties:
         hibernate.temp.use_jdbc_metadata_defaults: false
   # CORS
@@ -150,7 +150,7 @@ server:
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
+    org.hibernate.SQL: INFO
     #org.hibernate.type: TRACE
 
 spring:
@@ -167,3 +167,8 @@ spring:
 security:
   basic:
     enabled: false
+
+hierarchy:
+  hierarchies:
+    - className: Center
+      parentClassName: Organization

@@ -7,6 +7,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.comparators.entities.EntitySimilarity;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
+import es.um.asio.service.config.Hierarchies;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.model.rdf.TripleObjectLink;
 import es.um.asio.service.model.stats.AttributeStats;
@@ -482,15 +483,25 @@ public class TripleObject {
      * @param other TripleObject. Other TripleObject
      * @return TripleObject. The merged triple Object
      */
-    public TripleObject merge(TripleObject other) {
-        TripleObject mergedTO;
-        TripleObject oldTO;
-        if (this.getLastModification()> other.getLastModification()) {
-            mergedTO = this;
-            oldTO = other;
+    public TripleObject merge(TripleObject other, Hierarchies hierarchies) {
+        TripleObject mergedTO = null;
+        TripleObject oldTO = null;
+        if (this.getClassName().equals(other.getClassName()) || (!hierarchies.isChildClass(this.getClassName()) && !hierarchies.isChildClass(other.getClassName()))) {
+            if (this.getLastModification() > other.getLastModification()) {
+                mergedTO = this;
+                oldTO = other;
+            } else {
+                mergedTO = other;
+                oldTO = this;
+            }
         } else {
-            mergedTO = other;
-            oldTO = this;
+            if (hierarchies.isChildClass(this.getClassName())) {
+                mergedTO = this;
+                oldTO = other;
+            } else {
+                mergedTO = other;
+                oldTO = this;
+            }
         }
         mergedTO.attributes = mergeAttributes(mergedTO.getAttributes(),oldTO.getAttributes());
         return mergedTO;

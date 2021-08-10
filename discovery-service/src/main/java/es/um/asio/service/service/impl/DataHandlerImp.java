@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import es.um.asio.service.config.DataProperties;
 import es.um.asio.service.config.Datasources;
+import es.um.asio.service.config.Hierarchies;
 import es.um.asio.service.config.LodConfiguration;
 import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.TripleObject;
@@ -89,6 +90,9 @@ public class DataHandlerImp implements DataHandler {
     @Autowired
     LodConfiguration lodConfiguration;
 
+    @Autowired
+    Hierarchies hierarchies;
+
     @Value("${app.domain}")
     String domain;
 
@@ -131,7 +135,7 @@ public class DataHandlerImp implements DataHandler {
             updateState(DataType.CACHE,cache.getTriplesMap());
         }
         // Update data from triple store (add deltas)
-        if(true)
+        if(false)
             updateCachedData(); //  quit comment
         applicationState.setDataState(DataType.CACHE, State.UPLOAD_DATA);
         // Update elasticSearch

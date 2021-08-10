@@ -32,6 +32,9 @@ public class DiscoveryApplication {
      *            the arguments
      */
     public static void main(final String[] args) {
+        @SuppressWarnings("unused")
+        org.jboss.logging.Logger logger = org.jboss.logging.Logger.getLogger("org.hibernate");
+        java.util.logging.Logger.getLogger("org.hibernate").setLevel(java.util.logging.Level.WARNING); //or whatever level you need
         SpringApplication.run(DiscoveryApplication.class, args);
     }
 

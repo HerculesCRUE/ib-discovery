@@ -7,6 +7,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.comparators.entities.EntityComparator;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
 import es.um.asio.service.config.Datasources;
+import es.um.asio.service.config.Hierarchies;
 import es.um.asio.service.config.LodConfiguration;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.model.SimilarityResult;
@@ -53,6 +54,9 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
     @Autowired
     LodConfiguration lodConfiguration;
 
+    @Autowired
+    Hierarchies hierarchies;
+
     @Value("${app.threadsInLod}")
     public Integer threadsInLod;
 
@@ -85,7 +89,13 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
         }
 
         StatsHandler statsHandler = cache.getStatsHandler();
-        Map<String, Float> stats = statsHandler.generateMoreRelevantAttributesMap(node,tripleStore,className);
+        Map<String, Float> stats = statsHandler.generateMoreRelevantAttributesMap(node,tripleStore,className,null);
+        List<String> parentsClass = hierarchies.getParentsByClass(className);
+        Map<String,Map<String, Float>> statsHierarchyParent = new HashMap<>();
+        for (String parentClass : parentsClass) {
+            Map<String, Float> parentStats = statsHandler.generateMoreRelevantAttributesMap(node,tripleStore,parentClass,stats);
+            statsHierarchyParent.put(parentClass,parentStats);
+        }
         int counter = 0;
         Set<String> foundsSimilarities = new HashSet<>();
         for (TripleObject to1 : tripleObjects.values()) {
@@ -93,7 +103,13 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
                 ++counter;
                 continue;
             }
-            List<TripleObject> matches = getSimilarEntitiesFromElasticsearch(to1, stats, searchInOtherNodes);
+            List<TripleObject> matches = getSimilarEntitiesFromElasticsearch(to1, null, stats, searchInOtherNodes);
+            for (Map.Entry<String, Map<String, Float>> pStat : statsHierarchyParent.entrySet()) {
+                String parentClass = pStat.getKey();
+                Map<String, Float> parentStats = pStat.getValue();
+                List<TripleObject> matchesParent = getSimilarEntitiesFromElasticsearch(to1, parentClass, parentStats, searchInOtherNodes);
+                matches.addAll(matchesParent);
+            }
             logger.info("For [Node: {}, TripleStore: {}, ClassName: {}], founds {} similarities in Elasticsearch for id: {}", to1.getTripleStore().getNode().getNodeName(), to1.getTripleStore().getName(), to1.getClassName(), matches.size(), to1.getId());
             if (matches.size()>1) {
                 Map<String, List<EntitySimilarityObj>> similarity = calculateSimilarities(to1, stats, matches);
@@ -129,8 +145,8 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
             throw new CustomDiscoveryException(String.format("Not found for [ Node: %s, TripleStore: %s, ClassName: %s]",to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(), to.getClassName()));
         StatsHandler statsHandler = cache.getStatsHandler();
 
-        Map<String, Float> stats = statsHandler.generateMoreRelevantAttributesMap(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to.getClassName());
-        List<TripleObject> matches = getSimilarEntitiesFromElasticsearch(to, stats, searchInOtherNodes);
+        Map<String, Float> stats = statsHandler.generateMoreRelevantAttributesMap(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to.getClassName(),null);
+        List<TripleObject> matches = getSimilarEntitiesFromElasticsearch(to,null, stats, searchInOtherNodes);
         logger.info("For [Node: {}, TripleStore: {}, ClassName: {}], founds {} similarities in Elasticsearch for id: {}", to.getTripleStore().getNode().getNodeName(), to.getTripleStore().getName(), to.getClassName(), matches.size(), to.getId());
         if (!matches.isEmpty()) {
             Map<String, List<EntitySimilarityObj>> similarity = calculateSimilarities(to, stats, matches);
@@ -384,7 +400,11 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
             }
 
             EntitySimilarityObj eso = EntityComparator.compare(to,other,statsAux);
-            if (eso.getSimilarity() >= dataSources.getThresholds().getAutomaticThreshold() || (eso.getSimilarityWithoutId() >= dataSources.getThresholds().getAutomaticThresholdWithOutId() && eso.getSimilarity() >= dataSources.getThresholds().getManualThreshold())) {
+
+            if ( eso.getSimilarity() >= dataSources.getThresholds().getAutomaticThreshold() || (
+                    eso.getSimilarityWithoutId() >= dataSources.getThresholds().getAutomaticThresholdWithOutId() && (( eso.getSimilarityWithoutId() == 1 && eso.getSimilarities().size() <= 2) ||eso.getSimilarity() >= dataSources.getThresholds().getManualThreshold())
+                    )
+            ) {
                 logger.info("Adding automatic ==> Similarity: [ withId: {}, withoutId: {} ], AutomaticThreshold: [ withId: {}, withoutId: {} ] ==> Entity Similarity Object: {}",eso.getSimilarity(),eso.getSimilarityWithoutId(),dataSources.getThresholds().getAutomaticThreshold(), dataSources.getThresholds().getAutomaticThresholdWithOutId(), eso.toString() );
                 similarities.get(AUTOMATIC_KEY).add(eso);
             } else if (eso.getSimilarity() >= dataSources.getThresholds().getManualThreshold() || (eso.getSimilarityWithoutId() >= dataSources.getThresholds().getManualThresholdWithOutId() && eso.getSimilarity() >= 0.5f)) {
@@ -396,7 +416,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
     }
 
 
-    private List<TripleObject> getSimilarEntitiesFromElasticsearch(TripleObject to,Map<String, Float> stats, boolean otherNodes) {
+    private List<TripleObject> getSimilarEntitiesFromElasticsearch(TripleObject to, String className, Map<String, Float> stats, boolean otherNodes) {
         List<String> moreRelevant = getMoreRelevantAttributes(to,stats);
         List<Pair<String,Object>> params = new ArrayList<>();
         for (String relevantParam : moreRelevant) {
@@ -406,7 +426,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
             }
         }
         if (to.getAttributes()!=null && to.getAttributes().size()>0) {
-            List<TripleObjectES> matches = es.getTripleObjectsESByFilterAndAttributes("triple-object", !otherNodes?to.getTripleStore().getNode().getNodeName():null, !otherNodes?to.getTripleStore().getName():null, to.getClassName(), params)
+            List<TripleObjectES> matches = es.getTripleObjectsESByFilterAndAttributes("triple-object", !otherNodes?to.getTripleStore().getNode().getNodeName():null, !otherNodes?to.getTripleStore().getName():null, (className!=null)?className:to.getClassName(), params)
                     .stream().filter(toInner -> !( // Quito el propio elemento de el resultado
                             toInner.getEntityId().equals(to.getId())
                             && toInner.getTripleStore().getName().equals(to.getTripleStore().getName())
@@ -418,7 +438,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
                 float filterScore = matches.get(matches.size()-1).getScore()+ ((matches.get(0).getScore()-matches.get(matches.size()-1).getScore())*(float) dataSources.getThresholds().getElasticSearchCutOffAccordPercentile());
                 matches = matches.stream().filter(toEs -> toEs.getScore() >= filterScore).collect(Collectors.toList());
             }
-            return TripleObjectES.getTripleObjects(matches).stream().filter(inner -> inner.getClassName().equals(to.getClassName())).collect(Collectors.toList());
+            return TripleObjectES.getTripleObjects(matches).stream().filter(inner -> inner.getClassName().equals(to.getClassName()) || inner.getClassName().equals(className) ).collect(Collectors.toList());
         }
         return new ArrayList<>();
     }

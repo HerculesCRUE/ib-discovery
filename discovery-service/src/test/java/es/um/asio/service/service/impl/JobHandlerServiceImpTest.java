@@ -1,9 +1,11 @@
 package es.um.asio.service.service.impl;
 
+import es.um.asio.service.config.Hierarchies;
 import es.um.asio.service.model.TripleObject;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -109,6 +111,9 @@ class JobHandlerServiceImpTest {
         System.out.println();
     }*/
 
+    @Autowired
+    Hierarchies hierarchies;
+
     @Test void testMerge() throws Exception {
         String data1 = "{\n" +
                 "  \"description\": \"CONTRATACIÓN LABORAL DE DOCTORES RECIÉN TITULADOS EN ORGANISMOS DE INVESTIGACIÓN\",\n" +
@@ -193,7 +198,7 @@ class JobHandlerServiceImpTest {
         TripleObject to2 = new TripleObject("um","trellis","Proyecto",jData2);
         to2.setId("2");
         to2.setLastModification(new Date().getTime());
-        TripleObject to3 = to1.merge(to2);
+        TripleObject to3 = to1.merge(to2,hierarchies);
         Assert.assertTrue(to3.getId() == to2.getId() || to3.getId() == to1.getId() );
     }
 

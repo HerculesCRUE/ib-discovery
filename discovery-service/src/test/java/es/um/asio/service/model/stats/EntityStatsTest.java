@@ -93,7 +93,7 @@ class EntityStatsTest {
     @Test
     void generateMoreRelevantAttributesMap() {
         for (EntityStats es: entityStats) {
-            Assert.assertNotNull(es.generateMoreRelevantAttributesMap(null));
+            Assert.assertNotNull(es.generateMoreRelevantAttributesMap(null,null));
         }
     }
 

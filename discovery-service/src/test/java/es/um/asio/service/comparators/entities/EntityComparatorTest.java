@@ -32,7 +32,7 @@ class EntityComparatorTest {
         cache.setStatsHandler(new StatsHandler());
         cache.generateEntityStats();
         for (TripleObject to : dg.getTripleObjects()) {
-            Map<String,Float> stats =  cache.getStatsHandler().generateMoreRelevantAttributesMap(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to.getClassName());
+            Map<String,Float> stats =  cache.getStatsHandler().generateMoreRelevantAttributesMap(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to.getClassName(),null);
             tos.put(to,stats);
         }
         cache.setStatsHandler(new StatsHandler());

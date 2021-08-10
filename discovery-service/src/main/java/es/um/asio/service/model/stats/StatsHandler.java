@@ -107,9 +107,9 @@ public class StatsHandler {
      * @param className String. The class name
      * @return Map<String,Float>. The key is the attribute name and the value is the relevance
      */
-    public Map<String,Float> generateMoreRelevantAttributesMap(String node, String triple, String className){
+    public Map<String,Float> generateMoreRelevantAttributesMap(String node, String triple, String className,Map<String, Float> otherStats){
         if (this.stats.containsKey(node) && this.stats.get(node).containsKey(triple) && this.stats.get(node).get(triple).containsKey(className)) {
-            return this.stats.get(node).get(triple).get(className).generateMoreRelevantAttributesMap(null);
+            return this.stats.get(node).get(triple).get(className).generateMoreRelevantAttributesMap(null,  otherStats);
         } else
             return null;
     }

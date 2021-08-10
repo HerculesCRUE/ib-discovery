@@ -3,12 +3,14 @@ package es.um.asio.service.model;
 import com.google.gson.internal.LinkedTreeMap;
 import data.DataGenerator;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
+import es.um.asio.service.config.Hierarchies;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import es.um.asio.service.util.Utils;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Calendar;
@@ -23,6 +25,9 @@ class TripleObjectTest {
     Map<String, Map<String, Map<String, Map<String, TripleObject>>>> triplesMap;
 
     CacheServiceImp cacheServiceImp;
+
+    @Autowired
+    Hierarchies hierarchies;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -166,7 +171,7 @@ class TripleObjectTest {
         for (TripleObject to : tripleObjects) {
             for (TripleObject toInner : tripleObjects) {
                 TripleObject toOldest = (to.getLastModification() >= toInner.getLastModification())? to:toInner;
-                TripleObject merged = to.merge(toInner);
+                TripleObject merged = to.merge(toInner,hierarchies);
                 Assert.assertTrue(merged.getId() == toOldest.getId());
             }
         }

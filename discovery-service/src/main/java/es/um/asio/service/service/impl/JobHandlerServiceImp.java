@@ -2,6 +2,7 @@ package es.um.asio.service.service.impl;
 
 import com.google.gson.JsonObject;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
+import es.um.asio.service.config.Hierarchies;
 import es.um.asio.service.constants.Constants;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.listener.AppEvents;
@@ -89,6 +90,9 @@ public class JobHandlerServiceImp {
 
     @Autowired
     TrellisCache trellisCache;
+
+    @Autowired
+    Hierarchies hierarchies;
 
 
     /**
@@ -447,7 +451,7 @@ public class JobHandlerServiceImp {
                 // Merges
                 if (objectResult.getNode().equals(objResAuto.getNode())
                         && objectResult.getTripleStore().equals(objResAuto.getTripleStore())) { // Si es el mismo nodo y triple store ACCIÓN = UPDATE o DELETE
-                    ObjectResult toUpdateAux = new ObjectResult(Origin.ASIO,State.CLOSED,null, toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry)), eso.getSimilarity(), eso.getSimilarityWithoutId());
+                    ObjectResult toUpdateAux = new ObjectResult(Origin.ASIO,State.CLOSED,null, toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry),hierarchies), eso.getSimilarity(), eso.getSimilarityWithoutId());
                     if (!toUpdateAux.getEntityId().equals(toUpdate.getEntityId())) {
                         toDelete.remove(toUpdateAux);
                         toDelete.add(toUpdate);
@@ -538,7 +542,7 @@ public class JobHandlerServiceImp {
                     // Merges
                     if (objectResult.getNode().equals(objResAuto.getNode())
                             && objectResult.getTripleStore().equals(objResAuto.getTripleStore())) { // Si es el mismo nodo y triple store ACCIÓN = UPDATE o DELETE
-                        ObjectResult toUpdateAux = new ObjectResult(Origin.ASIO,State.CLOSED,null, toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry)), eso.getSimilarity(), eso.getSimilarityWithoutId());
+                        ObjectResult toUpdateAux = new ObjectResult(Origin.ASIO,State.CLOSED,null, toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry),hierarchies), eso.getSimilarity(), eso.getSimilarityWithoutId());
                         if (!toUpdateAux.getEntityId().equals(toUpdate.getEntityId())) {
                             toDelete.remove(toUpdateAux);
                             toDelete.add(toUpdate);

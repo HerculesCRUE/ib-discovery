@@ -150,7 +150,7 @@ server:
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
+    org.hibernate.SQL: INFO
     #org.hibernate.type: TRACE
 
 spring:
