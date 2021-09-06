@@ -5,6 +5,7 @@ import es.um.asio.service.config.DataProperties;
 import es.um.asio.service.model.relational.Action;
 import es.um.asio.service.model.relational.ActionResult;
 import es.um.asio.service.model.relational.ObjectResult;
+import es.um.asio.service.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,19 @@ public class KafkaHandlerService {
             JsonObject jObjectResult = or.toSimplifiedJson(false);
             JsonObject jMessage = new JsonObject();
             jMessage.addProperty("action",actionResult.getAction().toString());
+            if (actionResult.getAction() == Action.DELETE) {
+                try {
+                    String localURI = jObjectResult.get("localUri").getAsString();
+                    if (Utils.isValidString(localURI)) {
+                        String[] uriChunk = localURI.split("/");
+                        if (uriChunk.length > 1) {
+                            jObjectResult.addProperty("className", uriChunk[uriChunk.length - 2]);
+                        }
+                    }
+                } catch (Exception e) {
+
+                }
+            }
             jMessage.add("linkedTo",jObjectResult);
             if (actionResult.getAction() == Action.LINK) {
                 JsonObject jLink = actionResult.getObjectResultParent().toSimplifiedJson(false);
