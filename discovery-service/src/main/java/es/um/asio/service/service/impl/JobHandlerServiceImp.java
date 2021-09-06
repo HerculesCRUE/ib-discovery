@@ -299,11 +299,11 @@ public class JobHandlerServiceImp {
         jobRegistry.setBodyRequest(jBodyStr);
         jobRegistry.setTripleObject(tripleObject);
         RequestRegistry requestRegistry;
-        Optional<RequestRegistry> requestRegistryOpt = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, RequestType.ENTITY_LINK_INSTANCE);
-        if (requestRegistryOpt.isEmpty()) {
+        Optional<List<RequestRegistry>> requestRegistryOpt = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, RequestType.ENTITY_LINK_INSTANCE);
+        if (requestRegistryOpt.isEmpty() || requestRegistryOpt.get().size() == 0) {
             requestRegistry = new RequestRegistry(userId, requestCode, RequestType.ENTITY_LINK_INSTANCE, new Date());
         } else {
-            requestRegistry = requestRegistryOpt.get();
+            requestRegistry = requestRegistryOpt.get().get(0);
         }
         requestRegistry.setWebHook(webHook);
         requestRegistry.setPropagueInKafka(propagueInKafka);
@@ -387,11 +387,11 @@ public class JobHandlerServiceImp {
             jobRegistry.setSearchFromDelta(deltaDate);
         }
         RequestRegistry requestRegistry;
-        Optional<RequestRegistry> requestRegistryOpt = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, RequestType.LOD_SEARCH);
-        if (requestRegistryOpt.isEmpty()) {
+        Optional<List<RequestRegistry>> requestRegistryOpt = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, RequestType.LOD_SEARCH);
+        if (requestRegistryOpt.isEmpty() || requestRegistryOpt.get().size() == 0) {
             requestRegistry = new RequestRegistry(userId, requestCode, RequestType.LOD_SEARCH, new Date());
         } else {
-            requestRegistry = requestRegistryOpt.get();
+            requestRegistry = requestRegistryOpt.get().get(0);
         }
         requestRegistry.setWebHook(webHook);
         requestRegistry.setPropagueInKafka(propagueInKafka);

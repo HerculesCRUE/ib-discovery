@@ -528,9 +528,10 @@ public class DiscoveryController {
             @RequestParam(required = true) @Validated(Create.class) RequestType requestType
     ) {
         JsonObject jResponse = new JsonObject();
-        Optional<RequestRegistry> requestRegistry = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode,requestType);
-        if (requestRegistry.isPresent()) {
-            JobRegistry jobRegistry = requestRegistry.get().getJobRegistry();
+        Optional<List<RequestRegistry>> requestRegistries = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode,requestType);
+        if (requestRegistries.isPresent() || requestRegistries.get().size() > 0) {
+            RequestRegistry requestRegistry = requestRegistries.get().get(0);
+            JobRegistry jobRegistry = requestRegistry.getJobRegistry();
             JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
             jJobRegistry.addProperty("userId", userId);
             jJobRegistry.addProperty("requestCode", requestCode);

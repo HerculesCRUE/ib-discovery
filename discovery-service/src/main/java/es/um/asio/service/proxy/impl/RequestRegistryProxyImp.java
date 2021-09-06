@@ -7,6 +7,7 @@ import es.um.asio.service.repository.relational.RequestRegistryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -31,9 +32,9 @@ public class RequestRegistryProxyImp implements RequestRegistryProxy {
      */
     @Override
     public RequestRegistry save(RequestRegistry requestRegistry) {
-        Optional<RequestRegistry> aux = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(requestRegistry.getUserId(),requestRegistry.getRequestCode(), requestRegistry.getRequestType());
-        if (!aux.isEmpty()) {
-            return requestRegistryRepository.save(aux.get());
+        Optional<List<RequestRegistry>> aux = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(requestRegistry.getUserId(),requestRegistry.getRequestCode(), requestRegistry.getRequestType());
+        if (!aux.isEmpty() && aux.get().size()>0) {
+            return requestRegistryRepository.save(aux.get().get(0));
         } else
             return requestRegistryRepository.save(requestRegistry);
     }
@@ -47,7 +48,14 @@ public class RequestRegistryProxyImp implements RequestRegistryProxy {
      */
     @Override
     public Optional<RequestRegistry> findByUserIdAndRequestCodeAndRequestType(String userId, String requestCode, RequestType requestType) {
-        return requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, requestType);
+        Optional<List<RequestRegistry>> requestRegistries = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, requestType);
+        Optional<RequestRegistry> requestRegistry;
+        if (!requestRegistries.isEmpty() && requestRegistries.get().size()>0) {
+            return Optional.of(requestRegistries.get().get(0));
+        } else {
+            return Optional.empty();
+        }
+        // return requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, requestType);
     }
 
 }
