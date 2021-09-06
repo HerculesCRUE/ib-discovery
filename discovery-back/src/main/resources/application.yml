@@ -1,7 +1,7 @@
 ---
 app:
   node: um
-  domain: ldpld1.um.es
+  domain: ldpld1desa.um.es
   subdomain: um
   language: en-EN
   threadsInLod: 10

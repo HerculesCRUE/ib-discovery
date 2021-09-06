@@ -315,7 +315,7 @@ public class JobHandlerServiceImp {
         jobRegistry.addRequestRegistry(requestRegistry);
         jrEntityMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()), jobRegistry);
 
-        jobRegistryRepository.save(jobRegistry);
+        jobRegistryRepository.saveAndFlush(jobRegistry);
         for (RequestRegistry rr : jobRegistry.getRequestRegistries()) {
             requestRegistryProxy.save(rr);
         }
@@ -506,7 +506,7 @@ public class JobHandlerServiceImp {
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
             jobRegistryRepository.save(jobRegistry);
         } catch (Exception e) {
-            logger.error("Fail on findSimilaritiesByClass: {}", e.getMessage());
+            logger.error("Fail on findSimilaritiesByInstance: {}", e.getMessage());
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
