@@ -499,18 +499,18 @@ public class JobHandlerServiceImp {
             }
 
             jobRegistry.getObjectResults().add(objectResult);
-            objectResultRepository.save(objectResult);
+            objectResultRepository.saveAndFlush(objectResult);
 
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
-            jobRegistryRepository.save(jobRegistry);
+            jobRegistryRepository.saveAndFlush(jobRegistry);
         } catch (Exception e) {
             logger.error("Fail on findSimilaritiesByInstance: {}", e.getMessage());
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
-            jobRegistryRepository.save(jobRegistry);
+            jobRegistryRepository.saveAndFlush(jobRegistry);
         }
         isWorking = false;
         handleQueueFindSimilarities();
