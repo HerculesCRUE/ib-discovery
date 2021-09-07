@@ -36,6 +36,9 @@ public class DiscoveryApplication {
     @EqualsAndHashCode.Include
     private String id;
 
+    @Version
+    private Long version;
+
     /**
      * NAME.
      */

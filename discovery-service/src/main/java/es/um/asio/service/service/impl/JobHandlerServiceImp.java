@@ -506,6 +506,7 @@ public class JobHandlerServiceImp {
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
             jobRegistryRepository.saveAndFlush(jobRegistry);
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("Fail on findSimilaritiesByInstance: {}", e.getMessage());
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
@@ -789,6 +790,7 @@ public class JobHandlerServiceImp {
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
             jobRegistryRepository.save(jobRegistry);
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("Fail on findSimilaritiesByClass: {}", e.getMessage());
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());

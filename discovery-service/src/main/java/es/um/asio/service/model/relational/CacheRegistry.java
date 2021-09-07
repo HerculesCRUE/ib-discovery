@@ -32,6 +32,9 @@ public class CacheRegistry {
     @EqualsAndHashCode.Include
     private long id;
 
+    @Version
+    private Long version;
+
     @JsonIgnore
     @ManyToOne(optional = false,fetch = FetchType.LAZY)
     private DiscoveryApplication discoveryApplication;

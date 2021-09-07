@@ -40,6 +40,9 @@ public class JobRegistry {
     @EqualsAndHashCode.Include
     private String id;
 
+    @Version
+    private Long version;
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private DiscoveryApplication discoveryApplication;
 

@@ -35,6 +35,9 @@ public class Value {
     @EqualsAndHashCode.Include
     private long id;
 
+    @Version
+    private Long version;
+
     @JsonIgnore
     @ManyToOne(optional = false, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)

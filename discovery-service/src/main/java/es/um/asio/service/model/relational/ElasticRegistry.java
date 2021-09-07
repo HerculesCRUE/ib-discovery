@@ -31,6 +31,9 @@ public class ElasticRegistry {
     @EqualsAndHashCode.Include
     private long id;
 
+    @Version
+    private Long version;
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private DiscoveryApplication discoveryApplication;
 

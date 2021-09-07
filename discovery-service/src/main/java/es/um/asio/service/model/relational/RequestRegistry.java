@@ -30,6 +30,9 @@ public class RequestRegistry {
     @EqualsAndHashCode.Include
     private long id;
 
+    @Version
+    private Long version;
+
     @Column(name = Columns.USER_ID, nullable = false,columnDefinition = "VARCHAR(100)",length = 100)
     @EqualsAndHashCode.Include
     private String userId;

@@ -49,6 +49,9 @@ public class ObjectResult implements Comparable<ObjectResult>{
     @EqualsAndHashCode.Include
     private long id;
 
+    @Version
+    private Long version;
+
     @Column(name = Columns.ORIGIN, nullable = false,columnDefinition = "VARCHAR(40)",length = 40)
     @Enumerated(value = EnumType.STRING)
     private Origin origin;

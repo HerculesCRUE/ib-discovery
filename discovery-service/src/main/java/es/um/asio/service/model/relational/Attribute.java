@@ -33,6 +33,9 @@ public class Attribute {
     @EqualsAndHashCode.Include
     private long id;
 
+    @Version
+    private Long version;
+
     @Column(name = Columns.KEY, nullable = false,columnDefinition = "VARCHAR(200)",length = 200)
     private String key;
 

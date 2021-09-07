@@ -32,6 +32,9 @@ public class ActionResult {
     @EqualsAndHashCode.Include
     private long id;
 
+    @Version
+    private Long version;
+
     @Column(name = Columns.ACTION, nullable = false,columnDefinition = "VARCHAR(40) DEFAULT 'PENDING'",length = 40)
     @Enumerated(value = EnumType.STRING)
     @EqualsAndHashCode.Include
