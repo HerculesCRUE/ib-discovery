@@ -51,7 +51,7 @@ public class KafkaHandlerService {
             JsonObject jObjectResult = or.toSimplifiedJson(false);
             JsonObject jMessage = new JsonObject();
             jMessage.addProperty("action",actionResult.getAction().toString());
-            if (actionResult.getAction() == Action.DELETE) {
+            if (actionResult.getAction() == Action.DELETE || actionResult.getAction() == Action.UPDATE) {
                 try {
                     String localURI = jObjectResult.get("localUri").getAsString();
                     if (Utils.isValidString(localURI)) {
