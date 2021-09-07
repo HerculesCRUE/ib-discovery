@@ -43,10 +43,14 @@ public class TextHandlerServiceImp implements TextHandlerService {
     public String removeStopWords(String s) {
         s = s.replaceAll("\\p{Punct}", "");
         List<String> tokens = new ArrayList<>();
-        for (String token : s.split(" ")) {
-            if (!stopWords.contains(token.toLowerCase().strip()))
+        String[] words = s.split(" ");
+        for (String token : words) {
+            if (words.length<2 || !stopWords.contains(token.toLowerCase().strip()))
                 tokens.add(token);
         }
-        return String.join(" ",tokens);
+        if (tokens.size() > 0)
+            return String.join(" ",tokens);
+        else
+            return s;
     }
 }

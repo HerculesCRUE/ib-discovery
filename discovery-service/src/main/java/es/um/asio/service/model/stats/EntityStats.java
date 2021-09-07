@@ -196,7 +196,9 @@ public class EntityStats extends ObjectStat{
         for (Map.Entry<String, AttributeStats> att : attValues.entrySet()) { // Para cada atributo
             String a = att.getKey();
             if (otherStats == null || oStats.contains(att.getKey())) {
-                attrs.put(p + att.getKey(), att.getValue().getRelativeImportanceRatio());
+                //if (!att.getKey().startsWith("Id") &&  !att.getKey().endsWith("Id")) {
+                    attrs.put(p + att.getKey(), att.getValue().getRelativeImportanceRatio());
+                //}
             }
         }
         for ( Map.Entry<String, EntityStats> obj : objValues.entrySet()) {
