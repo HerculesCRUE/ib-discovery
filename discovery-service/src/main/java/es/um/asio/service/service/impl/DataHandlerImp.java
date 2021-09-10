@@ -135,7 +135,7 @@ public class DataHandlerImp implements DataHandler {
             updateState(DataType.CACHE,cache.getTriplesMap());
         }
         // Update data from triple store (add deltas)
-        if(true)
+        if(false) // Quitar (poner a true)
             updateCachedData(); //  quit comment
         applicationState.setDataState(DataType.CACHE, State.UPLOAD_DATA);
         // Update elasticSearch
@@ -143,6 +143,12 @@ public class DataHandlerImp implements DataHandler {
         applicationState.setDataState(DataType.ELASTICSEARCH, State.CACHED_DATA);
         updateElasticData();
         applicationState.setDataState(DataType.ELASTICSEARCH, State.UPLOAD_DATA);
+        logger.info("Generating inverse dependencies...");
+        try {
+            cache.generateInverseMap();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         logger.info("Completed load data");
         return CompletableFuture.completedFuture(true);
     }

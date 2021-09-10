@@ -24,6 +24,7 @@ public class AttributeSimilarity {
     private static final String BOOLEAN = "boolean";
     private static final String DATE = "Date";
     private static final String LIST = "List";
+    private static final String LINK = "Link";
     private static final String STRING = "String";
 
     /**
@@ -54,7 +55,7 @@ public class AttributeSimilarity {
             float nMin = (max == 0) ? 0 : (float) Math.floor((min / max) * 10f);
             similarity = (float) Math.pow((0.5f), (nMax - nMin));
         }
-        return new SimilarityValue(similarity,weight);
+        return new SimilarityValue(similarity,weight,false);
     }
 
     /**
@@ -79,7 +80,7 @@ public class AttributeSimilarity {
             float nMin = (max == 0) ? 0 : (float) Math.floor((min / max) * 10f);
             similarity = (float) Math.pow((0.5f), (nMax - nMin));
         }
-        return new SimilarityValue(similarity,weight);
+        return new SimilarityValue(similarity,weight,false);
     }
 
     /**
@@ -106,7 +107,7 @@ public class AttributeSimilarity {
                 similarity = 0;
             }
         }
-        return new SimilarityValue(similarity,weight);
+        return new SimilarityValue(similarity,weight,false);
     }
 
     /**
@@ -131,7 +132,7 @@ public class AttributeSimilarity {
             float nMin = (max == 0) ? 0 : Float.valueOf((float) Math.floor((Double.valueOf(min) / max) * 10));
             similarity = (float) Math.pow((0.5f), (nMax - nMin));
         }
-        return new SimilarityValue(similarity,weight);
+        return new SimilarityValue(similarity,weight,false);
     }
 
     /**
@@ -156,7 +157,7 @@ public class AttributeSimilarity {
             float nMin = (max == 0) ? 0 : (float) ((float) Math.floor((Double.valueOf(min) / max) * 10));
             similarity = (float) Math.pow((0.5f), (nMax - nMin));
         }
-        return new SimilarityValue(similarity,weight);
+        return new SimilarityValue(similarity,weight,false);
     }
 
     /**
@@ -175,7 +176,26 @@ public class AttributeSimilarity {
         } else {
             similarity = AccordSimilarity.calculateAccordSimilarity(a1,a2);
         }
-        return new SimilarityValue(similarity,weight);
+        return new SimilarityValue(similarity,weight,false);
+    }
+
+    /**
+     * The algorithm implements the String comparision
+     * @see "https://github.com/HerculesCRUE/ib-discovery/blob/master/docs/ASIO_Libreria_de_descubrimiento.md#m%C3%A9tricas-de-similitud-para-atributos"
+     * @see SimilarityValue
+     * @param a1 The first String
+     * @param a2 The second String
+     * @param weight The weight tho apply
+     * @return SimilarityValue
+     */
+    public static SimilarityValue compareLink(String a1, String a2, float weight) {
+        float similarity = 0;
+        if (a1.toLowerCase().strip().equals(a2.toLowerCase().strip())) {
+            similarity = 1;
+        } else {
+            similarity = AccordSimilarity.calculateAccordSimilarity(a1,a2);
+        }
+        return new SimilarityValue(similarity,weight,true);
     }
 
     /**
@@ -191,7 +211,7 @@ public class AttributeSimilarity {
         float similarity = 0;
         if (a1==a2)
             similarity = 1;
-        return new SimilarityValue(similarity,weight);
+        return new SimilarityValue(similarity,weight,false);
     }
 
     /**
@@ -203,13 +223,14 @@ public class AttributeSimilarity {
      * @param weight The weight tho apply
      * @return SimilarityValue
      */
-    public static SimilarityValue compareList(List<Object> a1, List<Object> a2, float weight) {
+    public static SimilarityValue compareList(List<Object> a1, List<Object> a2, float weight) { // Mirar
         List<Object> l1;
         List<Object> l2;
+        boolean isLink = false;
         Set<Integer> usedIndex = new HashSet<>();
         List<SimilarityValue> similarities = new ArrayList<>();
         if (a1.isEmpty() && a2.isEmpty()) { // Si ambos tienen las listas vacías, la similaridad es 1
-            similarities.add(new SimilarityValue(1f,weight));
+            similarities.add(new SimilarityValue(1f,weight,false));
         } else { // Si no estan vacias
             if (a1.size()>=a2.size()) { // Pongo primero la lista mayor
                 l1 = a1;
@@ -224,7 +245,10 @@ public class AttributeSimilarity {
             for (int i = 0; i < l1.size() ; i++) {
                 int maxSimilarityIndex = Integer.MIN_VALUE;
                 SimilarityValue maxSimilarity = null;
-                for (int j = 0; j < l1.size() ; j++) {
+                for (int j = 0; j < l2.size() ; j++) {
+                    if (!isLink) {
+                        isLink = Utils.isValidURL((String) l1.get(i)) || Utils.isValidURL((String) l2.get(i));
+                    }
                     if (!usedIndex.contains(j)) {
                         SimilarityValue sv = compare(Arrays.asList(l1.get(i)),Arrays.asList(l2.get(j)),weight);
                         if (maxSimilarity == null || (sv.getWeightedSimilarity() > maxSimilarity.getWeightedSimilarity()) ) {
@@ -243,7 +267,7 @@ public class AttributeSimilarity {
         }
         // Agrego las similitudes
         float sumSimilarities = similarities.stream().map(SimilarityValue::getWeightedSimilarity).reduce(0f, Float::sum);
-        return new SimilarityValue(0,weight,sumSimilarities/similarities.size());
+        return new SimilarityValue(0,weight,sumSimilarities/similarities.size(), isLink);
     }
 
     /**
@@ -259,9 +283,9 @@ public class AttributeSimilarity {
         Object a1;
         Object a2;
         if (o1 == null && o2 == null) {
-            return new SimilarityValue(1,weight);
+            return new SimilarityValue(1,weight,false);
         } else if ((o1 == null ) || (o2 == null)) {
-            return new SimilarityValue(0,weight);
+            return new SimilarityValue(0,weight,false);
         }
         if (o1.size() == 1 && o2.size() == 1) {
             a1 = o1.get(0);
@@ -285,6 +309,8 @@ public class AttributeSimilarity {
             return compareDate( getDate(a1),getDate(a2),weight);
         } else if (c.equalsIgnoreCase(LIST)) {
             return compareList((List<Object>) a1,(List<Object>) a2,weight);
+        } else if (c.equalsIgnoreCase(LINK)) {
+            return compareLink((String) a1,(String) a2,weight);
         } else {
             return compareString((String) a1,(String) a2,weight);
         }
@@ -350,6 +376,8 @@ public class AttributeSimilarity {
             return DATE;
         } else if (a1 instanceof List && a2 instanceof List) {
             return LIST;
+        } else if (Utils.isValidURL(a1.toString()) && Utils.isValidURL(a1.toString())) {
+            return LINK;
         } else {
             return STRING;
         }

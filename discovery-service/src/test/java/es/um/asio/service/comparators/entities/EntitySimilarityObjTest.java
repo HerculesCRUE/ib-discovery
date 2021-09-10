@@ -53,7 +53,7 @@ class EntitySimilarityObjTest {
     @Test
     void addSimilarity() {
         for (EntitySimilarityObj eso : esos) {
-            SimilarityValue sv = new SimilarityValue(1f,1f);
+            SimilarityValue sv = new SimilarityValue(1f,1f,false);
             eso.addSimilarity("test",sv);
             Assert.assertTrue(eso.getSimilarities().containsKey("test") && eso.getSimilarities().get("test").equals(sv));
         }

@@ -70,7 +70,7 @@ public class TripleObjectESCustomRepository{
                         for (Object val : (List)att.getValue(1)) {
                             if (val instanceof String) {
                                 if (!Utils.isDate((String) val))
-                                    boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format(ATTRIBUTES_REGEX, att.getValue(0)), textHandler.removeStopWords((String) val)).fuzziness(Fuzziness.AUTO));
+                                    boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format(ATTRIBUTES_REGEX, att.getValue(0)), ( (((String) val).contains("http"))?((String) val):textHandler.removeStopWords((String) val)) ).fuzziness(Fuzziness.AUTO));
                                     // boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format(ATTRIBUTES_REGEX, att.getValue(0)), textHandler.removeStopWords((String) val)));
                                 else
                                     boolQueryBuilderAttrs = boolQueryBuilderAttrs.should(QueryBuilders.matchQuery(String.format(ATTRIBUTES_REGEX, att.getValue(0)), String.valueOf(val)));

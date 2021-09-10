@@ -77,7 +77,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
     public Set<SimilarityResult> findEntitiesLinksByNodeAndTripleStoreAndClass(String node, String tripleStore, String className, boolean searchInOtherNodes, Date deltaDate) {
         Set<SimilarityResult> similarities = new HashSet<>();
         Map<String, TripleObject> tripleObjects = cache.getTripleObjects(node,tripleStore,className);
-        // tripleObjects = tripleObjects.entrySet().stream().filter(e -> e.getValue().getAttributes().get("title").toString().equalsIgnoreCase("otros")).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); // Quitar
+        tripleObjects = tripleObjects.entrySet().stream().filter(e -> e.getValue().getAttributes().get("title").toString().trim().equalsIgnoreCase("V International Symposium on Ubuquitous Computing and Ambient Intelligence UCAmI11")).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); // Quitar
         if (deltaDate!=null) {
             tripleObjects = tripleObjects.entrySet()
                     .stream()
@@ -112,7 +112,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
                 matches.addAll(matchesParent);
             }
             logger.info("For [Node: {}, TripleStore: {}, ClassName: {}], founds {} similarities in Elasticsearch for id: {}", to1.getTripleStore().getNode().getNodeName(), to1.getTripleStore().getName(), to1.getClassName(), matches.size(), to1.getId());
-            if (matches.size()>1) {
+            if (matches.size()>=1) {
                 Map<String, List<EntitySimilarityObj>> similarity = calculateSimilarities(to1, stats, matches);
                 logger.info("Completed ({}/{}) --> For [Node: {}, TripleStore: {}, ClassName: {}], founds {} automatic similarities and {} manuals similarities in Elasticsearch for id: {}%n", ++counter, tripleObjects.values().size(), to1.getTripleStore().getNode().getNodeName(), to1.getTripleStore().getName(), to1.getClassName(), similarity.get(AUTOMATIC_KEY).size(), similarity.get(MANUAL_KEY).size(), to1.getId());
                 if (!similarity.get(MANUAL_KEY).isEmpty() || !similarity.get(AUTOMATIC_KEY).isEmpty()) {
@@ -142,7 +142,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
     @Override
     public SimilarityResult findEntitiesLinksByNodeAndTripleStoreAndTripleObject(TripleObject to, boolean searchInOtherNodes) {
         Map<String, TripleObject> tripleObjects = cache.getTripleObjects(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to.getClassName());
-        if (tripleObjects.isEmpty())
+        if (tripleObjects.isEmpty() || tripleObjects == null)
             throw new CustomDiscoveryException(String.format("Not found for [ Node: %s, TripleStore: %s, ClassName: %s]",to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(), to.getClassName()));
         StatsHandler statsHandler = cache.getStatsHandler();
 
@@ -403,13 +403,13 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
             EntitySimilarityObj eso = EntityComparator.compare(to,other,statsAux);
 
             if ( eso.getSimilarity() >= dataSources.getThresholds().getAutomaticThreshold() || (
-                    eso.getSimilarityWithoutId() >= dataSources.getThresholds().getAutomaticThresholdWithOutId() && (( eso.getSimilarityWithoutId() == 1 && eso.getSimilarities().size() <= 2) ||eso.getSimilarity() >= dataSources.getThresholds().getManualThreshold())
+                    eso.getSimilarityWithoutId(true) >= dataSources.getThresholds().getAutomaticThresholdWithOutId() && (( eso.getSimilarityWithoutId(true) == 1 && eso.getSimilarities().size() <= 2) || (eso.getSimilarityWithoutId(true) == 1 || eso.getSimilarity() >= dataSources.getThresholds().getManualThreshold()))
                     )
             ) {
-                logger.info("Adding automatic ==> Similarity: [ withId: {}, withoutId: {} ], AutomaticThreshold: [ withId: {}, withoutId: {} ] ==> Entity Similarity Object: {}",eso.getSimilarity(),eso.getSimilarityWithoutId(),dataSources.getThresholds().getAutomaticThreshold(), dataSources.getThresholds().getAutomaticThresholdWithOutId(), eso.toString() );
+                logger.info("Adding automatic ==> Similarity: [ withId: {}, withoutId: {} ], AutomaticThreshold: [ withId: {}, withoutId: {} ] ==> Entity Similarity Object: {}",eso.getSimilarity(),eso.getSimilarityWithoutId(true),dataSources.getThresholds().getAutomaticThreshold(), dataSources.getThresholds().getAutomaticThresholdWithOutId(), eso.toString() );
                 similarities.get(AUTOMATIC_KEY).add(eso);
-            } else if (eso.getSimilarity() >= dataSources.getThresholds().getManualThreshold() || (eso.getSimilarityWithoutId() >= dataSources.getThresholds().getManualThresholdWithOutId() && eso.getSimilarity() >= 0.5f)) {
-                logger.info("Adding manual ==> Similarity: [ withId: {}, withoutId: {} ], AutomaticThreshold: [ withId: {}, withoutId: {} ] ==> Entity Similarity Object: {}",eso.getSimilarity(),eso.getSimilarityWithoutId(),dataSources.getThresholds().getManualThreshold(), dataSources.getThresholds().getManualThresholdWithOutId(), eso.toString() );
+            } else if (eso.getSimilarity() >= dataSources.getThresholds().getManualThreshold() || (eso.getSimilarityWithoutId(true) >= dataSources.getThresholds().getManualThresholdWithOutId() && eso.getSimilarity() >= 0.5f)) {
+                logger.info("Adding manual ==> Similarity: [ withId: {}, withoutId: {} ], AutomaticThreshold: [ withId: {}, withoutId: {} ] ==> Entity Similarity Object: {}",eso.getSimilarity(),eso.getSimilarityWithoutId(true),dataSources.getThresholds().getManualThreshold(), dataSources.getThresholds().getManualThresholdWithOutId(), eso.toString() );
                 similarities.get(MANUAL_KEY).add(eso);
             }
         }

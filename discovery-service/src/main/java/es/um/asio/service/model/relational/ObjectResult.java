@@ -72,6 +72,10 @@ public class ObjectResult implements Comparable<ObjectResult>{
     @EqualsAndHashCode.Include
     private String localURI;
 
+    @Column(name = Columns.CANONICAL_URI, nullable = true,columnDefinition = "VARCHAR(800)",length = 800)
+    @EqualsAndHashCode.Include
+    private String canonicalURI;
+
     @Column(name = Columns.LAST_MODIFICATION, nullable = false,columnDefinition = "DATETIME")
     private Date lastModification;
 
@@ -165,6 +169,7 @@ public class ObjectResult implements Comparable<ObjectResult>{
         this.node = to.getTripleStore().getNode().getNodeName();
         this.tripleStore = to.getTripleStore().getName();
         this.localURI = to.getLocalURI();
+        this.canonicalURI = to.getCanonicalURI();
         this.jobRegistry = jobRegistry;
         this.lastModification = new Date(to.getLastModification());
         this.entityId = to.getId();
@@ -222,6 +227,7 @@ public class ObjectResult implements Comparable<ObjectResult>{
         LinkedTreeMap<String,Object> attrs = getAttributesAsMap(attributes, new LinkedTreeMap<>() );
         TripleObject to = new TripleObject(getNode(), getTripleStore(),jobRegistryInner.getClassName(),attrs);
         to.setLocalURI(getLocalURI());
+        to.setCanonicalURI(getCanonicalURI());
         to.setId(this.entityId);
         return to;
     }
@@ -392,23 +398,27 @@ public class ObjectResult implements Comparable<ObjectResult>{
          */
         protected static final String CLASS_NAME = "class_name";
         /**
-         * CLASS_NAME column.
+         * NODE column.
          */
         protected static final String NODE = "node";
         /**
-         * CLASS_NAME column.
+         * TRIPLE_STORE column.
          */
         protected static final String TRIPLE_STORE = "triple_Store";
         /**
-         * CLASS_NAME column.
+         * LOCAL_URI column.
          */
         protected static final String LOCAL_URI = "local_uri";
         /**
-         * REQUEST_DATE column.
+         * CANOCIA column.
+         */
+        protected static final String CANONICAL_URI = "canonical_uri";
+        /**
+         * LAST_MODIFICATION column.
          */
         protected static final String LAST_MODIFICATION = "last_modification";
         /**
-         * REQUEST_DATE column.
+         * ENTITY_ID column.
          */
         protected static final String ENTITY_ID = "entity_id";
         /**
@@ -417,7 +427,7 @@ public class ObjectResult implements Comparable<ObjectResult>{
         protected static final String SIMILARITY = "similarity";
 
         /**
-         * SIMILARITY column.
+         * SIMILARITY_WITH_OUT_ID column.
          */
         protected static final String SIMILARITY_WITH_OUT_ID = "similarity_no_id";
 
@@ -446,7 +456,7 @@ public class ObjectResult implements Comparable<ObjectResult>{
          */
         protected static final String MERGE_ACTION = "merge_action";
         /**
-         * ORIGIN column.
+         * STATE column.
          */
         protected static final String STATE = "state";
         /**

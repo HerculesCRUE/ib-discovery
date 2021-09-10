@@ -3,6 +3,7 @@ package es.um.asio.service.service;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.model.stats.StatsHandler;
+import org.javatuples.Pair;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -123,6 +124,25 @@ public interface CacheService {
     public void generateEntityStats();
 
     /**
+     * Generate inverse map
+     */
+    public void generateInverseMap();
+
+    /**
+     * Get the inverse map
+     * @return Map<String, Map<String, Map<String, Map<String,Map<String,String>>>>> the inverse map
+     */
+    public Map<String, Map<String, Map<String, Map<String, Map<String, Pair<String,TripleObject>>>>>> getInverseMap();
+    /**
+     * Get Links To TripleObjects
+     * @param node String. The node name.
+     * @param tripleStore String. The triple store name.
+     * @param className String. The class name.
+     * @return Map<String,String> with id of Triple Object that reference the Triple Object give in parameter and the property name
+     */
+    public Map<String, Pair<String,TripleObject>> getLinksToTripleObject(TripleObject to);
+
+    /**
      * Get filtered iterator
      * @return Iterator<TripleObject>
      */
@@ -157,6 +177,14 @@ public interface CacheService {
      * @return
      */
     public TripleObject getTripleObject(String node, String tripleStore, String className, String id);
+
+    /**
+     * Get specific  triple Objects by other triple object
+     * @see TripleObject
+     * @param TripleObject tripleObject. The other triple object
+     * @return TripleObject
+     */
+    public TripleObject getTripleObject(TripleObject tripleObject);
 
     /**
      * Update all stats

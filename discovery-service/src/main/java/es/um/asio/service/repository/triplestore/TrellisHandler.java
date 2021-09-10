@@ -142,7 +142,7 @@ public class TrellisHandler extends TripleStoreHandler {
                                             JsonObject jeClassInstance = new Gson().fromJson(jStrInstance, JsonObject.class);
 
                                             JsonObject jRootObject = parseJsonDataByCvn(jeClassInstance.get(GRAPH).getAsJsonArray(),jContext, className, instanceId);
-                                            to = new TripleObject(this.tripleStore, jRootObject, className, instanceId,instanceURL, lastModification);
+                                            to = new TripleObject(this.tripleStore, jRootObject, className, instanceId,instanceURL,null, lastModification);
                                             changes++;
                                             classChanges ++;
                                         }
@@ -231,7 +231,7 @@ public class TrellisHandler extends TripleStoreHandler {
 
                     JsonObject jRootObject = parseJsonDataByCvn(jeClassInstance.get(GRAPH).getAsJsonArray(),jContext, className, instanceId);
                     TripleStore ts = new TripleStore(tripleStore,node);
-                    to = new TripleObject(ts, jRootObject, className, instanceId,localURI, lastModification);
+                    to = new TripleObject(ts, jRootObject, className, instanceId,localURI,null, lastModification);
                     cacheService.addTripleObject(node,tripleStore,to);
                     return true;
                 }

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import es.um.asio.service.model.AttributeType;
+import es.um.asio.service.model.URIComponent;
 import org.apache.catalina.util.URLEncoder;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -292,7 +293,7 @@ public class Utils {
      * @return boolean. True if is a valid Date
      */
     public static boolean isDate(String s) {
-        String regex = "[0-9]{2,4}(/|-|\\.)[0-9]{2,4}(/|-|\\.)[0-9]{2,4}((\\s|T)[0-5][0-9]:[0-5][0-9]:[0-5][0-9](Z|\\.[0-9]+||\\.[0-9]{2,3})?)?";
+        String regex = "[0-9]{2,4}(/|-|\\.)[0-9]{2,4}(/|-|\\.)[0-9]{2,4}((\\s|T)[0-5][0-9]:[0-5][0-9]:[0-5][0-9](\\.[0-9]+||\\.[0-9]{2,3})?((Z)?\\+[0-9]{2}(:[0-9]{2})?)?)?";
         return s.matches(regex);
     }
 
@@ -332,6 +333,28 @@ public class Utils {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    /**
+     * Check if is valid Object
+     * @param s String. The value to check
+     * @return boolean. True if is a valid Object
+     */
+    // defaultSchema: https://$domain$/$sub-domain$/$language$/$type$/$concept$/$reference$
+    public static boolean isInstanceLink(String s,String schema, String domain) {
+        String regex = schema.replaceAll("\\$[a-zA-Z]+(?:-[a-zA-Z]+)*\\$",".*");
+        return isValidURL(s) && s.contains(domain) && s.split("/").length == 8 && s.matches("^"+regex+"$");
+    }
+
+    public static URIComponent getInstanceLink(String s, String schema, String domain) {
+        if (isInstanceLink(s,schema,domain)) {
+            try {
+                return new URIComponent(schema,s);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     /**
@@ -663,6 +686,7 @@ public class Utils {
         r = r.replaceAll("[^\\.A-Za-z0-9_]", "");
         return r;
     }
+
 
 }
 

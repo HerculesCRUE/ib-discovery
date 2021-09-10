@@ -15,6 +15,7 @@ import es.um.asio.service.model.stats.EntityStats;
 import es.um.asio.service.service.impl.CacheServiceImp;
 import es.um.asio.service.util.Utils;
 import lombok.*;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -25,6 +26,8 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import javax.persistence.Id;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * TripleObject Class. Generalized model for entities.
@@ -54,6 +57,9 @@ public class TripleObject {
     @Field(type = FieldType.Text)
     @Expose(serialize = true, deserialize = true)
     private String localURI;
+    @Field(type = FieldType.Text)
+    @Expose(serialize = true, deserialize = true)
+    private String canonicalURI;
     @Field(type = FieldType.Text)
     @Expose(serialize = true, deserialize = true)
     private String className;
@@ -96,6 +102,8 @@ public class TripleObject {
                 this.id = jTripleObject.get("id").getAsString();
             if (jTripleObject.has("localURI") && !jTripleObject.get("localURI").isJsonNull())
                 this.localURI = jTripleObject.get("localURI").getAsString();
+            if (jTripleObject.has("canonicalURI") && !jTripleObject.get("canonicalURI").isJsonNull())
+                this.canonicalURI = jTripleObject.get("canonicalURI").getAsString();
             if (jTripleObject.has("className") && !jTripleObject.get("className").isJsonNull())
                 this.className = jTripleObject.get("className").getAsString();
             if (jTripleObject.has("node") && jTripleObject.has("tripleStore"))
@@ -165,11 +173,12 @@ public class TripleObject {
      * @param localURI String. The local URI of resource in the triple store
      * @param lastMod String. Date of las modification
      */
-    public TripleObject(TripleStore tripleStore, JsonObject jData, String className, String id,String localURI, String lastMod) {
+    public TripleObject(TripleStore tripleStore, JsonObject jData, String className, String id,String localURI, String canonicalURI, String lastMod) {
         this.tripleStore = tripleStore;
         this.className = className;
         this.id = id;
         this.localURI = localURI;
+        this.canonicalURI = canonicalURI;
         try {
             attributes = new Gson().fromJson(jData.toString(), LinkedTreeMap.class);
             lastModification = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss", Locale.UK).parse(lastMod).getTime();
@@ -410,6 +419,25 @@ public class TripleObject {
         }
     }
 
+    public void replaceAttValue(String key,Object oldVal, Object newVal) {
+        if(attributes.containsKey(key)) {
+            Object currentValue = attributes.get(key);
+            if (currentValue instanceof List) {
+                List<Object> auxList = new ArrayList<>();
+                for (Object o : (List)currentValue) {
+                    if (!o.equals(oldVal))
+                        auxList.add(o);
+                }
+                auxList.add(newVal);
+                attributes.put(key,auxList);
+            } else { // Si no es lista
+                attributes.put(key,newVal);
+            }
+        } else { // Si no contiene el valor
+            attributes.put(key,newVal);
+        }
+    }
+
     private void handleFlattenAttributes(String p, Object att, Map<String,List<Object>> flattens) {
         p = !Utils.isValidString(p)?"":p;
         if (att!=null) {
@@ -483,16 +511,26 @@ public class TripleObject {
      * @param other TripleObject. Other TripleObject
      * @return TripleObject. The merged triple Object
      */
-    public TripleObject merge(TripleObject other, Hierarchies hierarchies) {
+    public TripleObject merge(TripleObject other, Hierarchies hierarchies, CacheServiceImp cache) {
         TripleObject mergedTO = null;
         TripleObject oldTO = null;
         if (this.getClassName().equals(other.getClassName()) || (!hierarchies.isChildClass(this.getClassName()) && !hierarchies.isChildClass(other.getClassName()))) {
-            if (this.getLastModification() > other.getLastModification()) {
+            Map<String, Pair<String,TripleObject>> mergeTOLinksAux = cache.getLinksToTripleObject(this);
+            Map<String, Pair<String,TripleObject>>  oldTOLinksAux = cache.getLinksToTripleObject(other);
+            if (mergeTOLinksAux.size() > oldTOLinksAux.size()) {
                 mergedTO = this;
                 oldTO = other;
-            } else {
-                mergedTO = other;
+            } else if (mergeTOLinksAux.size() < oldTOLinksAux.size()) {
                 oldTO = this;
+                mergedTO = other;
+            } else {
+                if (this.getLastModification() > other.getLastModification()) { // Condiciones para determinar la entidad principal
+                    mergedTO = this;
+                    oldTO = other;
+                } else {
+                    mergedTO = other;
+                    oldTO = this;
+                }
             }
         } else {
             if (hierarchies.isChildClass(this.getClassName())) {
@@ -525,7 +563,14 @@ public class TripleObject {
                         main.put(key,mergeAttributes((LinkedTreeMap) main.get(key),(LinkedTreeMap) other.get(key)));
                     }
                 } else if (main.get(key) instanceof List) { // Si es una lista,
-                    // De momento la lista principal e queda como esta, en el futuro es posible que convenga revisar
+                    if (other.get(key) instanceof List) {
+                        main.put(key, Stream.concat(((List) main.get(key)).stream(), ((List) other.get(key)).stream())
+                                .collect(Collectors.toList()));
+                    } else {
+                        if (other.get(key)!=null) {
+                            ((List) main.get(key)).add(other.get(key));
+                        }
+                    }
                 }
             }
         }

@@ -24,6 +24,7 @@ public class StatsHandler {
     // node -> tiple -> class -> EntityStat
     private Map<String ,Map<String, Map<String,EntityStats>>> stats;
 
+
     /**
      * Constructor
      */
@@ -39,6 +40,7 @@ public class StatsHandler {
      */
     public void addAttributes(String node, String triple, TripleObject to) {
         if (to != null && to.getAttributes() != null) {
+            // Estructura de estadísticas
             if (!stats.containsKey(node))
                 stats.put(node, new HashMap<>());
             if (!stats.get(node).containsKey(triple))
@@ -46,6 +48,7 @@ public class StatsHandler {
             if (!stats.get(node).get(triple).containsKey(to.getClassName())) {
                 stats.get(node).get(triple).put(to.getClassName(), new EntityStats(to.getClassName()));
             }
+
             EntityStats es = stats.get(node).get(triple).get(to.getClassName());
             es.setCounter(es.getCounter()+1);
             for (Map.Entry<String, Object> attEntity : to.getAttributes().entrySet()) { // Para todos los attributos

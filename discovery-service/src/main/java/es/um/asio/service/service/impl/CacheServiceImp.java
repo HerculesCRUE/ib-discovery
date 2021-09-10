@@ -3,13 +3,17 @@ package es.um.asio.service.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.TripleStore;
+import es.um.asio.service.model.URIComponent;
 import es.um.asio.service.model.elasticsearch.TripleObjectES;
 import es.um.asio.service.model.stats.StatsHandler;
 import es.um.asio.service.repository.elasticsearch.TripleObjectESCustomRepository;
 import es.um.asio.service.service.CacheService;
+import es.um.asio.service.util.Utils;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -36,12 +40,19 @@ public class CacheServiceImp implements CacheService {
     private Map<String, Map<String, Map<String, Map<String,TripleObject>>>> esTriplesMap; // Class --> Instances
     private StatsHandler statsHandler;
     DateFormat dateFormat;
+    private Map<String, Map<String, Map<String, Map<String,Map<String, Pair<String,TripleObject>>>>>> inversePointersMap;
 
     @Autowired
     RedisServiceImp redisServiceImp;
 
     @Autowired
     ElasticsearchServiceImp elasticsearchServiceImp;
+
+    @Autowired
+    SchemaServiceImp serviceImp;
+
+    @Value("${app.domain}")
+    String domain;
 
     @PostConstruct
     public void initialize() {
@@ -51,6 +62,7 @@ public class CacheServiceImp implements CacheService {
         esTriplesMap = new HashMap<>();
         statsHandler = new StatsHandler();
         dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        inversePointersMap = new HashMap<>();
     }
 
     public ElasticsearchServiceImp getElasticsearchServiceImp() {
@@ -100,7 +112,6 @@ public class CacheServiceImp implements CacheService {
 
             triplesMap.get(node).get(triple).get(to.getClassName()).put(to.getId(), to);
             triplesMapByDate.get(node).get(triple).get(to.getClassName()).get(to.getYear()).get(to.getMonth()).put(to.getId(), to);
-
         }
     }
 
@@ -340,6 +351,90 @@ public class CacheServiceImp implements CacheService {
             redisServiceImp.setEntityStats(statsHandler);
     }
 
+    @Override
+    public Map<String, Map<String, Map<String, Map<String, Map<String, Pair<String,TripleObject>>>>>> getInverseMap() {
+        return inversePointersMap;
+    }
+
+    /**
+     * Generaty entity stats
+     */
+    @Override
+    public void generateInverseMap() {
+        for (Map.Entry<String, Map<String, Map<String, Map<String, TripleObject>>>> nodeEntry: triplesMap.entrySet()) { // Node
+            for (Map.Entry<String, Map<String, Map<String, TripleObject>>> tripleEntry: nodeEntry.getValue().entrySet()) { // Triple
+                for (Map.Entry<String, Map<String, TripleObject>> classEntry: tripleEntry.getValue().entrySet()) { // Class
+                    logger.info("\t Generating inverse dependencies by class {} with {} instances",classEntry.getKey(),classEntry.getValue().size());
+                    for (Map.Entry<String, TripleObject> tipleObjectEntry: classEntry.getValue().entrySet()) { // TripleObject
+                        aggregateToInverseMap(tipleObjectEntry.getValue());
+                    }
+                }
+            }
+        }
+        logger.info("...Inverse dependencies generated");
+    }
+
+    private void aggregateToInverseMap(TripleObject toOrigin){ // toObj  => Origen
+        try {
+            for (Map.Entry<String, Object> att : toOrigin.getAttributes().entrySet()) {
+                if (att.getValue() instanceof List) {
+                    for ( Object lValue:  ((List)att.getValue())) {
+                        extractLinks(toOrigin, att.getKey(), lValue);
+                    }
+                } else {
+                    extractLinks(toOrigin, att.getKey(), att.getValue());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void extractLinks(TripleObject toOrigin,String attKey, Object attValue) {
+        if (attValue!=null && Utils.isValidString(attValue.toString())) {
+            // uc  => Destino
+            URIComponent uc = Utils.getInstanceLink(attValue.toString(), serviceImp.getCanonicalSchema(), domain);
+            if (uc != null && uc.getConcept() != null && uc.getReference() != null) {
+                TripleObject toTarget = getTripleObject(toOrigin.getTripleStore().getNode().getNodeName(), toOrigin.getTripleStore().getName(), uc.getConcept(), uc.getReference());
+                if (toTarget != null) {
+                    if (!inversePointersMap.containsKey(toTarget.getTripleStore().getNode().getNodeName()))
+                        inversePointersMap.put(toTarget.getTripleStore().getNode().getNodeName(), new HashMap<>());
+                    if (!inversePointersMap.get(toTarget.getTripleStore().getNode().getNodeName()).containsKey(toTarget.getTripleStore().getName()))
+                        inversePointersMap.get(toTarget.getTripleStore().getNode().getNodeName()).put(toTarget.getTripleStore().getName(), new HashMap<>());
+                    if (!inversePointersMap.get(toTarget.getTripleStore().getNode().getNodeName()).get(toTarget.getTripleStore().getName()).containsKey(toTarget.getClassName())) {
+                        inversePointersMap.get(toTarget.getTripleStore().getNode().getNodeName()).get(toTarget.getTripleStore().getName()).put(toTarget.getClassName(), new HashMap<>());
+                    }
+                    if (!inversePointersMap.get(toTarget.getTripleStore().getNode().getNodeName()).get(toTarget.getTripleStore().getName()).get(toTarget.getClassName()).containsKey(toTarget.getId())) {
+                        inversePointersMap.get(toTarget.getTripleStore().getNode().getNodeName()).get(toTarget.getTripleStore().getName()).get(toTarget.getClassName()).put(toTarget.getId(), new HashMap<>());
+                    }
+                    inversePointersMap.get(toTarget.getTripleStore().getNode().getNodeName()).get(toTarget.getTripleStore().getName()).get(toTarget.getClassName()).get(toTarget.getId()).put(toOrigin.getId(), new Pair(attKey,toOrigin));
+                }
+            }
+        }
+    }
+
+    /**
+     * Get Links To TripleObjects
+     * @param node String. The node name.
+     * @param tripleStore String. The triple store name.
+     * @param className String. The class name.
+     * @return Map<String,String> with id of Triple Object that reference the Triple Object give in parameter and the property name
+     */
+    @Override
+    public Map<String,Pair<String,TripleObject>> getLinksToTripleObject(TripleObject to) {
+        if (
+            to !=null &&
+            inversePointersMap.containsKey(to.getTripleStore().getNode().getNodeName()) &&
+            inversePointersMap.get(to.getTripleStore().getNode().getNodeName()).containsKey(to.getTripleStore().getName()) &&
+            inversePointersMap.get(to.getTripleStore().getNode().getNodeName()).get(to.getTripleStore().getName()).containsKey(to.getClassName())  &&
+            inversePointersMap.get(to.getTripleStore().getNode().getNodeName()).get(to.getTripleStore().getName()).get(to.getClassName()).containsKey(to.getId())
+        ) {
+           return  inversePointersMap.get(to.getTripleStore().getNode().getNodeName()).get(to.getTripleStore().getName()).get(to.getClassName()).get(to.getId());
+        }
+        return new HashMap<>();
+    }
+
     /**
      * Get filtered iterator
      * @return Iterator<TripleObject>
@@ -424,6 +519,16 @@ public class CacheServiceImp implements CacheService {
             return null;
         }
 
+    }
+
+    @Override
+    public TripleObject getTripleObject(TripleObject tripleObject) {
+        TripleObject to = getTripleObject(
+                tripleObject.getTripleStore().getNode().getNodeName(),
+                tripleObject.getTripleStore().getName(),
+                tripleObject.getClassName(),
+                tripleObject.getId());
+        return (to!=null)?to:tripleObject;
     }
 
     /**

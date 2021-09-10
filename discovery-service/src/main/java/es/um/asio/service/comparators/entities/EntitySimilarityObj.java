@@ -82,11 +82,11 @@ public class EntitySimilarityObj {
      * Get the weighted similarities without id attribute.
      * @return Float. The weighted similarities without id attribute.
      */
-    public float getSimilarityWithoutId() {
+    public float getSimilarityWithoutId(boolean excludeLinks) {
         float sumSimilarities = 0f;
         float sumWeight = 0f;
         for (Map.Entry<String, SimilarityValue> svEntry :similarities.entrySet()) {
-            if (!Utils.isIdFormat(svEntry.getKey()) ) {
+            if (!Utils.isIdFormat(svEntry.getKey()) && (!excludeLinks || !svEntry.getValue().isLink() || svEntry.getValue().getSimilarity() == 1) ) {
                 sumSimilarities += svEntry.getValue().getWeightedSimilarity();
                 sumWeight += svEntry.getValue().getWeight();
             }

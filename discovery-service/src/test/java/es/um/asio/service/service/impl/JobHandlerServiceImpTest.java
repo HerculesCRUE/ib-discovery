@@ -114,6 +114,9 @@ class JobHandlerServiceImpTest {
     @Autowired
     Hierarchies hierarchies;
 
+    @Autowired
+    CacheServiceImp cache;
+
     @Test void testMerge() throws Exception {
         String data1 = "{\n" +
                 "  \"description\": \"CONTRATACIÓN LABORAL DE DOCTORES RECIÉN TITULADOS EN ORGANISMOS DE INVESTIGACIÓN\",\n" +
@@ -198,7 +201,7 @@ class JobHandlerServiceImpTest {
         TripleObject to2 = new TripleObject("um","trellis","Proyecto",jData2);
         to2.setId("2");
         to2.setLastModification(new Date().getTime());
-        TripleObject to3 = to1.merge(to2,hierarchies);
+        TripleObject to3 = to1.merge(to2,hierarchies, cache);
         Assert.assertTrue(to3.getId() == to2.getId() || to3.getId() == to1.getId() );
     }
 

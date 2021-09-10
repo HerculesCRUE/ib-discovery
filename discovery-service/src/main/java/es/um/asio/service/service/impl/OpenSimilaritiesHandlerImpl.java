@@ -29,6 +29,9 @@ public class OpenSimilaritiesHandlerImpl implements OpenSimilaritiesHandler {
     @Autowired
     Hierarchies hierarchies;
 
+    @Autowired
+    CacheServiceImp cache;
+
     @Override
     public List<ObjectResult> getOpenObjectResults(String node, String tripleStore) {
         return repository.getOpenObjectResults(node,tripleStore);
@@ -73,7 +76,7 @@ public class OpenSimilaritiesHandlerImpl implements OpenSimilaritiesHandler {
                             orm.getNode().equals(or.getNode()) &&
                             orm.getTripleStore().equals(or.getTripleStore())
                     ) { // Entonces añado a borrar
-                        ObjectResult toUpdateAux = new ObjectResult(Origin.ASIO,State.CLOSED,null, toUpdate.toTripleObject(orm.getJobRegistry()).merge(or.toTripleObject(orm.getJobRegistry()),hierarchies), or.getSimilarity(), or.getSimilarityWithOutId());
+                        ObjectResult toUpdateAux = new ObjectResult(Origin.ASIO,State.CLOSED,null, toUpdate.toTripleObject(orm.getJobRegistry()).merge(or.toTripleObject(orm.getJobRegistry()),hierarchies,cache), or.getSimilarity(), or.getSimilarityWithOutId());
                         if (!toUpdateAux.getEntityId().equals(toUpdate.getEntityId())) {
                             toDelete.remove(toUpdateAux);
                             toDelete.add(toUpdate);

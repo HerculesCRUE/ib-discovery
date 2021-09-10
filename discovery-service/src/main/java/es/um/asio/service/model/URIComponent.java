@@ -47,6 +47,7 @@ public class URIComponent {
         this.reference = reference;
     }
 
+
     /**
      * Constructor
      * @param schema String. The URI schema in the ASIO proyect

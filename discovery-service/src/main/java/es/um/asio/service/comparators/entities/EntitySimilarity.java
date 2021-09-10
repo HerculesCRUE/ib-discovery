@@ -59,7 +59,7 @@ public class EntitySimilarity {
                 }
                 weightAggregate += weight;
                 float sim = compareAtt(to,attributeStatsMap, key, o1.get(key),o2.get(key));
-                eso.getSimilarities().put(key,new SimilarityValue(sim,weight));
+                eso.getSimilarities().put(key,new SimilarityValue(sim,weight, false)); // Mirar
                 similarityMetrics.add(weight*sim);
             } else {
                 similarityMetrics.add(0f);

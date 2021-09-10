@@ -31,6 +31,7 @@ public class TripleObjectES implements Comparable<TripleObjectES>{
     private int id;
     private String entityId;
     private String localURI;
+    private String canonicalURI;
     private String className;
     @Field(type = FieldType.Date)
     private Date lastModification;
@@ -74,6 +75,7 @@ public class TripleObjectES implements Comparable<TripleObjectES>{
     public TripleObjectES(TripleObject to) {
         this.entityId = to.getId();
         this.localURI = to.getLocalURI();
+        this.canonicalURI = to.getCanonicalURI();
         this.className = to.getClassName();
         this.lastModification = new Date(to.getLastModification());
         this.attributes = normalizeAttributes(to.getAttributes());

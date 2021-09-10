@@ -100,6 +100,28 @@ class UtilsTest {
         jContext.addProperty("j.1","http://hercules.org/um/es-ES/rec/NO");
         jContext.addProperty("j.2","http://hercules.org/um/es-ES/rec/TAMPOCO");
         String replaced = Utils.replaceSubstringByRegex(s,":",jContext,regex);
-        Assert.assertTrue(replaced.equals("http://hercules.org/um/es-ES/rec/Persona/6c8349cc-7260-3e62-a3b1-396831a8398f"));
+        Assert.assertTrue(replaced.equals("http://hercules.org/um/es-ES/rec/Persona/6c8349cc72603e62a3b1396831a8398f"));
+    }
+
+    @Test
+    void isInstanceLink() {
+        Assert.assertTrue(Utils.isInstanceLink("https://ldpld1desa.um.es/um/es-ES/rec/Knowledge-area/6523285d-924a-34fd-a5dd-0de31610aaf4","https://$domain$/$sub-domain$/$language$/$type$/$concept$/$reference$","ldpld1desa.um.es"));
+        Assert.assertFalse(Utils.isInstanceLink("https://google.es","https://$domain$/$sub-domain$/$language$/$type$/$concept$/$reference$","ldpld1desa.um.es"));
+        Assert.assertFalse(Utils.isInstanceLink("https://ldpld1desa.um.es/um/es-ES/rec/Knowledge-area/6523285d-924a-34fd-a5dd-0de31610aaf4/no","https://$domain$/$sub-domain$/$language$/$type$/$concept$/$reference$","ldpld1desa.um.es"));
+    }
+
+    @Test
+    void getInstanceLink() {
+        Assert.assertNotNull(Utils.getInstanceLink("https://ldpld1desa.um.es/um/es-ES/rec/Knowledge-area/6523285d-924a-34fd-a5dd-0de31610aaf4","https://$domain$/$sub-domain$/$language$/$type$/$concept$/$reference$","ldpld1desa.um.es"));
+        Assert.assertNull(Utils.getInstanceLink("https://google.es","https://$domain$/$sub-domain$/$language$/$type$/$concept$/$reference$","ldpld1desa.um.es"));
+        Assert.assertNull(Utils.getInstanceLink("https://ldpld1desa.um.es/um/es-ES/rec/Knowledge-area/6523285d-924a-34fd-a5dd-0de31610aaf4/no","https://$domain$/$sub-domain$/$language$/$type$/$concept$/$reference$","ldpld1desa.um.es"));
+    }
+
+    @Test
+    void testIsDate() {
+        Assert.assertTrue(Utils.isDate("2003-06-12T22:00:00.000"));
+        Assert.assertTrue(Utils.isDate("2003-06-12T22:00:00"));
+        Assert.assertTrue(Utils.isDate("2011-08-12T20:17:46.384Z+02:00"));
+        Assert.assertTrue(Utils.isDate("2003-06-12T22:00:00.000+02:00"));
     }
 }

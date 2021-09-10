@@ -15,16 +15,18 @@ public class SimilarityValue {
     private float similarity;
     private float weight;
     private float weightedSimilarity;
+    private boolean isLink;
 
     /**
      * Constructor
      * @param similarity float. The similarity value
      * @param weight float. The weight value
      */
-    public SimilarityValue(float similarity, float weight) {
+    public SimilarityValue(float similarity, float weight, boolean isLink) {
         this.similarity = similarity;
         this.weight = weight;
         this.weightedSimilarity = similarity * weight;
+        this.isLink = isLink;
     }
 
     /**
@@ -33,7 +35,8 @@ public class SimilarityValue {
      * @param weight float. The weight value
      * @param weightedSimilarity float. The weightedSimilarity value
      */
-    public SimilarityValue(float similarity, float weight, float weightedSimilarity) {
+    public SimilarityValue(float similarity, float weight, float weightedSimilarity, boolean isLink) {
+        this.isLink = isLink;
         if (similarity == 0) {
             this.weight =weight;
             this.weightedSimilarity = weightedSimilarity;
