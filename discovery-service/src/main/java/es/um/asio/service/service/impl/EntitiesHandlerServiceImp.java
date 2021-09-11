@@ -77,7 +77,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
     public Set<SimilarityResult> findEntitiesLinksByNodeAndTripleStoreAndClass(String node, String tripleStore, String className, boolean searchInOtherNodes, Date deltaDate) {
         Set<SimilarityResult> similarities = new HashSet<>();
         Map<String, TripleObject> tripleObjects = cache.getTripleObjects(node,tripleStore,className);
-         tripleObjects = tripleObjects.entrySet().stream().filter(e -> e.getValue().getAttributes().get("title").toString().trim().equalsIgnoreCase("10TH INTERNATIONAL SYMPOSIUM ON TRACE ELEMENTS IN MAN AND ANIMAL")).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); // Quitar
+        // tripleObjects = tripleObjects.entrySet().stream().filter(e -> e.getValue().getAttributes().get("title").toString().trim().equalsIgnoreCase("10TH INTERNATIONAL SYMPOSIUM ON TRACE ELEMENTS IN MAN AND ANIMAL")).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); // Quitar
         if (deltaDate!=null) {
             tripleObjects = tripleObjects.entrySet()
                     .stream()
