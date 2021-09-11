@@ -577,6 +577,23 @@ public class TripleObject {
                             ((List) main.get(key)).add(other.get(key));
                         }
                     }
+                } else if (Utils.isValidURL(main.get(key).toString())) {
+                    if (other.get(key) instanceof List) {
+                        List<Object> links = new ArrayList<>();
+                        links.add(main.get(key));
+                        for (Object le :(List)other.get(key)) {
+                            if (Utils.isValidURL(le.toString())) {
+                                links.add(le);
+                            }
+                        }
+                        main.put(key,links);
+                    }
+                    if (Utils.isValidURL(other.get(key).toString())) {
+                        List<Object> links = new ArrayList<>();
+                        links.add(main.get(key).toString());
+                        links.add(other.get(key).toString());
+                        main.put(key,links);
+                    }
                 }
             }
         }
