@@ -515,8 +515,14 @@ public class TripleObject {
         TripleObject mergedTO = null;
         TripleObject oldTO = null;
         if (this.getClassName().equals(other.getClassName()) || (!hierarchies.isChildClass(this.getClassName()) && !hierarchies.isChildClass(other.getClassName()))) {
-            Map<String, Pair<String,TripleObject>> mergeTOLinksAux = cache.getLinksToTripleObject(this);
-            Map<String, Pair<String,TripleObject>>  oldTOLinksAux = cache.getLinksToTripleObject(other);
+            Map<String, Pair<String, TripleObject>> mergeTOLinksAux,oldTOLinksAux;
+            if (cache!=null) {
+                mergeTOLinksAux = cache.getLinksToTripleObject(this);
+                oldTOLinksAux = cache.getLinksToTripleObject(other);
+            } else {
+                mergeTOLinksAux = new HashMap<>();
+                oldTOLinksAux = new HashMap<>();
+            }
             if (mergeTOLinksAux.size() > oldTOLinksAux.size()) {
                 mergedTO = this;
                 oldTO = other;

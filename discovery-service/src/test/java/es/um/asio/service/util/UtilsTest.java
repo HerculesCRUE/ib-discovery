@@ -100,7 +100,7 @@ class UtilsTest {
         jContext.addProperty("j.1","http://hercules.org/um/es-ES/rec/NO");
         jContext.addProperty("j.2","http://hercules.org/um/es-ES/rec/TAMPOCO");
         String replaced = Utils.replaceSubstringByRegex(s,":",jContext,regex);
-        Assert.assertTrue(replaced.equals("http://hercules.org/um/es-ES/rec/Persona/6c8349cc72603e62a3b1396831a8398f"));
+        Assert.assertTrue(replaced.equals("http://hercules.org/um/es-ES/rec/Persona/6c8349cc-7260-3e62-a3b1-396831a8398f"));
     }
 
     @Test
