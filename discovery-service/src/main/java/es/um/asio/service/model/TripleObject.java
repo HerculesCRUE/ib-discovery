@@ -348,8 +348,12 @@ public class TripleObject {
                 if (map.get(key) instanceof List) {
                     boolean hasAttrs = false;
                     for (Object item : (List) map.get(key)) {
-                        LinkedTreeMap<String,Object> val = (LinkedTreeMap) item;
-                        hasAttrs = hasAttrs || ((val != null) && hasAttribute(attAux, val));
+                        if (Utils.isPrimitive(item)) {
+                            hasAttrs = hasAttrs || true ;
+                        } else {
+                            LinkedTreeMap<String, Object> val = (LinkedTreeMap) item;
+                            hasAttrs = hasAttrs || ((val != null) && hasAttribute(attAux, val));
+                        }
                     }
                     return hasAttrs;
                 } else {
@@ -523,7 +527,7 @@ public class TripleObject {
                 mergeTOLinksAux = new HashMap<>();
                 oldTOLinksAux = new HashMap<>();
             }
-            if (mergeTOLinksAux.size() > oldTOLinksAux.size()) {
+            if (mergeTOLinksAux.size() >= oldTOLinksAux.size()) {
                 mergedTO = this;
                 oldTO = other;
             } else if (mergeTOLinksAux.size() < oldTOLinksAux.size()) {

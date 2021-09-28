@@ -228,7 +228,7 @@ public class JobHandlerServiceImp {
         jrClassMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()), jobRegistry);
 
         try {
-            jobRegistryRepository.save(jobRegistry);
+            jobRegistryRepository.saveAndFlush(jobRegistry);
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
@@ -420,7 +420,7 @@ public class JobHandlerServiceImp {
         jobRegistry.addRequestRegistry(requestRegistry);
         jrLODMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()), jobRegistry);
         jobRegistry.setDataSource(dataSource);
-        jobRegistryRepository.save(jobRegistry);
+        jobRegistryRepository.saveAndFlush(jobRegistry);
         for (RequestRegistry rr : jobRegistry.getRequestRegistries()) {
             requestRegistryProxy.save(rr);
         }
@@ -451,10 +451,11 @@ public class JobHandlerServiceImp {
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
-            jobRegistryRepository.save(jobRegistry);
+            jobRegistryRepository.saveAndFlush(jobRegistry);
         }
         jobRegistry.setStarted(true);
         jobRegistry.setStartedDate(new Date());
+        jobRegistryRepository.saveAndFlush(jobRegistry); // Add for front interface
         try {
             SimilarityResult similarityResult = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndTripleObject(to, jobRegistry.isSearchLinks());
 
@@ -547,6 +548,7 @@ public class JobHandlerServiceImp {
         isWorking = true;
         jobRegistry.setStarted(true);
         jobRegistry.setStartedDate(new Date());
+        jobRegistryRepository.saveAndFlush(jobRegistry); // Add for front interface
         try {
             Set<SimilarityResult> similarities = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndClass(jobRegistry.getNode(), jobRegistry.getTripleStore(), jobRegistry.getClassName(), jobRegistry.isSearchLinks(), jobRegistry.getSearchFromDelta());
             for (SimilarityResult similarityResult : similarities) { // Por cada similitud encontrada
@@ -644,7 +646,7 @@ public class JobHandlerServiceImp {
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
             try {
-                jobRegistryRepository.save(jobRegistry);
+                jobRegistryRepository.saveAndFlush(jobRegistry);
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
@@ -655,7 +657,7 @@ public class JobHandlerServiceImp {
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
             try {
-                jobRegistryRepository.save(jobRegistry);
+                jobRegistryRepository.saveAndFlush(jobRegistry);
             } catch (Exception e2) {
                 logger.error(e2.getMessage());
             }
@@ -677,6 +679,7 @@ public class JobHandlerServiceImp {
         isWorking = true;
         jobRegistry.setStarted(true);
         jobRegistry.setStartedDate(new Date());
+        jobRegistryRepository.saveAndFlush(jobRegistry); // Add for front interface
         try {
             Set<SimilarityResult> similarities = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndClassInLOD(jobRegistry.getDataSource(),jobRegistry.getNode(), jobRegistry.getTripleStore(), jobRegistry.getClassName(), jobRegistry.getSearchFromDelta());
             for (SimilarityResult similarityResult : similarities) { // Por cada similitud encontrada
@@ -750,7 +753,7 @@ public class JobHandlerServiceImp {
                     }
                     objectResult.getActionResults().add(actionResult);
                     jobRegistry.getObjectResults().add(objectResult);
-                    objectResultRepository.save(objectResult);
+                    objectResultRepository.saveAndFlush(objectResult);
                 }
 
 
@@ -758,7 +761,7 @@ public class JobHandlerServiceImp {
 
 
                 jobRegistry.getObjectResults().add(objectResult);
-                objectResultRepository.save(objectResult);
+                objectResultRepository.saveAndFlush(objectResult);
             }
 /*            if (similarities.size()>0 && false) {
                 for (SimilarityResult sr : similarities) {
@@ -830,14 +833,14 @@ public class JobHandlerServiceImp {
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
-            jobRegistryRepository.save(jobRegistry);
+            jobRegistryRepository.saveAndFlush(jobRegistry);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Fail on findSimilaritiesByClass: {}", e.getMessage());
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
-            jobRegistryRepository.save(jobRegistry);
+            jobRegistryRepository.saveAndFlush(jobRegistry);
         }
         isWorking = false;
         handleQueueFindSimilarities();

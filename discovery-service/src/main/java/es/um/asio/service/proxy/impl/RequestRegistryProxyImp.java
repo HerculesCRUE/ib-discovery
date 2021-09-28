@@ -34,9 +34,9 @@ public class RequestRegistryProxyImp implements RequestRegistryProxy {
     public RequestRegistry save(RequestRegistry requestRegistry) {
         Optional<List<RequestRegistry>> aux = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(requestRegistry.getUserId(),requestRegistry.getRequestCode(), requestRegistry.getRequestType());
         if (!aux.isEmpty() && aux.get().size()>0) {
-            return requestRegistryRepository.save(aux.get().get(0));
+            return requestRegistryRepository.saveAndFlush(aux.get().get(0));
         } else
-            return requestRegistryRepository.save(requestRegistry);
+            return requestRegistryRepository.saveAndFlush(requestRegistry);
     }
 
     /**
