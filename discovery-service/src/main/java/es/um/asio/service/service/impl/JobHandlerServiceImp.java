@@ -12,6 +12,7 @@ import es.um.asio.service.model.URIComponent;
 import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.rdf.TripleObjectLink;
 import es.um.asio.service.model.relational.*;
+import es.um.asio.service.proxy.JobRegistryProxy;
 import es.um.asio.service.proxy.RequestRegistryProxy;
 import es.um.asio.service.repository.relational.ActionResultRepository;
 import es.um.asio.service.repository.relational.JobRegistryRepository;
@@ -71,6 +72,9 @@ public class JobHandlerServiceImp {
 
     @Autowired
     JobRegistryRepository jobRegistryRepository;
+
+    @Autowired
+    JobRegistryProxy jobRegistryProxy;
 
     @Autowired
     EntitiesHandlerServiceImp entitiesHandlerServiceImp;
@@ -544,11 +548,12 @@ public class JobHandlerServiceImp {
      * @param jobRegistry
      * @return JobRegistry with the search completed
      */
-    public JobRegistry findSimilaritiesByClass(JobRegistry jobRegistry) {
+    public JobRegistry findSimilaritiesByClass(JobRegistry jr) { // Aqui
         isWorking = true;
-        jobRegistry.setStarted(true);
-        jobRegistry.setStartedDate(new Date());
-        jobRegistryRepository.saveAndFlush(jobRegistry); // Add for front interface
+        jr.setStarted(true);
+        jr.setStartedDate(new Date());
+        // JobRegistry jobRegistry = jobRegistryRepository.saveAndFlush(jr); // Add for front interface
+        JobRegistry jobRegistry = jobRegistryProxy.save(jr);
         try {
             Set<SimilarityResult> similarities = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndClass(jobRegistry.getNode(), jobRegistry.getTripleStore(), jobRegistry.getClassName(), jobRegistry.isSearchLinks(), jobRegistry.getSearchFromDelta());
             for (SimilarityResult similarityResult : similarities) { // Por cada similitud encontrada
@@ -637,7 +642,7 @@ public class JobHandlerServiceImp {
 
                 jobRegistry.getObjectResults().add(objectResult);
                 try {
-                    objectResultRepository.save(objectResult);
+                    // objectResultRepository.saveAndFlush(objectResult);
                 } catch (Exception e) {
                     logger.error(e.getMessage());
                 }
@@ -646,7 +651,8 @@ public class JobHandlerServiceImp {
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
             try {
-                jobRegistryRepository.saveAndFlush(jobRegistry);
+                // jobRegistryRepository.saveAndFlush(jobRegistry);
+                jobRegistryProxy.save(jobRegistry);
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
@@ -657,7 +663,8 @@ public class JobHandlerServiceImp {
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
             try {
-                jobRegistryRepository.saveAndFlush(jobRegistry);
+                // jobRegistryRepository.saveAndFlush(jobRegistry);
+                jobRegistryProxy.save(jobRegistry);
             } catch (Exception e2) {
                 logger.error(e2.getMessage());
             }

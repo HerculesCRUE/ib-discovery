@@ -1,5 +1,7 @@
 package es.um.asio.service.proxy.impl;
 
+import es.um.asio.service.model.relational.JobRegistry;
+import es.um.asio.service.model.relational.ObjectResult;
 import es.um.asio.service.model.relational.RequestRegistry;
 import es.um.asio.service.model.relational.RequestType;
 import es.um.asio.service.proxy.RequestRegistryProxy;
@@ -31,12 +33,9 @@ public class RequestRegistryProxyImp implements RequestRegistryProxy {
      * @return RequestRegistry
      */
     @Override
-    public RequestRegistry save(RequestRegistry requestRegistry) {
-        Optional<List<RequestRegistry>> aux = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(requestRegistry.getUserId(),requestRegistry.getRequestCode(), requestRegistry.getRequestType());
-        if (!aux.isEmpty() && aux.get().size()>0) {
-            return requestRegistryRepository.saveAndFlush(aux.get().get(0));
-        } else
-            return requestRegistryRepository.saveAndFlush(requestRegistry);
+    public RequestRegistry save(RequestRegistry rr) {
+        requestRegistryRepository.save(rr);
+        return rr;
     }
 
     /**

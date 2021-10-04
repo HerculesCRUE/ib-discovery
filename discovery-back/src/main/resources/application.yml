@@ -24,7 +24,9 @@ app:
       format_sql: true
       use_sql_comments: false
       properties:
-        hibernate.temp.use_jdbc_metadata_defaults: false
+        hibernate:
+          temp.use_jdbc_metadata_defaults: false
+          jdbc.time_zone: UTC
   # CORS
   cors:
     enabled: true

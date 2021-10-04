@@ -10,5 +10,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @version 2.0
  * @since   1.0
  */
-public interface AttributeRepository extends JpaRepository<Attribute,String> {
+public interface AttributeRepository extends JpaRepository<Attribute,Long> {
 }

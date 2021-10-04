@@ -76,4 +76,6 @@ public interface JobRegistryRepository extends JpaRepository<JobRegistry,String>
             @Param("className") String className,
             @Param("requestType") String requestType
     );
+
+
 }
