@@ -637,8 +637,9 @@ public class JobHandlerServiceImp {
 
                 jobRegistry.getObjectResults().add(objectResult);
                 try {
-                    objectResultRepository.save(objectResult);
+                    // objectResultRepository.save(objectResult);
                 } catch (Exception e) {
+                    e.printStackTrace();
                     logger.error(e.getMessage());
                 }
             }

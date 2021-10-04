@@ -89,6 +89,13 @@ data-sources:
   urisFactoryHost: http://localhost:9326/
   discoveryServiceHost: http://localhost:9329/
   serviceDataName: Federation
+
+datahandler:
+  ingnoredLinks:
+    - className: Conference
+      attributes:
+        - presents
+
 #  nodes:
 #    -
 #      nodeName: um

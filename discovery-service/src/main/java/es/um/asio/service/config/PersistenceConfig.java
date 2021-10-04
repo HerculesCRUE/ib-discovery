@@ -84,6 +84,7 @@ public class PersistenceConfig {
             config.setConnectionTimeout(172800000);
             config.setMaximumPoolSize(100);
             config.setMinimumIdle(10);
+            config.setMaxLifetime(25000);
             config.setIdleTimeout(3600000);
         }
 
