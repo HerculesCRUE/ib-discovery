@@ -147,7 +147,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
     @Override
     public SimilarityResult findEntitiesLinksByNodeAndTripleStoreAndTripleObject(TripleObject to, boolean searchInOtherNodes) {
         Map<String, TripleObject> tripleObjects = cache.getTripleObjects(to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(),to.getClassName());
-        if (tripleObjects.isEmpty() || tripleObjects == null)
+        if (tripleObjects == null || tripleObjects.isEmpty() )
             throw new CustomDiscoveryException(String.format("Not found for [ Node: %s, TripleStore: %s, ClassName: %s]",to.getTripleStore().getNode().getNodeName(),to.getTripleStore().getName(), to.getClassName()));
         StatsHandler statsHandler = cache.getStatsHandler();
 
