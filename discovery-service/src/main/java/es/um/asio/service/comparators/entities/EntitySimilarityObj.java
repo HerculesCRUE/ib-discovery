@@ -1,5 +1,6 @@
 package es.um.asio.service.comparators.entities;
 
+import es.um.asio.service.config.DataBehaviour;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.util.Utils;
 import lombok.AllArgsConstructor;
@@ -82,11 +83,11 @@ public class EntitySimilarityObj {
      * Get the weighted similarities without id attribute.
      * @return Float. The weighted similarities without id attribute.
      */
-    public float getSimilarityWithoutId(boolean excludeLinks) {
+    public float getSimilarityWithoutId(DataBehaviour dataBehaviour,boolean excludeLinks) {
         float sumSimilarities = 0f;
         float sumWeight = 0f;
         for (Map.Entry<String, SimilarityValue> svEntry :similarities.entrySet()) {
-            if (!Utils.isIdFormat(svEntry.getKey()) && (!excludeLinks || !svEntry.getValue().isLink() || svEntry.getValue().getSimilarity() == 1) ) {
+            if (!Utils.isIdFormat(svEntry.getKey()) && (!excludeLinks || !dataBehaviour.ignoreAttribute(tripleObject.getClassName(),svEntry.getKey()) /*|| !svEntry.getValue().isLink()*/ || svEntry.getValue().getSimilarity() == 1) ) {
                 sumSimilarities += svEntry.getValue().getWeightedSimilarity();
                 sumWeight += svEntry.getValue().getWeight();
             }

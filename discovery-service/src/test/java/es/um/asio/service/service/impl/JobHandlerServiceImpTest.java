@@ -1,6 +1,7 @@
 package es.um.asio.service.service.impl;
 
 import es.um.asio.service.config.Hierarchies;
+import es.um.asio.service.model.MergeType;
 import es.um.asio.service.model.TripleObject;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
@@ -201,7 +202,7 @@ class JobHandlerServiceImpTest {
         TripleObject to2 = new TripleObject("um","trellis","Proyecto",jData2);
         to2.setId("2");
         to2.setLastModification(new Date().getTime());
-        TripleObject to3 = to1.merge(to2,hierarchies, cache);
+        TripleObject to3 = to1.merge(to2,hierarchies, cache, MergeType.FREE);
         Assert.assertTrue(to3.getId() == to2.getId() || to3.getId() == to1.getId() );
     }
 

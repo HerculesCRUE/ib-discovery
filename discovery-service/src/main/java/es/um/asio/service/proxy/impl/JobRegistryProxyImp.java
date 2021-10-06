@@ -7,6 +7,8 @@ import es.um.asio.service.proxy.JobRegistryProxy;
 import es.um.asio.service.proxy.ObjectResultProxy;
 import es.um.asio.service.proxy.RequestRegistryProxy;
 import es.um.asio.service.repository.relational.JobRegistryRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,8 @@ import java.util.Optional;
  */
 @Service
 public class JobRegistryProxyImp implements JobRegistryProxy {
+
+    private final Logger logger = LoggerFactory.getLogger(JobRegistryProxyImp.class);
 
     @Autowired
     JobRegistryRepository jobRegistryRepository;
@@ -48,7 +52,11 @@ public class JobRegistryProxyImp implements JobRegistryProxy {
                 objectResultProxy.save(or);
             }
         }
-        jobRegistryRepository.saveAndFlush(jr);
+        try {
+            return jobRegistryRepository.saveAndFlush(jr);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return jr;
     }
 

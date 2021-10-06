@@ -9,6 +9,8 @@ import es.um.asio.service.proxy.AttributeProxy;
 import es.um.asio.service.proxy.ValueProxy;
 import es.um.asio.service.repository.relational.ActionResultRepository;
 import es.um.asio.service.repository.relational.AttributeRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,8 @@ import java.util.Optional;
 @Service
 public class AttributeProxyImp implements AttributeProxy {
 
+    private final Logger logger = LoggerFactory.getLogger(AttributeProxyImp.class);
+
     @Autowired
     AttributeRepository attributeRepository;
 
@@ -39,7 +43,12 @@ public class AttributeProxyImp implements AttributeProxy {
                 valueProxy.save(v);
             }
         }
-        return attributeRepository.saveAndFlush(attribute);
+        try {
+            return attributeRepository.saveAndFlush(attribute);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return attribute;
     }
 
     @Override

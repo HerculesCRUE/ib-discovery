@@ -7,6 +7,8 @@ import es.um.asio.service.proxy.AttributeProxy;
 import es.um.asio.service.proxy.ValueProxy;
 import es.um.asio.service.repository.relational.AttributeRepository;
 import es.um.asio.service.repository.relational.ValueRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,14 +25,19 @@ import java.util.Optional;
 @Service
 public class ValueProxyImp implements ValueProxy {
 
+    private final Logger logger = LoggerFactory.getLogger(ValueProxyImp.class);
+
     @Autowired
     ValueRepository valueRepository;
 
-
-
     @Override
     public Value save(Value value) {
-        return valueRepository.saveAndFlush(value);
+        try {
+            return valueRepository.saveAndFlush(value);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return value;
     }
 
     @Override

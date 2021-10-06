@@ -8,6 +8,8 @@ import es.um.asio.service.proxy.ActionResultProxy;
 import es.um.asio.service.proxy.AttributeProxy;
 import es.um.asio.service.repository.relational.ActionResultRepository;
 import es.um.asio.service.repository.relational.ObjectResultRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,8 @@ import java.util.Optional;
 @Service
 public class ActionResultProxyImp implements ActionResultProxy {
 
+    private final Logger logger = LoggerFactory.getLogger(ActionResultProxyImp.class);
+
     @Autowired
     ActionResultRepository actionResultRepository;
 
@@ -36,8 +40,12 @@ public class ActionResultProxyImp implements ActionResultProxy {
 
     @Override
     public ActionResult save(ActionResult actionResult) {
-
-        return actionResultRepository.saveAndFlush(actionResult);
+        try {
+            return actionResultRepository.saveAndFlush(actionResult);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return actionResult;
     }
 
     @Override

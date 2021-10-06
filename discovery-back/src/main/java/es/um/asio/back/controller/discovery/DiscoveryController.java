@@ -603,7 +603,7 @@ public class DiscoveryController {
             @RequestParam(required = true) @Validated(Create.class) String entityIdMainObject,
             @ApiParam(name = "entityIdRelatedObject", value = "The entity Id of the related object", required = true)
             @RequestParam(required = true) @Validated(Create.class) String entityIdRelatedObject,
-            @ApiParam(name = "decision", value = "The decision over objects", required = true, allowableValues = "ACCEPTED, DISCARDED")
+            @ApiParam(name = "decision", value = "The decision over objects", required = true, allowableValues = "ACCEPTED, DISCARDED, INVERTED")
             @RequestParam(required = true) @Validated(Create.class) Decision decision
     ) {
         Map<ObjectResult,List<ActionResult>> result = openSimilaritiesHandler.decisionOverObjectResult(className,entityIdMainObject,entityIdRelatedObject,decision);

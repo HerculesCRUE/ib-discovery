@@ -81,11 +81,12 @@ public class PersistenceConfig {
             config.setJdbcUrl(datasourceProperties.getUrl());
             config.setUsername(datasourceProperties.getUsername());
             config.setPassword(datasourceProperties.getPassword());
-            config.setConnectionTimeout(172800000);
-            config.setMaxLifetime(18000000);
+            config.setConnectionTimeout(26000000);
+            config.setMaxLifetime(26000000);
             config.setMaximumPoolSize(100);
             config.setMinimumIdle(10);
-            config.setIdleTimeout(3600000);
+            config.setIdleTimeout(26000000);
+            config.setValidationTimeout(300000);
             //config.setIdleTimeout(6000000);
             //config.setConnectionTimeout(18000000);
         }

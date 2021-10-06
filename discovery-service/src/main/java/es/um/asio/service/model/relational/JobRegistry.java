@@ -43,7 +43,7 @@ public class JobRegistry {
     @Version
     private Long version;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
     private DiscoveryApplication discoveryApplication;
 
 
@@ -59,7 +59,7 @@ public class JobRegistry {
     @Column(name = Columns.DATA_SOURCE, nullable = true,columnDefinition = "VARCHAR(200)",length = 200)
     private String dataSource;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "jobRegistry", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany( mappedBy = "jobRegistry", orphanRemoval = true, cascade = CascadeType.ALL)
     private Set<RequestRegistry> requestRegistries;
 
     @Column(name = Columns.COMPLETION_DATE, nullable = true,columnDefinition = "DATETIME")
@@ -114,6 +114,7 @@ public class JobRegistry {
         this.className = className;
         this.searchLinks = searchLinks;
         this.statusResult = StatusResult.PENDING;
+        this.startedDate = new Date();
         this.requestRegistries = new HashSet<>();
         this.objectResults = new HashSet<>();
     }

@@ -6,6 +6,9 @@ import es.um.asio.service.model.relational.RequestRegistry;
 import es.um.asio.service.model.relational.RequestType;
 import es.um.asio.service.proxy.RequestRegistryProxy;
 import es.um.asio.service.repository.relational.RequestRegistryRepository;
+import es.um.asio.service.service.impl.DataHandlerImp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +26,7 @@ import java.util.Optional;
 @Service
 public class RequestRegistryProxyImp implements RequestRegistryProxy {
 
+    private final Logger logger = LoggerFactory.getLogger(RequestRegistryProxyImp.class);
 
     @Autowired
     RequestRegistryRepository requestRegistryRepository;
@@ -34,7 +38,12 @@ public class RequestRegistryProxyImp implements RequestRegistryProxy {
      */
     @Override
     public RequestRegistry save(RequestRegistry rr) {
-        requestRegistryRepository.save(rr);
+        try {
+            requestRegistryRepository.save(rr);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
         return rr;
     }
 

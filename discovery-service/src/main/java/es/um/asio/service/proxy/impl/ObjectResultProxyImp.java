@@ -3,6 +3,8 @@ package es.um.asio.service.proxy.impl;
 import es.um.asio.service.model.relational.*;
 import es.um.asio.service.proxy.*;
 import es.um.asio.service.repository.relational.ObjectResultRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,8 @@ import java.util.Optional;
  */
 @Service
 public class ObjectResultProxyImp implements ObjectResultProxy {
+
+    private final Logger logger = LoggerFactory.getLogger(ObjectResultProxyImp.class);
 
     @Autowired
     ObjectResultRepository objectResultRepository;
@@ -61,8 +65,12 @@ public class ObjectResultProxyImp implements ObjectResultProxy {
                 attributeProxy.save(at);
             }
         }
-
-        return objectResultRepository.saveAndFlush(objectResult);
+        try {
+            return objectResultRepository.saveAndFlush(objectResult);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return objectResult;
     }
 
     @Override
