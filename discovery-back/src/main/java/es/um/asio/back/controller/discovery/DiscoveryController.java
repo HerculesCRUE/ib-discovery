@@ -555,7 +555,7 @@ public class DiscoveryController {
             @ApiParam(name = "userId", value = "The User Id of the request", required = true)
             @PathVariable(required = true,value = "userId") @Validated(Create.class) final String userId
     ) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         JsonObject jResponse = new JsonObject();
         Optional<List<RequestRegistry>> requestRegistries = requestRegistryRepository.findByUserIdOrderByRequestDateDesc(userId);
         if (requestRegistries.isPresent()) {
@@ -568,7 +568,7 @@ public class DiscoveryController {
                 }
                 JsonObject jItem = new JsonObject();
                 jItem.addProperty("requestCode",rr.getRequestCode());
-                jItem.addProperty("requestDate",sdf.format(rr.getRequestDate()));
+                jItem.addProperty("requestDate",sdf.format(rr.getRequestDate())+" UTC");
                 jResponse.get(rr.getRequestType().toString()).getAsJsonObject().get(rr.getJobRegistry().getClassName()).getAsJsonArray().add(jItem);
             }
         }
@@ -603,7 +603,7 @@ public class DiscoveryController {
             @RequestParam(required = true) @Validated(Create.class) String entityIdMainObject,
             @ApiParam(name = "entityIdRelatedObject", value = "The entity Id of the related object", required = true)
             @RequestParam(required = true) @Validated(Create.class) String entityIdRelatedObject,
-            @ApiParam(name = "decision", value = "The decision over objects", required = true, allowableValues = "ACCEPTED, DISCARDED")
+            @ApiParam(name = "decision", value = "The decision over objects", required = true, allowableValues = "ACCEPTED, DISCARDED, INVERTED")
             @RequestParam(required = true) @Validated(Create.class) Decision decision
     ) {
         Map<ObjectResult,List<ActionResult>> result = openSimilaritiesHandler.decisionOverObjectResult(className,entityIdMainObject,entityIdRelatedObject,decision);

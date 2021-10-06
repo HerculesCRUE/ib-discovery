@@ -2,16 +2,19 @@ package es.um.asio.service.service.impl;
 
 import com.google.gson.JsonObject;
 import es.um.asio.service.comparators.entities.EntitySimilarityObj;
+import es.um.asio.service.config.DataBehaviour;
 import es.um.asio.service.config.Hierarchies;
 import es.um.asio.service.constants.Constants;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.listener.AppEvents;
+import es.um.asio.service.model.MergeType;
 import es.um.asio.service.model.SimilarityResult;
 import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.URIComponent;
 import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.rdf.TripleObjectLink;
 import es.um.asio.service.model.relational.*;
+import es.um.asio.service.proxy.JobRegistryProxy;
 import es.um.asio.service.proxy.RequestRegistryProxy;
 import es.um.asio.service.repository.relational.ActionResultRepository;
 import es.um.asio.service.repository.relational.JobRegistryRepository;
@@ -73,6 +76,9 @@ public class JobHandlerServiceImp {
     JobRegistryRepository jobRegistryRepository;
 
     @Autowired
+    JobRegistryProxy jobRegistryProxy;
+
+    @Autowired
     EntitiesHandlerServiceImp entitiesHandlerServiceImp;
 
     @Autowired
@@ -110,6 +116,9 @@ public class JobHandlerServiceImp {
 
     @Value("${app.language}")
     String language;
+
+    @Autowired
+    DataBehaviour dataBehaviour;
 
 
     /**
@@ -201,10 +210,14 @@ public class JobHandlerServiceImp {
             isNewJob = true;
         }
         jobRegistry.setDoSync(doSync);
+
         if (applyDelta) {
             Date deltaDate = jobRegistryRepository.getLastDateFromNodeAndTripleStoreAndClassName(node, tripleStore, className, RequestType.ENTITY_LINK_CLASS.toString());
             jobRegistry.setSearchFromDelta(deltaDate);
         }
+
+        // Request Registry
+
         RequestRegistry requestRegistry;
         Optional<RequestRegistry> requestRegistryOpt = Optional.empty();
         try {
@@ -221,20 +234,22 @@ public class JobHandlerServiceImp {
         requestRegistry.setPropagueInKafka(propagueInKafka);
         if (Utils.isValidString(jobRegistry.getId())) {
             requestRegistry.setJobRegistry(jobRegistry);
-            requestRegistryProxy.save(requestRegistry);
+            // requestRegistryProxy.save(requestRegistry);
         }
 
         jobRegistry.addRequestRegistry(requestRegistry);
         jrClassMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()), jobRegistry);
 
         try {
-            jobRegistryRepository.saveAndFlush(jobRegistry);
+            jobRegistry = jobRegistryRepository.saveAndFlush(jobRegistry);
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
+        /*
         for (RequestRegistry rr : jobRegistry.getRequestRegistries()) {
             requestRegistryProxy.save(rr);
         }
+         */
         if (doSync) {
             if (isAppReady)
                 jobRegistry = findSimilaritiesByClass(jobRegistry);
@@ -464,12 +479,12 @@ public class JobHandlerServiceImp {
             Set<ObjectResult> toDelete = new HashSet<>();
             Set<ObjectResult> toLink = new HashSet<>();
             for (EntitySimilarityObj eso : similarityResult.getAutomatic()) { // Para todos las similitudes automáticas
-                ObjectResult objResAuto = new ObjectResult(Origin.ASIO,State.CLOSED,null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId(true));
+                ObjectResult objResAuto = new ObjectResult(Origin.ASIO,State.CLOSED,null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId(dataBehaviour, true));
                 objectResult.addAutomatic(objResAuto);
                 // Merges
                 if (objectResult.getNode().equals(objResAuto.getNode())
                         && objectResult.getTripleStore().equals(objResAuto.getTripleStore())) { // Si es el mismo nodo y triple store ACCIÓN = UPDATE o DELETE
-                    ObjectResult toUpdateAux = new ObjectResult(Origin.ASIO,State.CLOSED,null, toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry),hierarchies, cache), eso.getSimilarity(), eso.getSimilarityWithoutId(true));
+                    ObjectResult toUpdateAux = new ObjectResult(Origin.ASIO,State.CLOSED,null, toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry),hierarchies, cache, MergeType.FREE), eso.getSimilarity(), eso.getSimilarityWithoutId(dataBehaviour, true));
                     if (!toUpdateAux.getEntityId().equals(toUpdate.getEntityId())) {
                         toDelete.remove(toUpdateAux);
                         toDelete.add(toUpdate);
@@ -482,7 +497,7 @@ public class JobHandlerServiceImp {
                 }
             }
             for (EntitySimilarityObj eso : similarityResult.getManual()) { // Para todos las similitudes manuales
-                ObjectResult objResManual = new ObjectResult(Origin.ASIO,State.OPEN,null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId(true));
+                ObjectResult objResManual = new ObjectResult(Origin.ASIO,State.OPEN,null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId(dataBehaviour, true));
                 objectResult.addManual(objResManual);
             }
             objectResult.setStateFromChild();
@@ -544,11 +559,12 @@ public class JobHandlerServiceImp {
      * @param jobRegistry
      * @return JobRegistry with the search completed
      */
-    public JobRegistry findSimilaritiesByClass(JobRegistry jobRegistry) {
+    public JobRegistry findSimilaritiesByClass(JobRegistry jr) { // Aqui
         isWorking = true;
-        jobRegistry.setStarted(true);
-        jobRegistry.setStartedDate(new Date());
-        jobRegistryRepository.saveAndFlush(jobRegistry); // Add for front interface
+        // jr.setStarted(true);
+        // jr.setStartedDate(new Date());
+        JobRegistry jobRegistry = jr; // jobRegistryRepository.save(jr); // Add for front interface
+        // JobRegistry jobRegistry = jobRegistryProxy.save(jr);
         try {
             Set<SimilarityResult> similarities = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndClass(jobRegistry.getNode(), jobRegistry.getTripleStore(), jobRegistry.getClassName(), jobRegistry.isSearchLinks(), jobRegistry.getSearchFromDelta());
             for (SimilarityResult similarityResult : similarities) { // Por cada similitud encontrada
@@ -559,26 +575,26 @@ public class JobHandlerServiceImp {
                 Set<ObjectResult> toLink = new HashSet<>();
                 for (EntitySimilarityObj eso : similarityResult.getAutomatic()) { // Para todos las similitudes automáticas
                     TripleObject toOther = cache.getTripleObject(eso.getTripleObject());
-                    ObjectResult objResAuto = new ObjectResult(Origin.ASIO,State.CLOSED,null, toOther, eso.getSimilarity(), eso.getSimilarityWithoutId(true));
+                    ObjectResult objResAuto = new ObjectResult(Origin.ASIO,State.CLOSED,null, toOther, eso.getSimilarity(), eso.getSimilarityWithoutId(dataBehaviour, true));
                     objectResult.addAutomatic(objResAuto); // Añadimos objResult
                     // Merges
                     if (objectResult.getNode().equals(objResAuto.getNode())
                             && objectResult.getTripleStore().equals(objResAuto.getTripleStore())) { // Si es el mismo nodo y triple store ACCIÓN = UPDATE o DELETE
-                        ObjectResult toUpdateAux = new ObjectResult(Origin.ASIO,State.CLOSED,null, toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry),hierarchies, cache), eso.getSimilarity(), eso.getSimilarityWithoutId(true));
+                        ObjectResult toUpdateAux = new ObjectResult(Origin.ASIO,State.CLOSED,null, toUpdate.toTripleObject(jobRegistry).merge(objResAuto.toTripleObject(jobRegistry),hierarchies, cache, MergeType.FREE), eso.getSimilarity(), eso.getSimilarityWithoutId(dataBehaviour, true));
                         if (!toUpdateAux.getEntityId().equals(toUpdate.getEntityId())) { // Si cambio el orden después del merge
                             toDelete.remove(toUpdateAux);
                             toDelete.add(toUpdate);
-                            toUpdate = toUpdateAux;
                         } else { // Si no cambio
                             toDelete.add(objResAuto);
                         }
+                        toUpdate = toUpdateAux;
                     } else { // Si es distinto nodo
                         toLink.add(objResAuto);
                     }
 
                 }
                 for (EntitySimilarityObj eso : similarityResult.getManual()) { // Para todos las similitudes manuales
-                    ObjectResult objResManual = new ObjectResult(Origin.ASIO,State.OPEN,null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId(true));
+                    ObjectResult objResManual = new ObjectResult(Origin.ASIO,State.OPEN,null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId(dataBehaviour, true));
                     objectResult.addManual(objResManual);
                 }
 
@@ -647,7 +663,8 @@ public class JobHandlerServiceImp {
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
             try {
-                jobRegistryRepository.saveAndFlush(jobRegistry);
+                jobRegistryRepository.save(jobRegistry);
+                // jobRegistryProxy.save(jobRegistry);
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
@@ -658,7 +675,8 @@ public class JobHandlerServiceImp {
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
             try {
-                jobRegistryRepository.saveAndFlush(jobRegistry);
+                // jobRegistryRepository.saveAndFlush(jobRegistry);
+                jobRegistryProxy.save(jobRegistry);
             } catch (Exception e2) {
                 logger.error(e2.getMessage());
             }
@@ -688,7 +706,7 @@ public class JobHandlerServiceImp {
                 ObjectResult objectResult = new ObjectResult(Origin.ASIO, State.OPEN,jobRegistry, similarityResult.getTripleObject(), null,null);
                 for (EntitySimilarityObj eso : similarityResult.getAutomatic()) { // Para todos las similitudes automáticas
                     try {
-                        ObjectResult objResAuto = new ObjectResult(Origin.LOD, State.CLOSED,null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId(true));
+                        ObjectResult objResAuto = new ObjectResult(Origin.LOD, State.CLOSED,null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId(dataBehaviour, true));
                         objectResult.addAutomatic(objResAuto);
 
                     } catch (Exception e) {
@@ -698,7 +716,7 @@ public class JobHandlerServiceImp {
 
                 }
                 for (EntitySimilarityObj eso : similarityResult.getManual()) { // Para todos las similitudes automáticas
-                    ObjectResult objResManual = new ObjectResult(Origin.ASIO, State.OPEN,null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId(true));
+                    ObjectResult objResManual = new ObjectResult(Origin.ASIO, State.OPEN,null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId(dataBehaviour, true));
                     objectResult.addManual(objResManual);
                 }
 

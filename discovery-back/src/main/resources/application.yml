@@ -20,11 +20,13 @@ app:
       dialect: org.hibernate.dialect.MariaDB53Dialect
       generate-ddl: true
       ddl-auto: create
-      show-sql: false
+      show-sql: true
       format_sql: true
       use_sql_comments: false
       properties:
-        hibernate.temp.use_jdbc_metadata_defaults: false
+        hibernate:
+          temp.use_jdbc_metadata_defaults: false
+          jdbc.time_zone: UTC
   # CORS
   cors:
     enabled: true
@@ -73,6 +75,45 @@ data:
       topic: discovery_action
       groupId: discovery_action_1
 
+data-behaviour:
+  behaviours:
+    - className: Conference
+      ignoreLinks:
+        - presents
+    - className: Article
+      ignoreLinks:
+        - correspondingAuthor
+    - className: Publication
+      ignoreLinks:
+        - correspondingAuthor
+    - className: Patent
+      ignoreLinks:
+        - correspondingAuthor
+    - className: Center
+      ignoreLinks:
+        - relatedBy
+    - className: Department
+      ignoreLinks:
+        - relatedBy
+    - className: Organization
+      ignoreLinks:
+        - relatedBy
+    - className: Doctoral-thesis
+      ignoreLinks:
+        - correspondingAuthor
+    - className: Person
+      ignoreLinks:
+        - hasCV
+    - className: Project
+      ignoreLinks:
+        - relates
+        - hasKnowledgeArea
+    - className: Research-line
+      ignoreLinks:
+        - relates
+    - className: Research-line
+      ignoreLinks:
+        - relates
 data-sources:
   useCachedData: true
   thresholds:
