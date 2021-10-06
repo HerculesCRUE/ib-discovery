@@ -20,7 +20,7 @@ app:
       dialect: org.hibernate.dialect.MariaDB53Dialect
       generate-ddl: true
       ddl-auto: create
-      show-sql: true
+      show-sql: false
       format_sql: true
       use_sql_comments: false
       properties:
@@ -195,6 +195,9 @@ management:
 ## In case of configure web endpoints, remove it or change port number
 server:
   port: ${management.server.port}
+  error:
+    whitelabel:
+      enabled: false
 
 logging:
   level:

@@ -94,6 +94,16 @@ public class DiscoveryController {
         return applicationState;
     }
 
+    @ControllerAdvice
+    public class GlobalDefaultExceptionHandler {
+
+        @ExceptionHandler(Exception.class)
+        public String exception(Exception e) {
+
+            return "error";
+        }
+    }
+
 
     /**
      * Get Entity Stats.
@@ -286,6 +296,9 @@ public class DiscoveryController {
             @RequestParam(required = true) @Validated(Create.class) final boolean linkEntities,
             @NotNull @RequestBody final Object object
     ) {
+        if (status().getAppState() != ApplicationState.AppState.INITIALIZED) {
+            throw new CustomDiscoveryException("App not initialized. State: " + applicationState.getAppState().name());
+        }
         JSONObject jsonData = new JSONObject((LinkedHashMap) object);
         String jBodyStr = jsonData.toString();
         if (requestCode == null) {
