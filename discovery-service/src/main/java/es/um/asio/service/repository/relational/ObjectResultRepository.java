@@ -78,4 +78,15 @@ public interface ObjectResultRepository extends JpaRepository<ObjectResult,Long>
             @Param("state") String state,
             @Param("actionResultParentId") Long actionResultParentId
     );
+
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE discovery.object_result o set " +
+            "o.actionResultParent_id = :actionResultId" +
+            " WHERE j.id = :id", nativeQuery = true)
+    int updateActionResultId(
+            @Param("id") Long id,
+            @Param("actionResultId") Long actionResultId
+    );
 }

@@ -32,23 +32,25 @@ public class ActionResultProxyImp implements ActionResultProxy {
     @Autowired
     ActionResultRepository actionResultRepository;
 
-    @Autowired
-    AttributeProxy attributeProxy;
 
     @Autowired
-    ActionResultProxy actionResultProxy;
-
-    @Autowired
-    ObjectResultProxy objectResultProxy;
+    ObjectResultRepository objectResultRepository;
 
 
     @Override
     public ActionResult save(ActionResult actionResult) {
+        Long id = actionResultRepository.getNextId();
         actionResultRepository.insertNoNested(
+                id,
                 ((actionResult.getAction()!=null)?actionResult.getAction().name():null),
                 actionResult.getVersion(),
                 ((actionResult.getObjectResultParent()!=null)?actionResult.getObjectResultParent().getId():null)
         );
+
+        for (ObjectResult or : actionResult.getObjectResults()) {
+            objectResultRepository.updateActionResultId(or.getId(),id);
+        }
+
         return actionResult;
     }
 

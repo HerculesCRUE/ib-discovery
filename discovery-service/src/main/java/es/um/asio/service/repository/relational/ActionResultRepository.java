@@ -18,15 +18,18 @@ import java.util.Date;
  */
 public interface ActionResultRepository extends JpaRepository<ActionResult,Long> {
 
+    @Query(value = "SELECT coalesce(max(id), 0)+1 FROM discovery.action_result", nativeQuery = true)
+    public Long getNextId();
 
     @Modifying
     @Transactional
     @Query(value = "INSERT discovery.action_result (\n" +
-            "\taction, version, objectResultParent_id" +
+            "\tid, action, version, objectResultParent_id" +
             ") VALUES (\n" +
-            "\t:action, :version, :objectResultParentId\n" +
+            "\t:id, :action, :version, :objectResultParentId\n" +
             ")", nativeQuery = true)
     void insertNoNested(
+            @Param("id") Long id,
             @Param("action") String action,
             @Param("version") Long version,
             @Param("objectResultParentId") Long objectResultParentId
