@@ -241,6 +241,8 @@ public class JobHandlerServiceImp {
         jrClassMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()), jobRegistry);
 
         try {
+           //  jobRegistry = jobRegistryRepository.saveAndFlush(jobRegistry);
+            // jobRegistryRepository.insertNoNested(jobRegistry.getVersion(),jobRegistry.getDiscoveryApplication().getId(),jobRegistry.getNode(),jobRegistry.getTripleStore(),jobRegistry.getClassName(),jobRegistry.getDataSource(), jobRegistry.getCompletedDate(),jobRegistry.getStartedDate(),jobRegistry.getStatusResult().toString(),jobRegistry.isCompleted(),jobRegistry.isStarted(),jobRegistry.isDoSync(),jobRegistry.isSearchLinks(),jobRegistry.getSearchFromDelta(),jobRegistry.getBodyRequest());
             jobRegistry = jobRegistryRepository.saveAndFlush(jobRegistry);
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -347,7 +349,7 @@ public class JobHandlerServiceImp {
         jobRegistry.addRequestRegistry(requestRegistry);
         jrEntityMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()), jobRegistry);
 
-        jobRegistryRepository.saveAndFlush(jobRegistry);
+        jobRegistry = jobRegistryRepository.saveAndFlush(jobRegistry);
         for (RequestRegistry rr : jobRegistry.getRequestRegistries()) {
             requestRegistryProxy.save(rr);
         }
@@ -663,8 +665,11 @@ public class JobHandlerServiceImp {
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
             try {
-                jobRegistryRepository.save(jobRegistry);
-                // jobRegistryProxy.save(jobRegistry);
+                // jobRegistryRepository.updateNoNested(jobRegistry.getVersion(),jobRegistry.getDiscoveryApplication().getId(),jobRegistry.getNode(),jobRegistry.getTripleStore(),jobRegistry.getClassName(),jobRegistry.getDataSource(), jobRegistry.getCompletedDate(),jobRegistry.getStartedDate(),jobRegistry.getStatusResult().toString(),jobRegistry.isCompleted(),jobRegistry.isStarted(),jobRegistry.isDoSync(),jobRegistry.isSearchLinks(),jobRegistry.getSearchFromDelta(),jobRegistry.getBodyRequest());
+                // JobRegistry jrr = jobRegistryProxy.save(jobRegistry);
+                jobRegistryRepository.saveAndFlush(jobRegistry);
+                //jobRegistryProxy.save(jobRegistry);
+                System.out.println();
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
@@ -675,7 +680,7 @@ public class JobHandlerServiceImp {
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
             try {
-                // jobRegistryRepository.saveAndFlush(jobRegistry);
+                // jobRegistry = jobRegistryRepository.saveAndFlush(jobRegistry);
                 jobRegistryProxy.save(jobRegistry);
             } catch (Exception e2) {
                 logger.error(e2.getMessage());

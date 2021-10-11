@@ -20,7 +20,7 @@ app:
       dialect: org.hibernate.dialect.MariaDB53Dialect
       generate-ddl: true
       ddl-auto: create
-      show-sql: false
+      show-sql: true
       format_sql: true
       use_sql_comments: false
       properties:
@@ -201,8 +201,8 @@ server:
 
 logging:
   level:
-    org.hibernate.SQL: INFO
-    #org.hibernate.type: TRACE
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
 
 spring:
   security:

@@ -103,8 +103,11 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
             statsHierarchyParent.put(parentClass,parentStats);
         }
         int counter = 0;
+        int counterBreak = 0;
         Set<String> foundsSimilarities = new HashSet<>();
         for (TripleObject to1 : tripleObjects.values()) {
+            if (counterBreak++ >= 10) // Quitar
+                break;
             if (foundsSimilarities.contains(to1.getId())) {
                 ++counter;
                 continue;

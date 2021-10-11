@@ -6,6 +6,7 @@ import es.um.asio.service.model.relational.JobRegistry;
 import es.um.asio.service.model.relational.ObjectResult;
 import es.um.asio.service.proxy.ActionResultProxy;
 import es.um.asio.service.proxy.AttributeProxy;
+import es.um.asio.service.proxy.ObjectResultProxy;
 import es.um.asio.service.repository.relational.ActionResultRepository;
 import es.um.asio.service.repository.relational.ObjectResultRepository;
 import org.slf4j.Logger;
@@ -37,14 +38,17 @@ public class ActionResultProxyImp implements ActionResultProxy {
     @Autowired
     ActionResultProxy actionResultProxy;
 
+    @Autowired
+    ObjectResultProxy objectResultProxy;
+
 
     @Override
     public ActionResult save(ActionResult actionResult) {
-        try {
-            return actionResultRepository.saveAndFlush(actionResult);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        actionResultRepository.insertNoNested(
+                ((actionResult.getAction()!=null)?actionResult.getAction().name():null),
+                actionResult.getVersion(),
+                ((actionResult.getObjectResultParent()!=null)?actionResult.getObjectResultParent().getId():null)
+        );
         return actionResult;
     }
 

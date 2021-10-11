@@ -90,7 +90,7 @@ public class JobRegistry {
     @Column(name = Columns.BODY_REQUEST, nullable = true,columnDefinition = "TEXT")
     private String bodyRequest;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "jobRegistry", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "jobRegistry", cascade = CascadeType.DETACH)
     private Set<ObjectResult> objectResults;
 
     @Transient
@@ -117,6 +117,53 @@ public class JobRegistry {
         this.startedDate = new Date();
         this.requestRegistries = new HashSet<>();
         this.objectResults = new HashSet<>();
+    }
+
+    public JobRegistry(JobRegistry jr) {
+        this.id = jr.getId();
+        this.version = jr.getVersion();
+        this.discoveryApplication = jr.getDiscoveryApplication();
+        this.node = jr.getNode();
+        this.tripleStore = jr.getTripleStore();
+        this.className = jr.getClassName();
+        this.dataSource = jr.getDataSource();
+        this.requestRegistries = jr.getRequestRegistries();
+        this.completedDate = jr.getCompletedDate();
+        this.startedDate = jr.getStartedDate();
+        this.statusResult = jr.getStatusResult();
+        this.isCompleted = jr.isCompleted();
+        this.isStarted = jr.isStarted();
+        this.doSync = jr.isDoSync();
+        this.searchLinks = jr.isSearchLinks();
+        this.searchFromDelta = jr.getSearchFromDelta();
+        this.bodyRequest = jr.getBodyRequest();
+        setObjectResults(jr.getObjectResults());
+        this.tripleObject = jr.getTripleObject();
+    }
+
+
+    public JobRegistry merge(JobRegistry jr) {
+        JobRegistry jrAux = new JobRegistry();
+        jrAux.id = jr.getId();
+        jrAux.version = jr.getVersion();
+        jrAux.discoveryApplication = jr.getDiscoveryApplication();
+        jrAux.node = jr.getNode();
+        jrAux.tripleStore = jr.getTripleStore();
+        jrAux.className = jr.getClassName();
+        jrAux.dataSource = jr.getDataSource();
+        jrAux.requestRegistries = jr.getRequestRegistries();
+        jrAux.completedDate = jr.getCompletedDate();
+        jrAux.startedDate = jr.getStartedDate();
+        jrAux.statusResult = jr.getStatusResult();
+        jrAux.isCompleted = jr.isCompleted();
+        jrAux.isStarted = jr.isStarted();
+        jrAux.doSync = jr.isDoSync();
+        jrAux.searchLinks = jr.isSearchLinks();
+        jrAux.searchFromDelta = jr.getSearchFromDelta();
+        jrAux.bodyRequest = jr.getBodyRequest();
+        jrAux.setObjectResults(jr.getObjectResults());
+        jrAux.tripleObject = jr.getTripleObject();
+        return jrAux;
     }
 
     /**

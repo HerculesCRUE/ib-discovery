@@ -39,8 +39,40 @@ public class JobRegistryProxyImp implements JobRegistryProxy {
 
 
     @Override
-    public JobRegistry save(JobRegistry jr) {
-
+    public JobRegistry save(JobRegistry jra) {
+        /*
+        JobRegistry jra;
+        Optional<JobRegistry> jobRegistry = findById(jr.getId());
+        if (!jobRegistry.isEmpty()) {
+            jra = jobRegistry.get().merge(jr);
+        } else {
+            jra = jr;
+        }
+         */
+        jobRegistryRepository.updateNoNested(
+                jra.getId(),
+                jra.getVersion(),
+                jra.getDiscoveryApplication().getId(),
+                jra.getNode(),
+                jra.getTripleStore(),
+                jra.getClassName(),
+                jra.getDataSource(),
+                jra.getCompletedDate(),
+                jra.getStartedDate(),
+                jra.getStatusResult().toString(),
+                jra.isCompleted(),
+                jra.isStarted(),
+                jra.isDoSync(),
+                jra.isSearchLinks(),
+                jra.getSearchFromDelta(),
+                jra.getBodyRequest()
+        );
+        if (jra.getObjectResults()!=null) {
+            for (ObjectResult or : jra.getObjectResults()) {
+                objectResultProxy.save(or);
+            }
+        }
+        /*
         if (jr.getRequestRegistries()!=null) {
             for (RequestRegistry rr : jr.getRequestRegistries()) {
                 requestRegistryProxy.save(rr);
@@ -58,6 +90,8 @@ public class JobRegistryProxyImp implements JobRegistryProxy {
             e.printStackTrace();
         }
         return jr;
+         */
+        return jra;
     }
 
     @Override

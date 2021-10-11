@@ -32,7 +32,7 @@ import java.util.*;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @AllArgsConstructor
 @NoArgsConstructor
-public class ObjectResult implements Comparable<ObjectResult>{
+public class ObjectResult implements Comparable<ObjectResult>,Cloneable{
 
     @Transient
     @JsonIgnore
@@ -334,6 +334,25 @@ public class ObjectResult implements Comparable<ObjectResult>{
         return jResponse;
     }
 
+    public boolean isMain() {
+        return isMain;
+    }
+
+    public boolean isAutomatic() {
+        return isAutomatic;
+    }
+
+    public boolean isManual() {
+        return isManual;
+    }
+
+    public boolean isMerge() {
+        return isMerge;
+    }
+
+    public boolean isLink() {
+        return isLink;
+    }
 
     public void setStateFromChild() {
         for (ObjectResult or : getAutomatic()) {
@@ -382,6 +401,12 @@ public class ObjectResult implements Comparable<ObjectResult>{
     @Override
     public int compareTo(ObjectResult o) {
         return this.getMaxSimilarity().compareTo(o.getMaxSimilarity());
+    }
+
+
+    @Override
+    public ObjectResult clone() throws CloneNotSupportedException {
+        return (ObjectResult) super.clone();
     }
 
     /**

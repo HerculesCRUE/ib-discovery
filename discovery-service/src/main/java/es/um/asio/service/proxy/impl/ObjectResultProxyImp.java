@@ -34,43 +34,120 @@ public class ObjectResultProxyImp implements ObjectResultProxy {
 
 
     @Override
-    public ObjectResult save(ObjectResult objectResult) {
+    public ObjectResult save(ObjectResult or) {
 
-        if (objectResult.getActionResults()!=null) {
-            for (ActionResult ac : objectResult.getActionResults()) {
+        // Guardo objeto plano
+        Long id = objectResultRepository.getNextId();
+        try {
+            objectResultRepository.insertNoNested(
+                    id,
+                    or.getVersion(),
+                    ((or.getOrigin() != null) ? or.getOrigin().name() : null),
+                    or.getNode(),
+                    or.getTripleStore(),
+                    or.getClassName(),
+                    or.getLocalURI(),
+                    or.getCanonicalURI(),
+                    or.getLastModification(),
+                    ((or.getJobRegistry() != null) ? or.getJobRegistry().getId() : null),
+                    or.getEntityId(),
+                    ((or.getParentAutomatic() != null) ? or.getParentAutomatic().getId() : null),
+                    ((or.getParentManual() != null) ? or.getParentManual().getId() : null),
+                    ((or.getParentLink() != null) ? or.getParentLink().getId() : null),
+                    or.getSimilarity(),
+                    or.getSimilarityWithOutId(),
+                    or.isMain(),
+                    or.isAutomatic(),
+                    or.isManual(),
+                    or.isMerge(),
+                    or.isLink(),
+                    ((or.getMergeAction() != null) ? or.getMergeAction().name() : null),
+                    ((or.getState() != null) ? or.getState().name() : null),
+                    ((or.getActionResultParent() != null && or.isMain() == false) ? or.getActionResultParent().getId() : null)
+
+            );
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+
+        or.setId(id);
+
+        if (or.getAutomatic()!=null) {
+            for (ObjectResult orAux : or.getAutomatic()) {
+                orAux.getParentAutomatic().setId(id);
+                try {
+                    save(orAux);
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                }
+            }
+        }
+
+        if (or.getManual()!=null) {
+            for (ObjectResult orAux : or.getManual()) {
+                orAux.getParentManual().setId(id);
+                try {
+                    save(orAux);
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                }
+            }
+        }
+
+        if (or.getLink()!=null) {
+            for (ObjectResult orAux : or.getLink()) {
+                orAux.getParentLink().setId(id);
+                try {
+                    save(orAux);
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                }
+            }
+        }
+
+        if (or.getActionResults()!=null) {
+            for (ActionResult ac : or.getActionResults()) {
+                ac.getObjectResultParent().setId(id);
+                try {
+                    actionResultProxy.save(ac);
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                }
+            }
+        }
+
+        /*
+        if (or.getActionResults()!=null) {
+            for (ActionResult ac : or.getActionResults()) {
                 actionResultProxy.save(ac);
             }
         }
 
-        if (objectResult.getAutomatic()!=null) {
-            for (ObjectResult or : objectResult.getAutomatic()) {
-                save(or);
-            }
-        }
-
-        if (objectResult.getManual()!=null) {
-            for (ObjectResult orAux : objectResult.getManual()) {
+        if (or.getAutomatic()!=null) {
+            for (ObjectResult orAux : or.getAutomatic()) {
                 save(orAux);
             }
         }
 
-        if (objectResult.getLink()!=null) {
-            for (ObjectResult or : objectResult.getLink()) {
-                save(or);
+        if (or.getManual()!=null) {
+            for (ObjectResult orAux : or.getManual()) {
+                save(orAux);
             }
         }
 
-        if (objectResult.getAttributes()!=null) {
-            for (Attribute at : objectResult.getAttributes()) {
+        if (or.getLink()!=null) {
+            for (ObjectResult orAux : or.getLink()) {
+                save(orAux);
+            }
+        }
+
+        if (or.getAttributes()!=null) {
+            for (Attribute at : or.getAttributes()) {
                 attributeProxy.save(at);
             }
         }
-        try {
-            return objectResultRepository.saveAndFlush(objectResult);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return objectResult;
+        */
+        return or;
     }
 
     @Override

@@ -81,11 +81,11 @@ public class PersistenceConfig {
             config.setJdbcUrl(datasourceProperties.getUrl());
             config.setUsername(datasourceProperties.getUsername());
             config.setPassword(datasourceProperties.getPassword());
-            config.setConnectionTimeout(26000000);
-            config.setMaxLifetime(26000000);
-            config.setMaximumPoolSize(100);
+            config.setConnectionTimeout(30000);
+            config.setMaxLifetime(1800000);
             config.setMinimumIdle(10);
-            config.setIdleTimeout(26000000);
+            config.setMaximumPoolSize(10);
+            config.setIdleTimeout(60000);
             config.setValidationTimeout(300000);
             //config.setIdleTimeout(6000000);
             //config.setConnectionTimeout(18000000);
@@ -129,6 +129,7 @@ public class PersistenceConfig {
 
         jpaProperties.put(AvailableSettings.SHOW_SQL, jpa.isShowSql());
         jpaProperties.put(AvailableSettings.FORMAT_SQL, jpa.isShowSql());
+        jpaProperties.put(AvailableSettings.STATEMENT_BATCH_SIZE, 100);
         jpaProperties.put(AvailableSettings.JDBC_TIME_ZONE, "UTC");
         
         jpaProperties.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, false);
