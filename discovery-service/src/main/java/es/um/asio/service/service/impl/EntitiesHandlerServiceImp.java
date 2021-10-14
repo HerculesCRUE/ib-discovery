@@ -106,7 +106,7 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
         int counterBreak = 0;
         Set<String> foundsSimilarities = new HashSet<>();
         for (TripleObject to1 : tripleObjects.values()) {
-            if (counterBreak++ >= 2500) // Quitar
+            if (counterBreak++ >= 2500 && false) // Quitar
                 break;
             if (foundsSimilarities.contains(to1.getId())) {
                 ++counter;
