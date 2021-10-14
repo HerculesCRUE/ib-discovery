@@ -438,7 +438,12 @@ public class JobHandlerServiceImp {
         jobRegistry.addRequestRegistry(requestRegistry);
         jrLODMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()), jobRegistry);
         jobRegistry.setDataSource(dataSource);
-        jobRegistryRepository.saveAndFlush(jobRegistry);
+        // jobRegistryRepository.saveAndFlush(jobRegistry);
+        try {
+            jobRegistryProxy.save(jobRegistry);
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
         for (RequestRegistry rr : jobRegistry.getRequestRegistries()) {
             requestRegistryProxy.save(rr);
         }
@@ -699,7 +704,7 @@ public class JobHandlerServiceImp {
         isWorking = true;
         jobRegistry.setStarted(true);
         jobRegistry.setStartedDate(new Date());
-        jobRegistryRepository.saveAndFlush(jobRegistry); // Add for front interface
+        // jobRegistryRepository.saveAndFlush(jobRegistry); // Add for front interface
         try {
             Set<SimilarityResult> similarities = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndClassInLOD(jobRegistry.getDataSource(),jobRegistry.getNode(), jobRegistry.getTripleStore(), jobRegistry.getClassName(), jobRegistry.getSearchFromDelta());
             for (SimilarityResult similarityResult : similarities) { // Por cada similitud encontrada
@@ -773,7 +778,7 @@ public class JobHandlerServiceImp {
                     }
                     objectResult.getActionResults().add(actionResult);
                     jobRegistry.getObjectResults().add(objectResult);
-                    objectResultRepository.saveAndFlush(objectResult);
+                    // objectResultRepository.saveAndFlush(objectResult);
                 }
 
 
@@ -781,86 +786,25 @@ public class JobHandlerServiceImp {
 
 
                 jobRegistry.getObjectResults().add(objectResult);
-                objectResultRepository.saveAndFlush(objectResult);
+                // objectResultRepository.saveAndFlush(objectResult);
             }
-/*            if (similarities.size()>0 && false) {
-                for (SimilarityResult sr : similarities) {
-                    ObjectResult objectResult = new ObjectResult(jobRegistry, sr.getTripleObject(), null);
-                    Set<ObjectResult> toLink = new HashSet<>();
-                    TripleObjectLink baseTripleObjectLink = new TripleObjectLink(sr.getTripleObject().toJson()); // Object base to link
-
-
-                    for (EntitySimilarityObj eso : sr.getAutomatic()) {
-                        TripleObject tripleObjectAutomatic = eso.getTripleObject();
-                        ObjectResult objectResultInner = new ObjectResult(jobRegistry, tripleObjectAutomatic, null);
-                        // Creo los contenedores si no existen
-                        if (trellisCache.find("lod-links",Constants.CACHE_TRELLIS_CONTAINER) == null) {
-                            String containerLod = trellisOperations.saveContainer(null,"lod-links",false);
-                            if (containerLod!=null) {
-                                trellisCache.saveInCache("lod-links",containerLod,Constants.CACHE_TRELLIS_CONTAINER);
-                            }
-                        }
-                        String pathContainer = "lod-links";
-                        if (trellisCache.find("lod-links/" + eso.getDataSource(),Constants.CACHE_TRELLIS_CONTAINER) == null) {
-                            String containerLodDataSource = trellisOperations.saveContainer(pathContainer,eso.getDataSource(),false);
-                            if (containerLodDataSource!=null) {
-                                trellisCache.saveInCache("lod-links/" + eso.getDataSource(),containerLodDataSource,Constants.CACHE_TRELLIS_CONTAINER);
-                            }
-                        }
-                        pathContainer = pathContainer + "/" +eso.getDataSource();
-                        if (trellisCache.find(pathContainer + "/"+ tripleObjectAutomatic.getClassName(),Constants.CACHE_TRELLIS_CONTAINER) == null) {
-                            String containerLodDataSourceClass = trellisOperations.saveContainer(pathContainer,tripleObjectAutomatic.getClassName(),false);
-                            if (containerLodDataSourceClass!=null) {
-                                trellisCache.saveInCache(pathContainer + "/"+ tripleObjectAutomatic.getClassName(),containerLodDataSourceClass,Constants.CACHE_TRELLIS_CONTAINER);
-                            }
-                        }
-                        pathContainer = pathContainer + "/" + tripleObjectAutomatic.getClassName();
-                        // Inserto el elemento a linkar
-
-                        List<Pair<String,String>> properties = new ArrayList<>();
-                        properties.add(new MutablePair<>("skos:closeMatch",sr.getTripleObject().getLocalURI()));
-                        String locationTripleObjectAutomatic = trellisOperations.addPropertyToEntity(pathContainer,tripleObjectAutomatic.getTripleObjectLink(),properties,false);
-                        if (locationTripleObjectAutomatic!=null) {
-                            objectResultInner.setLocalURI(locationTripleObjectAutomatic);
-
-                            toLink.add(objectResultInner);
-                        }
-                    }
-
-                    if (toLink != null && !toLink.isEmpty()) {
-                        ActionResult actionResult = new ActionResult(Action.LINK, objectResult);
-                        for (ObjectResult orLink : toLink) {
-                            actionResult.addObjectResult(orLink);
-                            orLink.setActionResultParent(actionResult);
-                        }
-                        objectResult.getActionResults().add(actionResult);
-                        jobRegistry.getObjectResults().add(objectResult);
-                        objectResultRepository.save(objectResult);
-                    }
-
-                    // Inserto el elemento Base
-*//*                    if (links.size()>0) {
-
-                        List<Pair<String, String>> properties = new ArrayList<>();
-                        for (String link : links) {
-                            properties.add(new MutablePair<>("skos:closeMatch", link));
-                        }
-                        String locationTripleObject = trellisOperations.addPropertyToEntity(sr.getTripleObject().getLocalURI(), sr.getTripleObject().getTripleObjectLink(), properties, true);
-                        System.out.println();
-                    }*//*
-                }
-            }*/
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
-            jobRegistryRepository.saveAndFlush(jobRegistry);
+            jobRegistryProxy.save(jobRegistry);
+            //jobRegistryRepository.saveAndFlush(jobRegistry);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Fail on findSimilaritiesByClass: {}", e.getMessage());
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
-            jobRegistryRepository.saveAndFlush(jobRegistry);
+            try {
+                jobRegistryProxy.save(jobRegistry);
+            } catch (CloneNotSupportedException cloneNotSupportedException) {
+                cloneNotSupportedException.printStackTrace();
+            }
+            //jobRegistryRepository.saveAndFlush(jobRegistry);
         }
         isWorking = false;
         handleQueueFindSimilarities();
