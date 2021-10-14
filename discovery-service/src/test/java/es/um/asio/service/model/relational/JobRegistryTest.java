@@ -39,7 +39,7 @@ class JobRegistryTest {
 
     @Test
     void addRequestRegistry() {
-        RequestRegistry rr = new RequestRegistry("usuario1","12345",RequestType.ENTITY_LINK_INSTANCE,new Date());
+        RequestRegistry rr = new RequestRegistry("usuario1","12345",RequestType.ENTITY_LINK_INSTANCE,new Date(),null);
         jobRegistry.addRequestRegistry(rr);
         Assert.assertTrue(jobRegistry.getRequestRegistries().contains(rr));
     }

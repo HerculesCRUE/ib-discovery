@@ -155,7 +155,9 @@ public class DiscoveryController {
             @ApiParam(name = "linkEntities", value = "Search also in other Nodes and Triple Stores for link", defaultValue = "false", required = true)
             @RequestParam(required = true) @Validated(Create.class) final boolean linkEntities,
             @ApiParam(name = "applyDelta", value = "SearchindEntityLinkByEntityAndNodeTripleStoreAndClass only from last date in similar request", defaultValue = "true",required = true)
-            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta
+            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta,
+            @ApiParam(name = "email", value = "Email to send at the conclusion of the request",required = false)
+            @RequestParam(required = false) @Validated(Create.class) final String email
     ) {
 
         if (!doSynchronous && ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
@@ -169,7 +171,7 @@ public class DiscoveryController {
         if (!requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode, RequestType.ENTITY_LINK_CLASS).isEmpty())
             throw new CustomDiscoveryException("UserId and RequestCode for type ENTITY_LINK_CLASS must be unique");
 
-        JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForClass(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka,linkEntities,applyDelta);
+        JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForClass(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka,linkEntities,applyDelta, (Utils.isValidEmailAddress(email)?email:null) );
         JsonObject jResponse = new JsonObject();
         jResponse.add("state",applicationState.toSimplifiedJson());
         if (jobRegistry!=null) {
@@ -207,7 +209,9 @@ public class DiscoveryController {
             @ApiParam(name = "linkEntities", value = "Search also in other Nodes and Triple Stores for link", defaultValue = "false", required = true)
             @RequestParam(required = true) @Validated(Create.class) final boolean linkEntities,
             @ApiParam(name = "applyDelta", value = "SearchindEntityLinkByEntityAndNodeTripleStoreAndClass only from last date in similar request", defaultValue = "true",required = true)
-            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta
+            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta,
+            @ApiParam(name = "email", value = "Email to send at the conclusion of the request",required = false)
+            @RequestParam(required = false) @Validated(Create.class) final String email
     ) {
 
         if (((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
@@ -226,7 +230,7 @@ public class DiscoveryController {
         for (String className : cache.getAllClassesByNodeAndTripleStore(localNode,tripleStore)) {
 
             try {
-                Map<String, Object> response = findEntityLinkByNodeTripleStoreAndClass(userId, requestCode + "/" + className, localNode, tripleStore, className, false, webHook, propagueInKafka, linkEntities, applyDelta);
+                Map<String, Object> response = findEntityLinkByNodeTripleStoreAndClass(userId, requestCode + "/" + className, localNode, tripleStore, className, false, webHook, propagueInKafka, linkEntities, applyDelta, email);
                 responses.add(response);
             } catch (Exception e) {
                 logger.error(e.getMessage());
@@ -373,7 +377,9 @@ public class DiscoveryController {
             @ApiParam(name = "propague_in_kafka", value = "Propague result in Kafka", defaultValue = "true", required = false)
             @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka,
             @ApiParam(name = "applyDelta", value = "SearchindEntityLinkByEntityAndNodeTripleStoreAndClass only from last date in similar request", defaultValue = "true",required = true)
-            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta
+            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta,
+            @ApiParam(name = "email", value = "Email to send at the conclusion of the request",required = false)
+            @RequestParam(required = false) @Validated(Create.class) final String email
     ) {
 
         if (!doSynchronous && ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
@@ -386,7 +392,7 @@ public class DiscoveryController {
         }
         if (!requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode, RequestType.LOD_SEARCH).isEmpty())
             throw new CustomDiscoveryException("UserId and RequestCode for type ENTITY_LINK_CLASS must be unique");
-        JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForLOD(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka,applyDelta, dataSource);
+        JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForLOD(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka,applyDelta, dataSource, email);
         JsonObject jResponse = new JsonObject();
         jResponse.add("state",applicationState.toSimplifiedJson());
         if (jobRegistry!=null) {
@@ -421,7 +427,9 @@ public class DiscoveryController {
             @ApiParam(name = "propague_in_kafka", value = "Propague result in Kafka", defaultValue = "true", required = false)
             @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka,
             @ApiParam(name = "applyDelta", value = "SearchindEntityLinkByEntityAndNodeTripleStoreAndClass only from last date in similar request", defaultValue = "true",required = true)
-            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta
+            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta,
+            @ApiParam(name = "email", value = "Email to send at the conclusion of the request",required = false)
+            @RequestParam(required = false) @Validated(Create.class) final String email
     ) throws IOException {
 
         if ( ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
@@ -456,7 +464,8 @@ public class DiscoveryController {
                             false,
                             webHook,
                             propagueInKafka,
-                            applyDelta
+                            applyDelta,
+                            Utils.isValidEmailAddress(email)?email:null
                     );
                     if (response != null) {
                         responses.add(response);

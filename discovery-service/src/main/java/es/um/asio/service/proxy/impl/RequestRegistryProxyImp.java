@@ -33,13 +33,24 @@ public class RequestRegistryProxyImp implements RequestRegistryProxy {
 
     /**
      * Save a request registry in the repository
-     * @param requestRegistry RequestRegistry
+     * @See RequestRegistry
+     * @param RequestRegistry rr
      * @return RequestRegistry
      */
     @Override
     public RequestRegistry save(RequestRegistry rr) {
         try {
-            requestRegistryRepository.save(rr);
+            if (rr.getId()!=0) {
+                requestRegistryRepository.updateNoNested(rr.getId(), rr.getVersion(), rr.getUserId(), rr.getRequestCode(),
+                        rr.getRequestDate(), ((rr.getRequestType()!=null)?rr.getRequestType().toString():RequestType.ENTITY_LINK_CLASS.toString()),
+                        rr.isPropagueInKafka(), rr.getWebHook(), ((rr.getJobRegistry()!=null)?rr.getJobRegistry().getId():null) );
+            } else {
+                long id = requestRegistryRepository.getNextId();
+                rr.setId(id);
+                requestRegistryRepository.insertNoNested(rr.getId(), rr.getVersion(), rr.getUserId(), rr.getRequestCode(),
+                        rr.getRequestDate(), ((rr.getRequestType()!=null)?rr.getRequestType().toString():RequestType.ENTITY_LINK_CLASS.toString()),
+                        rr.isPropagueInKafka(), rr.getWebHook(), ((rr.getJobRegistry()!=null)?rr.getJobRegistry().getId():null) );
+            }
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());

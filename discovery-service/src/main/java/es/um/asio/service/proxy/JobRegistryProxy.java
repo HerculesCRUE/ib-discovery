@@ -20,7 +20,14 @@ public interface JobRegistryProxy {
      * @param jobRegistry JobRegistry
      * @return JobRegistry
      */
-    JobRegistry save(JobRegistry jobRegistry);
+    JobRegistry save(JobRegistry jobRegistry) throws CloneNotSupportedException;
+
+    /**
+     * Save a request jobRegistry in the repository
+     * @param jobRegistry JobRegistry
+     * @return JobRegistry
+     */
+    JobRegistry saveRequests(JobRegistry jobRegistry) throws CloneNotSupportedException;
 
     /**
      * Find by id

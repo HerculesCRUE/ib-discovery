@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 
 /**
@@ -16,6 +16,7 @@ import java.util.Date;
  * @version 2.0
  * @since   1.0
  */
+@Transactional(timeout = 10, readOnly = true)
 public interface JobRegistryRepository extends JpaRepository<JobRegistry,String> {
 
     /**
@@ -44,14 +45,13 @@ public interface JobRegistryRepository extends JpaRepository<JobRegistry,String>
            @Param("tripleStore") String tripleStore,
            @Param("className") String className);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query(value = "UPDATE discovery.job_registry j set " +
             "j.version = :version," +
             "j.discoveryApplication_id = :discoveryApplicationId," +
             "j.node = :node," +
             "j.triple_store = :tripleStore," +
-            "j.class_name = :className," +
             "j.class_name = :className," +
             "j.data_source = :dataSource," +
             "j.completion_date = :completedDate," +
@@ -66,7 +66,38 @@ public interface JobRegistryRepository extends JpaRepository<JobRegistry,String>
             " WHERE j.id = :id", nativeQuery = true)
     void updateNoNested(
             @Param("id") String id,
-            @Param("version") long version,
+            @Param("version") Long version,
+            @Param("discoveryApplicationId") String discoveryApplicationId,
+            @Param("node") String node,
+            @Param("tripleStore") String tripleStore,
+            @Param("className") String className,
+            @Param("dataSource") String dataSource,
+            @Param("completedDate") Date completedDate,
+            @Param("startedDate") Date startedDate,
+            @Param("statusResult") String statusResult,
+            @Param("isCompleted") boolean isCompleted,
+            @Param("isStarted") boolean isStarted,
+            @Param("doSync") boolean doSync,
+            @Param("searchLinks") boolean searchLinks,
+            @Param("searchFromDelta") Date searchFromDelta,
+            @Param("bodyRequest") String bodyRequest
+    );
+
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query(value = "INSERT discovery.job_registry (\n" +
+            "\tid, version, discoveryApplication_id, node, triple_store,\n"+
+            "\tclass_name, data_source, completion_date, started_date, status_result,\n"+
+            "\tis_completed, is_started, do_synchronous, search_links, search_from_delta, body_request\n"+
+            ") VALUES (\n" +
+            "\t:id, :version, :discoveryApplicationId, :node, :tripleStore,\n"+
+            "\t:className, :dataSource, :completedDate, :startedDate, :statusResult,\n"+
+            "\t:isCompleted, :isStarted, :doSync, :searchLinks, :searchFromDelta, :bodyRequest\n" +
+            ")"
+            , nativeQuery = true)
+    void insertNoNested(
+            @Param("id") String id,
+            @Param("version") Long version,
             @Param("discoveryApplicationId") String discoveryApplicationId,
             @Param("node") String node,
             @Param("tripleStore") String tripleStore,

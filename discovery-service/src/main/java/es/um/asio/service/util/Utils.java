@@ -11,6 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jsoup.Connection;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -685,6 +687,17 @@ public class Utils {
         r = r.replace(" ", "_");
         r = r.replaceAll("[^\\.A-Za-z0-9_]", "");
         return r;
+    }
+
+    public static boolean isValidEmailAddress(String email) {
+        boolean result = true;
+        try {
+            InternetAddress emailAddr = new InternetAddress(email);
+            emailAddr.validate();
+        } catch (AddressException ex) {
+            result = false;
+        }
+        return result;
     }
 
 

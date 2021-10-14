@@ -20,6 +20,7 @@ import es.um.asio.service.repository.relational.ActionResultRepository;
 import es.um.asio.service.repository.relational.JobRegistryRepository;
 import es.um.asio.service.repository.relational.ObjectResultRepository;
 import es.um.asio.service.repository.relational.RequestRegistryRepository;
+import es.um.asio.service.service.EmailService;
 import es.um.asio.service.service.trellis.TrellisCache;
 import es.um.asio.service.service.trellis.TrellisOperations;
 import es.um.asio.service.util.Utils;
@@ -39,6 +40,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -120,6 +122,9 @@ public class JobHandlerServiceImp {
     @Autowired
     DataBehaviour dataBehaviour;
 
+    @Autowired
+    EmailService emailService;
+
 
     /**
      * Initialization
@@ -188,7 +193,8 @@ public class JobHandlerServiceImp {
             String webHook,
             boolean propagueInKafka,
             boolean searchLinks,
-            boolean applyDelta
+            boolean applyDelta,
+            String email
     ) {
         if (!jrClassMap.containsKey(node))
             jrClassMap.put(node, new LinkedHashMap<>());
@@ -226,16 +232,13 @@ public class JobHandlerServiceImp {
             logger.error(e.getMessage());
         }
         if (requestRegistryOpt.isEmpty()) {
-            requestRegistry = new RequestRegistry(userId, requestCode, RequestType.ENTITY_LINK_CLASS, new Date());
+            requestRegistry = new RequestRegistry(userId, requestCode, RequestType.ENTITY_LINK_CLASS, new Date(),email);
         } else {
             requestRegistry = requestRegistryOpt.get();
         }
         requestRegistry.setWebHook(webHook);
         requestRegistry.setPropagueInKafka(propagueInKafka);
-        if (Utils.isValidString(jobRegistry.getId())) {
-            requestRegistry.setJobRegistry(jobRegistry);
-            // requestRegistryProxy.save(requestRegistry);
-        }
+        requestRegistry.setJobRegistry(jobRegistry);
 
         jobRegistry.addRequestRegistry(requestRegistry);
         jrClassMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()), jobRegistry);
@@ -243,15 +246,11 @@ public class JobHandlerServiceImp {
         try {
            //  jobRegistry = jobRegistryRepository.saveAndFlush(jobRegistry);
             // jobRegistryRepository.insertNoNested(jobRegistry.getVersion(),jobRegistry.getDiscoveryApplication().getId(),jobRegistry.getNode(),jobRegistry.getTripleStore(),jobRegistry.getClassName(),jobRegistry.getDataSource(), jobRegistry.getCompletedDate(),jobRegistry.getStartedDate(),jobRegistry.getStatusResult().toString(),jobRegistry.isCompleted(),jobRegistry.isStarted(),jobRegistry.isDoSync(),jobRegistry.isSearchLinks(),jobRegistry.getSearchFromDelta(),jobRegistry.getBodyRequest());
-            jobRegistry = jobRegistryRepository.saveAndFlush(jobRegistry);
+            // jobRegistry = jobRegistryRepository.saveAndFlush(jobRegistry);
+            jobRegistry = jobRegistryProxy.saveRequests(jobRegistry); // Poner
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-        /*
-        for (RequestRegistry rr : jobRegistry.getRequestRegistries()) {
-            requestRegistryProxy.save(rr);
-        }
-         */
         if (doSync) {
             if (isAppReady)
                 jobRegistry = findSimilaritiesByClass(jobRegistry);
@@ -335,7 +334,7 @@ public class JobHandlerServiceImp {
         RequestRegistry requestRegistry;
         Optional<List<RequestRegistry>> requestRegistryOpt = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, RequestType.ENTITY_LINK_INSTANCE);
         if (requestRegistryOpt.isEmpty() || requestRegistryOpt.get().size() == 0) {
-            requestRegistry = new RequestRegistry(userId, requestCode, RequestType.ENTITY_LINK_INSTANCE, new Date());
+            requestRegistry = new RequestRegistry(userId, requestCode, RequestType.ENTITY_LINK_INSTANCE, new Date(),null);
         } else {
             requestRegistry = requestRegistryOpt.get().get(0);
         }
@@ -349,9 +348,10 @@ public class JobHandlerServiceImp {
         jobRegistry.addRequestRegistry(requestRegistry);
         jrEntityMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()), jobRegistry);
 
-        jobRegistry = jobRegistryRepository.saveAndFlush(jobRegistry);
-        for (RequestRegistry rr : jobRegistry.getRequestRegistries()) {
-            requestRegistryProxy.save(rr);
+        try {
+            jobRegistry = jobRegistryProxy.save(jobRegistry);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
         }
         if (doSync) {
             if (isAppReady)
@@ -394,7 +394,8 @@ public class JobHandlerServiceImp {
             String webHook,
             boolean propagueInKafka,
             boolean applyDelta,
-            String dataSource
+            String dataSource,
+            String email
     ) {
         if (!jrLODMap.containsKey(node))
             jrLODMap.put(node, new LinkedHashMap<>());
@@ -423,7 +424,7 @@ public class JobHandlerServiceImp {
         RequestRegistry requestRegistry;
         Optional<List<RequestRegistry>> requestRegistryOpt = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, RequestType.LOD_SEARCH);
         if (requestRegistryOpt.isEmpty() || requestRegistryOpt.get().size() == 0) {
-            requestRegistry = new RequestRegistry(userId, requestCode, RequestType.LOD_SEARCH, new Date());
+            requestRegistry = new RequestRegistry(userId, requestCode, RequestType.LOD_SEARCH, new Date(),email);
         } else {
             requestRegistry = requestRegistryOpt.get().get(0);
         }
@@ -468,7 +469,11 @@ public class JobHandlerServiceImp {
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
-            jobRegistryRepository.saveAndFlush(jobRegistry);
+            try {
+                jobRegistryProxy.save(jobRegistry);
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
         }
         jobRegistry.setStarted(true);
         jobRegistry.setStartedDate(new Date());
@@ -551,6 +556,7 @@ public class JobHandlerServiceImp {
         isWorking = false;
         handleQueueFindSimilarities();
         sendWebHooks(jobRegistry);
+        sendMail(jobRegistry);
         if (jobRegistry.isPropagatedInKafka())
             propagueKafkaActions(jobRegistry);
         return jobRegistry;
@@ -565,8 +571,7 @@ public class JobHandlerServiceImp {
         isWorking = true;
         // jr.setStarted(true);
         // jr.setStartedDate(new Date());
-        JobRegistry jobRegistry = jr; // jobRegistryRepository.save(jr); // Add for front interface
-        // JobRegistry jobRegistry = jobRegistryProxy.save(jr);
+        JobRegistry jobRegistry = jr;
         try {
             Set<SimilarityResult> similarities = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndClass(jobRegistry.getNode(), jobRegistry.getTripleStore(), jobRegistry.getClassName(), jobRegistry.isSearchLinks(), jobRegistry.getSearchFromDelta());
             for (SimilarityResult similarityResult : similarities) { // Por cada similitud encontrada
@@ -654,22 +659,12 @@ public class JobHandlerServiceImp {
                 }
 
                 jobRegistry.getObjectResults().add(objectResult);
-                try {
-                    // objectResultRepository.save(objectResult);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    logger.error(e.getMessage());
-                }
             }
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
             try {
-                // jobRegistryRepository.updateNoNested(jobRegistry.getVersion(),jobRegistry.getDiscoveryApplication().getId(),jobRegistry.getNode(),jobRegistry.getTripleStore(),jobRegistry.getClassName(),jobRegistry.getDataSource(), jobRegistry.getCompletedDate(),jobRegistry.getStartedDate(),jobRegistry.getStatusResult().toString(),jobRegistry.isCompleted(),jobRegistry.isStarted(),jobRegistry.isDoSync(),jobRegistry.isSearchLinks(),jobRegistry.getSearchFromDelta(),jobRegistry.getBodyRequest());
-                // JobRegistry jrr = jobRegistryProxy.save(jobRegistry);
-                jobRegistryRepository.saveAndFlush(jobRegistry);
-                //jobRegistryProxy.save(jobRegistry);
-                System.out.println();
+                jobRegistryProxy.save(jobRegistry);
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
@@ -689,6 +684,7 @@ public class JobHandlerServiceImp {
         isWorking = false;
         handleQueueFindSimilarities();
         sendWebHooks(jobRegistry);
+        sendMail(jobRegistry);
         if (jobRegistry.isPropagatedInKafka())
             propagueKafkaActions(jobRegistry); // Propagar acciones en kafka
         return jobRegistry;
@@ -869,6 +865,7 @@ public class JobHandlerServiceImp {
         isWorking = false;
         handleQueueFindSimilarities();
         sendWebHooks(jobRegistry);
+        sendMail(jobRegistry);
         if (jobRegistry.isPropagatedInKafka())
             propagueKafkaActions(jobRegistry);
         return jobRegistry;
@@ -919,6 +916,77 @@ public class JobHandlerServiceImp {
                 logger.error("Error InterruptedException in callback at URL: {}", webHook);
             } catch (IOException e) {
                 logger.error("Error IOException in callback at URL: {}", webHook);
+            }
+        }
+    }
+
+    /**
+     * Handle send mail on finish search similarities
+     * @param jobRegistry
+     */
+    private void sendMail(JobRegistry jobRegistry) {
+        for (RequestRegistry requestRegistry : jobRegistry.getRequestRegistries()) {
+            if (Utils.isValidEmailAddress(requestRegistry.getEmail())) {
+                List<String> mails = new ArrayList<>(List.of(requestRegistry.getEmail()));
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:MM:ss");
+                String subject = "Finished search of the discovery library on class " + requestRegistry.getJobRegistry().getClassName();
+                StringBuffer message = new StringBuffer();
+                Map<String, Integer> stats = requestRegistry.getJobRegistry().getStats();
+                message.append("<h2>Finished search of the discovery library<h3>");
+                message.append("<h3>Report</h3>");
+                message.append("<ul>");
+                message.append("<li><strong>Class: </strong>" + requestRegistry.getJobRegistry().getClassName() + " </li>");
+                message.append("<li><strong>Request Code: </strong>" + requestRegistry.getRequestCode() + " </li>");
+                message.append("<li><strong>User ID: </strong>" + requestRegistry.getUserId() + " </li>");
+                message.append("<li><strong>Type: </strong>" + requestRegistry.getRequestType().toString() + " </li>");
+                message.append("<li><strong>Started at: </strong>" + requestRegistry.getJobRegistry().getStarDateStr() + " </li>");
+                message.append("<li><strong>Ended at: </strong>" + requestRegistry.getJobRegistry().getCompletedDateStr() + " </li>");
+
+                message.append("<li><strong>Found similarities: </strong>" + requestRegistry.getJobRegistry().getObjectResults().size());
+                message.append("<ul>");
+                message.append("<li>"+"<strong>Automatic similarities: </strong>" + stats.get("AUTOMATIC") + "</li>");
+                message.append("<li>"+"<strong>Manual similarities: </strong>" + stats.get("MANUAL") + "</li>");
+                message.append("<li>"+"<strong>Links similarities: </strong>" + stats.get("LINK") + "</li>");
+                message.append("</ul>");
+                message.append("</li>");
+
+                message.append("<li><strong>Found Actions: </strong>" + stats.get("ACTION-TOTAL"));
+                message.append("<ul>");
+                message.append("<li>"+"<strong>INSERTs Actions: </strong>" + stats.get("ACTION-INSERT") + "</li>");
+                message.append("<li>"+"<strong>UPDATEs Actions: </strong>" + stats.get("ACTION-UPDATE") + "</li>");
+                message.append("<li>"+"<strong>DELETEs Actions: </strong>" + stats.get("ACTION-DELETE") + "</li>");
+                message.append("<li>"+"<strong>LINKs Actions: </strong>" + stats.get("ACTION-LINK") + "</li>");
+                message.append("<li>"+"<strong>LINKs LOD Actions: </strong>" + stats.get("ACTION-LODLINK") + "</li>");
+                message.append("</ul>");
+                message.append("</li>");
+
+                message.append("</ul>");
+
+                /*
+                message.append("\t- Class: " + requestRegistry.getJobRegistry().getClassName() + "\n");
+                message.append("\t- Request Code: " + requestRegistry.getRequestCode() + "\n");
+                message.append("\t- User ID: " + requestRegistry.getUserId() + "\n");
+                message.append("\t- Type: " + requestRegistry.getRequestType().toString() + "\n");
+                message.append("\t- Started at: " + requestRegistry.getJobRegistry().getStarDateStr() + "\n");
+                message.append("\t- Ended at: " + requestRegistry.getJobRegistry().getCompletedDateStr() + "\n");
+                message.append("\t- Found similarities: " + requestRegistry.getJobRegistry().getObjectResults().size() + "\n");
+                message.append("\t\t- Automatic similarities: " + stats.get("MANUAL") + "\n");
+                message.append("\t\t- Manual similarities: " + stats.get("AUTOMATIC") + "\n");
+                message.append("\t\t- Links similarities: " + stats.get("LINK") + "\n");
+                message.append("\t- Found Actions: " + stats.get("ACTION-TOTAL") + "\n");
+                message.append("\t\t- INSERTs Actions: " + stats.get("ACTION-INSERT") + "\n");
+                message.append("\t\t- UPDATEs Actions: " + stats.get("ACTION-UPDATE") + "\n");
+                message.append("\t\t- DELETEs Actions: " + stats.get("ACTION-DELETE") + "\n");
+                message.append("\t\t- LINKs Actions: " + stats.get("ACTION-LINK") + "\n");
+                message.append("\t\t- LINKs LOD Actions: " + stats.get("ACTION-LODLINK") + "\n");
+                 */
+                try {
+                    emailService.sendSimpleMail(mails, subject, message.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    logger.error(e.getMessage());
+                }
+
             }
         }
     }

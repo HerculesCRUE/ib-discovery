@@ -39,7 +39,7 @@ public class Value {
     private Long version;
 
     @JsonIgnore
-    @ManyToOne(optional = false, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     @EqualsAndHashCode.Include
     private Attribute attribute;

@@ -23,6 +23,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
@@ -81,8 +82,12 @@ public class PersistenceConfig {
             config.setJdbcUrl(datasourceProperties.getUrl());
             config.setUsername(datasourceProperties.getUsername());
             config.setPassword(datasourceProperties.getPassword());
+            config.setConnectionTestQuery("SELECT 1");
+            config.setValidationTimeout(60000);
+            config.setAutoCommit(true);
+            config.setInitializationFailTimeout(0);
             config.setConnectionTimeout(30000);
-            config.setMaxLifetime(1800000);
+            config.setMaxLifetime(180000);
             config.setMinimumIdle(10);
             config.setMaximumPoolSize(10);
             config.setIdleTimeout(60000);
@@ -92,7 +97,7 @@ public class PersistenceConfig {
         }
 
         config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSize", "500");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         config.addDataSourceProperty("useServerPrepStmts", "true");
         config.addDataSourceProperty("testOnBorrow", "true");

@@ -116,6 +116,17 @@ public class ObjectResultProxyImp implements ObjectResultProxy {
             }
         }
 
+        if (or.getAttributes()!=null) {
+            for (Attribute att : or.getAttributes()) {
+                att.getObjectResult().setId(id);
+                try {
+                    attributeProxy.save(att);
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                }
+            }
+        }
+
         /*
         if (or.getActionResults()!=null) {
             for (ActionResult ac : or.getActionResults()) {

@@ -5,10 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +18,7 @@ import java.util.Optional;
  * @version 2.0
  * @since   1.0
  */
+@Transactional(timeout = 10, readOnly = true)
 public interface ObjectResultRepository extends JpaRepository<ObjectResult,Long> {
 
     Optional<ObjectResult> findById(String id);
@@ -37,7 +36,7 @@ public interface ObjectResultRepository extends JpaRepository<ObjectResult,Long>
     @Query(value = "SELECT coalesce(max(id), 0)+1 FROM discovery.object_result", nativeQuery = true)
     public Long getNextId();
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query(value = "INSERT discovery.object_result (\n" +
             "\tid, version, origin, node, triple_store, class_name, local_uri,\n" +
@@ -80,11 +79,11 @@ public interface ObjectResultRepository extends JpaRepository<ObjectResult,Long>
     );
 
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query(value = "UPDATE discovery.object_result o set " +
             "o.actionResultParent_id = :actionResultId" +
-            " WHERE j.id = :id", nativeQuery = true)
+            " WHERE o.id = :id", nativeQuery = true)
     int updateActionResultId(
             @Param("id") Long id,
             @Param("actionResultId") Long actionResultId

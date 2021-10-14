@@ -5,8 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.Date;
 
 /**
@@ -16,12 +16,13 @@ import java.util.Date;
  * @version 2.0
  * @since   1.0
  */
+@Transactional(timeout = 10, readOnly = true)
 public interface ActionResultRepository extends JpaRepository<ActionResult,Long> {
 
     @Query(value = "SELECT coalesce(max(id), 0)+1 FROM discovery.action_result", nativeQuery = true)
     public Long getNextId();
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query(value = "INSERT discovery.action_result (\n" +
             "\tid, action, version, objectResultParent_id" +

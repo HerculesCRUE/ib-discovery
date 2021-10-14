@@ -56,6 +56,10 @@ public class RequestRegistry {
     @EqualsAndHashCode.Include
     private String webHook;
 
+    @Column(name = Columns.EMAIL, nullable = true,columnDefinition = "VARCHAR(600)",length = 600)
+    @EqualsAndHashCode.Include
+    private String email;
+
     @Column(name = Columns.PROPAGUE_IN_KAFKA, nullable = false)
     private boolean propagueInKafka = false;
 
@@ -66,11 +70,23 @@ public class RequestRegistry {
      * @param requestType String. the user request type
      * @param requestDate Date. the user request date
      */
-    public RequestRegistry(String userId, String requestCode, RequestType requestType, Date requestDate) {
+    public RequestRegistry(String userId, String requestCode, RequestType requestType, Date requestDate, String email) {
         this.userId = userId;
         this.requestCode = requestCode;
         this.requestType = requestType;
         this.requestDate = (requestDate!=null)?requestDate:new Date();
+        this.email = email;
+    }
+
+    public void copy(RequestRegistry rr){
+        this.version = rr.getVersion();
+        this.userId = rr.getUserId();
+        this.requestCode = rr.getRequestCode();
+        this.requestType = rr.getRequestType();
+        this.requestDate = rr.getRequestDate();
+        this.jobRegistry = rr.getJobRegistry();
+        this.webHook = rr.getWebHook();
+        this.propagueInKafka = rr.isPropagueInKafka();
     }
 
     /**
@@ -125,6 +141,10 @@ public class RequestRegistry {
          * WEB_HOOK column.
          */
         protected static final String WEB_HOOK = "web_hook";
+        /**
+         * WEB_HOOK column.
+         */
+        protected static final String EMAIL = "email";
         /**
          * PROPAGUE_IN_KAFKA column.
          */

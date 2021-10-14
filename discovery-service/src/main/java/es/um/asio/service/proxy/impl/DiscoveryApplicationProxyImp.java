@@ -1,11 +1,13 @@
 package es.um.asio.service.proxy.impl;
 
 import es.um.asio.service.model.relational.Attribute;
+import es.um.asio.service.model.relational.DiscoveryApplication;
 import es.um.asio.service.model.relational.JobRegistry;
 import es.um.asio.service.model.relational.Value;
 import es.um.asio.service.proxy.AttributeProxy;
+import es.um.asio.service.proxy.DiscoveryApplicationProxy;
 import es.um.asio.service.proxy.ValueProxy;
-import es.um.asio.service.repository.relational.AttributeRepository;
+import es.um.asio.service.repository.relational.DiscoveryApplicationRepository;
 import es.um.asio.service.repository.relational.ValueRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,32 +25,25 @@ import java.util.Optional;
  * @since   1.0
  */
 @Service
-public class ValueProxyImp implements ValueProxy {
+public class DiscoveryApplicationProxyImp implements DiscoveryApplicationProxy {
 
-    private final Logger logger = LoggerFactory.getLogger(ValueProxyImp.class);
-
-    @Autowired
-    ValueRepository valueRepository;
+    private final Logger logger = LoggerFactory.getLogger(DiscoveryApplicationProxyImp.class);
 
     @Autowired
-    AttributeProxy attributeProxy;
+    DiscoveryApplicationRepository discoveryApplicationRepository;
+
 
     @Override
-    public Value save(Value val) {
-        Long id = valueRepository.getNextId();
-        valueRepository.insertNoNested(id, ((val.getDataType()!=null)?val.getDataType().name():null), val.getVal(), val.getVersion(),((val.getAttribute()!=null)?val.getAttribute().getId():null) );
-        val.setId(id);
-        if (val.getAttributes()!=null) {
-            for (Attribute att :val.getAttributes()) {
-                attributeProxy.save(att);
-            }
+    public DiscoveryApplication save(DiscoveryApplication da) {
+        if (findById(da.getId()).isEmpty()) {
+            discoveryApplicationRepository.insertNoNested(da.getId(),da.getName(),da.getPid(),da.getStartDate(),da.getVersion());
         }
-        return val;
+        return da;
     }
 
     @Override
-    public Optional<Value> findById(long id) {
-        Optional<Value> requestRegistries = valueRepository.findById(id);
+    public Optional<DiscoveryApplication> findById(String id) {
+        Optional<DiscoveryApplication> requestRegistries = discoveryApplicationRepository.findById(id);
         if (!requestRegistries.isEmpty()) {
             return Optional.of(requestRegistries.get());
         } else {

@@ -36,6 +36,9 @@ public class ActionResultProxyImp implements ActionResultProxy {
     @Autowired
     ObjectResultRepository objectResultRepository;
 
+    @Autowired
+    AttributeProxy attributeProxy;
+
 
     @Override
     public ActionResult save(ActionResult actionResult) {
@@ -46,9 +49,73 @@ public class ActionResultProxyImp implements ActionResultProxy {
                 actionResult.getVersion(),
                 ((actionResult.getObjectResultParent()!=null)?actionResult.getObjectResultParent().getId():null)
         );
-
+        actionResult.setId(id);
         for (ObjectResult or : actionResult.getObjectResults()) {
-            objectResultRepository.updateActionResultId(or.getId(),id);
+            try {
+                if (or.getId()!=0) {
+                    objectResultRepository.updateActionResultId(or.getId(), id);
+                } else {
+                    Long idOR = objectResultRepository.getNextId();
+                    try {
+                        objectResultRepository.insertNoNested(
+                                idOR,
+                                or.getVersion(),
+                                ((or.getOrigin() != null) ? or.getOrigin().name() : null),
+                                or.getNode(),
+                                or.getTripleStore(),
+                                or.getClassName(),
+                                or.getLocalURI(),
+                                or.getCanonicalURI(),
+                                or.getLastModification(),
+                                ((or.getJobRegistry() != null) ? or.getJobRegistry().getId() : null),
+                                or.getEntityId(),
+                                ((or.getParentAutomatic() != null) ? or.getParentAutomatic().getId() : null),
+                                ((or.getParentManual() != null) ? or.getParentManual().getId() : null),
+                                ((or.getParentLink() != null) ? or.getParentLink().getId() : null),
+                                or.getSimilarity(),
+                                or.getSimilarityWithOutId(),
+                                or.isMain(),
+                                or.isAutomatic(),
+                                or.isManual(),
+                                or.isMerge(),
+                                or.isLink(),
+                                ((or.getMergeAction() != null) ? or.getMergeAction().name() : null),
+                                ((or.getState() != null) ? or.getState().name() : null),
+                                ((or.getActionResultParent() != null && or.isMain() == false) ? or.getActionResultParent().getId() : null)
+
+                        );
+                        objectResultRepository.updateActionResultId(idOR, id);
+
+                        if (or.getAttributes()!=null) {
+                            for (Attribute att : or.getAttributes()) {
+                                att.getObjectResult().setId(idOR);
+                                try {
+                                    attributeProxy.save(att);
+                                } catch (Exception e) {
+                                    logger.error(e.getMessage());
+                                }
+                            }
+                        }
+
+
+                    } catch (Exception e) {
+                        logger.error(e.getMessage());
+                    }
+                }
+                if (or.getAttributes()!=null) {
+                    for (Attribute att : or.getAttributes()) {
+                        att.getObjectResult().setId(id);
+                        try {
+                            attributeProxy.save(att);
+                        } catch (Exception e) {
+                            logger.error(e.getMessage());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.error(e.getMessage());
+            }
         }
 
         return actionResult;

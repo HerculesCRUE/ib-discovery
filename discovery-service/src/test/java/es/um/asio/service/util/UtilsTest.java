@@ -124,4 +124,10 @@ class UtilsTest {
         Assert.assertTrue(Utils.isDate("2011-08-12T20:17:46.384Z+02:00"));
         Assert.assertTrue(Utils.isDate("2003-06-12T22:00:00.000+02:00"));
     }
+
+    @Test
+    void isValidEmailAddress() {
+        Assert.assertTrue(Utils.isValidEmailAddress("daniel.ruiz.eng@gmail.com"));
+        Assert.assertFalse(Utils.isValidEmailAddress("daniel"));
+    }
 }

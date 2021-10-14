@@ -205,6 +205,8 @@ logging:
     org.hibernate.type: trace
 
 spring:
+  datasource:
+    testOnBorrow: true
   security:
     enabled: false
   data:
@@ -215,6 +217,21 @@ spring:
     bootstrap-servers: localhost:9092
     consumer:
       group-id: myGroup
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: herculesizertis@gmail.com
+    password: h3rcul3s1z3rt1s
+    properties:
+      mail:
+        smtp:
+          auth: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          starttls:
+            enable: true
+
 security:
   basic:
     enabled: false

@@ -32,23 +32,22 @@ public class AttributeProxyImp implements AttributeProxy {
     @Autowired
     AttributeRepository attributeRepository;
 
+
     @Autowired
     ValueProxy valueProxy;
 
 
     @Override
-    public Attribute save(Attribute attribute) {
-        if (attribute.getValues()!=null) {
-            for (Value v : attribute.getValues()) {
+    public Attribute save(Attribute att) {
+        Long id = attributeRepository.getNextId();
+        attributeRepository.insertNoNested(id,att.getKey(), att.getVersion(), ((att.getObjectResult()!=null)?att.getObjectResult().getId():null), ((att.getParentValue()!=null)?att.getParentValue().getId():null) );
+        att.setId(id);
+        if (att.getValues()!=null) {
+            for (Value v :att.getValues()) {
                 valueProxy.save(v);
             }
         }
-        try {
-            return attributeRepository.saveAndFlush(attribute);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return attribute;
+        return att;
     }
 
     @Override
