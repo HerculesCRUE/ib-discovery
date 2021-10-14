@@ -349,7 +349,7 @@ public class JobHandlerServiceImp {
         jrEntityMap.get(node).get(tripleStore).get(className).put(String.valueOf(requestRegistry.hashCode()), jobRegistry);
 
         try {
-            jobRegistry = jobRegistryProxy.save(jobRegistry);
+            jobRegistryProxy.save(jobRegistry);
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
