@@ -350,6 +350,7 @@ public class JobHandlerServiceImp {
 
         try {
             jobRegistryProxy.save(jobRegistry);
+            jobRegistry.setTripleObject(tripleObject);
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
