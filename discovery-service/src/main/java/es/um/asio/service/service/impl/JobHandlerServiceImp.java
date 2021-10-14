@@ -482,7 +482,12 @@ public class JobHandlerServiceImp {
         }
         jobRegistry.setStarted(true);
         jobRegistry.setStartedDate(new Date());
-        jobRegistryRepository.saveAndFlush(jobRegistry); // Add for front interface
+        //jobRegistryRepository.saveAndFlush(jobRegistry); // Add for front interface
+        try {
+            jobRegistryProxy.save(jobRegistry);
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
         try {
             SimilarityResult similarityResult = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndTripleObject(to, jobRegistry.isSearchLinks());
 
@@ -544,24 +549,27 @@ public class JobHandlerServiceImp {
             }
 
             jobRegistry.getObjectResults().add(objectResult);
-            objectResultRepository.saveAndFlush(objectResult);
+            // objectResultRepository.saveAndFlush(objectResult);
 
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.COMPLETED);
-            jobRegistryRepository.saveAndFlush(jobRegistry);
+            jobRegistryProxy.save(jobRegistry);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Fail on findSimilaritiesByInstance: {}", e.getMessage());
             jobRegistry.setCompleted(true);
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
-            jobRegistryRepository.saveAndFlush(jobRegistry);
+            try {
+                jobRegistryProxy.save(jobRegistry);
+            } catch (CloneNotSupportedException cloneNotSupportedException) {
+                cloneNotSupportedException.printStackTrace();
+            }
         }
         isWorking = false;
         handleQueueFindSimilarities();
         sendWebHooks(jobRegistry);
-        sendMail(jobRegistry);
         if (jobRegistry.isPropagatedInKafka())
             propagueKafkaActions(jobRegistry);
         return jobRegistry;

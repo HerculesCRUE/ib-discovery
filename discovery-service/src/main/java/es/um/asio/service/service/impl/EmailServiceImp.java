@@ -1,6 +1,8 @@
 package es.um.asio.service.service.impl;
 
 import es.um.asio.service.service.EmailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -17,6 +19,8 @@ public class EmailServiceImp implements EmailService {
     @Autowired
     private JavaMailSender javaMailSender;
 
+    private final Logger logger = LoggerFactory.getLogger(EmailServiceImp.class);
+
     @Override
     public void sendSimpleMail(List<String> tos, String subject, String text) throws MessagingException {
         MimeMessage message = javaMailSender.createMimeMessage();
@@ -26,6 +30,8 @@ public class EmailServiceImp implements EmailService {
         helper.setSubject(subject);
         helper.setText(text,true);
         javaMailSender.send(message);
+        logger.info("Send Mail to: {}, subject: {}, text: {}",String.join(";",tos), subject, text);
+
 /*        for (String to : tos) {
             msg.setTo(to);
         }
