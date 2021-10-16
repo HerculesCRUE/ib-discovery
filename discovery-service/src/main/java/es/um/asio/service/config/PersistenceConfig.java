@@ -131,12 +131,11 @@ public class PersistenceConfig {
         if (jpa.isGenerateDdl()) {
             jpaProperties.put(AvailableSettings.HBM2DDL_AUTO, "update");
         }
-
+        // jpaProperties.put("hibernate.connection.characterEncoding", "latin1");
         jpaProperties.put(AvailableSettings.SHOW_SQL, jpa.isShowSql());
         jpaProperties.put(AvailableSettings.FORMAT_SQL, jpa.isShowSql());
         jpaProperties.put(AvailableSettings.STATEMENT_BATCH_SIZE, 100);
         jpaProperties.put(AvailableSettings.JDBC_TIME_ZONE, "UTC");
-        
         jpaProperties.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, false);
         jpaProperties.putAll(jpa.getProperties());
 

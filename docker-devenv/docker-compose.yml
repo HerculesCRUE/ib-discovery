@@ -10,8 +10,9 @@ services:
       - "3307:3306"
     volumes:
       - mysql-data2:/var/lib/mysql
-      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
-    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --max_allowed_packet=32505856
+      - ./mariadb/01.create_schemas.sql:/docker-entrypoint-initdb.d/01.create_schemas.sql
+      - ./mariadb/my.cnf:/etc/mysql/my.cnf
+    # command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --max_allowed_packet=32505856
     environment:
       # MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
       MYSQL_ROOT_USER: root

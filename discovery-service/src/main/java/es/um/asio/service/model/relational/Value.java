@@ -49,7 +49,7 @@ public class Value {
     @EqualsAndHashCode.Include
     private DataType dataType;
 
-    @Column(name = Columns.VALUE, nullable = true,columnDefinition = "TEXT")
+    @Column(name = Columns.VALUE, nullable = true,columnDefinition = "VARCHAR(2000)")
     @EqualsAndHashCode.Include
     private String val;
 

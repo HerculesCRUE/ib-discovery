@@ -87,7 +87,7 @@ public class JobRegistry implements Cloneable {
     @Column(name = Columns.SEARCH_FROM_DELTA, nullable = true)
     private Date searchFromDelta;
 
-    @Column(name = Columns.BODY_REQUEST, nullable = true,columnDefinition = "TEXT")
+    @Column(name = Columns.BODY_REQUEST, nullable = true,columnDefinition = "VARCHAR(4000)")
     private String bodyRequest;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "jobRegistry", cascade = CascadeType.ALL)
