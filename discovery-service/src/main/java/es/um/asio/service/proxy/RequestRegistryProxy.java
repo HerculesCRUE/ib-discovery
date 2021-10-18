@@ -1,5 +1,6 @@
 package es.um.asio.service.proxy;
 
+import es.um.asio.service.model.relational.JobRegistry;
 import es.um.asio.service.model.relational.RequestRegistry;
 import es.um.asio.service.model.relational.RequestType;
 
@@ -29,4 +30,7 @@ public interface RequestRegistryProxy {
      * @return Optional<RequestRegistry>
      */
     Optional<RequestRegistry> findByUserIdAndRequestCodeAndRequestType(String userId, String requestCode, RequestType requestType);
+
+
+    JobRegistry findJobRegistryByUserIdAndRequestCodeAndRequestType(String userId, String requestCode, RequestType requestType);
 }

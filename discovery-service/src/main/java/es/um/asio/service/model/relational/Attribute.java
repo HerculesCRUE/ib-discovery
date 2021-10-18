@@ -44,7 +44,7 @@ public class Attribute {
     @JoinColumn(nullable = true)
     private ObjectResult objectResult;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "attribute", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "attribute", cascade = CascadeType.ALL)
     private Set<Value> values;
 
     @JsonIgnore

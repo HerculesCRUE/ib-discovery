@@ -21,7 +21,7 @@ app:
       generate-ddl: true
       ddl-auto: create
       show-sql: true
-      format_sql: true
+      format_sql: false
       use_sql_comments: false
       properties:
         hibernate:
@@ -199,10 +199,10 @@ server:
     whitelabel:
       enabled: false
 
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.type: trace
+#logging:
+#  level:
+    # org.hibernate.SQL: debug
+    # org.hibernate.type: trace
 
 spring:
   datasource:

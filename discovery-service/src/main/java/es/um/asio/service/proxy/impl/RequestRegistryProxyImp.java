@@ -68,11 +68,29 @@ public class RequestRegistryProxyImp implements RequestRegistryProxy {
     @Override
     public Optional<RequestRegistry> findByUserIdAndRequestCodeAndRequestType(String userId, String requestCode, RequestType requestType) {
         Optional<List<RequestRegistry>> requestRegistries = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, requestType);
-        Optional<RequestRegistry> requestRegistry;
         if (!requestRegistries.isEmpty() && requestRegistries.get().size()>0) {
             return Optional.of(requestRegistries.get().get(0));
         } else {
             return Optional.empty();
+        }
+        // return requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, requestType);
+    }
+
+    /**
+     * Find by userId and RequestCode And RequestType
+     * @param userId String. The User id.
+     * @param requestCode String. The Request code.
+     * @param requestType String. The Request type.
+     * @return Optional<RequestRegistry>
+     */
+    @Override
+    public JobRegistry findJobRegistryByUserIdAndRequestCodeAndRequestType(String userId, String requestCode, RequestType requestType) {
+        Optional<List<RequestRegistry>> requestRegistries = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, requestType);
+        if (!requestRegistries.isEmpty() && requestRegistries.get().size()>0) {
+            RequestRegistry registry = Optional.of(requestRegistries.get().get(0)).get();
+            return registry.getJobRegistry();
+        } else {
+            return null;
         }
         // return requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, requestType);
     }
