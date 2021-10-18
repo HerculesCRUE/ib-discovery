@@ -36,7 +36,7 @@ public class CacheRegistry {
     private Long version;
 
     @JsonIgnore
-    @ManyToOne(optional = false,fetch = FetchType.LAZY)
+    @ManyToOne(optional = false,fetch = FetchType.EAGER)
     private DiscoveryApplication discoveryApplication;
 
     @Column(name = Columns.NODE, nullable = false,columnDefinition = "VARCHAR(100)",length = 100)

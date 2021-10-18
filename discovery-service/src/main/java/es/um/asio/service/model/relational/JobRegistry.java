@@ -59,7 +59,7 @@ public class JobRegistry implements Cloneable {
     @Column(name = Columns.DATA_SOURCE, nullable = true,columnDefinition = "VARCHAR(200)",length = 200)
     private String dataSource;
 
-    @OneToMany( mappedBy = "jobRegistry", cascade = CascadeType.ALL)
+    @OneToMany( mappedBy = "jobRegistry", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<RequestRegistry> requestRegistries;
 
     @Column(name = Columns.COMPLETION_DATE, nullable = true,columnDefinition = "DATETIME")
@@ -90,7 +90,7 @@ public class JobRegistry implements Cloneable {
     @Column(name = Columns.BODY_REQUEST, nullable = true,columnDefinition = "VARCHAR(4000)")
     private String bodyRequest;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "jobRegistry", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "jobRegistry", cascade = CascadeType.ALL)
     private Set<ObjectResult> objectResults;
 
     @Transient

@@ -40,7 +40,7 @@ public class Attribute {
     private String key;
 
     @JsonIgnore
-    @ManyToOne(optional = true, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @ManyToOne(optional = true, cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
     @JoinColumn(nullable = true)
     private ObjectResult objectResult;
 

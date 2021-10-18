@@ -91,7 +91,7 @@ public class ObjectResult implements Comparable<ObjectResult>,Cloneable{
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "objectResult", cascade = CascadeType.ALL)
     private Set<Attribute> attributes;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentAutomatic", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "parentAutomatic", cascade = CascadeType.ALL)
     private Set<ObjectResult> automatic;
 
     @JsonIgnore
@@ -99,7 +99,7 @@ public class ObjectResult implements Comparable<ObjectResult>,Cloneable{
     @JoinColumn(referencedColumnName = "id")
     private ObjectResult parentAutomatic;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentManual", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "parentManual", cascade = CascadeType.ALL)
     private Set<ObjectResult> manual;
 
     @JsonIgnore
@@ -107,7 +107,7 @@ public class ObjectResult implements Comparable<ObjectResult>,Cloneable{
     @JoinColumn(referencedColumnName = "id")
     private ObjectResult parentManual;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentLink", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "parentLink", cascade = CascadeType.ALL)
     private Set<ObjectResult> link;
 
     @JsonIgnore
@@ -116,7 +116,7 @@ public class ObjectResult implements Comparable<ObjectResult>,Cloneable{
     private ObjectResult parentLink;
 
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "objectResultParent", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "objectResultParent", cascade = CascadeType.ALL)
     private Set<ActionResult> actionResults;
 
 
@@ -150,7 +150,7 @@ public class ObjectResult implements Comparable<ObjectResult>,Cloneable{
     private State state;
 
     @JsonIgnore
-    @ManyToOne(optional = true, cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @ManyToOne(optional = true, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     private ActionResult actionResultParent;
 
     /**

@@ -40,7 +40,7 @@ public class ActionResult {
     @EqualsAndHashCode.Include
     private Action action;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "actionResultParent", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "actionResultParent", cascade = CascadeType.ALL)
     private Set<ObjectResult> objectResults;
 
     @JsonIgnore

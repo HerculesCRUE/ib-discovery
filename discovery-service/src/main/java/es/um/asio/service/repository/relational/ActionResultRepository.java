@@ -16,7 +16,7 @@ import java.util.Date;
  * @version 2.0
  * @since   1.0
  */
-@Transactional(timeout = 10, readOnly = true)
+@Transactional(readOnly = true)
 public interface ActionResultRepository extends JpaRepository<ActionResult,Long> {
 
     @Query(value = "SELECT coalesce(max(id), 0)+1 FROM discovery.action_result", nativeQuery = true)

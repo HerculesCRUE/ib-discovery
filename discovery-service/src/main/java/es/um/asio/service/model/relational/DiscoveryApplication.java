@@ -55,13 +55,13 @@ public class DiscoveryApplication {
     @Column(name = Columns.PID, nullable = false,columnDefinition = "VARCHAR(40)",length = 40)
     private String pid;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "discoveryApplication", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "discoveryApplication", cascade = CascadeType.ALL)
     private Set<CacheRegistry> cacheRegistries;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "discoveryApplication", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "discoveryApplication", cascade = CascadeType.ALL)
     private Set<ElasticRegistry> elasticRegistries;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "discoveryApplication", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "discoveryApplication", cascade = CascadeType.ALL)
     private Set<JobRegistry> jobRegistries;
 
 

@@ -34,7 +34,7 @@ public class ElasticRegistry {
     @Version
     private Long version;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private DiscoveryApplication discoveryApplication;
 
     @Column(name = Columns.NODE, nullable = false,columnDefinition = "VARCHAR(100)",length = 100)

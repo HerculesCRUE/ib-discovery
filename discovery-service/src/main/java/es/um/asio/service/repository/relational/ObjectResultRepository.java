@@ -18,7 +18,7 @@ import java.util.Optional;
  * @version 2.0
  * @since   1.0
  */
-@Transactional(timeout = 10, readOnly = true)
+@Transactional(readOnly = true)
 public interface ObjectResultRepository extends JpaRepository<ObjectResult,Long> {
 
     Optional<ObjectResult> findById(String id);
