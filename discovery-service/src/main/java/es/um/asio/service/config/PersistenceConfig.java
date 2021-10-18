@@ -136,7 +136,9 @@ public class PersistenceConfig {
         jpaProperties.put(AvailableSettings.FORMAT_SQL, jpa.isShowSql());
         jpaProperties.put(AvailableSettings.STATEMENT_BATCH_SIZE, 100);
         jpaProperties.put(AvailableSettings.JDBC_TIME_ZONE, "UTC");
-        jpaProperties.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, false);
+        jpaProperties.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, true);
+        jpaProperties.put(AvailableSettings.CACHE_REGION_FACTORY, "org.hibernate.cache.ehcache.internal.EhcacheRegionFactory");
+        jpaProperties.put(AvailableSettings.CACHE_PROVIDER_CONFIG, "net.sf.ehcache.hibernate.EhCacheProvider");
         jpaProperties.putAll(jpa.getProperties());
 
         entityManagerFactoryBean.setJpaProperties(jpaProperties);

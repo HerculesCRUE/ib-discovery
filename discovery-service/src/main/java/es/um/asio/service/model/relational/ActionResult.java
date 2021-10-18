@@ -44,7 +44,7 @@ public class ActionResult {
     private Set<ObjectResult> objectResults;
 
     @JsonIgnore
-    @ManyToOne(optional = true, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     private ObjectResult objectResultParent;
 
     /**
