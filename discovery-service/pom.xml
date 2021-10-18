@@ -115,10 +115,18 @@
 			<artifactId>hibernate-core</artifactId>
 			<version>5.4.12.Final</version>
 		</dependency>
+		<!-- Hibernate Jcache -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-ehcache</artifactId>
-			<version>5.4.12.Final</version>
+			<artifactId>hibernate-jcache</artifactId>
+			<version>5.2.10.Final</version>
+		</dependency>
+
+		<!-- Ehcache 3.x -->
+		<dependency>
+			<groupId>org.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>3.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
