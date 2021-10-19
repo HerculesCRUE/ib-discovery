@@ -72,6 +72,15 @@ public class Attribute {
         }
     }
 
+    public Attribute(ObjectResult objectResult,Value parentValue, Tuple t) {
+        this.id = ((t.get("at_id")!=null)?(Long.valueOf(t.get("at_id").toString())):null);
+        this.key = (t.get("at_key")!=null)?((String)t.get("at_key")):null;
+        this.version = ((t.get("at_version")!=null)?(Long.valueOf(t.get("at_version").toString())):null);
+        this.objectResult = objectResult;
+        this.parentValue = parentValue;
+        this.values = new HashSet<>();
+    }
+
 
     /**
      * Equals

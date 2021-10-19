@@ -1,13 +1,12 @@
 package es.um.asio.service.proxy;
 
 
-import es.um.asio.service.model.relational.Action;
-import es.um.asio.service.model.relational.ActionResult;
-import es.um.asio.service.model.relational.Attribute;
-import es.um.asio.service.model.relational.Value;
+import es.um.asio.service.model.relational.*;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Proxy for RequestRegistry repository interface
@@ -32,4 +31,11 @@ public interface ActionResultProxy {
      * @return Optional<Action>
      */
     Optional<ActionResult> findById(long id);
+
+    /**
+     * Find by id
+     * @param id Long. The id.
+     * @return Optional<ObjectResult>
+     */
+    Map<Long, Set<ActionResult>> getActionsResultByRequestRegistry(String userId, String requestCode, RequestType requestType);
 }

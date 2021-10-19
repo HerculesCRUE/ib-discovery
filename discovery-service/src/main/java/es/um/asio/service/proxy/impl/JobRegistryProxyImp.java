@@ -1,12 +1,7 @@
 package es.um.asio.service.proxy.impl;
 
-import es.um.asio.service.model.relational.JobRegistry;
-import es.um.asio.service.model.relational.ObjectResult;
-import es.um.asio.service.model.relational.RequestRegistry;
-import es.um.asio.service.proxy.DiscoveryApplicationProxy;
-import es.um.asio.service.proxy.JobRegistryProxy;
-import es.um.asio.service.proxy.ObjectResultProxy;
-import es.um.asio.service.proxy.RequestRegistryProxy;
+import es.um.asio.service.model.relational.*;
+import es.um.asio.service.proxy.*;
 import es.um.asio.service.repository.relational.JobRegistryRepository;
 import es.um.asio.service.repository.relational.custom.JobRegistryCustomRepository;
 import es.um.asio.service.repository.relational.custom.imp.JobRegistryCustomRepositoryImp;
@@ -16,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-import java.util.UUID;
+import javax.persistence.Tuple;
+import java.util.*;
 
 /**
  * Proxy for JobRegistryProxyImp repository implementation.
@@ -46,6 +41,9 @@ public class JobRegistryProxyImp implements JobRegistryProxy {
 
     @Autowired
     JobRegistryCustomRepository jobRegistryCustomRepository;
+
+    @Autowired
+    ActionResultProxy actionResultProxy;
 
 
     @Override
@@ -137,5 +135,110 @@ public class JobRegistryProxyImp implements JobRegistryProxy {
         } else {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public JobRegistry findJobRegistryByUserIdAndRequestCodeAndRequestTypeNoNested(String userId, String requestCode, RequestType requestType) {
+
+        Map<Long,Set<ObjectResult>> dependentObjectResults = objectResultProxy.getDependentObjectResultByRequestRegistry(userId,requestCode,requestType);
+        Map<Long,Set<ActionResult>> dependentActionResults = actionResultProxy.getActionsResultByRequestRegistry(userId,requestCode,requestType);
+        List<Tuple> results = jobRegistryCustomRepository.getResultsByUserIdAndRequestCodeAndRequestTypeNoNested(userId,requestCode,requestType);
+        JobRegistry jr = null;
+        Map<Long,RequestRegistry> jrRequestRegistryMap = new HashMap<>();
+        Map<Long,ObjectResult> jrObjectResultMainMap = new HashMap<>();
+        Map<Long,ObjectResult> jrObjectResultDependentMap = new HashMap<>();
+        for (Set<ObjectResult> dependents : dependentObjectResults.values()) {
+            for (ObjectResult or : dependents) {
+                jrObjectResultDependentMap.put(or.getId(),or);
+            }
+        }
+        Map<Long,Attribute> jrAttributesMainMap = new HashMap<>();
+        Map<Long,Value> jrValuesMainMap = new HashMap<>();
+        for (Tuple t : results) {
+            if (jr == null) {
+                jr = new JobRegistry(t);
+            }
+            // Recovery Request Results
+            long idRequestRegistry = (long) ((t.get("rr_id")!=null)?(Long.valueOf(t.get("rr_id").toString())):null);//t.get("rr_id")?null
+            if (idRequestRegistry>0) {
+                if (!jrRequestRegistryMap.containsKey(idRequestRegistry)) {
+                    RequestRegistry rr = new RequestRegistry(jr,t);
+                    jrRequestRegistryMap.put(rr.getId(),rr);
+                    jr.getRequestRegistries().add(rr);
+                }
+            }
+
+            // Recovery Object Results Mains
+            long idObject= (long) ((t.get("or_id")!=null)?(Long.valueOf(t.get("or_id").toString())):null);
+            ObjectResult or = null;
+            if (idObject>0) {
+                if (!jrObjectResultMainMap.containsKey(idObject)) {
+                    or = new ObjectResult(jr,t);
+                    jrObjectResultMainMap.put(or.getId(),or);
+
+                } else {
+                    or = jrObjectResultMainMap.get(idObject);
+                }
+                // Si contiene object result dependientes
+                if (dependentObjectResults.containsKey(or.getId())) {
+                    for (ObjectResult orInner : dependentObjectResults.get(or.getId())) {
+                        if (orInner.isAutomatic()) {
+                            orInner.setParentAutomatic(or);
+                            or.getAutomatic().add(orInner);
+                        } else if (orInner.isManual()) {
+                            orInner.setParentManual(or);
+                            or.getManual().add(orInner);
+                        } else if (orInner.isLink()) {
+                            orInner.setParentLink(or);
+                            or.getLink().add(orInner);
+                        }
+                    }
+                }
+                // Si contiene Acciones
+                if (dependentActionResults.containsKey(or.getId())) {
+                    for (ActionResult ar : dependentActionResults.get(or.getId())) {
+                        Set<ObjectResult> objectResults = new HashSet<>();
+                        for (ObjectResult orInner : ar.getObjectResults()) {
+                            ObjectResult orAux = orInner;
+                            if (jrObjectResultMainMap.containsKey(orInner.getId())) {
+                                orAux = jrObjectResultMainMap.get(orInner.getId());
+                            } else if (jrObjectResultDependentMap.containsKey(orInner)) {
+                                orAux = jrObjectResultDependentMap.get(orInner.getId());
+                            }
+                            orAux.setActionResultParent(ar);
+                            objectResults.add(orAux);
+                        }
+                        ar.setObjectResults(objectResults);
+                        or.getActionResults().add(ar);
+                    }
+                }
+                jr.getObjectResults().add(or);
+
+                long idAttribute= (long) ((t.get("at_id")!=null)?(Long.valueOf(t.get("at_id").toString())):null);
+                Attribute att = null;
+                if (idAttribute>0) {
+                    if (!jrAttributesMainMap.containsKey(idAttribute)) {
+                        att = new Attribute(or,null, t);
+                        jrAttributesMainMap.put(att.getId(), att);
+                    } else {
+                        att = jrAttributesMainMap.get(idAttribute);
+                    }
+                    or.getAttributes().add(att);
+                }
+
+                long idVal= (long) ((t.get("va_id")!=null)?(Long.valueOf(t.get("va_id").toString())):null);
+                Value v = null;
+                if (idAttribute>0) {
+                    if (!jrValuesMainMap.containsKey(idVal)) {
+                        v = new Value(att, t);
+                        jrAttributesMainMap.put(att.getId(), att);
+                    } else {
+                        v = jrValuesMainMap.get(idAttribute);
+                    }
+                    att.getValues().add(v);
+                }
+            }
+        }
+        return jr;
     }
 }

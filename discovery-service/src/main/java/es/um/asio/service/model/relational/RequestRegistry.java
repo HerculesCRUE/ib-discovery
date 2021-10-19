@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
 
 /**
@@ -76,6 +77,20 @@ public class RequestRegistry {
         this.requestType = requestType;
         this.requestDate = (requestDate!=null)?requestDate:new Date();
         this.email = email;
+    }
+
+    public RequestRegistry(JobRegistry jr, Tuple t) {
+
+        this.id = ((t.get("rr_id")!=null)?(Long.valueOf(t.get("rr_id").toString())):null);
+        this.email = (t.get("rr_email")!=null)?((String)t.get("rr_email")):null;
+        this.propagueInKafka = (t.get("rr_propague_in_kafka")!=null)?((boolean)t.get("rr_propague_in_kafka")):null;
+        this.requestCode = (t.get("rr_request_code")!=null)?((String)t.get("rr_request_code")):null;
+        this.requestDate = (t.get("rr_request_date")!=null)?((Date)t.get("rr_request_date")):null;
+        this.requestType = (t.get("rr_request_type")!=null)?(RequestType.getFromString(t.get("rr_request_type").toString())):null;
+        this.userId = (t.get("rr_user_id")!=null)?((String)t.get("rr_user_id")):null;
+        this.version = ((t.get("rr_version")!=null)?(Long.valueOf(t.get("rr_version").toString())):null);
+        this.webHook = (t.get("rr_web_hook")!=null)?((String)t.get("rr_web_hook")):null;
+        this.jobRegistry = jr;
     }
 
     public void copy(RequestRegistry rr){

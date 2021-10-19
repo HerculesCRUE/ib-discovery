@@ -85,6 +85,7 @@ public class RequestRegistryProxyImp implements RequestRegistryProxy {
      */
     @Override
     public JobRegistry findJobRegistryByUserIdAndRequestCodeAndRequestType(String userId, String requestCode, RequestType requestType) {
+
         Optional<List<RequestRegistry>> requestRegistries = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, requestType);
         if (!requestRegistries.isEmpty() && requestRegistries.get().size()>0) {
             RequestRegistry registry = Optional.of(requestRegistries.get().get(0)).get();

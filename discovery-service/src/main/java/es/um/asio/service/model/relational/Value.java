@@ -61,6 +61,21 @@ public class Value {
      * Constructor
      * @see Attribute
      * @param attribute Attribute. The parent attribute
+     * @param t Tuple. The tuple of values
+     */
+    public Value(Attribute attribute, Tuple t) {
+        this.id = ((t.get("va_id")!=null)?(Long.valueOf(t.get("va_id").toString())):null);
+        this.val = (t.get("va_va")!=null)?t.get("va_va").toString():null;
+        this.dataType = (t.get("va_type")!=null)?(DataType.getFromString(t.get("va_type").toString())):null;
+        this.version = ((t.get("va_version")!=null)?(Long.valueOf(t.get("va_version").toString())):null);
+        this.attribute = attribute;
+        this.attributes = new HashSet<>();
+    }
+
+    /**
+     * Constructor
+     * @see Attribute
+     * @param attribute Attribute. The parent attribute
      * @param val Object. The value
      */
     public Value(Attribute attribute, Object val) {

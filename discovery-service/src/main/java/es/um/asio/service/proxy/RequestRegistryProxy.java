@@ -33,4 +33,5 @@ public interface RequestRegistryProxy {
 
 
     JobRegistry findJobRegistryByUserIdAndRequestCodeAndRequestType(String userId, String requestCode, RequestType requestType);
+
 }

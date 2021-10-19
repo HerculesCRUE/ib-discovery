@@ -141,6 +141,25 @@ public class JobRegistry implements Cloneable {
         this.tripleObject = jr.getTripleObject();
     }
 
+    public JobRegistry(Tuple t) {
+        this.id = (t.get("jr_id")!=null)?t.get("jr_id").toString():null;
+        this.bodyRequest = (t.get("jr_body_request")!=null)?t.get("jr_body_request").toString():null;
+        this.className = (t.get("jr_class_name")!=null)?t.get("jr_class_name").toString():null;
+        this.completedDate = (t.get("jr_completion_date")!=null)?((Date)t.get("jr_completion_date")):null;
+        this.dataSource = (t.get("jr_data_source")!=null)?((String)t.get("jr_data_source")):null;
+        this.doSync = (t.get("jr_do_synchronous")!=null)?((boolean)t.get("jr_do_synchronous")):null;
+        this.isCompleted = (t.get("jr_is_completed")!=null)?((boolean)t.get("jr_is_completed")):null;
+        this.isStarted = (t.get("jr_is_started")!=null)?((boolean)t.get("jr_is_started")):null;
+        this.node = (t.get("jr_node")!=null)?((String)t.get("jr_node")):null;
+        this.searchFromDelta = (t.get("jr_search_from_delta")!=null)?((Date)t.get("jr_search_from_delta")):null;
+        this.searchLinks = (t.get("jr_search_links")!=null)?((boolean)t.get("jr_search_links")):null;
+        this.startedDate = (t.get("jr_started_date")!=null)?((Date)t.get("jr_started_date")):null;
+        this.statusResult = (t.get("jr_status_result")!=null)?(StatusResult.getFromString(t.get("jr_status_result").toString())):null;
+        this.tripleStore = (t.get("jr_triple_store")!=null)?((String)t.get("jr_triple_store")):null;
+        this.version = (long) ((t.get("jr_version")!=null)?(Long.valueOf(t.get("jr_version").toString())):null);
+        this.requestRegistries = new HashSet<>();
+        this.objectResults = new HashSet<>();
+    }
 
     public void copy(JobRegistry jr) {
         this.id = jr.getId();

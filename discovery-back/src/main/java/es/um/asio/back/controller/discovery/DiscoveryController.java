@@ -7,6 +7,7 @@ import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.Decision;
 import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.relational.*;
+import es.um.asio.service.proxy.JobRegistryProxy;
 import es.um.asio.service.proxy.RequestRegistryProxy;
 import es.um.asio.service.repository.relational.RequestRegistryRepository;
 import es.um.asio.service.service.EntitiesHandlerService;
@@ -70,6 +71,9 @@ public class DiscoveryController {
 
     @Autowired
     RequestRegistryProxy requestRegistryProxy;
+
+    @Autowired
+    JobRegistryProxy jobRegistryProxy;
 
     @Autowired
     OpenSimilaritiesHandlerImpl openSimilaritiesHandler;
@@ -554,7 +558,8 @@ public class DiscoveryController {
             @RequestParam(required = true) @Validated(Create.class) RequestType requestType
     ) {
         JsonObject jResponse = new JsonObject();
-        JobRegistry jobRegistry = requestRegistryProxy.findJobRegistryByUserIdAndRequestCodeAndRequestType(userId,requestCode,requestType);
+        //JobRegistry jobRegistry = requestRegistryProxy.findJobRegistryByUserIdAndRequestCodeAndRequestType(userId,requestCode,requestType);
+        JobRegistry jobRegistry = jobRegistryProxy.findJobRegistryByUserIdAndRequestCodeAndRequestTypeNoNested(userId,requestCode,requestType);
         if (jobRegistry != null) {
             JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
             jJobRegistry.addProperty("userId", userId);

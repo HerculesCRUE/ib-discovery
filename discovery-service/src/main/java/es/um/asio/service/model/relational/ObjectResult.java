@@ -191,6 +191,35 @@ public class ObjectResult implements Comparable<ObjectResult>,Cloneable{
         }
     }
 
+    public ObjectResult(JobRegistry jr, Tuple t) {
+        this.jobRegistry = jr;
+        this.id = ((t.get("or_id")!=null)?(Long.valueOf(t.get("or_id").toString())):null);
+        this.canonicalURI = (t.get("or_canonical_uri")!=null)?((String)t.get("or_canonical_uri")):null;
+        this.className = (t.get("or_class_name")!=null)?((String)t.get("or_class_name")):null;
+        this.entityId = (t.get("or_entity_id")!=null)?((String)t.get("or_entity_id")):null;
+        this.isAutomatic = (t.get("or_is_automatic")!=null)?((boolean)t.get("or_is_automatic")):null;
+        this.isLink = (t.get("or_is_link")!=null)?((boolean)t.get("or_is_link")):null;
+        this.isMain = (t.get("or_is_main")!=null)?((boolean)t.get("or_is_main")):null;
+        this.isManual = (t.get("or_is_manual")!=null)?((boolean)t.get("or_is_manual")):null;
+        this.isMerge = (t.get("or_is_merge")!=null)?((boolean)t.get("or_is_merge")):null;
+        this.lastModification = (t.get("or_last_modification")!=null)?((Date)t.get("or_last_modification")):null;
+        this.localURI = (t.get("or_local_uri")!=null)?((String)t.get("or_local_uri")):null;
+        this.mergeAction = (t.get("or_merge_action")!=null)?(MergeAction.getFromString(t.get("or_merge_action").toString())):null;
+        this.node = (t.get("or_node")!=null)?((String)t.get("or_node")):null;
+        this.origin = (t.get("or_origin")!=null)?(Origin.getFromString(t.get("or_origin").toString())):null;
+        this.similarity = ((t.get("or_similarity")!=null)?(Float.valueOf(t.get("or_similarity").toString())):null);
+        this.similarityWithOutId = ((t.get("or_similarity_no_id")!=null)?(Float.valueOf(t.get("or_similarity_no_id").toString())):null);
+        this.state = (t.get("or_state")!=null)?(State.getFromString(t.get("or_state").toString())):null;
+        this.tripleStore = (t.get("or_triple_store")!=null)?((String)t.get("or_triple_store")):null;
+        this.version = ((t.get("or_version")!=null)?(Long.valueOf(t.get("or_version").toString())):null);
+        this.attributes = new HashSet<>();
+        this.automatic = new HashSet<>();
+        this.manual = new HashSet<>();
+        this.link = new HashSet<>();
+        this.actionResults = new HashSet<>();
+    }
+
+
     /**
      * Add a Automatic results to Object Result
      * @see ObjectResult

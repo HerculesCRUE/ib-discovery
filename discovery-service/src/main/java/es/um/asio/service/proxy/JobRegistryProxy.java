@@ -35,4 +35,14 @@ public interface JobRegistryProxy {
      * @return Optional<JobRegistry>
      */
     Optional<JobRegistry> findById(String id);
+
+
+    /**
+     * Find by id
+     * @param userId String. The userId
+     * @param requestCode String. The requestCode
+     * @param requestType String. The requestType
+     * @return JobRegistry
+     */
+    JobRegistry findJobRegistryByUserIdAndRequestCodeAndRequestTypeNoNested(String userId, String requestCode, RequestType requestType);
 }
