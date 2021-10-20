@@ -159,7 +159,7 @@ public class JobRegistryProxyImp implements JobRegistryProxy {
                 jr = new JobRegistry(t);
             }
             // Recovery Request Results
-            long idRequestRegistry = (long) ((t.get("rr_id")!=null)?(Long.valueOf(t.get("rr_id").toString())):null);//t.get("rr_id")?null
+            long idRequestRegistry = ((t.get("rr_id")!=null)?(Long.valueOf(t.get("rr_id").toString())):0);//t.get("rr_id")?null
             if (idRequestRegistry>0) {
                 if (!jrRequestRegistryMap.containsKey(idRequestRegistry)) {
                     RequestRegistry rr = new RequestRegistry(jr,t);
@@ -169,7 +169,7 @@ public class JobRegistryProxyImp implements JobRegistryProxy {
             }
 
             // Recovery Object Results Mains
-            long idObject= (long) ((t.get("or_id")!=null)?(Long.valueOf(t.get("or_id").toString())):null);
+            long idObject= ((t.get("or_id")!=null)?(Long.valueOf(t.get("or_id").toString())):0);
             ObjectResult or = null;
             if (idObject>0) {
                 if (!jrObjectResultMainMap.containsKey(idObject)) {
@@ -214,7 +214,7 @@ public class JobRegistryProxyImp implements JobRegistryProxy {
                 }
                 jr.getObjectResults().add(or);
 
-                long idAttribute= (long) ((t.get("at_id")!=null)?(Long.valueOf(t.get("at_id").toString())):null);
+                long idAttribute= ((t.get("at_id")!=null)?(Long.valueOf(t.get("at_id").toString())):0);
                 Attribute att = null;
                 if (idAttribute>0) {
                     if (!jrAttributesMainMap.containsKey(idAttribute)) {
@@ -226,9 +226,9 @@ public class JobRegistryProxyImp implements JobRegistryProxy {
                     or.getAttributes().add(att);
                 }
 
-                long idVal= (long) ((t.get("va_id")!=null)?(Long.valueOf(t.get("va_id").toString())):null);
+                long idVal= (long) ((t.get("va_id")!=null)?(Long.valueOf(t.get("va_id").toString())):0);
                 Value v = null;
-                if (idAttribute>0) {
+                if (idVal>0) {
                     if (!jrValuesMainMap.containsKey(idVal)) {
                         v = new Value(att, t);
                         jrAttributesMainMap.put(att.getId(), att);

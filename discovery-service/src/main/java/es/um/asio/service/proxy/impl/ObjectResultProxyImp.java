@@ -184,13 +184,13 @@ public class ObjectResultProxyImp implements ObjectResultProxy {
         Map<Long,Value> jrValuesMainMap = new HashMap<>();
         List<Tuple> results = objectResultCustomRepository.getDependentObjectResultByRequestRegistry(userId,requestCode,requestType);
         for (Tuple t : results) {
-            long idObjectResultMain = (long) ((t.get("orm_id")!=null)?(Long.valueOf(t.get("orm_id").toString())):null);
+            long idObjectResultMain = ((t.get("orm_id")!=null)?(Long.valueOf(t.get("orm_id").toString())):0);
             if (!childObjectResults.containsKey(idObjectResultMain)) {
                 childObjectResults.put(idObjectResultMain,new HashSet<>());
             }
 
             // Recovery Object Results Dependents
-            long idObject= (long) ((t.get("or_id")!=null)?(Long.valueOf(t.get("or_id").toString())):null);
+            long idObject= ((t.get("or_id")!=null)?(Long.valueOf(t.get("or_id").toString())):0);
             ObjectResult or = null;
             if (idObject>0) {
                 if (!jrObjectResultMainMap.containsKey(idObject)) {
@@ -200,7 +200,7 @@ public class ObjectResultProxyImp implements ObjectResultProxy {
                     or = jrObjectResultMainMap.get(idObject);
                 }
 
-                long idAttribute= (long) ((t.get("at_id")!=null)?(Long.valueOf(t.get("at_id").toString())):null);
+                long idAttribute= ((t.get("at_id")!=null)?(Long.valueOf(t.get("at_id").toString())):0);
                 Attribute att = null;
                 if (idAttribute>0) {
                     if (!jrAttributesMainMap.containsKey(idAttribute)) {
@@ -212,9 +212,9 @@ public class ObjectResultProxyImp implements ObjectResultProxy {
                     or.getAttributes().add(att);
                 }
 
-                long idVal= (long) ((t.get("va_id")!=null)?(Long.valueOf(t.get("va_id").toString())):null);
+                long idVal= ((t.get("va_id")!=null)?(Long.valueOf(t.get("va_id").toString())):0);
                 Value v = null;
-                if (idAttribute>0) {
+                if (idVal>0) {
                     if (!jrValuesMainMap.containsKey(idVal)) {
                         v = new Value(att, t);
                         jrAttributesMainMap.put(att.getId(), att);
