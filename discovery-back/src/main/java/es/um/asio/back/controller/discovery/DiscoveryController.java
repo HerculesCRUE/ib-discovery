@@ -183,7 +183,7 @@ public class DiscoveryController {
         JsonObject jResponse = new JsonObject();
         jResponse.add("state",applicationState.toSimplifiedJson());
         if (jobRegistry!=null) {
-            JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
+            JsonObject jJobRegistry = jobRegistry.toSimplifiedJson(cache);
             jJobRegistry.addProperty("userId", userId);
             jJobRegistry.addProperty("requestCode", requestCode);
             jJobRegistry.addProperty("requestType", RequestType.ENTITY_LINK_CLASS.toString());
@@ -342,7 +342,7 @@ public class DiscoveryController {
             JsonObject jResponse = new JsonObject();
             jResponse.add("state",applicationState.toSimplifiedJson());
             if (jobRegistry!=null) {
-                JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
+                JsonObject jJobRegistry = jobRegistry.toSimplifiedJson(cache);
                 jJobRegistry.addProperty("userId", userId);
                 jJobRegistry.addProperty("requestCode", requestCode);
                 jJobRegistry.addProperty("requestType", RequestType.ENTITY_LINK_INSTANCE.toString());
@@ -404,7 +404,7 @@ public class DiscoveryController {
         JsonObject jResponse = new JsonObject();
         jResponse.add("state",applicationState.toSimplifiedJson());
         if (jobRegistry!=null) {
-            JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
+            JsonObject jJobRegistry = jobRegistry.toSimplifiedJson(cache);
             jJobRegistry.addProperty("userId", userId);
             jJobRegistry.addProperty("requestCode", requestCode);
             jJobRegistry.addProperty("requestType", RequestType.LOD_SEARCH.toString());
@@ -561,7 +561,7 @@ public class DiscoveryController {
         //JobRegistry jobRegistry = requestRegistryProxy.findJobRegistryByUserIdAndRequestCodeAndRequestType(userId,requestCode,requestType);
         JobRegistry jobRegistry = jobRegistryProxy.findJobRegistryByUserIdAndRequestCodeAndRequestTypeNoNested(userId,requestCode,requestType);
         if (jobRegistry != null) {
-            JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
+            JsonObject jJobRegistry = jobRegistry.toSimplifiedJson(cache);
             jJobRegistry.addProperty("userId", userId);
             jJobRegistry.addProperty("requestCode", requestCode);
             jJobRegistry.addProperty("requestType", requestType.toString());
@@ -617,7 +617,7 @@ public class DiscoveryController {
         Collections.sort(results,Collections.reverseOrder());
         JsonArray response = new JsonArray();
         for (ObjectResult or : results) {
-            response.add(or.toSimplifiedJson(true));
+            response.add(or.toSimplifiedJson(true,cache));
         }
         return new GsonBuilder().setPrettyPrinting().create().toJson(response);
     }
@@ -638,7 +638,7 @@ public class DiscoveryController {
         Map<ObjectResult,List<ActionResult>> result = openSimilaritiesHandler.decisionOverObjectResult(className,entityIdMainObject,entityIdRelatedObject,decision);
         JsonArray response = new JsonArray();
         for (ObjectResult or : result.keySet()) {
-            response.add(or.toSimplifiedJson(true));
+            response.add(or.toSimplifiedJson(true,cache));
         }
         JsonArray jActionResults = new JsonArray();
         for (List<ActionResult> arList : result.values()) {
@@ -647,7 +647,7 @@ public class DiscoveryController {
                 jAction.addProperty("action", ar.getAction().toString());
                 JsonArray jObjectResultActionsArray = new JsonArray();
                 for (ObjectResult or : ar.getObjectResults()) {
-                    jObjectResultActionsArray.add(or.toSimplifiedJson(false));
+                    jObjectResultActionsArray.add(or.toSimplifiedJson(false,cache));
                 }
                 jAction.add("items", jObjectResultActionsArray);
                 jActionResults.add(jAction);

@@ -58,7 +58,7 @@ class JobRegistryTest {
 
     @Test
     void toSimplifiedJson() {
-        JsonObject jSimplifiedJson = jobRegistry.toSimplifiedJson();
+        JsonObject jSimplifiedJson = jobRegistry.toSimplifiedJson(null);
         Assert.assertNotNull(jSimplifiedJson);
         Assert.assertTrue(jSimplifiedJson.has("node"));
         Assert.assertTrue(jSimplifiedJson.get("node").getAsString().equals(jobRegistry.getNode()));

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import es.um.asio.service.model.TripleObject;
+import es.um.asio.service.service.CacheService;
 import es.um.asio.service.util.Utils;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -238,7 +239,7 @@ public class JobRegistry implements Cloneable {
      * Build Job Registry in Json (Simplified)
      * @return JsonObject
      */
-    public JsonObject toSimplifiedJson() {
+    public JsonObject toSimplifiedJson(CacheService cacheService) {
         JsonObject jResponse = new JsonObject();
         jResponse.addProperty("node",getNode());
         jResponse.addProperty("tripleStore", getTripleStore());
@@ -249,7 +250,7 @@ public class JobRegistry implements Cloneable {
 
         JsonArray jResultsArray = new JsonArray();
         for (ObjectResult or : orderObjectsResult()) {
-            jResultsArray.add(or.toSimplifiedJson(true));
+            jResultsArray.add(or.toSimplifiedJson(true,cacheService));
         }
         jResponse.add("results",jResultsArray);
         return jResponse;

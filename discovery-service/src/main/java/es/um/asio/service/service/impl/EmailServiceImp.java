@@ -23,15 +23,18 @@ public class EmailServiceImp implements EmailService {
 
     @Override
     public void sendSimpleMail(List<String> tos, String subject, String text) throws MessagingException {
-        MimeMessage message = javaMailSender.createMimeMessage();
-        MimeMessageHelper helper;
-        helper = new MimeMessageHelper(message, true);
-        helper.setTo(String.join(";",tos));
-        helper.setSubject(subject);
-        helper.setText(text,true);
-        javaMailSender.send(message);
-        logger.info("Send Mail to: {}, subject: {}, text: {}",String.join(";",tos), subject, text);
-
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper;
+            helper = new MimeMessageHelper(message, true);
+            helper.setTo(String.join(";", tos));
+            helper.setSubject(subject);
+            helper.setText(text, true);
+            javaMailSender.send(message);
+            logger.info("Send Mail to: {}, subject: {}, text: {}", String.join(";", tos), subject, text);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
 /*        for (String to : tos) {
             msg.setTo(to);
         }

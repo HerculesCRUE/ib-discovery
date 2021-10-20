@@ -5,6 +5,7 @@ import es.um.asio.service.config.DataProperties;
 import es.um.asio.service.model.relational.Action;
 import es.um.asio.service.model.relational.ActionResult;
 import es.um.asio.service.model.relational.ObjectResult;
+import es.um.asio.service.service.CacheService;
 import es.um.asio.service.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,9 @@ public class KafkaHandlerService {
     @Autowired
     DataProperties dataProperties;
 
+    @Autowired
+    CacheService cacheService;
+
     @PostConstruct
     public void init() {
         logger.info("initialized kafka handler service");
@@ -48,7 +52,7 @@ public class KafkaHandlerService {
     void sendMessageAction(ActionResult actionResult,String node, String tripleStore, String className) {
         String topic = dataProperties.getKafka().getTopicDiscoveryAction().getTopic();
         for (ObjectResult or : actionResult.getObjectResults()) {
-            JsonObject jObjectResult = or.toSimplifiedJson(false);
+            JsonObject jObjectResult = or.toSimplifiedJson(false,cacheService);
             JsonObject jMessage = new JsonObject();
             jMessage.addProperty("action",actionResult.getAction().toString());
             if (actionResult.getAction() == Action.DELETE || actionResult.getAction() == Action.UPDATE) {
@@ -66,7 +70,7 @@ public class KafkaHandlerService {
             }
             jMessage.add("linkedTo",jObjectResult);
             if (actionResult.getAction() == Action.LINK) {
-                JsonObject jLink = actionResult.getObjectResultParent().toSimplifiedJson(false);
+                JsonObject jLink = actionResult.getObjectResultParent().toSimplifiedJson(false,cacheService);
                 jMessage.add("object", jLink);
             }
             String msgStr = jMessage.toString();

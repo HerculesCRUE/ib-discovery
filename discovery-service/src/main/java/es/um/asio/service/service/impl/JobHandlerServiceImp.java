@@ -852,7 +852,7 @@ public class JobHandlerServiceImp {
     private void sendWebHooks(JobRegistry jobRegistry) {
         Set<String> webHooks = jobRegistry.getWebHooks();
         HttpClient client = HttpClient.newHttpClient();
-        JsonObject jResponse = jobRegistry.toSimplifiedJson();
+        JsonObject jResponse = jobRegistry.toSimplifiedJson(cache);
         for (String webHook : webHooks) {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(webHook))

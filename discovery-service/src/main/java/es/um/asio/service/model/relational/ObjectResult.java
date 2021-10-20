@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.model.TripleObject;
+import es.um.asio.service.service.CacheService;
 import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -316,7 +317,7 @@ public class ObjectResult implements Comparable<ObjectResult>,Cloneable{
      * @param expands boolean. If true expand recursively ObjectResult nested
      * @return JsonObject
      */
-    public JsonObject toSimplifiedJson(boolean expands) {
+    public JsonObject toSimplifiedJson(boolean expands, CacheService cacheService) {
         JsonObject jResponse = new JsonObject();
         jResponse.addProperty("node",getNode());
         jResponse.addProperty("tripleStore",getTripleStore());
@@ -325,6 +326,16 @@ public class ObjectResult implements Comparable<ObjectResult>,Cloneable{
         jResponse.addProperty("localUri",getLocalURI());
         jResponse.addProperty("origin",getOrigin().toString());
         jResponse.addProperty("state",getState().toString());
+        if (cacheService!=null) {
+            if (
+                    cacheService.getInverseMap().containsKey(node) &&
+                    cacheService.getInverseMap().get(node).containsKey(tripleStore) &&
+                    cacheService.getInverseMap().get(node).get(tripleStore).containsKey(className) &&
+                    cacheService.getInverseMap().get(node).get(tripleStore).get(className).containsKey(entityId)
+            ) {
+                jResponse.addProperty("linksToEntity", cacheService.getInverseMap().get(node).get(tripleStore).get(className).get(entityId).size() );
+            }
+        }
         jResponse.addProperty("id",getId());
         if (getSimilarity()!=null)
             jResponse.addProperty(SIMILARITY,getSimilarity());
@@ -335,14 +346,14 @@ public class ObjectResult implements Comparable<ObjectResult>,Cloneable{
         if (getAutomatic()!=null && expands) {
             JsonArray jAutomatics = new JsonArray();
             for (ObjectResult or : getAutomatic()) {
-                jAutomatics.add(or.toSimplifiedJson(false));
+                jAutomatics.add(or.toSimplifiedJson(false,cacheService));
             }
             jResponse.add("automatics",jAutomatics);
         }
         if (getManual()!=null && expands) {
             JsonArray jManuals = new JsonArray();
             for (ObjectResult or : getManual()) {
-                jManuals.add(or.toSimplifiedJson(false));
+                jManuals.add(or.toSimplifiedJson(false, cacheService));
             }
             jResponse.add("manuals",jManuals);
         }
@@ -353,7 +364,7 @@ public class ObjectResult implements Comparable<ObjectResult>,Cloneable{
                 jAction.addProperty("action",ar.getAction().toString());
                 JsonArray jObjectResultActionsArray = new JsonArray();
                 for (ObjectResult or : ar.getObjectResults()) {
-                    jObjectResultActionsArray.add(or.toSimplifiedJson(false));
+                    jObjectResultActionsArray.add(or.toSimplifiedJson(false,cacheService));
                 }
                 jAction.add("items",jObjectResultActionsArray);
                 jActionResults.add(jAction);
