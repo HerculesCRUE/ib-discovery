@@ -171,7 +171,7 @@ public class AttributeSimilarity {
      */
     public static SimilarityValue compareString(String a1, String a2, float weight) {
         float similarity = 0;
-        if (a1.toLowerCase().strip().equals(a2.toLowerCase().strip())) {
+        if (a1.toLowerCase().strip().equals(a2.toLowerCase().strip()) || (!Utils.isValidString(a1) || !Utils.isValidString(a2) )) {
             similarity = 1;
         } else {
             similarity = AccordSimilarity.calculateAccordSimilarity(a1,a2);
@@ -285,7 +285,7 @@ public class AttributeSimilarity {
         if (o1 == null && o2 == null) {
             return new SimilarityValue(1,weight,false);
         } else if ((o1 == null ) || (o2 == null)) {
-            return new SimilarityValue(0,weight,false);
+            return new SimilarityValue(1,weight,false); // Cuidado
         }
         if (o1.size() == 1 && o2.size() == 1) {
             a1 = o1.get(0);
