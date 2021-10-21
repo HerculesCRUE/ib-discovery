@@ -326,6 +326,7 @@ public class ObjectResult implements Comparable<ObjectResult>,Cloneable{
         jResponse.addProperty("localUri",getLocalURI());
         jResponse.addProperty("origin",getOrigin().toString());
         jResponse.addProperty("state",getState().toString());
+        jResponse.addProperty("linksToEntity",0);
         if (cacheService!=null) {
             if (
                     cacheService.getInverseMap().containsKey(node) &&

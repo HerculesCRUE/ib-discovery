@@ -397,12 +397,14 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
         Map<String, List<EntitySimilarityObj>> similarities = new HashMap<>();
         similarities.put(MANUAL_KEY,new ArrayList<>());
         similarities.put(AUTOMATIC_KEY,new ArrayList<>());
-        Map<String,Float> statsAux = new TreeMap<>();
         for (TripleObject other: matches) {
+            Map<String,Float> statsAux = new TreeMap<>();
             if (stats.size()>1 && other.getAttributes().containsKey("localId") && !to.getAttributes().containsKey("localId")) {
                 for (Map.Entry<String, Float> statsEntry: stats.entrySet()) {
-                    if (!statsEntry.getKey().equalsIgnoreCase("localId") && !(dataBehaviour.ignoreAttribute(to.getClassName(),statsEntry.getKey())))
-                        statsAux.put(statsEntry.getKey(),statsEntry.getValue());
+                    if (!statsEntry.getKey().equalsIgnoreCase("localId") && !(dataBehaviour.ignoreAttribute(to.getClassName(),statsEntry.getKey()))) {
+                        if (other.getAttributeValue(statsEntry.getKey(),other.getAttributes()).size() > 0)
+                            statsAux.put(statsEntry.getKey(),statsEntry.getValue());
+                    }
                 }
             } else {
                 for (Map.Entry<String, Float> statsEntry: stats.entrySet()) {

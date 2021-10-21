@@ -308,7 +308,7 @@ public class DiscoveryController {
             @RequestParam(required = true) @Validated(Create.class) final boolean linkEntities,
             @NotNull @RequestBody final Object object
     ) {
-        if (status().getAppState() != ApplicationState.AppState.INITIALIZED) {
+        if (status().getAppState().getOrder() == 0) {
             throw new CustomDiscoveryException("App not initialized. State: " + applicationState.getAppState().name());
         }
         JSONObject jsonData = new JSONObject((LinkedHashMap) object);
