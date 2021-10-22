@@ -73,7 +73,9 @@ public class ObjectResultCustomRepositoryImp implements ObjectResultCustomReposi
         q3.setParameter("requestCode",requestCode);
         q3.setParameter("requestType",requestType.toString());
         List<Tuple> resultsQ3 = q3.getResultList();
-
+        em.flush();
+        em.clear();
+        em.close();
         results.addAll(resultsQ2);
         results.addAll(resultsQ3);
         return results;
