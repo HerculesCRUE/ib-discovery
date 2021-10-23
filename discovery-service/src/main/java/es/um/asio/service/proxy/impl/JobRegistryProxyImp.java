@@ -123,6 +123,7 @@ public class JobRegistryProxyImp implements JobRegistryProxy {
         }
          */
         String id = jobRegistryCustomRepository.persist(jr,true);
+        logger.info("Complete save in database");
         jr.setId(id);
         return jr;
     }
