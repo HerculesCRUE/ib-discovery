@@ -72,7 +72,6 @@ public class JobRegistryCustomRepositoryImp implements JobRegistryCustomReposito
         q.setParameter("requestCode",requestCode);
         q.setParameter("requestType",requestType.toString());
         List<Tuple> results = q.getResultList();
-        em.flush();
         em.clear();
         em.close();
         return results;
