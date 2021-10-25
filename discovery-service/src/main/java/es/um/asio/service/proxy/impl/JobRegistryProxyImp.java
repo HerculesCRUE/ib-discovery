@@ -51,34 +51,6 @@ public class JobRegistryProxyImp implements JobRegistryProxy {
         String id = jobRegistryCustomRepository.persist(jra,true);
         jra.setId(id);
         return jra;
-        /*
-        if (!Utils.isValidString(jra.getId())) {
-            jra = saveRequests(jra);
-        }
-        jobRegistryRepository.updateNoNested(
-                jra.getId(),
-                jra.getVersion(),
-                jra.getDiscoveryApplication().getId(),
-                jra.getNode(),
-                jra.getTripleStore(),
-                jra.getClassName(),
-                jra.getDataSource(),
-                jra.getCompletedDate(),
-                jra.getStartedDate(),
-                jra.getStatusResult().toString(),
-                jra.isCompleted(),
-                jra.isStarted(),
-                jra.isDoSync(),
-                jra.isSearchLinks(),
-                jra.getSearchFromDelta(),
-                jra.getBodyRequest());
-        if (jra.getObjectResults()!=null) {
-            for (ObjectResult or : jra.getObjectResults()) {
-                objectResultProxy.save(or);
-            }
-        }
-        return jra.clone();
-         */
     }
 
     @Override

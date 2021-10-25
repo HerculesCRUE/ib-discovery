@@ -91,7 +91,7 @@ public class JobRegistry implements Cloneable {
     @Column(name = Columns.BODY_REQUEST, nullable = true,columnDefinition = "VARCHAR(4000)")
     private String bodyRequest;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "jobRegistry", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "jobRegistry", cascade = CascadeType.DETACH)
     private Set<ObjectResult> objectResults;
 
     @Transient

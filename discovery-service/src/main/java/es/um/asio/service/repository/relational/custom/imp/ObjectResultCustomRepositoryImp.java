@@ -1,5 +1,7 @@
 package es.um.asio.service.repository.relational.custom.imp;
 
+import es.um.asio.service.model.relational.JobRegistry;
+import es.um.asio.service.model.relational.ObjectResult;
 import es.um.asio.service.model.relational.RequestType;
 
 import es.um.asio.service.repository.relational.custom.ObjectResultCustomRepository;
@@ -14,6 +16,29 @@ public class ObjectResultCustomRepositoryImp implements ObjectResultCustomReposi
 
     @PersistenceUnit()
     private EntityManagerFactory entityManagerFactory;
+
+    @Override
+    public long persist(ObjectResult or, boolean cascade) {
+
+        EntityManager em = entityManagerFactory.createEntityManager();
+        em.getTransaction().begin();
+        ObjectResult orAux;
+        if (or.getId() == 0) { // Si es una actualizacion
+            orAux = em.merge(or);
+            or.setId(orAux.getId());
+            or.copy(or);
+        } else {
+            orAux = em.find(ObjectResult.class, or.getId());
+            orAux.copy(or);
+            em.merge(orAux);
+        }
+        em.flush();
+        em.detach(orAux);
+        em.getTransaction().commit();
+        em.clear();
+        em.close();
+        return or.getId();
+    }
 
 
     @Override

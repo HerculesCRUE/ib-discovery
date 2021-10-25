@@ -220,6 +220,40 @@ public class ObjectResult implements Comparable<ObjectResult>,Cloneable{
         this.actionResults = new HashSet<>();
     }
 
+    public void copy(ObjectResult or) {
+        this.id = or.getId();
+        this.version = or.getVersion();
+        this.origin = or.getOrigin();
+        this.node = or.getNode();
+        this.tripleStore = or.getTripleStore();
+        this.className = or.getClassName();
+        this.localURI = or.getLocalURI();
+        this.canonicalURI = or.getCanonicalURI();
+        this.lastModification = or.getLastModification();
+        this.jobRegistry = or.getJobRegistry();
+        this.entityId = or.getEntityId();
+        setAttributes(or.getAttributes());
+        setAutomatic(or.getAutomatic());
+        this.parentAutomatic = or.getParentAutomatic();
+        setManual(or.getManual());
+        this.parentManual = or.getParentManual();
+        setManual(or.getManual());
+        this.parentManual = or.getParentManual();
+        setLink(or.getLink());
+        this.parentLink = or.getParentLink();
+        setActionResults(or.getActionResults());
+        this.similarity = or.getSimilarity();
+        this.similarityWithOutId = or.getSimilarityWithOutId();
+        this.isMain = or.isMain;
+        this.isAutomatic = or.isAutomatic;
+        this.isManual = or.isManual;
+        this.isMerge = or.isMerge;
+        this.isLink = or.isLink;
+        this.mergeAction = or.mergeAction;
+        this.state = or.state;
+        this.actionResultParent = or.actionResultParent;
+    }
+
 
     /**
      * Add a Automatic results to Object Result
