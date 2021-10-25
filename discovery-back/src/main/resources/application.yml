@@ -199,10 +199,10 @@ server:
     whitelabel:
       enabled: false
 
-logging:
-  level:
-     org.hibernate.SQL: debug
-     org.hibernate.type: trace
+#logging:
+#  level:
+ #    org.hibernate.SQL: debug
+ #    org.hibernate.type: trace
 
 spring:
   datasource:
