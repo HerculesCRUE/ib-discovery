@@ -171,8 +171,10 @@ public class AttributeSimilarity {
      */
     public static SimilarityValue compareString(String a1, String a2, float weight, int size) {
         float similarity = 0;
-        if (a1.toLowerCase().strip().equals(a2.toLowerCase().strip()) || (!Utils.isValidString(a1) || !Utils.isValidString(a2) )) {
-            if (size>1)
+        if (a1.toLowerCase().strip().equals(a2.toLowerCase().strip())) {
+            similarity = 1;
+        } else if ((!Utils.isValidString(a1) || !Utils.isValidString(a2) )) {
+            if (size>1 )
                 similarity = 1;
             else
                 similarity = 0;

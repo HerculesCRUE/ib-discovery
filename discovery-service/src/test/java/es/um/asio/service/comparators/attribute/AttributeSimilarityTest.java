@@ -81,6 +81,7 @@ class AttributeSimilarityTest {
         do {
             rnd2 = RandomStringUtils.randomAlphabetic(10);
         } while (rnd2.equals(rnd1));
+        float f = AttributeSimilarity.compareString(rnd1,rnd1,1f,1).getSimilarity();
 
         Assert.assertTrue(AttributeSimilarity.compareString(rnd1,rnd1,1f,1).getSimilarity() == 1f);
         Assert.assertTrue(AttributeSimilarity.compareString(rnd1,rnd2,1f,1).getSimilarity() <= .5f);
