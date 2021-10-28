@@ -1,5 +1,6 @@
 ---
 app:
+  debug: true
   node: um
   domain: ldpld1.um.es
   subdomain: um

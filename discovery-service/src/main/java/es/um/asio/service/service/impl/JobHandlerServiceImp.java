@@ -474,6 +474,7 @@ public class JobHandlerServiceImp {
     public JobRegistry findSimilaritiesByInstance(JobRegistry jobRegistry) {
         isWorking = true;
         TripleObject to = jobRegistry.getTripleObject();
+        Set<ObjectResult> objectResultsAux = new HashSet<>();
         if (to == null) {
             logger.error("Triple Object can´t be null");
             jobRegistry.setCompleted(true);
@@ -500,7 +501,18 @@ public class JobHandlerServiceImp {
             ObjectResult toUpdate = objectResult;
             Set<ObjectResult> toDelete = new HashSet<>();
             Set<ObjectResult> toLink = new HashSet<>();
-            for (EntitySimilarityObj eso : similarityResult.getAutomatic()) { // Para todos las similitudes automáticas
+            for (EntitySimilarityObj eso : similarityResult.getAutomatic()) {
+                ObjectResult objResAuto = new ObjectResult(Origin.ASIO,State.CLOSED,null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId(dataBehaviour, true));
+                objectResult.addAutomatic(objResAuto);
+            }
+            for (EntitySimilarityObj eso : similarityResult.getManual()) { // Para todos las similitudes manuales
+                ObjectResult objResManual = new ObjectResult(Origin.ASIO,State.OPEN,null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId(dataBehaviour, true));
+                objectResult.addManual(objResManual);
+            }
+            objectResult.setStateFromChild();
+            /*
+            for (EntitySimilarityObj eso : similarityResult.getAutomatic()) {
+                // Para todos las similitudes automáticas
                 ObjectResult objResAuto = new ObjectResult(Origin.ASIO,State.CLOSED,null, eso.getTripleObject(), eso.getSimilarity(), eso.getSimilarityWithoutId(dataBehaviour, true));
                 objectResult.addAutomatic(objResAuto);
                 // Merges
@@ -552,6 +564,15 @@ public class JobHandlerServiceImp {
                     objectResult.getActionResults().add(actionResult);
                 }
             }
+            */
+            try {
+                ObjectResult or = objectResultProxy.save(objectResult);
+                jobRegistry.getObjectResults().add(or);
+                objectResultsAux.add(or);
+            } catch (Exception e) {
+                e.printStackTrace();
+
+            }
 
             jobRegistry.getObjectResults().add(objectResult);
             // objectResultRepository.saveAndFlush(objectResult);
@@ -572,6 +593,7 @@ public class JobHandlerServiceImp {
                 cloneNotSupportedException.printStackTrace();
             }
         }
+        jobRegistry.setObjectResults(objectResultsAux);
         isWorking = false;
         handleQueueFindSimilarities();
         sendWebHooks(jobRegistry);

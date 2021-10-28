@@ -96,6 +96,9 @@ public class DataHandlerImp implements DataHandler {
     @Value("${app.domain}")
     String domain;
 
+    @Value("${app.debug}")
+    boolean debug;
+
 
     @PostConstruct
     private void initialize() {
@@ -135,7 +138,7 @@ public class DataHandlerImp implements DataHandler {
             updateState(DataType.CACHE,cache.getTriplesMap());
         }
         // Update data from triple store (add deltas)
-        if(true) // Quitar (poner a true)
+        if(!debug) // Quitar (poner a true)
             updateCachedData(); //  quit comment
         applicationState.setDataState(DataType.CACHE, State.UPLOAD_DATA);
         // Update elasticSearch
@@ -168,13 +171,16 @@ public class DataHandlerImp implements DataHandler {
     @Override
     public CompletableFuture<Boolean> actualizeData(String nodeName, String tripleStore, String className,String entityURL, BasicAction basicAction) throws ParseException, IOException, URISyntaxException {
         Datasources.Node node = dataSources.getNodeByName(nodeName);
-        if (applicationState.getAppState() == ApplicationState.AppState.INITIALIZED && node != null) {
+        if (applicationState.getAppState().getOrder() > 0 && node != null) {
             Datasources.Node.TripleStore ts = node.getTripleStoreByType(tripleStore);
             if (ts != null) {
                 TripleStoreHandler handler = TripleStoreHandler.getHandler(domain,schemaService, dataSources,node,ts);
                 if (handler != null) {
-                    boolean isCompleted = handler.updateTripleObject(cache, nodeName, tripleStore, className, entityURL, basicAction);
-                    if (isCompleted) {
+                    try {
+                        handler.updateTripleObject(cache, nodeName, tripleStore, className, entityURL, basicAction);
+                    } catch (Exception e) {
+
+                    } finally {
                         cache.saveTriplesMapInCache(nodeName,tripleStore,className);
                         logger.info("Entity with URL: {} was be updated in cache",entityURL);
                         updateElasticData();

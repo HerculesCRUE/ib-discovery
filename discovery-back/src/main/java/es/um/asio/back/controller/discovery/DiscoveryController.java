@@ -499,7 +499,7 @@ public class DiscoveryController {
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = true)
             @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
             @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "fuseki", required = false)
-            @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore,
+            @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) String tripleStore,
             @ApiParam(name = "className", value = "Class Name", required = true)
             @RequestParam(required = true) @Validated(Create.class) final String className,
             @ApiParam(name = "entityLocalURI", required = true)
@@ -515,6 +515,7 @@ public class DiscoveryController {
             new ResponseEntity<String>("Application not initialized yet. The entity will be updated from cache on app start",HttpStatus.CONFLICT);
         }
         boolean result = false;
+        tripleStore = (tripleStore.equals("trellis"))?"fuseki":tripleStore;
         try {
             CompletableFuture<Boolean> future = dataHandler.actualizeData(node, tripleStore, className, entityLocalURI, BasicAction.fromString(action));
             result = future.join();

@@ -386,7 +386,7 @@ public class Utils {
      * @return boolean. True if is a valid String
      */
     public static boolean isValidString(String s) {
-        return s != null && !s.equals("");
+        return s != null && !s.equals("") && !s.toLowerCase().trim().equals("null");
     }
 
     /**

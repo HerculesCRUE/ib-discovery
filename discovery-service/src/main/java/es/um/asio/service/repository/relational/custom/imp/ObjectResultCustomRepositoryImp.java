@@ -71,7 +71,7 @@ public class ObjectResultCustomRepositoryImp implements ObjectResultCustomReposi
                 "FROM discovery.job_registry a\n" +
                 "right join discovery.request_registry rr on a.id=rr.jobRegistry_id\n" +
                 "left join discovery.object_result b on a.id = b.jobRegistry_id\n" +
-                "right join discovery.object_result c on (c.is_manual=1 and b.id = c.parentAutomatic_id)\n" +
+                "right join discovery.object_result c on (c.is_automatic=1 and b.id = c.parentAutomatic_id)\n" +
                 "left join discovery.attribute d on c.id = d.objectResult_id\n" +
                 "left join discovery.val e on d.id = e.attribute_id\n" +
                 "where rr.request_code = :requestCode and rr.user_id = :userId and rr.request_type = :requestType\n", Tuple.class);

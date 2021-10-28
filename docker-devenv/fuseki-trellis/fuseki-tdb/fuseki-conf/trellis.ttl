@@ -9,7 +9,6 @@
     fuseki:serviceUpdate               "update" ;
     fuseki:serviceUpload               "upload" ;
     fuseki:serviceReadWriteGraphStore  "data" ;
-    fuseki:serviceReadGraphStore       "get" ;
     fuseki:dataset                     :dataset .
 
 :dataset a tdb:DatasetTDB ;

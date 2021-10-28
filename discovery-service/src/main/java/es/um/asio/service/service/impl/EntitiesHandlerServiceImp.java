@@ -403,13 +403,15 @@ public class EntitiesHandlerServiceImp implements EntitiesHandlerService {
                 for (Map.Entry<String, Float> statsEntry: stats.entrySet()) {
                     if (!statsEntry.getKey().equalsIgnoreCase("localId") && !(dataBehaviour.ignoreAttribute(to.getClassName(),statsEntry.getKey()))) {
                         if (other.getAttributeValue(statsEntry.getKey(),other.getAttributes()).size() > 0)
-                            statsAux.put(statsEntry.getKey(),statsEntry.getValue());
+                            if (!Float.isNaN(statsEntry.getValue()))
+                                statsAux.put(statsEntry.getKey(),statsEntry.getValue());
                     }
                 }
             } else {
                 for (Map.Entry<String, Float> statsEntry: stats.entrySet()) {
                     if (!(dataBehaviour.ignoreAttribute(to.getClassName(),statsEntry.getKey())))
-                        statsAux.put(statsEntry.getKey(),statsEntry.getValue());
+                        if (!Float.isNaN(statsEntry.getValue()))
+                            statsAux.put(statsEntry.getKey(),statsEntry.getValue());
                 }
             }
 
