@@ -1,17 +1,23 @@
 package es.um.asio.service.proxy.impl;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import es.um.asio.service.model.relational.JobRegistry;
 import es.um.asio.service.model.relational.ObjectResult;
 import es.um.asio.service.model.relational.RequestRegistry;
 import es.um.asio.service.model.relational.RequestType;
 import es.um.asio.service.proxy.RequestRegistryProxy;
 import es.um.asio.service.repository.relational.RequestRegistryRepository;
+import es.um.asio.service.repository.relational.custom.RequestRegistryCustomRepository;
 import es.um.asio.service.service.impl.DataHandlerImp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.Tuple;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +36,9 @@ public class RequestRegistryProxyImp implements RequestRegistryProxy {
 
     @Autowired
     RequestRegistryRepository requestRegistryRepository;
+
+    @Autowired
+    RequestRegistryCustomRepository requestRegistryCustomRepository;
 
     /**
      * Save a request registry in the repository
@@ -96,4 +105,34 @@ public class RequestRegistryProxyImp implements RequestRegistryProxy {
         // return requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId, requestCode, requestType);
     }
 
+    @Override
+    public JsonObject getRequestRegistriesByUserId(String userId) {
+        JsonObject jResponse = new JsonObject();
+        List<Tuple> results = requestRegistryCustomRepository.getRequestRegistriesByUserId(userId);
+        SimpleDateFormat sdfIn = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdfOut = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        for (Tuple t : results) {
+            String requestType = t.get("request_type").toString();
+            String className = t.get("class_name").toString();
+            String requestCode = t.get("request_code").toString();
+            Date requestDate = null;
+            try {
+                requestDate = sdfIn.parse(t.get("request_date").toString());
+            } catch (Exception e) {
+
+            }
+            if (!jResponse.has(requestType)) {
+                jResponse.add(requestType, new JsonObject());
+            }
+            if (!jResponse.get(requestType).getAsJsonObject().has(className)) {
+                jResponse.get(requestType).getAsJsonObject().add(className, new JsonArray());
+            }
+            JsonObject jItem = new JsonObject();
+            jItem.addProperty("requestCode",requestCode);
+            if (requestDate!=null)
+                jItem.addProperty("requestDate",sdfOut.format(requestDate)+" UTC");
+            jResponse.get(requestType).getAsJsonObject().get(className).getAsJsonArray().add(jItem);
+        }
+        return jResponse;
+    }
 }

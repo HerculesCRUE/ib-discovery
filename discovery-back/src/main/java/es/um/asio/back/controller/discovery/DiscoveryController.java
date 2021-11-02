@@ -585,6 +585,7 @@ public class DiscoveryController {
             @ApiParam(name = "userId", value = "The User Id of the request", required = true)
             @PathVariable(required = true,value = "userId") @Validated(Create.class) final String userId
     ) {
+        /*
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         JsonObject jResponse = new JsonObject();
         Optional<List<RequestRegistry>> requestRegistries = requestRegistryRepository.findByUserIdOrderByRequestDateDesc(userId);
@@ -603,6 +604,9 @@ public class DiscoveryController {
             }
         }
         return new Gson().fromJson(jResponse,Map.class);
+         */
+
+        return new Gson().fromJson(requestRegistryProxy.getRequestRegistriesByUserId(userId),Map.class);
     }
 
     @GetMapping(Mappings.GET_OPEN_OBJECT_RESULT)

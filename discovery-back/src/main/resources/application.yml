@@ -16,6 +16,7 @@ app:
       driver-class-name: org.mariadb.jdbc.Driver
       username: app
       password: sqlpass
+      # url: jdbc:mariadb://127.0.0.1:3307/discovery?ssl=false&createDatabaseIfNotExist=true&UseUnicode=true&characterEncoding=utf8
       url: jdbc:mariadb://127.0.0.1:3307/discovery?ssl=false&createDatabaseIfNotExist=true&UseUnicode=true&characterEncoding=utf8
     jpa:
       dialect: org.hibernate.dialect.MariaDB53Dialect
