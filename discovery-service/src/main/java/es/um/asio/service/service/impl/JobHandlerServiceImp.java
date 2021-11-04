@@ -734,7 +734,12 @@ public class JobHandlerServiceImp {
         jobRegistry.setObjectResults(objectResultsAux);
         handleQueueFindSimilarities();
         sendWebHooks(jobRegistry);
-        sendMail(jobRegistry);
+        try {
+            sendWebHooks(jobRegistry);
+            sendMail(jobRegistry);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
         if (jobRegistry.isPropagatedInKafka())
             propagueKafkaActions(jobRegistry); // Propagar acciones en kafka
         return jobRegistry;
@@ -854,8 +859,12 @@ public class JobHandlerServiceImp {
         }
         isWorking = false;
         handleQueueFindSimilarities();
-        sendWebHooks(jobRegistry);
-        sendMail(jobRegistry);
+        try {
+            sendWebHooks(jobRegistry);
+            sendMail(jobRegistry);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
         if (jobRegistry.isPropagatedInKafka())
             propagueKafkaActions(jobRegistry);
         return jobRegistry;

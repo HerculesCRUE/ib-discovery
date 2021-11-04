@@ -113,9 +113,15 @@ public class JobRegistryProxyImp implements JobRegistryProxy {
     @Override
     public JobRegistry findJobRegistryByUserIdAndRequestCodeAndRequestTypeNoNested(String userId, String requestCode, RequestType requestType) {
 
+        logger.info("Getting data from Dependent Object Results...");
         Map<Long,Set<ObjectResult>> dependentObjectResults = objectResultProxy.getDependentObjectResultByRequestRegistry(userId,requestCode,requestType);
+        logger.info("...Done get data from Dependent Object Results");
+        logger.info("Getting data from Dependent Action Results...");
         Map<Long,Set<ActionResult>> dependentActionResults = actionResultProxy.getActionsResultByRequestRegistry(userId,requestCode,requestType);
+        logger.info("...Done get data from Dependent Action Results");
+        logger.info("Getting data from Dependent Action Results...");
         List<Tuple> results = jobRegistryCustomRepository.getResultsByUserIdAndRequestCodeAndRequestTypeNoNested(userId,requestCode,requestType);
+        logger.info("...Done get data from Dependent Action Results");
         JobRegistry jr = null;
         Map<Long,RequestRegistry> jrRequestRegistryMap = new HashMap<>();
         Map<Long,ObjectResult> jrObjectResultMainMap = new HashMap<>();
