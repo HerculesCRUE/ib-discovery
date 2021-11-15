@@ -198,7 +198,7 @@ public class RedisServiceImp implements RedisService {
                     keys.add(key);
                     // DiscoveryApplication discoveryApplication, String node, String tripleStore, String className
                     CacheRegistry cacheRegistry = new CacheRegistry(applicationState.getApplication(),nodeEntry.getKey(),tripleEntry.getKey(),classEntry.getKey());
-                    cacheRegistryRepository.save(cacheRegistry);
+                    // cacheRegistryRepository.save(cacheRegistry); Quitado
                     futures.add(redisServiceHelper.setTripleMap(redisRepository,key,tMap));
                 }
             }
