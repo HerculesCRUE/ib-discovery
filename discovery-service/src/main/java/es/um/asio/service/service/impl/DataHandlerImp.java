@@ -171,7 +171,7 @@ public class DataHandlerImp implements DataHandler {
     @Override
     public CompletableFuture<Boolean> actualizeData(String nodeName, String tripleStore, String className,String entityURL, BasicAction basicAction) throws ParseException, IOException, URISyntaxException {
         Datasources.Node node = dataSources.getNodeByName(nodeName);
-        if (applicationState.getAppState().getOrder() > 0 && node != null) {
+        if (applicationState.getAppState().getOrder() > 2 && node != null) {
             Datasources.Node.TripleStore ts = node.getTripleStoreByType(tripleStore);
             if (ts != null) {
                 TripleStoreHandler handler = TripleStoreHandler.getHandler(domain,schemaService, dataSources,node,ts);
