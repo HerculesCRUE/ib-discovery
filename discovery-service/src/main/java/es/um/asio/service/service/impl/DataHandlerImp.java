@@ -220,11 +220,11 @@ public class DataHandlerImp implements DataHandler {
                     }
                     try {
                         Map<String, Map<String, String>> saveResult = elasticsearchService.saveTripleObjectsES(toSave);
+                        logger.info("Saved in Elasticsearch className:{}, elements: {}, inserted: {} fails: {}",classEntry.getKey(), toSave.size(), saveResult.get("INSERTED").size(), saveResult.get("FAILED").size());
                     } catch (Exception e) {
                         e.printStackTrace();
                         logger.error(e.getMessage());
                     }
-                    logger.info("Saved in Elasticsearch className:{}, elements: {}, inserted: {} fails: {}",classEntry.getKey(), toSave.size(), saveResult.get("INSERTED").size(), saveResult.get("FAILED").size());
                 }
             }
         }
