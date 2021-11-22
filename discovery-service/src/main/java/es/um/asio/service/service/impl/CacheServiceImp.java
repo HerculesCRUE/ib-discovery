@@ -413,7 +413,6 @@ public class CacheServiceImp implements CacheService {
         if (attValue!=null && Utils.isValidString(attValue.toString())) {
             // uc  => Destino
             URIComponent uc = Utils.getInstanceLink(attValue.toString(), serviceImp.getCanonicalSchema(), domain);
-            logger.info(uc.toString());
             if (uc != null && uc.getConcept() != null && uc.getReference() != null) {
                 logger.info("Domain: {}", domain);
                 logger.info("Canonical Schema: {}", serviceImp.getCanonicalSchema());
