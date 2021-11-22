@@ -1,8 +1,8 @@
 ---
 app:
-  debug: false
+  debug: true
   node: um
-  domain: ldpld1desa.um.es
+  domain: ldpld1.um.es
   subdomain: um
   language: en-EN
   threadsInLod: 10

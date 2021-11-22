@@ -1,10 +1,12 @@
 package es.um.asio.back.controller.discovery;
 
+import com.google.api.client.json.Json;
 import com.google.gson.*;
 import es.um.asio.service.config.Datasources;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.Decision;
+import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.relational.*;
 import es.um.asio.service.proxy.JobRegistryProxy;
@@ -18,6 +20,7 @@ import es.um.asio.service.service.impl.OpenSimilaritiesHandlerImpl;
 import es.um.asio.service.util.Utils;
 import es.um.asio.service.validation.group.Create;
 import io.swagger.annotations.*;
+import org.javatuples.Pair;
 import org.jsoup.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +89,9 @@ public class DiscoveryController {
 
     @Value("${lod.port}")
     String lodPort;
+
+    @Value("${app.debug}")
+    Boolean isDebug;
 
     Set<String> tempRequestCode = new HashSet<>();
 
@@ -308,7 +314,7 @@ public class DiscoveryController {
             @RequestParam(required = true) @Validated(Create.class) final boolean linkEntities,
             @NotNull @RequestBody final Object object
     ) {
-        if (status().getAppState().getOrder() < 2) {
+        if (status().getAppState().getOrder() < 2 && !isDebug) {
             throw new CustomDiscoveryException("App not initialized. State: " + applicationState.getAppState().name());
         }
         JSONObject jsonData = new JSONObject((LinkedHashMap) object);
@@ -661,6 +667,68 @@ public class DiscoveryController {
         return new GsonBuilder().setPrettyPrinting().create().toJson(jActionResults);
     }
 
+    @GetMapping(Mappings.GET_INVERSE_DEPENDENCIES)
+    @ApiOperation(value = "Get all Dependencies", tags = "control",
+            produces = "application/json")
+    public String getAllDependencies(
+            @ApiParam(name = "node", value = "The node to search", required = true, defaultValue = "um")
+            @RequestParam(required = true) @Validated(Create.class) final String node,
+            @ApiParam(name = "tripleStore", value = "The triple store to search", required = true, defaultValue = "fuseki")
+            @RequestParam(required = true) @Validated(Create.class) String tripleStore,
+            @ApiParam(name = "className", value = "The class name to search", required = true)
+            @RequestParam(required = true) @Validated(Create.class) String className
+    ) {
+        JsonArray jResponse = new JsonArray();
+        try {
+            Map<String, Map<String, Pair<String, TripleObject>>> results = cache.getDependencies(node,tripleStore,className);
+            for (Map.Entry<String, Map<String, Pair<String, TripleObject>>> targetEntry : results.entrySet()) {
+                JsonObject jTarget = new JsonObject();
+                jTarget.addProperty("idTarget",targetEntry.getKey());
+                jTarget.add("objetives",new JsonArray());
+                for (Map.Entry<String, Pair<String, TripleObject>> objetiveEntry : targetEntry.getValue().entrySet()) {
+                    JsonObject jObjetive = new JsonObject();
+                    jObjetive.addProperty("idObjetive",objetiveEntry.getKey());
+                    jObjetive.addProperty("key",objetiveEntry.getValue().getValue0());
+                    jObjetive.add("value",objetiveEntry.getValue().getValue1().toJson());
+                    jTarget.get("objetives").getAsJsonArray().add(jObjetive);
+                }
+                jResponse.add(jTarget);
+            }
+        } catch (Exception e) {
+
+        }
+        return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
+    }
+
+    @GetMapping(Mappings.GET_INVERSE_DEPENDENCIES + "/{entityId}")
+    @ApiOperation(value = "Get all Dependencies", tags = "control",
+            produces = "application/json")
+    public String getAllDependencies(
+            @ApiParam(name = "node", value = "The node to search", required = true, defaultValue = "um")
+            @RequestParam(required = true) @Validated(Create.class) final String node,
+            @ApiParam(name = "tripleStore", value = "The triple store to search", required = true, defaultValue = "fuseki")
+            @RequestParam(required = true) @Validated(Create.class) String tripleStore,
+            @ApiParam(name = "className", value = "The class name to search", required = true)
+            @RequestParam(required = true) @Validated(Create.class) String className,
+            @ApiParam(name = "entityId", value = "The entity Id target to search", required = true)
+            @PathVariable(required = true) @Validated(Create.class) String entityId
+    ) {
+        JsonArray jResponse = new JsonArray();
+        try {
+            Map<String, Pair<String, TripleObject>> results = cache.getDependencies(node,tripleStore,className,entityId);
+            for (Map.Entry<String, Pair<String, TripleObject>> objetiveEntry : results.entrySet()) {
+                    JsonObject jObjetive = new JsonObject();
+                    jObjetive.addProperty("idObjetive",objetiveEntry.getKey());
+                    jObjetive.addProperty("key",objetiveEntry.getValue().getValue0());
+                    jObjetive.add("value",objetiveEntry.getValue().getValue1().toJson());
+                    jResponse.add(jObjetive);
+            }
+        } catch (Exception e) {
+
+        }
+        return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
+    }
+
 
     static final class Mappings {
 
@@ -690,6 +758,8 @@ public class DiscoveryController {
         protected static final String LOD_SEARCH_ALL = "/lod/search/all";
 
         protected static final String GET_RESULT = "/result";
+
+        protected static final String GET_INVERSE_DEPENDENCIES = "/dependencies";
 
 
         protected static final String GET_OPEN_OBJECT_RESULT = "/object-result/open";

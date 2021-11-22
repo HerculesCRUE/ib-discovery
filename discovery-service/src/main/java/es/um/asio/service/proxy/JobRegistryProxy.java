@@ -3,6 +3,7 @@ package es.um.asio.service.proxy;
 import es.um.asio.service.model.relational.JobRegistry;
 import es.um.asio.service.model.relational.RequestRegistry;
 import es.um.asio.service.model.relational.RequestType;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ public interface JobRegistryProxy {
      * @param jobRegistry JobRegistry
      * @return JobRegistry
      */
+    @Transactional
     JobRegistry save(JobRegistry jobRegistry) throws CloneNotSupportedException;
 
     /**
@@ -27,6 +29,7 @@ public interface JobRegistryProxy {
      * @param jobRegistry JobRegistry
      * @return JobRegistry
      */
+    @Transactional
     JobRegistry saveRequests(JobRegistry jobRegistry) throws CloneNotSupportedException;
 
     /**
@@ -34,6 +37,7 @@ public interface JobRegistryProxy {
      * @param id String. The id
      * @return Optional<JobRegistry>
      */
+    @Transactional
     Optional<JobRegistry> findById(String id);
 
 
@@ -44,5 +48,6 @@ public interface JobRegistryProxy {
      * @param requestType String. The requestType
      * @return JobRegistry
      */
+    @Transactional
     JobRegistry findJobRegistryByUserIdAndRequestCodeAndRequestTypeNoNested(String userId, String requestCode, RequestType requestType);
 }

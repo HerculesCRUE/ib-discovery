@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Tuple;
 import java.util.*;
@@ -43,6 +44,7 @@ public class ActionResultProxyImp implements ActionResultProxy {
 
 
     @Override
+    @Transactional
     public ActionResult save(ActionResult actionResult) {
         Long id = actionResultRepository.getNextId();
         actionResultRepository.insertNoNested(

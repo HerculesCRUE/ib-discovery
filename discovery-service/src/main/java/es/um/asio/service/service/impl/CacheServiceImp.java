@@ -391,7 +391,25 @@ public class CacheServiceImp implements CacheService {
 
     }
 
-    private void extractLinks(TripleObject toOrigin,String attKey, Object attValue) {
+    @Override
+    public Map<String, Map<String, Pair<String, TripleObject>>> getDependencies(String node, String triple, String className) {
+        try {
+            return inversePointersMap.get(node).get(triple).get(className);
+        } catch (Exception e) {
+            return new HashMap<>();
+        }
+    }
+
+    @Override
+    public Map<String, Pair<String, TripleObject>> getDependencies(String node, String triple, String className, String entityId) {
+        try {
+            return inversePointersMap.get(node).get(triple).get(className).get(entityId);
+        } catch (Exception e) {
+            return new HashMap<>();
+        }
+    }
+
+    private void extractLinks(TripleObject toOrigin, String attKey, Object attValue) {
         if (attValue!=null && Utils.isValidString(attValue.toString())) {
             // uc  => Destino
             URIComponent uc = Utils.getInstanceLink(attValue.toString(), serviceImp.getCanonicalSchema(), domain);

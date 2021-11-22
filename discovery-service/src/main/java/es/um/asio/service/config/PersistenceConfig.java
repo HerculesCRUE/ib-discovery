@@ -86,10 +86,10 @@ public class PersistenceConfig {
             config.setValidationTimeout(60000);
             config.setAutoCommit(true);
             config.setInitializationFailTimeout(0);
-            config.setConnectionTimeout(3000000);
+            config.setConnectionTimeout(30000);
             config.setMaxLifetime(180000);
             config.setMinimumIdle(10);
-            config.setMaximumPoolSize(40);
+            config.setMaximumPoolSize(100);
             config.setIdleTimeout(60000);
             //config.setIdleTimeout(6000000);
             //config.setConnectionTimeout(18000000);

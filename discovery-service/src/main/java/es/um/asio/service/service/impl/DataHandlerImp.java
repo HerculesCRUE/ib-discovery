@@ -201,12 +201,17 @@ public class DataHandlerImp implements DataHandler {
                 Map<String, Set<String>> savedInES = elasticsearchService.getAllSimplifiedTripleObject(node,tripleStore);
                 Set<TripleObject> tos = cache.getAllTripleObjects(node,tripleStore); // Todas las tripletas
 
+                int index = 0;
                 for (TripleObject to : tos) {
                     try {
                         if (!savedInES.containsKey(to.getClassName()) || !savedInES.get(to.getClassName()).contains(to.getId())) {
                             if (!toSaveES.containsKey(to.getClassName()))
                                 toSaveES.put(to.getClassName(), new HashMap<>());
                             toSaveES.get(to.getClassName()).put(to.getId(), new TripleObjectES(to));
+
+                            if (++index % 1000 == 0)
+                                logger.info("Prepare for elasticsearch {}/{}",index,tos.size());
+
                         }
                     } catch (Exception e) {
                         logger.error(e.getMessage());
