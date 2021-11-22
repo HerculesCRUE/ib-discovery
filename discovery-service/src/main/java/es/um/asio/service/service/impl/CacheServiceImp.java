@@ -413,6 +413,9 @@ public class CacheServiceImp implements CacheService {
         if (attValue!=null && Utils.isValidString(attValue.toString())) {
             // uc  => Destino
             URIComponent uc = Utils.getInstanceLink(attValue.toString(), serviceImp.getCanonicalSchema(), domain);
+            logger.info("Domain", domain);
+            logger.info("Canonical Schema", serviceImp.getCanonicalSchema());
+            logger.info("URI", attValue.toString());
             logger.info(uc.toString());
             if (uc != null && uc.getConcept() != null && uc.getReference() != null) {
                 TripleObject toTarget = getTripleObject(toOrigin.getTripleStore().getNode().getNodeName(), toOrigin.getTripleStore().getName(), uc.getConcept(), uc.getReference());
