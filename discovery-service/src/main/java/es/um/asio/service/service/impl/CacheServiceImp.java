@@ -412,7 +412,7 @@ public class CacheServiceImp implements CacheService {
     private void extractLinks(TripleObject toOrigin, String attKey, Object attValue) {
         if (attValue!=null && Utils.isValidString(attValue.toString())) {
             // uc  => Destino
-            URIComponent uc = Utils.getInstanceLink(attValue.toString(), serviceImp.getCanonicalSchema(), domain);
+            URIComponent uc = Utils.getInstanceLink(attValue.toString(), serviceImp.getCanonicalLocalSchema(), domain);
             if (uc != null && uc.getConcept() != null && uc.getReference() != null) {
                 logger.info("Domain: {}", domain);
                 logger.info("Canonical Schema: {}", serviceImp.getCanonicalLocalSchema());
