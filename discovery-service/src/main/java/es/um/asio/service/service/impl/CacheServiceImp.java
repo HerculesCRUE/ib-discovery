@@ -364,7 +364,7 @@ public class CacheServiceImp implements CacheService {
         for (Map.Entry<String, Map<String, Map<String, Map<String, TripleObject>>>> nodeEntry: triplesMap.entrySet()) { // Node
             for (Map.Entry<String, Map<String, Map<String, TripleObject>>> tripleEntry: nodeEntry.getValue().entrySet()) { // Triple
                 for (Map.Entry<String, Map<String, TripleObject>> classEntry: tripleEntry.getValue().entrySet()) { // Class
-                    logger.info("\t Generating inverse dependencies by class {} with {} instances",classEntry.getKey(),classEntry.getValue().size());
+                    logger.info("\t Generating inverse dependencies by node {}, tripleStore {}, class {} with {} instances",nodeEntry.getKey(),tripleEntry.getKey(),classEntry.getKey(),classEntry.getValue().size());
                     for (Map.Entry<String, TripleObject> tipleObjectEntry: classEntry.getValue().entrySet()) { // TripleObject
                         aggregateToInverseMap(tipleObjectEntry.getValue());
                     }
