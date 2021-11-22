@@ -1,6 +1,7 @@
 package es.um.asio.service.util;
 
 import com.google.gson.JsonObject;
+import es.um.asio.service.model.URIComponent;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
@@ -118,12 +119,20 @@ class UtilsTest {
     }
 
     @Test
+    void getInstanceLinkPro() {
+        URIComponent uc = Utils.getInstanceLink("https://ldpld1.um.es/um/es-ES/rec/Person/18e4320a-3a11-3fa6-ad10-1e9c14459c30","https://$domain$/$sub-domain$/$language$/$type$/$concept$/$reference$","ldpld1.um.es");
+        Assert.assertNotNull(uc);
+    }
+
+    @Test
     void testIsDate() {
         Assert.assertTrue(Utils.isDate("2003-06-12T22:00:00.000"));
         Assert.assertTrue(Utils.isDate("2003-06-12T22:00:00"));
         Assert.assertTrue(Utils.isDate("2011-08-12T20:17:46.384Z+02:00"));
         Assert.assertTrue(Utils.isDate("2003-06-12T22:00:00.000+02:00"));
     }
+
+
 
     @Test
     void isValidEmailAddress() {
