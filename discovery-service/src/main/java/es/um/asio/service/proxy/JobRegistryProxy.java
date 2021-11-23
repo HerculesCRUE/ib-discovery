@@ -30,6 +30,14 @@ public interface JobRegistryProxy {
      * @return JobRegistry
      */
     @Transactional
+    JobRegistry saveEnqueue(JobRegistry jobRegistry) throws CloneNotSupportedException;
+
+    /**
+     * Save a request jobRegistry in the repository
+     * @param jobRegistry JobRegistry
+     * @return JobRegistry
+     */
+    @Transactional
     JobRegistry saveRequests(JobRegistry jobRegistry) throws CloneNotSupportedException;
 
     /**

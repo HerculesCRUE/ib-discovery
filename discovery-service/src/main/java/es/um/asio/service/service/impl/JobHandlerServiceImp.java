@@ -481,7 +481,7 @@ public class JobHandlerServiceImp {
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
             try {
-                jobRegistryProxy.save(jobRegistry);
+                jobRegistryProxy.saveRequests(jobRegistry);
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();
             }
@@ -489,11 +489,13 @@ public class JobHandlerServiceImp {
         jobRegistry.setStarted(true);
         jobRegistry.setStartedDate(new Date());
         //jobRegistryRepository.saveAndFlush(jobRegistry); // Add for front interface
+        /*
         try {
             jobRegistryProxy.save(jobRegistry);
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
+         */
         try {
             SimilarityResult similarityResult = entitiesHandlerServiceImp.findEntitiesLinksByNodeAndTripleStoreAndTripleObject(to, jobRegistry.isSearchLinks());
 
@@ -565,14 +567,17 @@ public class JobHandlerServiceImp {
                 }
             }
             */
+            /*
             try {
-                ObjectResult or = objectResultProxy.save(objectResult);
-                jobRegistry.getObjectResults().add(or);
-                objectResultsAux.add(or);
+                // ObjectResult or = objectResultProxy.save(objectResult);
+                jobRegistry.getObjectResults().add(objectResult);
+                objectResultsAux.add(objectResult);
             } catch (Exception e) {
                 e.printStackTrace();
 
             }
+
+             */
 
             jobRegistry.getObjectResults().add(objectResult);
             // objectResultRepository.saveAndFlush(objectResult);
@@ -588,7 +593,8 @@ public class JobHandlerServiceImp {
             jobRegistry.setCompletedDate(new Date());
             jobRegistry.setStatusResult(StatusResult.FAIL);
             try {
-                jobRegistryProxy.save(jobRegistry);
+                jobRegistryProxy.saveEnqueue(jobRegistry);
+                //jobRegistryProxy.save(jobRegistry);
             } catch (CloneNotSupportedException cloneNotSupportedException) {
                 cloneNotSupportedException.printStackTrace();
             }

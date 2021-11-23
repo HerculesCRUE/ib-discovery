@@ -31,20 +31,31 @@ public class JobRegistryCustomRepositoryImp implements JobRegistryCustomReposito
         EntityManager em = entityManagerFactory.createEntityManager();
         em.getTransaction().begin();
         JobRegistry jrAux;
-        if (jr.getId() == null) { // Si es una actualizacion
-            jrAux = em.merge(jr);
-            jr.setId(jrAux.getId());
-            jr.copy(jrAux);
-        } else {
-            jrAux = em.find(JobRegistry.class, jr.getId());
-            jrAux.copy(jr);
-            em.merge(jrAux);
+        try {
+            if (jr.getId() == null) { // Si es una actualizacion
+                jrAux = em.merge(jr);
+                jr.setId(jrAux.getId());
+                jr.copy(jrAux);
+            } else {
+                jrAux = em.find(JobRegistry.class, jr.getId());
+                if (jrAux!=null) {
+                    jrAux.copy(jr);
+                    em.merge(jrAux);
+                } else {
+                    jrAux = em.merge(jr);
+                    jr.setId(jrAux.getId());
+                    jr.copy(jrAux);
+                }
+            }
+            em.flush();
+            em.detach(jrAux);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+
+        } finally {
+            em.clear();
+            em.close();
         }
-        em.flush();
-        em.detach(jrAux);
-        em.getTransaction().commit();
-        em.clear();
-        em.close();
         return jr.getId();
     }
 

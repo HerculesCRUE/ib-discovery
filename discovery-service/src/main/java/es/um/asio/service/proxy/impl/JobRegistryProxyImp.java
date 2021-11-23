@@ -45,6 +45,9 @@ public class JobRegistryProxyImp implements JobRegistryProxy {
     @Autowired
     ActionResultProxy actionResultProxy;
 
+    List<JobRegistry> queue = new ArrayList<>();
+    volatile boolean isWorking = false;
+
 
     @Override
     public JobRegistry save(JobRegistry jra) throws CloneNotSupportedException {
@@ -54,46 +57,34 @@ public class JobRegistryProxyImp implements JobRegistryProxy {
     }
 
     @Override
-    public JobRegistry saveRequests(JobRegistry jr) throws CloneNotSupportedException {
-        /*
-        if (jr.getDiscoveryApplication()!=null) {
-            discoveryApplicationProxy.save(jr.getDiscoveryApplication());
-        }
+    public JobRegistry saveEnqueue(JobRegistry jobRegistry) throws CloneNotSupportedException {
+        queue.add(jobRegistry);
+        saveInCascade();
+        return jobRegistry;
+    }
 
-        String id = null;
-        boolean isValidUUID = false;
-        while (!Utils.isValidString(id) || !isValidUUID ) {
-            id = UUID.randomUUID().toString().replaceAll("-","");
-            isValidUUID = findById(id).isEmpty();
-        }
-        jr.setId(id);
-        jobRegistryRepository.insertNoNested(
-                jr.getId(),
-                jr.getVersion(),
-                jr.getDiscoveryApplication().getId(),
-                jr.getNode(),
-                jr.getTripleStore(),
-                jr.getClassName(),
-                jr.getDataSource(),
-                jr.getCompletedDate(),
-                jr.getStartedDate(),
-                jr.getStatusResult().toString(),
-                jr.isCompleted(),
-                jr.isStarted(),
-                jr.isDoSync(),
-                jr.isSearchLinks(),
-                jr.getSearchFromDelta(),
-                jr.getBodyRequest()
-        );
-
-
-        if (jr.getRequestRegistries()!=null) {
-            for (RequestRegistry rr : jr.getRequestRegistries()) {
-                rr.setJobRegistry(jr);
-                requestRegistryProxy.save(rr);
+    private void saveInCascade(){
+        if (queue.size()>0) {
+            isWorking = true;
+            JobRegistry jr = queue.get(0);
+            queue.remove(0);
+            try {
+                jr = save(jr);
+                if (jr.getObjectResults().size()>0) {
+                    for (ObjectResult or : jr.getObjectResults()) {
+                        objectResultProxy.save(or);
+                    }
+                }
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
             }
+            isWorking = false;
+            saveInCascade();
         }
-         */
+    }
+
+    @Override
+    public JobRegistry saveRequests(JobRegistry jr) throws CloneNotSupportedException {
         String id = jobRegistryCustomRepository.persist(jr,true);
         logger.info("Complete save in database");
         jr.setId(id);

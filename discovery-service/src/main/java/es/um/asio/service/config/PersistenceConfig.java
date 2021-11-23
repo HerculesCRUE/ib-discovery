@@ -91,6 +91,7 @@ public class PersistenceConfig {
             config.setMinimumIdle(10);
             config.setMaximumPoolSize(100);
             config.setIdleTimeout(60000);
+            // config.setLeakDetectionThreshold(60 * 1000);
             //config.setIdleTimeout(6000000);
             //config.setConnectionTimeout(18000000);
         }
