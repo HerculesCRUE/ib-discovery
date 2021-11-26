@@ -170,7 +170,12 @@ public class DataHandlerImp implements DataHandler {
      */
     @Override
     public CompletableFuture<Boolean> actualizeData(String nodeName, String tripleStore, String className,String entityURL, BasicAction basicAction) throws ParseException, IOException, URISyntaxException {
-        logger.info("Received notification on data change: Node: {}, TripleStore: {},  ClassName: {}, EntityURL: {], BasicAction: {}", nodeName,tripleStore,className,entityURL, basicAction.toString());
+        logger.info("Received notification on data change: Node: {}, TripleStore: {},  ClassName: {}, EntityURL: {}, BasicAction: {}"
+                , nodeName,
+                tripleStore,
+                className,
+                entityURL,
+                basicAction.toString());
         Datasources.Node node = dataSources.getNodeByName(nodeName);
         if (applicationState.getAppState().getOrder() > 0 && node != null) {
             Datasources.Node.TripleStore ts = node.getTripleStoreByType(tripleStore);

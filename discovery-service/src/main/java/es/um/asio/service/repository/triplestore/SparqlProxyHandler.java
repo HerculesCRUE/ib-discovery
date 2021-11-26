@@ -172,8 +172,11 @@ public class SparqlProxyHandler extends TripleStoreHandler {
         String instanceId = uriChunks[uriChunks.length-1];
         Map<String,String> headers = new HashMap<>();
         if (basicAction.equals(BasicAction.DELETE)) { // Si se elimino, lo eliminamos de la cache
+            logger.info("Deleting data from cache: Node: {}, TripleStore: {}, ClassName: {}, ID: {}, LocalURI: {}, Action: {} ",node,this.tripleStore.getName(),className,instanceId,localURI, basicAction.toString());
             TripleObject to = cacheService.getTripleObject(nodeName,this.tripleStore.getName(),className,instanceId);
+            logger.info("Before delete: Found in Cache: {}", (to == null)?"No":to.toString());
             cacheService.removeTripleObject(node, tripleStore, to);
+            logger.info("After delete: Found in Cache: {}", (cacheService.getTripleObject(nodeName,this.tripleStore.getName(),className,instanceId) == null)?"No":"Si");
             cacheService.saveTriplesMapInCache(nodeName,this.tripleStore.getName(),className);
             cacheService.getElasticsearchServiceImp().deleteTripleObject(to);
         } else { // en otro caso, se actualiza la cache
