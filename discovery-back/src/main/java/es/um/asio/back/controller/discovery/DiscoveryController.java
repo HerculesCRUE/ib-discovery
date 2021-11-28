@@ -185,10 +185,13 @@ public class DiscoveryController {
         if (!requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode, RequestType.ENTITY_LINK_CLASS).isEmpty())
             throw new CustomDiscoveryException("UserId and RequestCode for type ENTITY_LINK_CLASS must be unique");
 
+
         JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForClass(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka,linkEntities,applyDelta, (Utils.isValidEmailAddress(email)?email:null) );
         JsonObject jResponse = new JsonObject();
         jResponse.add("state",applicationState.toSimplifiedJson());
-        if (jobRegistry!=null) {
+        if (className.toLowerCase().equals("researcher-position") || className.toLowerCase().equals("researcher-role") || className.toLowerCase().equals("research-group") ) {
+            jResponse.addProperty("message","Class "+ className +" no allowed");
+        } else if (jobRegistry!=null) {
             JsonObject jJobRegistry = jobRegistry.toSimplifiedJson(cache);
             jJobRegistry.addProperty("userId", userId);
             jJobRegistry.addProperty("requestCode", requestCode);
@@ -242,6 +245,8 @@ public class DiscoveryController {
 
         List<Map<String,Object>> responses = new ArrayList<>();
         for (String className : cache.getAllClassesByNodeAndTripleStore(localNode,tripleStore)) {
+            if (className.toLowerCase().equals("researcher-position") || className.toLowerCase().equals("researcher-role") || className.toLowerCase().equals("research-group") )
+                continue;
 
             try {
                 Map<String, Object> response = findEntityLinkByNodeTripleStoreAndClass(userId, requestCode + "/" + className, localNode, tripleStore, className, false, webHook, propagueInKafka, linkEntities, applyDelta, email);
@@ -347,7 +352,9 @@ public class DiscoveryController {
             );
             JsonObject jResponse = new JsonObject();
             jResponse.add("state",applicationState.toSimplifiedJson());
-            if (jobRegistry!=null) {
+            if (className.toLowerCase().equals("researcher-position") || className.toLowerCase().equals("researcher-role") || className.toLowerCase().equals("research-group") ) {
+                jResponse.addProperty("message","Class "+ className +" no allowed");
+            } else if (jobRegistry!=null) {
                 JsonObject jJobRegistry = jobRegistry.toSimplifiedJson(cache);
                 jJobRegistry.addProperty("userId", userId);
                 jJobRegistry.addProperty("requestCode", requestCode);
