@@ -359,6 +359,30 @@ public class Utils {
         return null;
     }
 
+    public static String toConceptFormat(String concept) {
+        if (!isValidString(concept) || StringUtils.isAllLowerCase(concept)) {
+            return concept;
+        } else {
+            return StringUtils.capitalize(toASIONormalization(concept).toLowerCase());
+        }
+    }
+
+    public static String toASIONormalization(String token) {
+        StringBuffer formatWord = new StringBuffer();
+        if (isValidString(token)) {
+            token = StringUtils.stripAccents(StringUtils.deleteWhitespace(token));
+            formatWord.append(token.charAt(0));
+            for (int i = 1; i < token.length(); i++) {
+                if (Character.isUpperCase(token.charAt(i)) && Character.isLowerCase(token.charAt(i-1))) {
+                    formatWord.append('-');
+                }
+                formatWord.append(token.charAt(i));
+            }
+            return formatWord.toString();
+        } else
+            return token;
+    }
+
     /**
      * Get the AttributeType from String
      * @see AttributeType
