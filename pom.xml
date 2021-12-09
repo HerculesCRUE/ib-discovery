@@ -45,7 +45,7 @@
 		<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
 		<maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
 		
-		<com.google.guava.version>28.2-jre</com.google.guava.version>
+		<com.google.guava.version>29.0-jre</com.google.guava.version>
 		<com.sun.xml.bind.jaxb.version>2.3.0.1</com.sun.xml.bind.jaxb.version>
 		<de.siegmar.logback.version>1.1.0</de.siegmar.logback.version>
 		<io.springfox.version>2.9.2</io.springfox.version>
