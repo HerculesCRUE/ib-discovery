@@ -387,9 +387,13 @@ public class TripleObject {
             if (map.get(key) instanceof List) {
                 List<Object> values = new ArrayList<>();
                 for (Object item : (List) map.get(key)) {
-                    LinkedTreeMap<String,Object> val = (LinkedTreeMap) item;
-                    if (hasAttribute(attAux,val))
-                        values.addAll(getAttributeValue(attAux, val));
+                    if (item instanceof Map) {
+                        LinkedTreeMap<String,Object> val = (LinkedTreeMap) item;
+                        if (hasAttribute(attAux,val))
+                            values.addAll(getAttributeValue(attAux, val));
+                    } else {
+                        values.add(item);
+                    }
                 }
                 return values;
             } else {
@@ -515,32 +519,40 @@ public class TripleObject {
      * @param other TripleObject. Other TripleObject
      * @return TripleObject. The merged triple Object
      */
-    public TripleObject merge(TripleObject other, Hierarchies hierarchies, CacheServiceImp cache) {
+    public TripleObject merge(TripleObject other, Hierarchies hierarchies, CacheServiceImp cache,MergeType mergeType) {
         TripleObject mergedTO = null;
         TripleObject oldTO = null;
         if (this.getClassName().equals(other.getClassName()) || (!hierarchies.isChildClass(this.getClassName()) && !hierarchies.isChildClass(other.getClassName()))) {
-            Map<String, Pair<String, TripleObject>> mergeTOLinksAux,oldTOLinksAux;
-            if (cache!=null) {
-                mergeTOLinksAux = cache.getLinksToTripleObject(this);
-                oldTOLinksAux = cache.getLinksToTripleObject(other);
-            } else {
-                mergeTOLinksAux = new HashMap<>();
-                oldTOLinksAux = new HashMap<>();
-            }
-            if (mergeTOLinksAux.size() >= oldTOLinksAux.size()) {
-                mergedTO = this;
-                oldTO = other;
-            } else if (mergeTOLinksAux.size() < oldTOLinksAux.size()) {
-                oldTO = this;
-                mergedTO = other;
-            } else {
-                if (this.getLastModification() > other.getLastModification()) { // Condiciones para determinar la entidad principal
+            if (mergeType == MergeType.FREE) {
+                Map<String, Pair<String, TripleObject>> mergeTOLinksAux, oldTOLinksAux;
+                if (cache != null) {
+                    mergeTOLinksAux = cache.getLinksToTripleObject(this);
+                    oldTOLinksAux = cache.getLinksToTripleObject(other);
+                } else {
+                    mergeTOLinksAux = new HashMap<>();
+                    oldTOLinksAux = new HashMap<>();
+                }
+                if (mergeTOLinksAux.size() >= oldTOLinksAux.size()) {
                     mergedTO = this;
                     oldTO = other;
-                } else {
-                    mergedTO = other;
+                } else if (mergeTOLinksAux.size() < oldTOLinksAux.size()) {
                     oldTO = this;
+                    mergedTO = other;
+                } else {
+                    if (this.getLastModification() > other.getLastModification()) { // Condiciones para determinar la entidad principal
+                        mergedTO = this;
+                        oldTO = other;
+                    } else {
+                        mergedTO = other;
+                        oldTO = this;
+                    }
                 }
+            } else if (mergeType == MergeType.MAIN) {
+                mergedTO = this;
+                oldTO = other;
+            } else {
+                oldTO = this;
+                mergedTO = other;
             }
         } else {
             if (hierarchies.isChildClass(this.getClassName())) {
@@ -592,7 +604,7 @@ public class TripleObject {
                         }
                         main.put(key,links);
                     }
-                    if (Utils.isValidURL(other.get(key).toString())) {
+                    if (other.get(key) != null && Utils.isValidURL(other.get(key).toString())) {
                         List<Object> links = new ArrayList<>();
                         links.add(main.get(key).toString());
                         links.add(other.get(key).toString());
@@ -612,7 +624,7 @@ public class TripleObject {
     public boolean checkIsSimpleObject() {
         boolean isSimple = true;
         for (Object att: attributes.values()) {
-            if (!Utils.isPrimitive(att)) {
+            if (!Utils.isPrimitive(att) && !(att instanceof List)) {
                 isSimple = false;
                 break;
             }

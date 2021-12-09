@@ -1,5 +1,6 @@
 ---
 app:
+  debug: true
   node: um
   domain: ldpld1.um.es
   subdomain: um
@@ -15,16 +16,19 @@ app:
       driver-class-name: org.mariadb.jdbc.Driver
       username: app
       password: sqlpass
-      url: jdbc:mariadb://127.0.0.1:3307/discovery?ssl=false&createDatabaseIfNotExist=true
+      # url: jdbc:mariadb://127.0.0.1:3307/discovery?ssl=false&createDatabaseIfNotExist=true&UseUnicode=true&characterEncoding=utf8
+      url: jdbc:mariadb://127.0.0.1:3307/discovery?ssl=false&createDatabaseIfNotExist=true&UseUnicode=true&characterEncoding=utf8
     jpa:
       dialect: org.hibernate.dialect.MariaDB53Dialect
       generate-ddl: true
       ddl-auto: create
-      show-sql: false
-      format_sql: true
+      show-sql: true
+      format_sql: false
       use_sql_comments: false
       properties:
-        hibernate.temp.use_jdbc_metadata_defaults: false
+        hibernate:
+          temp.use_jdbc_metadata_defaults: false
+          jdbc.time_zone: UTC
   # CORS
   cors:
     enabled: true
@@ -73,6 +77,45 @@ data:
       topic: discovery_action
       groupId: discovery_action_1
 
+data-behaviour:
+  behaviours:
+    - className: Conference
+      ignoreLinks:
+        - presents
+    - className: Article
+      ignoreLinks:
+        - correspondingAuthor
+    - className: Publication
+      ignoreLinks:
+        - correspondingAuthor
+    - className: Patent
+      ignoreLinks:
+        - correspondingAuthor
+    - className: Center
+      ignoreLinks:
+        - relatedBy
+    - className: Department
+      ignoreLinks:
+        - relatedBy
+    - className: Organization
+      ignoreLinks:
+        - relatedBy
+    - className: Doctoral-thesis
+      ignoreLinks:
+        - correspondingAuthor
+    - className: Person
+      ignoreLinks:
+        - hasCV
+    - className: Project
+      ignoreLinks:
+        - relates
+        - hasKnowledgeArea
+    - className: Research-line
+      ignoreLinks:
+        - relates
+    - className: Research-line
+      ignoreLinks:
+        - relates
 data-sources:
   useCachedData: true
   thresholds:
@@ -89,6 +132,13 @@ data-sources:
   urisFactoryHost: http://localhost:9326/
   discoveryServiceHost: http://localhost:9329/
   serviceDataName: Federation
+
+datahandler:
+  ingnoredLinks:
+    - className: Conference
+      attributes:
+        - presents
+
 #  nodes:
 #    -
 #      nodeName: um
@@ -147,13 +197,18 @@ management:
 ## In case of configure web endpoints, remove it or change port number
 server:
   port: ${management.server.port}
+  error:
+    whitelabel:
+      enabled: false
 
-logging:
-  level:
-    org.hibernate.SQL: INFO
-    #org.hibernate.type: TRACE
+#logging:
+#  level:
+ #    org.hibernate.SQL: debug
+ #    org.hibernate.type: trace
 
 spring:
+  datasource:
+    testOnBorrow: true
   security:
     enabled: false
   data:
@@ -164,6 +219,20 @@ spring:
     bootstrap-servers: localhost:9092
     consumer:
       group-id: myGroup
+  mail:
+    host: smtp.um.es
+    port: 25
+    username: herculesges@um.es 
+    properties:
+      mail:
+        smtp:
+          auth: false
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          starttls:
+            enable: true
+
 security:
   basic:
     enabled: false

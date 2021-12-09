@@ -11,6 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jsoup.Connection;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -357,6 +359,30 @@ public class Utils {
         return null;
     }
 
+    public static String toConceptFormat(String concept) {
+        if (!isValidString(concept) || StringUtils.isAllLowerCase(concept)) {
+            return concept;
+        } else {
+            return StringUtils.capitalize(toASIONormalization(concept).toLowerCase());
+        }
+    }
+
+    public static String toASIONormalization(String token) {
+        StringBuffer formatWord = new StringBuffer();
+        if (isValidString(token)) {
+            token = StringUtils.stripAccents(StringUtils.deleteWhitespace(token));
+            formatWord.append(token.charAt(0));
+            for (int i = 1; i < token.length(); i++) {
+                if (Character.isUpperCase(token.charAt(i)) && Character.isLowerCase(token.charAt(i-1))) {
+                    formatWord.append('-');
+                }
+                formatWord.append(token.charAt(i));
+            }
+            return formatWord.toString();
+        } else
+            return token;
+    }
+
     /**
      * Get the AttributeType from String
      * @see AttributeType
@@ -384,7 +410,7 @@ public class Utils {
      * @return boolean. True if is a valid String
      */
     public static boolean isValidString(String s) {
-        return s != null && !s.equals("");
+        return s != null && !s.equals("") && !s.toLowerCase().trim().equals("null");
     }
 
     /**
@@ -408,7 +434,7 @@ public class Utils {
     public static boolean isPrimitive(Object o) {
         if (o == null)
             return true;
-        return ClassUtils.isPrimitiveOrWrapper(o.getClass()) || o instanceof String;
+        return ClassUtils.isPrimitiveOrWrapper(o.getClass()) || o instanceof String ;
     }
 
     /**
@@ -685,6 +711,20 @@ public class Utils {
         r = r.replace(" ", "_");
         r = r.replaceAll("[^\\.A-Za-z0-9_]", "");
         return r;
+    }
+
+    public static boolean isValidEmailAddress(String email) {
+        boolean result = false;
+        if (email != null) {
+            try {
+                InternetAddress emailAddr = new InternetAddress(email);
+                emailAddr.validate();
+                result = true;
+            } catch (AddressException ex) {
+                result = false;
+            }
+        }
+        return result;
     }
 
 

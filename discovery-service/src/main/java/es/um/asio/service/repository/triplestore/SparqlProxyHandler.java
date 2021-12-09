@@ -11,6 +11,7 @@ import es.um.asio.service.model.TripleStore;
 import es.um.asio.service.model.URIComponent;
 import es.um.asio.service.service.SchemaService;
 import es.um.asio.service.service.impl.CacheServiceImp;
+import es.um.asio.service.util.Utils;
 import org.jsoup.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -170,11 +171,15 @@ public class SparqlProxyHandler extends TripleStoreHandler {
     public boolean updateTripleObject(CacheServiceImp cacheService, String node, String tripleStore, String className, String localURI, BasicAction basicAction) throws IOException, URISyntaxException, ParseException {
         String [] uriChunks = (localURI.charAt(localURI.length()-1)=='/')?localURI.substring(0,localURI.length()-1).split("/"):localURI.split("/");
         String instanceId = uriChunks[uriChunks.length-1];
+        String classNameNormalized = Utils.toConceptFormat(className);
         Map<String,String> headers = new HashMap<>();
         if (basicAction.equals(BasicAction.DELETE)) { // Si se elimino, lo eliminamos de la cache
-            TripleObject to = cacheService.getTripleObject(nodeName,this.tripleStore.getName(),className,instanceId);
+            logger.info("Deleting data from cache: Node: {}, TripleStore: {}, ClassName: {}, ID: {}, LocalURI: {}, Action: {} ",node,this.tripleStore.getName(),className,instanceId,localURI, basicAction.toString());
+            TripleObject to = cacheService.getTripleObject(nodeName,this.tripleStore.getName(),classNameNormalized,instanceId);
+            logger.info("Before delete: Found in Cache: {}", (to == null)?"No":to.toString());
             cacheService.removeTripleObject(node, tripleStore, to);
-            cacheService.saveTriplesMapInCache(nodeName,this.tripleStore.getName(),className);
+            logger.info("After delete: Found in Cache: {}", (cacheService.getTripleObject(nodeName,this.tripleStore.getName(),className,instanceId) == null)?"No":"Si");
+            cacheService.saveTriplesMapInCache(nodeName,this.tripleStore.getName(),classNameNormalized);
             cacheService.getElasticsearchServiceImp().deleteTripleObject(to);
         } else { // en otro caso, se actualiza la cache
             Map<String,String> qParams = ImmutableMap.of("localURI",localURI);
@@ -183,7 +188,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
                 String canonicalLocalURI = jeResponse.getAsJsonArray().get(0).getAsJsonObject().get("fullURI").getAsString();
                 if (canonicalLocalURI!=null) {
                     Map<String,String> qParamsInstance = ImmutableMap.of(
-                            "className",className,
+                            "className",classNameNormalized,
                             "node",node,
                             "service", "sparql-proxy",
                             "tripleStore", tripleStore,
@@ -192,7 +197,7 @@ public class SparqlProxyHandler extends TripleStoreHandler {
                     JsonElement jeInstance = doRequest(new URL(this.baseURL + "/data-fetcher/instance/find"),Connection.Method.GET,headers,null,qParamsInstance);
                     TripleObject to = new TripleObject(jeInstance.getAsJsonObject());
                     cacheService.addTripleObject(nodeName,this.tripleStore.getName(), to);
-                    cacheService.saveTriplesMapInCache(nodeName,this.tripleStore.getName(),className);
+                    cacheService.saveTriplesMapInCache(nodeName,this.tripleStore.getName(),classNameNormalized);
                     cacheService.getElasticsearchServiceImp().saveTripleObject(to);
                     return true;
                 }

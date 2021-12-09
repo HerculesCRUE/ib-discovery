@@ -42,7 +42,7 @@ public class AttributeSimilarity {
      * @param weight The weight tho apply
      * @return SimilarityValue
      */
-    public static SimilarityValue compareInteger(int a1, int a2, float weight) {
+    public static SimilarityValue compareInteger(int a1, int a2, float weight, int size) {
         float similarity = 0;
         if (a1 == a2) {
             similarity = 1;
@@ -67,7 +67,7 @@ public class AttributeSimilarity {
      * @param weight The weight tho apply
      * @return SimilarityValue
      */
-    public static SimilarityValue compareLong(long a1, long a2, float weight) {
+    public static SimilarityValue compareLong(long a1, long a2, float weight, int size) {
         float similarity = 0;
         if (a1 == a2) {
             similarity = 1;
@@ -92,7 +92,7 @@ public class AttributeSimilarity {
      * @param weight The weight tho apply
      * @return SimilarityValue
      */
-    public static SimilarityValue compareDate(Date a1, Date a2, float weight) {
+    public static SimilarityValue compareDate(Date a1, Date a2, float weight, int size) {
         float similarity = 0;
         if (a1.compareTo(a2) == 0) {
             similarity = 1;
@@ -119,7 +119,7 @@ public class AttributeSimilarity {
      * @param weight The weight tho apply
      * @return SimilarityValue
      */
-    public static SimilarityValue compareDouble(double a1, double a2, float weight) {
+    public static SimilarityValue compareDouble(double a1, double a2, float weight, int size) {
         float similarity = 0;
         if (a1 == a2) {
             similarity = 1;
@@ -144,7 +144,7 @@ public class AttributeSimilarity {
      * @param weight The weight tho apply
      * @return SimilarityValue
      */
-    public static SimilarityValue compareFloat(float a1, float a2, float weight) {
+    public static SimilarityValue compareFloat(float a1, float a2, float weight, int size) {
         float similarity = 0;
         if (a1 == a2) {
             similarity = 1;
@@ -169,10 +169,15 @@ public class AttributeSimilarity {
      * @param weight The weight tho apply
      * @return SimilarityValue
      */
-    public static SimilarityValue compareString(String a1, String a2, float weight) {
+    public static SimilarityValue compareString(String a1, String a2, float weight, int size) {
         float similarity = 0;
         if (a1.toLowerCase().strip().equals(a2.toLowerCase().strip())) {
             similarity = 1;
+        } else if ((!Utils.isValidString(a1) || !Utils.isValidString(a2) )) {
+            if (size>1 )
+                similarity = 1;
+            else
+                similarity = 0;
         } else {
             similarity = AccordSimilarity.calculateAccordSimilarity(a1,a2);
         }
@@ -188,7 +193,7 @@ public class AttributeSimilarity {
      * @param weight The weight tho apply
      * @return SimilarityValue
      */
-    public static SimilarityValue compareLink(String a1, String a2, float weight) {
+    public static SimilarityValue compareLink(String a1, String a2, float weight, int size) {
         float similarity = 0;
         if (a1.toLowerCase().strip().equals(a2.toLowerCase().strip())) {
             similarity = 1;
@@ -207,7 +212,7 @@ public class AttributeSimilarity {
      * @param weight The weight tho apply
      * @return SimilarityValue
      */
-    public static SimilarityValue compareBoolean(boolean a1, boolean a2, float weight) {
+    public static SimilarityValue compareBoolean(boolean a1, boolean a2, float weight, int size) {
         float similarity = 0;
         if (a1==a2)
             similarity = 1;
@@ -223,7 +228,7 @@ public class AttributeSimilarity {
      * @param weight The weight tho apply
      * @return SimilarityValue
      */
-    public static SimilarityValue compareList(List<Object> a1, List<Object> a2, float weight) { // Mirar
+    public static SimilarityValue compareList(List<Object> a1, List<Object> a2, float weight, int size) { // Mirar
         List<Object> l1;
         List<Object> l2;
         boolean isLink = false;
@@ -250,7 +255,7 @@ public class AttributeSimilarity {
                         isLink = Utils.isValidURL((String) l1.get(i)) || Utils.isValidURL((String) l2.get(i));
                     }
                     if (!usedIndex.contains(j)) {
-                        SimilarityValue sv = compare(Arrays.asList(l1.get(i)),Arrays.asList(l2.get(j)),weight);
+                        SimilarityValue sv = compare(Arrays.asList(l1.get(i)),Arrays.asList(l2.get(j)),weight,size);
                         if (maxSimilarity == null || (sv.getWeightedSimilarity() > maxSimilarity.getWeightedSimilarity()) ) {
                             maxSimilarity = sv;
                             maxSimilarityIndex = j;
@@ -279,13 +284,13 @@ public class AttributeSimilarity {
      * @param weight The weight tho apply
      * @return SimilarityValue
      */
-    public static SimilarityValue compare(List<Object> o1,List<Object> o2, float weight) {
+    public static SimilarityValue compare(List<Object> o1,List<Object> o2, float weight, int size) {
         Object a1;
         Object a2;
         if (o1 == null && o2 == null) {
             return new SimilarityValue(1,weight,false);
         } else if ((o1 == null ) || (o2 == null)) {
-            return new SimilarityValue(0,weight,false);
+            return new SimilarityValue(1,weight,false); // Cuidado
         }
         if (o1.size() == 1 && o2.size() == 1) {
             a1 = o1.get(0);
@@ -296,23 +301,23 @@ public class AttributeSimilarity {
         }
         String c = getClassOffAttributes(a1,a2);
         if (c.equalsIgnoreCase(INTEGER)) {
-            return compareInteger(Integer.parseInt(a1.toString()),Integer.parseInt(a2.toString()),weight);
+            return compareInteger(Integer.parseInt(a1.toString()),Integer.parseInt(a2.toString()),weight, size);
         } else if (c.equalsIgnoreCase(LONG)) {
-            return compareLong(Long.parseLong(a1.toString()),Long.parseLong(a2.toString()),weight);
+            return compareLong(Long.parseLong(a1.toString()),Long.parseLong(a2.toString()),weight, size);
         } else if (c.equalsIgnoreCase(FLOAT)) {
-            return compareFloat(Float.parseFloat(a1.toString()),Float.parseFloat(a2.toString()),weight);
+            return compareFloat(Float.parseFloat(a1.toString()),Float.parseFloat(a2.toString()),weight, size);
         } else if (c.equalsIgnoreCase(DOUBLE)) {
-            return compareDouble(Double.parseDouble(a1.toString()),Double.parseDouble(a2.toString()),weight);
+            return compareDouble(Double.parseDouble(a1.toString()),Double.parseDouble(a2.toString()),weight, size);
         }  else if (c.equalsIgnoreCase(BOOLEAN)) {
-            return compareBoolean(Utils.getBoolean(a1.toString()),Utils.getBoolean(a2.toString()),weight);
+            return compareBoolean(Utils.getBoolean(a1.toString()),Utils.getBoolean(a2.toString()),weight, size);
         } else if (c.equalsIgnoreCase(DATE)) {
-            return compareDate( getDate(a1),getDate(a2),weight);
+            return compareDate( getDate(a1),getDate(a2),weight, size);
         } else if (c.equalsIgnoreCase(LIST)) {
-            return compareList((List<Object>) a1,(List<Object>) a2,weight);
+            return compareList((List<Object>) a1,(List<Object>) a2,weight, size);
         } else if (c.equalsIgnoreCase(LINK)) {
-            return compareLink((String) a1,(String) a2,weight);
+            return compareLink((String) a1,(String) a2,weight, size);
         } else {
-            return compareString((String) a1,(String) a2,weight);
+            return compareString((String) a1,(String) a2,weight, size);
         }
     }
 

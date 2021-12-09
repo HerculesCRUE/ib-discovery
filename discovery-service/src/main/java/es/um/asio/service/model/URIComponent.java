@@ -135,4 +135,16 @@ public class URIComponent {
         }
         return conceptAux.toString();
     }
+
+    @Override
+    public String toString() {
+        return "URIComponent{" +
+                "domain='" + domain + '\'' +
+                ", subDomain='" + subDomain + '\'' +
+                ", language='" + language + '\'' +
+                ", type='" + type + '\'' +
+                ", concept='" + concept + '\'' +
+                ", reference='" + reference + '\'' +
+                '}';
+    }
 }

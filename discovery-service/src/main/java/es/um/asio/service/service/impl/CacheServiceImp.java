@@ -364,7 +364,7 @@ public class CacheServiceImp implements CacheService {
         for (Map.Entry<String, Map<String, Map<String, Map<String, TripleObject>>>> nodeEntry: triplesMap.entrySet()) { // Node
             for (Map.Entry<String, Map<String, Map<String, TripleObject>>> tripleEntry: nodeEntry.getValue().entrySet()) { // Triple
                 for (Map.Entry<String, Map<String, TripleObject>> classEntry: tripleEntry.getValue().entrySet()) { // Class
-                    logger.info("\t Generating inverse dependencies by class {} with {} instances",classEntry.getKey(),classEntry.getValue().size());
+                    logger.info("\t Generating inverse dependencies by node {}, tripleStore {}, class {} with {} instances",nodeEntry.getKey(),tripleEntry.getKey(),classEntry.getKey(),classEntry.getValue().size());
                     for (Map.Entry<String, TripleObject> tipleObjectEntry: classEntry.getValue().entrySet()) { // TripleObject
                         aggregateToInverseMap(tipleObjectEntry.getValue());
                     }
@@ -391,10 +391,28 @@ public class CacheServiceImp implements CacheService {
 
     }
 
-    private void extractLinks(TripleObject toOrigin,String attKey, Object attValue) {
+    @Override
+    public Map<String, Map<String, Pair<String, TripleObject>>> getDependencies(String node, String triple, String className) {
+        try {
+            return inversePointersMap.get(node).get(triple).get(className);
+        } catch (Exception e) {
+            return new HashMap<>();
+        }
+    }
+
+    @Override
+    public Map<String, Pair<String, TripleObject>> getDependencies(String node, String triple, String className, String entityId) {
+        try {
+            return inversePointersMap.get(node).get(triple).get(className).get(entityId);
+        } catch (Exception e) {
+            return new HashMap<>();
+        }
+    }
+
+    private void extractLinks(TripleObject toOrigin, String attKey, Object attValue) {
         if (attValue!=null && Utils.isValidString(attValue.toString())) {
             // uc  => Destino
-            URIComponent uc = Utils.getInstanceLink(attValue.toString(), serviceImp.getCanonicalSchema(), domain);
+            URIComponent uc = Utils.getInstanceLink(attValue.toString(), serviceImp.getCanonicalLocalSchema(), domain);
             if (uc != null && uc.getConcept() != null && uc.getReference() != null) {
                 TripleObject toTarget = getTripleObject(toOrigin.getTripleStore().getNode().getNodeName(), toOrigin.getTripleStore().getName(), uc.getConcept(), uc.getReference());
                 if (toTarget != null) {
@@ -409,6 +427,7 @@ public class CacheServiceImp implements CacheService {
                         inversePointersMap.get(toTarget.getTripleStore().getNode().getNodeName()).get(toTarget.getTripleStore().getName()).get(toTarget.getClassName()).put(toTarget.getId(), new HashMap<>());
                     }
                     inversePointersMap.get(toTarget.getTripleStore().getNode().getNodeName()).get(toTarget.getTripleStore().getName()).get(toTarget.getClassName()).get(toTarget.getId()).put(toOrigin.getId(), new Pair(attKey,toOrigin));
+                    // logger.info("Adding to inverse dependencies Node: {}, TripleStore: {}, ClassName: {}, EntityId: {}, Attribute {}, Value {}",toTarget.getTripleStore().getNode().getNodeName(), toTarget.getTripleStore().getName(), toTarget.getClassName(),toTarget.getId(), toOrigin.getId(),attKey,toOrigin.toString());
                 }
             }
         }

@@ -143,6 +143,24 @@ public interface CacheService {
     public Map<String, Pair<String,TripleObject>> getLinksToTripleObject(TripleObject to);
 
     /**
+     * Get Links To TripleObjects
+     * @param node String. The node name.
+     * @param tripleStore String. The triple store name.
+     * @param className String. The class name.
+     * @return Map<String,Map<String, Pair<String,TripleObject>>> with dependencies by node, tripleStore, className
+     */
+    public Map<String,Map<String, Pair<String,TripleObject>>> getDependencies(String node, String triple, String className);
+
+    /**
+     * Get Links To TripleObjects
+     * @param node String. The node name.
+     * @param tripleStore String. The triple store name.
+     * @param className String. The class name.
+     * @return Map<String, Pair<String,TripleObject>> with dependencies by node, tripleStore, className
+     */
+    public Map<String, Pair<String,TripleObject>> getDependencies(String node, String triple, String className, String entityId);
+
+    /**
      * Get filtered iterator
      * @return Iterator<TripleObject>
      */

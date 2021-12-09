@@ -40,11 +40,11 @@ public class Attribute {
     private String key;
 
     @JsonIgnore
-    @ManyToOne(optional = true, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
     @JoinColumn(nullable = true)
     private ObjectResult objectResult;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "attribute", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "attribute", cascade = CascadeType.ALL)
     private Set<Value> values;
 
     @JsonIgnore
@@ -70,6 +70,15 @@ public class Attribute {
         } else { // No Es una lista
             this.values.add(new Value(this,value));
         }
+    }
+
+    public Attribute(ObjectResult objectResult,Value parentValue, Tuple t) {
+        this.id = ((t.get("at_id")!=null)?(Long.valueOf(t.get("at_id").toString())):null);
+        this.key = (t.get("at_key")!=null)?((String)t.get("at_key")):null;
+        this.version = ((t.get("at_version")!=null)?(Long.valueOf(t.get("at_version").toString())):null);
+        this.objectResult = objectResult;
+        this.parentValue = parentValue;
+        this.values = new HashSet<>();
     }
 
 

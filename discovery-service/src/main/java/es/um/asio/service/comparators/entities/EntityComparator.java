@@ -39,7 +39,7 @@ public class EntityComparator {
         for (Map.Entry<String, Float> eStat : stats.entrySet()) {
             List<Object> vo1 =o1.getValueFromFlattenAttributes(eStat.getKey());
             List<Object> vo2 =o2.getValueFromFlattenAttributes(eStat.getKey());
-            SimilarityValue simVal = AttributeSimilarity.compare(vo1, vo2, eStat.getValue());
+            SimilarityValue simVal = AttributeSimilarity.compare(vo1, vo2, eStat.getValue(),stats.size());
             eso.addSimilarity(eStat.getKey(),simVal);
         }
         return eso;

@@ -3,6 +3,8 @@ package es.um.asio.service.service.impl;
 import es.um.asio.service.config.Hierarchies;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.model.Decision;
+import es.um.asio.service.model.MergeType;
+import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.relational.*;
 import es.um.asio.service.repository.relational.ActionResultRepository;
 import es.um.asio.service.repository.relational.ObjectResultRepository;
@@ -44,14 +46,12 @@ public class OpenSimilaritiesHandlerImpl implements OpenSimilaritiesHandler {
         if (oMainOR.isEmpty()) {
             throw new CustomDiscoveryException(String.format("Entity of class: %s with entityId: %s not found",className,entityIdMainObject));
         }
-        List<ObjectResult> omor = oMainOR.get();
         for (ObjectResult orm : oMainOR.get()) { // Por cada Main Object Result encontrado
             if (!toPropague.containsKey(orm)) {
                 toPropague.put(orm,new ArrayList<>());
             }
             @Nullable
             ObjectResult or = null;
-            Set<ObjectResult> manuales = orm.getManual();
             for (ObjectResult orr : orm.getManual()) { // Para todos los manuales
                 if (orr.getEntityId().equals(entityIdRelatedObject)) {
                     or = orr;
@@ -76,7 +76,7 @@ public class OpenSimilaritiesHandlerImpl implements OpenSimilaritiesHandler {
                             orm.getNode().equals(or.getNode()) &&
                             orm.getTripleStore().equals(or.getTripleStore())
                     ) { // Entonces añado a borrar
-                        ObjectResult toUpdateAux = new ObjectResult(Origin.ASIO,State.CLOSED,null, toUpdate.toTripleObject(orm.getJobRegistry()).merge(or.toTripleObject(orm.getJobRegistry()),hierarchies,cache), or.getSimilarity(), or.getSimilarityWithOutId());
+                        ObjectResult toUpdateAux = new ObjectResult(Origin.ASIO,State.CLOSED,null, toUpdate.toTripleObject(orm.getJobRegistry()).merge(or.toTripleObject(orm.getJobRegistry()),hierarchies,cache, (decision == Decision.ACCEPTED)? MergeType.MAIN: MergeType.OTHER ), or.getSimilarity(), or.getSimilarityWithOutId());
                         if (!toUpdateAux.getEntityId().equals(toUpdate.getEntityId())) {
                             toDelete.remove(toUpdateAux);
                             toDelete.add(toUpdate);
@@ -87,29 +87,48 @@ public class OpenSimilaritiesHandlerImpl implements OpenSimilaritiesHandler {
                     } else {
                         toLink.add(or);
                     }
+                    orm.setActionResults(new HashSet<>()); // Inicializo action results
+
 
                     // Actions
                     orm.setStateFromChild();
+                    ActionResult actionResultUpdate = null;
+                    orm.setActionResults(new HashSet<>());
                     if (toUpdate != null) {
-                        ActionResult actionResult = new ActionResult(Action.UPDATE, orm);
-                        actionResult.addObjectResult(toUpdate);
-                        orm.getActionResults().add(actionResult);
-                        toUpdate.setActionResultParent(actionResult);
-                        toPropague.get(orm).add(actionResult);
-                        actionResultRepository.save(actionResult);
+                        actionResultUpdate = new ActionResult(Action.UPDATE, orm);
+                        actionResultUpdate.addObjectResult(toUpdate);
+                        orm.getActionResults().add(actionResultUpdate);
+                        toUpdate.setActionResultParent(actionResultUpdate);
+                        toPropague.get(orm).add(actionResultUpdate);
+                        actionResultRepository.save(actionResultUpdate);
                     }
 
                     if (toDelete != null && !toDelete.isEmpty()) {
+
+                        JobRegistry jobRegistry = or.getJobRegistry();
                         ActionResult actionResult = new ActionResult(Action.DELETE, orm);
                         for (ObjectResult orDelete : toDelete) {
                             actionResult.addObjectResult(orDelete);
                             orDelete.setActionResultParent(actionResult);
+                            toPropague.get(orm).add(actionResult);
+                            Map<String, org.javatuples.Pair<String, TripleObject>> dependencies = cache.getLinksToTripleObject(orDelete.toTripleObject(jobRegistry));
+                            if (dependencies.size()>0) { // Para los borrados hay que mover los enlaces
+                                for (Map.Entry<String, org.javatuples.Pair<String,TripleObject>> dep :dependencies.entrySet()) {
+                                    TripleObject toUpdateLink = dep.getValue().getValue1();
+                                    String key = dep.getValue().getValue0();
+                                    String toUpdateCanonicalURI = toUpdate.getCanonicalURI();
+                                    String toRemoveCanonicalURI = orDelete.getCanonicalURI();
+                                    toUpdateLink.replaceAttValue(key,toRemoveCanonicalURI,toUpdateCanonicalURI); // Cambio los enlaces
+                                    // Creo el objectResult para actualizaciones de dependencias
+                                    ObjectResult orUpdateLink = new ObjectResult(Origin.ASIO,State.CLOSED,jobRegistry, toUpdateLink, null,null);
+                                    actionResultUpdate.addObjectResult(orUpdateLink);
+                                    orUpdateLink.setActionResultParent(actionResultUpdate);
+                                }
+                            }
                         }
-                        if (!actionResult.getObjectResults().isEmpty()) {
+                        if (!actionResult.getObjectResults().isEmpty())
                             orm.getActionResults().add(actionResult);
-                        }
-                        toPropague.get(orm).add(actionResult);
-                        actionResultRepository.save(actionResult);
+
                     }
 
                     if (toLink != null && !toLink.isEmpty()) {

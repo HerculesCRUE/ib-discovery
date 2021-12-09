@@ -1,12 +1,16 @@
 package es.um.asio.back.controller.discovery;
 
+import com.google.api.client.json.Json;
 import com.google.gson.*;
 import es.um.asio.service.config.Datasources;
 import es.um.asio.service.exceptions.CustomDiscoveryException;
 import es.um.asio.service.model.BasicAction;
 import es.um.asio.service.model.Decision;
+import es.um.asio.service.model.TripleObject;
 import es.um.asio.service.model.appstate.ApplicationState;
 import es.um.asio.service.model.relational.*;
+import es.um.asio.service.proxy.JobRegistryProxy;
+import es.um.asio.service.proxy.RequestRegistryProxy;
 import es.um.asio.service.repository.relational.RequestRegistryRepository;
 import es.um.asio.service.service.EntitiesHandlerService;
 import es.um.asio.service.service.impl.CacheServiceImp;
@@ -16,6 +20,7 @@ import es.um.asio.service.service.impl.OpenSimilaritiesHandlerImpl;
 import es.um.asio.service.util.Utils;
 import es.um.asio.service.validation.group.Create;
 import io.swagger.annotations.*;
+import org.javatuples.Pair;
 import org.jsoup.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +73,12 @@ public class DiscoveryController {
     RequestRegistryRepository requestRegistryRepository;
 
     @Autowired
+    RequestRegistryProxy requestRegistryProxy;
+
+    @Autowired
+    JobRegistryProxy jobRegistryProxy;
+
+    @Autowired
     OpenSimilaritiesHandlerImpl openSimilaritiesHandler;
 
     @Value("${app.node}")
@@ -78,6 +89,9 @@ public class DiscoveryController {
 
     @Value("${lod.port}")
     String lodPort;
+
+    @Value("${app.debug}")
+    Boolean isDebug;
 
     Set<String> tempRequestCode = new HashSet<>();
 
@@ -92,6 +106,16 @@ public class DiscoveryController {
     @ApiOperation(value = "Get status of the Application", tags = "control")
     public ApplicationState status() {
         return applicationState;
+    }
+
+    @ControllerAdvice
+    public class GlobalDefaultExceptionHandler {
+
+        @ExceptionHandler(Exception.class)
+        public String exception(Exception e) {
+
+            return "error";
+        }
     }
 
 
@@ -145,7 +169,9 @@ public class DiscoveryController {
             @ApiParam(name = "linkEntities", value = "Search also in other Nodes and Triple Stores for link", defaultValue = "false", required = true)
             @RequestParam(required = true) @Validated(Create.class) final boolean linkEntities,
             @ApiParam(name = "applyDelta", value = "SearchindEntityLinkByEntityAndNodeTripleStoreAndClass only from last date in similar request", defaultValue = "true",required = true)
-            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta
+            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta,
+            @ApiParam(name = "email", value = "Email to send at the conclusion of the request",required = false)
+            @RequestParam(required = false) @Validated(Create.class) final String email
     ) {
 
         if (!doSynchronous && ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
@@ -159,11 +185,14 @@ public class DiscoveryController {
         if (!requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode, RequestType.ENTITY_LINK_CLASS).isEmpty())
             throw new CustomDiscoveryException("UserId and RequestCode for type ENTITY_LINK_CLASS must be unique");
 
-        JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForClass(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka,linkEntities,applyDelta);
+
+        JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForClass(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka,linkEntities,applyDelta, (Utils.isValidEmailAddress(email)?email:null) );
         JsonObject jResponse = new JsonObject();
         jResponse.add("state",applicationState.toSimplifiedJson());
-        if (jobRegistry!=null) {
-            JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
+        if (className.toLowerCase().equals("researcher-position") || className.toLowerCase().equals("researcher-role") || className.toLowerCase().equals("research-group") ) {
+            jResponse.addProperty("message","Class "+ className +" no allowed");
+        } else if (jobRegistry!=null) {
+            JsonObject jJobRegistry = jobRegistry.toSimplifiedJson(cache);
             jJobRegistry.addProperty("userId", userId);
             jJobRegistry.addProperty("requestCode", requestCode);
             jJobRegistry.addProperty("requestType", RequestType.ENTITY_LINK_CLASS.toString());
@@ -197,7 +226,9 @@ public class DiscoveryController {
             @ApiParam(name = "linkEntities", value = "Search also in other Nodes and Triple Stores for link", defaultValue = "false", required = true)
             @RequestParam(required = true) @Validated(Create.class) final boolean linkEntities,
             @ApiParam(name = "applyDelta", value = "SearchindEntityLinkByEntityAndNodeTripleStoreAndClass only from last date in similar request", defaultValue = "true",required = true)
-            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta
+            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta,
+            @ApiParam(name = "email", value = "Email to send at the conclusion of the request",required = false)
+            @RequestParam(required = false) @Validated(Create.class) final String email
     ) {
 
         if (((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
@@ -214,9 +245,11 @@ public class DiscoveryController {
 
         List<Map<String,Object>> responses = new ArrayList<>();
         for (String className : cache.getAllClassesByNodeAndTripleStore(localNode,tripleStore)) {
+            if (className.toLowerCase().equals("researcher-position") || className.toLowerCase().equals("researcher-role") || className.toLowerCase().equals("research-group") )
+                continue;
 
             try {
-                Map<String, Object> response = findEntityLinkByNodeTripleStoreAndClass(userId, requestCode + "/" + className, localNode, tripleStore, className, false, webHook, propagueInKafka, linkEntities, applyDelta);
+                Map<String, Object> response = findEntityLinkByNodeTripleStoreAndClass(userId, requestCode + "/" + className, localNode, tripleStore, className, false, webHook, propagueInKafka, linkEntities, applyDelta, email);
                 responses.add(response);
             } catch (Exception e) {
                 logger.error(e.getMessage());
@@ -286,6 +319,9 @@ public class DiscoveryController {
             @RequestParam(required = true) @Validated(Create.class) final boolean linkEntities,
             @NotNull @RequestBody final Object object
     ) {
+        if (status().getAppState().getOrder() < 2 && !isDebug) {
+            throw new CustomDiscoveryException("App not initialized. State: " + applicationState.getAppState().name());
+        }
         JSONObject jsonData = new JSONObject((LinkedHashMap) object);
         String jBodyStr = jsonData.toString();
         if (requestCode == null) {
@@ -316,8 +352,10 @@ public class DiscoveryController {
             );
             JsonObject jResponse = new JsonObject();
             jResponse.add("state",applicationState.toSimplifiedJson());
-            if (jobRegistry!=null) {
-                JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
+            if (className.toLowerCase().equals("researcher-position") || className.toLowerCase().equals("researcher-role") || className.toLowerCase().equals("research-group") ) {
+                jResponse.addProperty("message","Class "+ className +" no allowed");
+            } else if (jobRegistry!=null) {
+                JsonObject jJobRegistry = jobRegistry.toSimplifiedJson(cache);
                 jJobRegistry.addProperty("userId", userId);
                 jJobRegistry.addProperty("requestCode", requestCode);
                 jJobRegistry.addProperty("requestType", RequestType.ENTITY_LINK_INSTANCE.toString());
@@ -360,7 +398,9 @@ public class DiscoveryController {
             @ApiParam(name = "propague_in_kafka", value = "Propague result in Kafka", defaultValue = "true", required = false)
             @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka,
             @ApiParam(name = "applyDelta", value = "SearchindEntityLinkByEntityAndNodeTripleStoreAndClass only from last date in similar request", defaultValue = "true",required = true)
-            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta
+            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta,
+            @ApiParam(name = "email", value = "Email to send at the conclusion of the request",required = false)
+            @RequestParam(required = false) @Validated(Create.class) final String email
     ) {
 
         if (!doSynchronous && ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
@@ -373,11 +413,11 @@ public class DiscoveryController {
         }
         if (!requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode, RequestType.LOD_SEARCH).isEmpty())
             throw new CustomDiscoveryException("UserId and RequestCode for type ENTITY_LINK_CLASS must be unique");
-        JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForLOD(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka,applyDelta, dataSource);
+        JobRegistry jobRegistry = jobHandlerServiceImp.addJobRegistryForLOD(applicationState.getApplication(),userId,requestCode,node,tripleStore,className,doSynchronous,webHook,propagueInKafka,applyDelta, dataSource, email);
         JsonObject jResponse = new JsonObject();
         jResponse.add("state",applicationState.toSimplifiedJson());
         if (jobRegistry!=null) {
-            JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
+            JsonObject jJobRegistry = jobRegistry.toSimplifiedJson(cache);
             jJobRegistry.addProperty("userId", userId);
             jJobRegistry.addProperty("requestCode", requestCode);
             jJobRegistry.addProperty("requestType", RequestType.LOD_SEARCH.toString());
@@ -408,7 +448,9 @@ public class DiscoveryController {
             @ApiParam(name = "propague_in_kafka", value = "Propague result in Kafka", defaultValue = "true", required = false)
             @RequestParam(required = false, defaultValue = "true") @Validated(Create.class) final boolean propagueInKafka,
             @ApiParam(name = "applyDelta", value = "SearchindEntityLinkByEntityAndNodeTripleStoreAndClass only from last date in similar request", defaultValue = "true",required = true)
-            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta
+            @RequestParam(required = true) @Validated(Create.class) final boolean applyDelta,
+            @ApiParam(name = "email", value = "Email to send at the conclusion of the request",required = false)
+            @RequestParam(required = false) @Validated(Create.class) final String email
     ) throws IOException {
 
         if ( ((!Utils.isValidString(webHook) || !Utils.isValidURL(webHook)) && !propagueInKafka) ) {
@@ -443,7 +485,8 @@ public class DiscoveryController {
                             false,
                             webHook,
                             propagueInKafka,
-                            applyDelta
+                            applyDelta,
+                            Utils.isValidEmailAddress(email)?email:null
                     );
                     if (response != null) {
                         responses.add(response);
@@ -469,7 +512,7 @@ public class DiscoveryController {
             @ApiParam(name = "node", value = "um", defaultValue = "um", required = true)
             @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
             @ApiParam(name = "tripleStore", value = "The triple store", defaultValue = "fuseki", required = false)
-            @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore,
+            @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) String tripleStore,
             @ApiParam(name = "className", value = "Class Name", required = true)
             @RequestParam(required = true) @Validated(Create.class) final String className,
             @ApiParam(name = "entityLocalURI", required = true)
@@ -485,6 +528,7 @@ public class DiscoveryController {
             new ResponseEntity<String>("Application not initialized yet. The entity will be updated from cache on app start",HttpStatus.CONFLICT);
         }
         boolean result = false;
+        tripleStore = (tripleStore.equals("trellis"))?"fuseki":tripleStore;
         try {
             CompletableFuture<Boolean> future = dataHandler.actualizeData(node, tripleStore, className, entityLocalURI, BasicAction.fromString(action));
             result = future.join();
@@ -528,11 +572,10 @@ public class DiscoveryController {
             @RequestParam(required = true) @Validated(Create.class) RequestType requestType
     ) {
         JsonObject jResponse = new JsonObject();
-        Optional<List<RequestRegistry>> requestRegistries = requestRegistryRepository.findByUserIdAndRequestCodeAndRequestType(userId,requestCode,requestType);
-        if (requestRegistries.isPresent() || requestRegistries.get().size() > 0) {
-            RequestRegistry requestRegistry = requestRegistries.get().get(0);
-            JobRegistry jobRegistry = requestRegistry.getJobRegistry();
-            JsonObject jJobRegistry = jobRegistry.toSimplifiedJson();
+        //JobRegistry jobRegistry = requestRegistryProxy.findJobRegistryByUserIdAndRequestCodeAndRequestType(userId,requestCode,requestType);
+        JobRegistry jobRegistry = jobRegistryProxy.findJobRegistryByUserIdAndRequestCodeAndRequestTypeNoNested(userId,requestCode,requestType);
+        if (jobRegistry != null) {
+            JsonObject jJobRegistry = jobRegistry.toSimplifiedJson(cache);
             jJobRegistry.addProperty("userId", userId);
             jJobRegistry.addProperty("requestCode", requestCode);
             jJobRegistry.addProperty("requestType", requestType.toString());
@@ -555,7 +598,8 @@ public class DiscoveryController {
             @ApiParam(name = "userId", value = "The User Id of the request", required = true)
             @PathVariable(required = true,value = "userId") @Validated(Create.class) final String userId
     ) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        /*
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         JsonObject jResponse = new JsonObject();
         Optional<List<RequestRegistry>> requestRegistries = requestRegistryRepository.findByUserIdOrderByRequestDateDesc(userId);
         if (requestRegistries.isPresent()) {
@@ -568,11 +612,14 @@ public class DiscoveryController {
                 }
                 JsonObject jItem = new JsonObject();
                 jItem.addProperty("requestCode",rr.getRequestCode());
-                jItem.addProperty("requestDate",sdf.format(rr.getRequestDate()));
+                jItem.addProperty("requestDate",sdf.format(rr.getRequestDate())+" UTC");
                 jResponse.get(rr.getRequestType().toString()).getAsJsonObject().get(rr.getJobRegistry().getClassName()).getAsJsonArray().add(jItem);
             }
         }
         return new Gson().fromJson(jResponse,Map.class);
+         */
+
+        return new Gson().fromJson(requestRegistryProxy.getRequestRegistriesByUserId(userId),Map.class);
     }
 
     @GetMapping(Mappings.GET_OPEN_OBJECT_RESULT)
@@ -588,7 +635,7 @@ public class DiscoveryController {
         Collections.sort(results,Collections.reverseOrder());
         JsonArray response = new JsonArray();
         for (ObjectResult or : results) {
-            response.add(or.toSimplifiedJson(true));
+            response.add(or.toSimplifiedJson(true,cache));
         }
         return new GsonBuilder().setPrettyPrinting().create().toJson(response);
     }
@@ -603,13 +650,13 @@ public class DiscoveryController {
             @RequestParam(required = true) @Validated(Create.class) String entityIdMainObject,
             @ApiParam(name = "entityIdRelatedObject", value = "The entity Id of the related object", required = true)
             @RequestParam(required = true) @Validated(Create.class) String entityIdRelatedObject,
-            @ApiParam(name = "decision", value = "The decision over objects", required = true, allowableValues = "ACCEPTED, DISCARDED")
+            @ApiParam(name = "decision", value = "The decision over objects", required = true, allowableValues = "ACCEPTED, DISCARDED, INVERTED")
             @RequestParam(required = true) @Validated(Create.class) Decision decision
     ) {
         Map<ObjectResult,List<ActionResult>> result = openSimilaritiesHandler.decisionOverObjectResult(className,entityIdMainObject,entityIdRelatedObject,decision);
         JsonArray response = new JsonArray();
         for (ObjectResult or : result.keySet()) {
-            response.add(or.toSimplifiedJson(true));
+            response.add(or.toSimplifiedJson(true,cache));
         }
         JsonArray jActionResults = new JsonArray();
         for (List<ActionResult> arList : result.values()) {
@@ -618,13 +665,75 @@ public class DiscoveryController {
                 jAction.addProperty("action", ar.getAction().toString());
                 JsonArray jObjectResultActionsArray = new JsonArray();
                 for (ObjectResult or : ar.getObjectResults()) {
-                    jObjectResultActionsArray.add(or.toSimplifiedJson(false));
+                    jObjectResultActionsArray.add(or.toSimplifiedJson(false,cache));
                 }
                 jAction.add("items", jObjectResultActionsArray);
                 jActionResults.add(jAction);
             }
         }
         return new GsonBuilder().setPrettyPrinting().create().toJson(jActionResults);
+    }
+
+    @GetMapping(Mappings.GET_INVERSE_DEPENDENCIES)
+    @ApiOperation(value = "Get all Dependencies", tags = "control",
+            produces = "application/json")
+    public String getAllDependencies(
+            @ApiParam(name = "node", value = "The node to search", required = true, defaultValue = "um")
+            @RequestParam(required = true) @Validated(Create.class) final String node,
+            @ApiParam(name = "tripleStore", value = "The triple store to search", required = true, defaultValue = "fuseki")
+            @RequestParam(required = true) @Validated(Create.class) String tripleStore,
+            @ApiParam(name = "className", value = "The class name to search", required = true)
+            @RequestParam(required = true) @Validated(Create.class) String className
+    ) {
+        JsonArray jResponse = new JsonArray();
+        try {
+            Map<String, Map<String, Pair<String, TripleObject>>> results = cache.getDependencies(node,tripleStore,className);
+            for (Map.Entry<String, Map<String, Pair<String, TripleObject>>> targetEntry : results.entrySet()) {
+                JsonObject jTarget = new JsonObject();
+                jTarget.addProperty("idTarget",targetEntry.getKey());
+                jTarget.add("objetives",new JsonArray());
+                for (Map.Entry<String, Pair<String, TripleObject>> objetiveEntry : targetEntry.getValue().entrySet()) {
+                    JsonObject jObjetive = new JsonObject();
+                    jObjetive.addProperty("idObjetive",objetiveEntry.getKey());
+                    jObjetive.addProperty("key",objetiveEntry.getValue().getValue0());
+                    jObjetive.add("value",objetiveEntry.getValue().getValue1().toJson());
+                    jTarget.get("objetives").getAsJsonArray().add(jObjetive);
+                }
+                jResponse.add(jTarget);
+            }
+        } catch (Exception e) {
+
+        }
+        return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
+    }
+
+    @GetMapping(Mappings.GET_INVERSE_DEPENDENCIES + "/{entityId}")
+    @ApiOperation(value = "Get all Dependencies", tags = "control",
+            produces = "application/json")
+    public String getAllDependencies(
+            @ApiParam(name = "node", value = "The node to search", required = true, defaultValue = "um")
+            @RequestParam(required = true) @Validated(Create.class) final String node,
+            @ApiParam(name = "tripleStore", value = "The triple store to search", required = true, defaultValue = "fuseki")
+            @RequestParam(required = true) @Validated(Create.class) String tripleStore,
+            @ApiParam(name = "className", value = "The class name to search", required = true)
+            @RequestParam(required = true) @Validated(Create.class) String className,
+            @ApiParam(name = "entityId", value = "The entity Id target to search", required = true)
+            @PathVariable(required = true) @Validated(Create.class) String entityId
+    ) {
+        JsonArray jResponse = new JsonArray();
+        try {
+            Map<String, Pair<String, TripleObject>> results = cache.getDependencies(node,tripleStore,className,entityId);
+            for (Map.Entry<String, Pair<String, TripleObject>> objetiveEntry : results.entrySet()) {
+                    JsonObject jObjetive = new JsonObject();
+                    jObjetive.addProperty("idObjetive",objetiveEntry.getKey());
+                    jObjetive.addProperty("key",objetiveEntry.getValue().getValue0());
+                    jObjetive.add("value",objetiveEntry.getValue().getValue1().toJson());
+                    jResponse.add(jObjetive);
+            }
+        } catch (Exception e) {
+
+        }
+        return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
     }
 
 
@@ -656,6 +765,8 @@ public class DiscoveryController {
         protected static final String LOD_SEARCH_ALL = "/lod/search/all";
 
         protected static final String GET_RESULT = "/result";
+
+        protected static final String GET_INVERSE_DEPENDENCIES = "/dependencies";
 
 
         protected static final String GET_OPEN_OBJECT_RESULT = "/object-result/open";

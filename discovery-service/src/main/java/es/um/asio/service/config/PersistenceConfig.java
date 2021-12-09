@@ -23,6 +23,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
@@ -76,19 +77,27 @@ public class PersistenceConfig {
             final DataSource dataSource = dsLookup.getDataSource(datasourceProperties.getJndiName());
             config.setDataSource(dataSource);
         } else {
-            // Paarameters connection
+            // Parameters connection
             config.setDriverClassName(datasourceProperties.getDriverClassName());
             config.setJdbcUrl(datasourceProperties.getUrl());
             config.setUsername(datasourceProperties.getUsername());
             config.setPassword(datasourceProperties.getPassword());
-            config.setConnectionTimeout(172800000);
-            config.setMaximumPoolSize(100);
+            config.setConnectionTestQuery("SELECT 1");
+            config.setValidationTimeout(60000);
+            config.setAutoCommit(true);
+            config.setInitializationFailTimeout(0);
+            config.setConnectionTimeout(30000);
+            config.setMaxLifetime(180000);
             config.setMinimumIdle(10);
-            config.setIdleTimeout(3600000);
+            config.setMaximumPoolSize(100);
+            config.setIdleTimeout(60000);
+            // config.setLeakDetectionThreshold(60 * 1000);
+            //config.setIdleTimeout(6000000);
+            //config.setConnectionTimeout(18000000);
         }
 
         config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSize", "500");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         config.addDataSourceProperty("useServerPrepStmts", "true");
         config.addDataSourceProperty("testOnBorrow", "true");
@@ -122,11 +131,14 @@ public class PersistenceConfig {
         if (jpa.isGenerateDdl()) {
             jpaProperties.put(AvailableSettings.HBM2DDL_AUTO, "update");
         }
-
+        // jpaProperties.put("hibernate.connection.characterEncoding", "latin1");
         jpaProperties.put(AvailableSettings.SHOW_SQL, jpa.isShowSql());
         jpaProperties.put(AvailableSettings.FORMAT_SQL, jpa.isShowSql());
-        
+        jpaProperties.put(AvailableSettings.STATEMENT_BATCH_SIZE, 100);
+        jpaProperties.put(AvailableSettings.JDBC_TIME_ZONE, "UTC");
         jpaProperties.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, false);
+        jpaProperties.put(AvailableSettings.CACHE_REGION_FACTORY, "org.hibernate.cache.jcache.JCacheRegionFactory");
+        jpaProperties.put(AvailableSettings.CACHE_PROVIDER_CONFIG, "org.ehcache.jsr107.EhcacheCachingProvider");
         jpaProperties.putAll(jpa.getProperties());
 
         entityManagerFactoryBean.setJpaProperties(jpaProperties);

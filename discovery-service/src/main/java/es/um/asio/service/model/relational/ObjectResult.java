@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.service.model.TripleObject;
+import es.um.asio.service.service.CacheService;
 import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ import java.util.*;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @AllArgsConstructor
 @NoArgsConstructor
-public class ObjectResult implements Comparable<ObjectResult>{
+public class ObjectResult implements Comparable<ObjectResult>,Cloneable{
 
     @Transient
     @JsonIgnore
@@ -88,10 +89,10 @@ public class ObjectResult implements Comparable<ObjectResult>{
     @EqualsAndHashCode.Include
     private String entityId;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "objectResult", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "objectResult", cascade = CascadeType.ALL)
     private Set<Attribute> attributes;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentAutomatic", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "parentAutomatic", cascade = CascadeType.ALL)
     private Set<ObjectResult> automatic;
 
     @JsonIgnore
@@ -99,7 +100,7 @@ public class ObjectResult implements Comparable<ObjectResult>{
     @JoinColumn(referencedColumnName = "id")
     private ObjectResult parentAutomatic;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentManual", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "parentManual", cascade = CascadeType.ALL)
     private Set<ObjectResult> manual;
 
     @JsonIgnore
@@ -107,7 +108,7 @@ public class ObjectResult implements Comparable<ObjectResult>{
     @JoinColumn(referencedColumnName = "id")
     private ObjectResult parentManual;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentLink", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "parentLink", cascade = CascadeType.ALL)
     private Set<ObjectResult> link;
 
     @JsonIgnore
@@ -116,7 +117,7 @@ public class ObjectResult implements Comparable<ObjectResult>{
     private ObjectResult parentLink;
 
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "objectResultParent", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "objectResultParent", cascade = CascadeType.ALL)
     private Set<ActionResult> actionResults;
 
 
@@ -190,6 +191,69 @@ public class ObjectResult implements Comparable<ObjectResult>{
             }
         }
     }
+
+    public ObjectResult(JobRegistry jr, Tuple t) {
+        this.jobRegistry = jr;
+        this.id = ((t.get("or_id")!=null)?(Long.valueOf(t.get("or_id").toString())):null);
+        this.canonicalURI = (t.get("or_canonical_uri")!=null)?((String)t.get("or_canonical_uri")):null;
+        this.className = (t.get("or_class_name")!=null)?((String)t.get("or_class_name")):null;
+        this.entityId = (t.get("or_entity_id")!=null)?((String)t.get("or_entity_id")):null;
+        this.isAutomatic = (t.get("or_is_automatic")!=null)?((boolean)t.get("or_is_automatic")):null;
+        this.isLink = (t.get("or_is_link")!=null)?((boolean)t.get("or_is_link")):null;
+        this.isMain = (t.get("or_is_main")!=null)?((boolean)t.get("or_is_main")):null;
+        this.isManual = (t.get("or_is_manual")!=null)?((boolean)t.get("or_is_manual")):null;
+        this.isMerge = (t.get("or_is_merge")!=null)?((boolean)t.get("or_is_merge")):null;
+        this.lastModification = (t.get("or_last_modification")!=null)?((Date)t.get("or_last_modification")):null;
+        this.localURI = (t.get("or_local_uri")!=null)?((String)t.get("or_local_uri")):null;
+        this.mergeAction = (t.get("or_merge_action")!=null)?(MergeAction.getFromString(t.get("or_merge_action").toString())):null;
+        this.node = (t.get("or_node")!=null)?((String)t.get("or_node")):null;
+        this.origin = (t.get("or_origin")!=null)?(Origin.getFromString(t.get("or_origin").toString())):null;
+        this.similarity = ((t.get("or_similarity")!=null)?(Float.valueOf(t.get("or_similarity").toString())):null);
+        this.similarityWithOutId = ((t.get("or_similarity_no_id")!=null)?(Float.valueOf(t.get("or_similarity_no_id").toString())):null);
+        this.state = (t.get("or_state")!=null)?(State.getFromString(t.get("or_state").toString())):null;
+        this.tripleStore = (t.get("or_triple_store")!=null)?((String)t.get("or_triple_store")):null;
+        this.version = ((t.get("or_version")!=null)?(Long.valueOf(t.get("or_version").toString())):null);
+        this.attributes = new HashSet<>();
+        this.automatic = new HashSet<>();
+        this.manual = new HashSet<>();
+        this.link = new HashSet<>();
+        this.actionResults = new HashSet<>();
+    }
+
+    public void copy(ObjectResult or) {
+        this.id = or.getId();
+        this.version = or.getVersion();
+        this.origin = or.getOrigin();
+        this.node = or.getNode();
+        this.tripleStore = or.getTripleStore();
+        this.className = or.getClassName();
+        this.localURI = or.getLocalURI();
+        this.canonicalURI = or.getCanonicalURI();
+        this.lastModification = or.getLastModification();
+        this.jobRegistry = or.getJobRegistry();
+        this.entityId = or.getEntityId();
+        setAttributes(or.getAttributes());
+        setAutomatic(or.getAutomatic());
+        this.parentAutomatic = or.getParentAutomatic();
+        setManual(or.getManual());
+        this.parentManual = or.getParentManual();
+        setManual(or.getManual());
+        this.parentManual = or.getParentManual();
+        setLink(or.getLink());
+        this.parentLink = or.getParentLink();
+        setActionResults(or.getActionResults());
+        this.similarity = or.getSimilarity();
+        this.similarityWithOutId = or.getSimilarityWithOutId();
+        this.isMain = or.isMain;
+        this.isAutomatic = or.isAutomatic;
+        this.isManual = or.isManual;
+        this.isMerge = or.isMerge;
+        this.isLink = or.isLink;
+        this.mergeAction = or.mergeAction;
+        this.state = or.state;
+        this.actionResultParent = or.actionResultParent;
+    }
+
 
     /**
      * Add a Automatic results to Object Result
@@ -287,7 +351,7 @@ public class ObjectResult implements Comparable<ObjectResult>{
      * @param expands boolean. If true expand recursively ObjectResult nested
      * @return JsonObject
      */
-    public JsonObject toSimplifiedJson(boolean expands) {
+    public JsonObject toSimplifiedJson(boolean expands, CacheService cacheService) {
         JsonObject jResponse = new JsonObject();
         jResponse.addProperty("node",getNode());
         jResponse.addProperty("tripleStore",getTripleStore());
@@ -296,6 +360,17 @@ public class ObjectResult implements Comparable<ObjectResult>{
         jResponse.addProperty("localUri",getLocalURI());
         jResponse.addProperty("origin",getOrigin().toString());
         jResponse.addProperty("state",getState().toString());
+        jResponse.addProperty("linksToEntity",0);
+        if (cacheService!=null) {
+            if (
+                    cacheService.getInverseMap().containsKey(node) &&
+                    cacheService.getInverseMap().get(node).containsKey(tripleStore) &&
+                    cacheService.getInverseMap().get(node).get(tripleStore).containsKey(className) &&
+                    cacheService.getInverseMap().get(node).get(tripleStore).get(className).containsKey(entityId)
+            ) {
+                jResponse.addProperty("linksToEntity", cacheService.getInverseMap().get(node).get(tripleStore).get(className).get(entityId).size() );
+            }
+        }
         jResponse.addProperty("id",getId());
         if (getSimilarity()!=null)
             jResponse.addProperty(SIMILARITY,getSimilarity());
@@ -306,14 +381,14 @@ public class ObjectResult implements Comparable<ObjectResult>{
         if (getAutomatic()!=null && expands) {
             JsonArray jAutomatics = new JsonArray();
             for (ObjectResult or : getAutomatic()) {
-                jAutomatics.add(or.toSimplifiedJson(false));
+                jAutomatics.add(or.toSimplifiedJson(false,cacheService));
             }
             jResponse.add("automatics",jAutomatics);
         }
         if (getManual()!=null && expands) {
             JsonArray jManuals = new JsonArray();
             for (ObjectResult or : getManual()) {
-                jManuals.add(or.toSimplifiedJson(false));
+                jManuals.add(or.toSimplifiedJson(false, cacheService));
             }
             jResponse.add("manuals",jManuals);
         }
@@ -324,7 +399,7 @@ public class ObjectResult implements Comparable<ObjectResult>{
                 jAction.addProperty("action",ar.getAction().toString());
                 JsonArray jObjectResultActionsArray = new JsonArray();
                 for (ObjectResult or : ar.getObjectResults()) {
-                    jObjectResultActionsArray.add(or.toSimplifiedJson(false));
+                    jObjectResultActionsArray.add(or.toSimplifiedJson(false,cacheService));
                 }
                 jAction.add("items",jObjectResultActionsArray);
                 jActionResults.add(jAction);
@@ -334,6 +409,25 @@ public class ObjectResult implements Comparable<ObjectResult>{
         return jResponse;
     }
 
+    public boolean isMain() {
+        return isMain;
+    }
+
+    public boolean isAutomatic() {
+        return isAutomatic;
+    }
+
+    public boolean isManual() {
+        return isManual;
+    }
+
+    public boolean isMerge() {
+        return isMerge;
+    }
+
+    public boolean isLink() {
+        return isLink;
+    }
 
     public void setStateFromChild() {
         for (ObjectResult or : getAutomatic()) {
@@ -382,6 +476,12 @@ public class ObjectResult implements Comparable<ObjectResult>{
     @Override
     public int compareTo(ObjectResult o) {
         return this.getMaxSimilarity().compareTo(o.getMaxSimilarity());
+    }
+
+
+    @Override
+    public ObjectResult clone() throws CloneNotSupportedException {
+        return (ObjectResult) super.clone();
     }
 
     /**

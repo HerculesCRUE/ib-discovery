@@ -1,8 +1,11 @@
 package es.um.asio.service.proxy;
 
+import com.google.gson.JsonObject;
+import es.um.asio.service.model.relational.JobRegistry;
 import es.um.asio.service.model.relational.RequestRegistry;
 import es.um.asio.service.model.relational.RequestType;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -29,4 +32,10 @@ public interface RequestRegistryProxy {
      * @return Optional<RequestRegistry>
      */
     Optional<RequestRegistry> findByUserIdAndRequestCodeAndRequestType(String userId, String requestCode, RequestType requestType);
+
+
+    JobRegistry findJobRegistryByUserIdAndRequestCodeAndRequestType(String userId, String requestCode, RequestType requestType);
+
+    JsonObject getRequestRegistriesByUserId(String userId);
+
 }

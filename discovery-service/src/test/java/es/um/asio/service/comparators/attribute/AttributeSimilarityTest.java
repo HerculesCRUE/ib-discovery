@@ -22,8 +22,8 @@ class AttributeSimilarityTest {
             rnd2 = new Random().nextInt();
         } while (rnd2 == rnd1);
 
-        Assert.assertTrue(AttributeSimilarity.compareInteger(rnd1,rnd1,1f).getSimilarity() == 1f);
-        Assert.assertTrue(AttributeSimilarity.compareInteger(rnd1,rnd2,1f).getSimilarity() <= .5f);
+        Assert.assertTrue(AttributeSimilarity.compareInteger(rnd1,rnd1,1f,1).getSimilarity() == 1f);
+        Assert.assertTrue(AttributeSimilarity.compareInteger(rnd1,rnd2,1f,1).getSimilarity() <= .5f);
     }
 
     @Test
@@ -34,8 +34,8 @@ class AttributeSimilarityTest {
             rnd2 = new Random().nextLong();
         } while (rnd2 == rnd1);
 
-        Assert.assertTrue(AttributeSimilarity.compareLong(rnd1,rnd1,1f).getSimilarity() == 1f);
-        Assert.assertTrue(AttributeSimilarity.compareLong(rnd1,rnd2,1f).getSimilarity() <= .5f);
+        Assert.assertTrue(AttributeSimilarity.compareLong(rnd1,rnd1,1f,1).getSimilarity() == 1f);
+        Assert.assertTrue(AttributeSimilarity.compareLong(rnd1,rnd2,1f,1).getSimilarity() <= .5f);
     }
 
     @Test
@@ -46,8 +46,8 @@ class AttributeSimilarityTest {
             rnd2 = new Date(Math.abs(new Random().nextLong()));
         } while (rnd2.equals(rnd1));
 
-        Assert.assertTrue(AttributeSimilarity.compareDate(rnd1,rnd1,1f).getSimilarity() == 1f);
-        Assert.assertTrue(AttributeSimilarity.compareDate(rnd1,rnd2,1f).getSimilarity() <= .5f);
+        Assert.assertTrue(AttributeSimilarity.compareDate(rnd1,rnd1,1f,1).getSimilarity() == 1f);
+        Assert.assertTrue(AttributeSimilarity.compareDate(rnd1,rnd2,1f,1).getSimilarity() <= .5f);
     }
 
     @Test
@@ -58,8 +58,8 @@ class AttributeSimilarityTest {
             rnd2 = new Random().nextDouble();
         } while (rnd2 == rnd1);
 
-        Assert.assertTrue(AttributeSimilarity.compareDouble(rnd1,rnd1,1f).getSimilarity() == 1f);
-        Assert.assertTrue(AttributeSimilarity.compareDouble(rnd1,rnd2,1f).getSimilarity() <= .5f);
+        Assert.assertTrue(AttributeSimilarity.compareDouble(rnd1,rnd1,1f,1).getSimilarity() == 1f);
+        Assert.assertTrue(AttributeSimilarity.compareDouble(rnd1,rnd2,1f,1).getSimilarity() <= .5f);
     }
 
     @Test
@@ -70,8 +70,8 @@ class AttributeSimilarityTest {
             rnd2 = new Random().nextFloat();
         } while (rnd2 == rnd1);
 
-        Assert.assertTrue(AttributeSimilarity.compareFloat(rnd1,rnd1,1f).getSimilarity() == 1f);
-        Assert.assertTrue(AttributeSimilarity.compareFloat(rnd1,rnd2,1f).getSimilarity() <= .5f);
+        Assert.assertTrue(AttributeSimilarity.compareFloat(rnd1,rnd1,1f,1).getSimilarity() == 1f);
+        Assert.assertTrue(AttributeSimilarity.compareFloat(rnd1,rnd2,1f,1).getSimilarity() <= .5f);
     }
 
     @Test
@@ -81,9 +81,10 @@ class AttributeSimilarityTest {
         do {
             rnd2 = RandomStringUtils.randomAlphabetic(10);
         } while (rnd2.equals(rnd1));
+        float f = AttributeSimilarity.compareString(rnd1,rnd1,1f,1).getSimilarity();
 
-        Assert.assertTrue(AttributeSimilarity.compareString(rnd1,rnd1,1f).getSimilarity() == 1f);
-        Assert.assertTrue(AttributeSimilarity.compareString(rnd1,rnd2,1f).getSimilarity() <= .5f);
+        Assert.assertTrue(AttributeSimilarity.compareString(rnd1,rnd1,1f,1).getSimilarity() == 1f);
+        Assert.assertTrue(AttributeSimilarity.compareString(rnd1,rnd2,1f,1).getSimilarity() <= .5f);
     }
 
     @Test
@@ -94,8 +95,8 @@ class AttributeSimilarityTest {
             rnd2 = !rnd1;
         } while (rnd2 == rnd1);
 
-        Assert.assertTrue(AttributeSimilarity.compareBoolean(rnd1,rnd1,1f).getSimilarity() == 1f);
-        Assert.assertTrue(AttributeSimilarity.compareBoolean(rnd1,rnd2,1f).getSimilarity() <= .5f);
+        Assert.assertTrue(AttributeSimilarity.compareBoolean(rnd1,rnd1,1f,1).getSimilarity() == 1f);
+        Assert.assertTrue(AttributeSimilarity.compareBoolean(rnd1,rnd2,1f,1).getSimilarity() <= .5f);
     }
 
     @Test
@@ -106,8 +107,8 @@ class AttributeSimilarityTest {
             l1.add(RandomStringUtils.randomAlphabetic(10));
             l2.add(RandomStringUtils.randomAlphabetic(10));
         }
-        Assert.assertTrue(AttributeSimilarity.compareList(l1,l1,1f).getSimilarity() == 1f);
-        Assert.assertTrue(AttributeSimilarity.compareList(l1,l2,1f).getSimilarity() <= .5f);
+        Assert.assertTrue(AttributeSimilarity.compareList(l1,l1,1f,1).getSimilarity() == 1f);
+        Assert.assertTrue(AttributeSimilarity.compareList(l1,l2,1f,1).getSimilarity() <= .5f);
     }
 
     @Test
@@ -118,8 +119,8 @@ class AttributeSimilarityTest {
             l1.add(RandomStringUtils.randomAlphabetic(10));
             l2.add(RandomStringUtils.randomAlphabetic(10));
         }
-        Assert.assertTrue(AttributeSimilarity.compare(l1,l1,1f).getSimilarity() == 1f);
-        Assert.assertTrue(AttributeSimilarity.compare(l1,l2,1f).getSimilarity() <= .5f);
+        Assert.assertTrue(AttributeSimilarity.compare(l1,l1,1f,1).getSimilarity() == 1f);
+        Assert.assertTrue(AttributeSimilarity.compare(l1,l2,1f,1).getSimilarity() <= .5f);
     }
 
     @Test

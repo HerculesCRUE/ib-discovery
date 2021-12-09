@@ -58,7 +58,8 @@ public final class DataGenerator {
                     String.format("user_%s",i),
                     String.format("requestCode_%s",i),
                     (i%2==1)?RequestType.ENTITY_LINK_CLASS:RequestType.ENTITY_LINK_INSTANCE,
-                    new Date()
+                    new Date(),
+                    null
             );
             jobRegistry.addRequestRegistry(rr);
         }

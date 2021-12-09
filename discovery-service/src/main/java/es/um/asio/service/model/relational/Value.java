@@ -39,7 +39,7 @@ public class Value {
     private Long version;
 
     @JsonIgnore
-    @ManyToOne(optional = false, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     @EqualsAndHashCode.Include
     private Attribute attribute;
@@ -49,13 +49,28 @@ public class Value {
     @EqualsAndHashCode.Include
     private DataType dataType;
 
-    @Column(name = Columns.VALUE, nullable = true,columnDefinition = "TEXT")
+    @Column(name = Columns.VALUE, nullable = true,columnDefinition = "VARCHAR(2000)")
     @EqualsAndHashCode.Include
     private String val;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentValue", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     private Set<Attribute> attributes;
+
+    /**
+     * Constructor
+     * @see Attribute
+     * @param attribute Attribute. The parent attribute
+     * @param t Tuple. The tuple of values
+     */
+    public Value(Attribute attribute, Tuple t) {
+        this.id = ((t.get("va_id")!=null)?(Long.valueOf(t.get("va_id").toString())):null);
+        this.val = (t.get("va_va")!=null)?t.get("va_va").toString():null;
+        this.dataType = (t.get("va_type")!=null)?(DataType.getFromString(t.get("va_type").toString())):null;
+        this.version = ((t.get("va_version")!=null)?(Long.valueOf(t.get("va_version").toString())):null);
+        this.attribute = attribute;
+        this.attributes = new HashSet<>();
+    }
 
     /**
      * Constructor

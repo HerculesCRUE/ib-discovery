@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.ScrolledPage;
+import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.query.FetchSourceFilterBuilder;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
@@ -91,10 +92,10 @@ public class TripleObjectESCustomRepository{
                 .build();
 
         Set<TripleObjectES> results = new HashSet<>();
-        ScrolledPage<TripleObjectES> scroll = elasticsearchTemplate.startScroll(6000, build,TripleObjectES.class);
+        ScrolledPage<TripleObjectES> scroll = elasticsearchTemplate.startScroll(600000, build,TripleObjectES.class);
         while (scroll.hasContent()) {
             results.addAll(scroll.getContent());
-            scroll = elasticsearchTemplate.continueScroll(scroll.getScrollId(),6000,TripleObjectES.class);
+            scroll = elasticsearchTemplate.continueScroll(scroll.getScrollId(),600000,TripleObjectES.class);
         }
         elasticsearchTemplate.clearScroll(scroll.getScrollId());
         List<TripleObjectES> lResult = new ArrayList<>(results);

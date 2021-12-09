@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
 
 /**
@@ -25,7 +26,7 @@ public class RequestRegistry {
     public static final String TABLE = "request_registry";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = ObjectResult.Columns.ID)
     @EqualsAndHashCode.Include
     private long id;
@@ -49,12 +50,16 @@ public class RequestRegistry {
     @Column(name = Columns.REQUEST_DATE, nullable = false,columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP",insertable = true, updatable = false)
     private Date requestDate;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     private JobRegistry jobRegistry;
 
     @Column(name = Columns.WEB_HOOK, nullable = true,columnDefinition = "VARCHAR(600)",length = 600)
     @EqualsAndHashCode.Include
     private String webHook;
+
+    @Column(name = Columns.EMAIL, nullable = true,columnDefinition = "VARCHAR(600)",length = 600)
+    @EqualsAndHashCode.Include
+    private String email;
 
     @Column(name = Columns.PROPAGUE_IN_KAFKA, nullable = false)
     private boolean propagueInKafka = false;
@@ -66,11 +71,37 @@ public class RequestRegistry {
      * @param requestType String. the user request type
      * @param requestDate Date. the user request date
      */
-    public RequestRegistry(String userId, String requestCode, RequestType requestType, Date requestDate) {
+    public RequestRegistry(String userId, String requestCode, RequestType requestType, Date requestDate, String email) {
         this.userId = userId;
         this.requestCode = requestCode;
         this.requestType = requestType;
         this.requestDate = (requestDate!=null)?requestDate:new Date();
+        this.email = email;
+    }
+
+    public RequestRegistry(JobRegistry jr, Tuple t) {
+
+        this.id = ((t.get("rr_id")!=null)?(Long.valueOf(t.get("rr_id").toString())):null);
+        this.email = (t.get("rr_email")!=null)?((String)t.get("rr_email")):null;
+        this.propagueInKafka = (t.get("rr_propague_in_kafka")!=null)?((boolean)t.get("rr_propague_in_kafka")):null;
+        this.requestCode = (t.get("rr_request_code")!=null)?((String)t.get("rr_request_code")):null;
+        this.requestDate = (t.get("rr_request_date")!=null)?((Date)t.get("rr_request_date")):null;
+        this.requestType = (t.get("rr_request_type")!=null)?(RequestType.getFromString(t.get("rr_request_type").toString())):null;
+        this.userId = (t.get("rr_user_id")!=null)?((String)t.get("rr_user_id")):null;
+        this.version = ((t.get("rr_version")!=null)?(Long.valueOf(t.get("rr_version").toString())):null);
+        this.webHook = (t.get("rr_web_hook")!=null)?((String)t.get("rr_web_hook")):null;
+        this.jobRegistry = jr;
+    }
+
+    public void copy(RequestRegistry rr){
+        this.version = rr.getVersion();
+        this.userId = rr.getUserId();
+        this.requestCode = rr.getRequestCode();
+        this.requestType = rr.getRequestType();
+        this.requestDate = rr.getRequestDate();
+        this.jobRegistry = rr.getJobRegistry();
+        this.webHook = rr.getWebHook();
+        this.propagueInKafka = rr.isPropagueInKafka();
     }
 
     /**
@@ -125,6 +156,10 @@ public class RequestRegistry {
          * WEB_HOOK column.
          */
         protected static final String WEB_HOOK = "web_hook";
+        /**
+         * WEB_HOOK column.
+         */
+        protected static final String EMAIL = "email";
         /**
          * PROPAGUE_IN_KAFKA column.
          */

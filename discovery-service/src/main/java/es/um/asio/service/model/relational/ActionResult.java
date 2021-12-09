@@ -40,11 +40,11 @@ public class ActionResult {
     @EqualsAndHashCode.Include
     private Action action;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "actionResultParent", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "actionResultParent", cascade = CascadeType.ALL)
     private Set<ObjectResult> objectResults;
 
     @JsonIgnore
-    @ManyToOne(optional = true, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     private ObjectResult objectResultParent;
 
     /**
@@ -58,6 +58,14 @@ public class ActionResult {
         this.action = action;
         this.objectResults = new HashSet<>();
         this.objectResultParent = objectResultParent;
+
+    }
+
+    public ActionResult(Tuple t) {
+        this.id = ((t.get("ac_id")!=null)?(Long.valueOf(t.get("ac_id").toString())):null);
+        this.action = (t.get("ac_action")!=null)?(Action.fromString(t.get("ac_action").toString())):null;
+        this.version = ((t.get("ac_version")!=null)?(Long.valueOf(t.get("ac_version").toString())):null);
+        this.objectResults = new HashSet<>();
     }
 
     /**

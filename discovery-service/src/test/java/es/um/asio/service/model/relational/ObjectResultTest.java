@@ -78,7 +78,7 @@ class ObjectResultTest {
     @Test
     void toSimplifiedJson() {
         for (ObjectResult or : objectResults) {
-            JsonObject jOR = or.toSimplifiedJson(false);
+            JsonObject jOR = or.toSimplifiedJson(false,null);
             Assert.assertNotNull(jOR);
             Assert.assertTrue(jOR.has("node"));
             Assert.assertTrue(jOR.get("node").getAsString().equals(or.getNode()));

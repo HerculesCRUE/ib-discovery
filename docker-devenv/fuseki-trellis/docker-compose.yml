@@ -6,6 +6,7 @@ services:
     container_name: fuseki-asio
     restart: always
     environment:
+      - JVM_ARGS=-Xmx4g
       - ADMIN_PASSWORD=pw123
     ports:
       - "3030:3030"

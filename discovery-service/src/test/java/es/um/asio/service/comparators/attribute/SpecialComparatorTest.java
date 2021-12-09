@@ -20,7 +20,7 @@ class SpecialComparatorTest {
             l1.add(RandomStringUtils.randomAlphabetic(10));
             l2.add(RandomStringUtils.randomAlphabetic(10));
         }
-        Assert.assertTrue(AttributeSimilarity.compare(l1,l1,1f).getSimilarity() == 1f);
-        Assert.assertTrue(AttributeSimilarity.compare(l1,l2,1f).getSimilarity() <= .5f);
+        Assert.assertTrue(AttributeSimilarity.compare(l1,l1,1f,1).getSimilarity() == 1f);
+        Assert.assertTrue(AttributeSimilarity.compare(l1,l2,1f,1).getSimilarity() <= .5f);
     }
 }
